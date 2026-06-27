@@ -18,6 +18,7 @@ It translates patterns observed across a mature multi-application platform into 
 | [`05-ci-cd-quality-gates-and-release-governance.md`](05-ci-cd-quality-gates-and-release-governance.md) | Understand repository-native commands, lane-based CI, quality gates, release evidence, branch hygiene and merge discipline. |
 | [`cicd-devsecops-release-evidence/`](cicd-devsecops-release-evidence/README.md) | Deep-dive into CI/CD as evidence production, validation lanes, local checks, PR and main gates, quality gates, test gates, contract governance, DevSecOps, workflow security, container parity, release evidence, branch hygiene and gate maturity. |
 | [`06-observability-sre-and-operational-support.md`](06-observability-sre-and-operational-support.md) | Learn logging, metrics, tracing, health checks, SLOs, incident response, runbooks, supportability and operational evidence. |
+| [`observability-sre-supportability/`](observability-sre-supportability/README.md) | Deep-dive into structured logging, metrics, tracing, health/readiness, supportability states, dashboards, SLOs, alerting, runbooks, incidents, diagnostics, async worker observability, trust telemetry, sensitive-data boundaries, CI gates, on-call and production readiness. |
 | [`07-security-configuration-and-sensitive-data.md`](07-security-configuration-and-sensitive-data.md) | Apply secure configuration, secrets handling, least privilege, sensitive-data controls, workflow security and evidence filtering. |
 | [`08-testing-performance-and-resilience.md`](08-testing-performance-and-resilience.md) | Understand test pyramid, meaningful coverage, contract tests, integration tests, E2E tests, performance hygiene and resilience patterns. |
 | [`09-worked-examples-and-engineering-review-checklists.md`](09-worked-examples-and-engineering-review-checklists.md) | Use practical examples and checklists for API changes, new services, data products, production incidents and PR reviews. |
@@ -54,10 +55,10 @@ The strongest engineering systems make the correct path easy: one local command 
 |---|---|
 | Backend engineer | Files 02, 03, 05, 08, 09, 13 and the backend/API deep-dive packs. |
 | Architect | Files 01, 03, 04, 06, 09, 12, 13 and the backend/API/data-product deep-dive packs. |
-| DevOps / platform engineer | Files 05, 06, 07, 08, 10, 11, 12 and the CI/CD/runtime deep-dive packs. |
+| DevOps / platform engineer | Files 05, 06, 07, 08, 10, 11, 12 and the CI/CD/runtime/observability deep-dive packs. |
 | QA engineer | Files 03, 05, 08, 09 and 13. |
 | Frontend engineer | Files 03, 06, 08, 09, 12 and 13. |
-| Engineering lead | Files 01, 04, 05, 06, 09, 10, 11, 12, 13, 14, 16, 17, the backend/API/data-product/CI-CD/runtime deep-dive packs and the coverage matrix. |
+| Engineering lead | Files 01, 04, 05, 06, 09, 10, 11, 12, 13, 14, 16, 17, the backend/API/data-product/CI-CD/runtime/observability deep-dive packs and the coverage matrix. |
 | New joiner | Read files 01 through 14 in order, then use files 15 through 17 and the coverage matrix to choose deeper slices. |
 
 ## Relationship To Reference Packs

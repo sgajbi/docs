@@ -23,6 +23,7 @@ Use it to decide:
 | CI/CD and quality gates | [`05-ci-cd-quality-gates-and-release-governance.md`](05-ci-cd-quality-gates-and-release-governance.md) | Strong coverage of repo-native commands, lane model, good gate design, release evidence, branch hygiene, merge governance and CI anti-patterns. | Add deeper examples for gate promotion intake, flaky-check demotion, quality scorecards and release artifact review. |
 | CI/CD, DevSecOps and release evidence deep dive | [`cicd-devsecops-release-evidence/`](cicd-devsecops-release-evidence/README.md) | Strong deep-dive coverage of CI/CD as evidence production, validation lanes, local checks, PR merge gates, main releasability, quality gates, test gates, contract governance, DevSecOps, workflow security, container/runtime gates, release evidence, branch hygiene, gate promotion and operating playbooks. | Add examples for flaky-check triage, report-only gate ownership, release-evidence manifests, workflow-permission hardening and incident-driven gate improvements. |
 | Observability and SRE | [`06-observability-sre-and-operational-support.md`](06-observability-sre-and-operational-support.md) | Strong coverage of structured logs, metrics, traces, health checks, SLO thinking, incident workflow, runbooks and supportability states. | Add deeper examples for alert design, dashboard review, incident severity classification and error-budget operation. |
+| Observability, SRE and supportability deep dive | [`observability-sre-supportability/`](observability-sre-supportability/README.md) | Strong deep-dive coverage of observability as an operator-facing feature, structured logs, event taxonomy, correlation, metrics and cardinality, tracing, health/readiness, supportability states, dashboards, SLOs, alerting, runbooks, incidents, diagnostics APIs, async worker telemetry, data-product trust telemetry, sensitive-data boundaries, observability tests, CI gates, on-call and maturity. | Add implementation-backed examples for incident command flow, alert route tuning, dashboard acceptance checks, no-sensitive-telemetry gates and supportability-state certification. |
 | Security and sensitive data | [`07-security-configuration-and-sensitive-data.md`](07-security-configuration-and-sensitive-data.md) | Strong coverage of secure configuration, secrets, authorization, sensitive observability, CI security controls, workflow security and evidence filtering. | Add deeper examples for threat modelling, key rotation, privileged access, secure evidence packs and AI/tool-call security. |
 | Testing, performance and resilience | [`08-testing-performance-and-resilience.md`](08-testing-performance-and-resilience.md) | Strong coverage of test pyramid, meaningful coverage, contract tests, integration tests, E2E tests, performance hygiene, resilience patterns and migration smoke. | Add deeper examples for load-test design, resilience drills, benchmark baselines and test-data design. |
 | Worked examples and review checklists | [`09-worked-examples-and-engineering-review-checklists.md`](09-worked-examples-and-engineering-review-checklists.md) | Strong examples for new domain APIs, gateway composition, data-product certification, CI gate promotion, incident review, PR review and new-service readiness. | Add more case studies for migration failure, security incident, performance regression, frontend panel drift and data-product stale state. |
@@ -65,16 +66,17 @@ The technical knowledge base now has strong coverage for:
 8. CI/CD lane model and quality gates,
 9. CI/CD, DevSecOps and release-evidence depth,
 10. observability and SRE supportability,
-11. security and sensitive-data handling,
-12. testing, performance and resilience,
-13. infrastructure, containers and deployment,
-14. runtime infrastructure and Kubernetes depth,
-15. Git, release and documentation truth,
-16. technology stack reasoning,
-17. frontend and experience-API supportability,
-18. performance, resilience and async execution depth,
-19. practical engineering review checklists,
-20. implementation evidence reading.
+11. observability, SRE and operational-supportability depth,
+12. security and sensitive-data handling,
+13. testing, performance and resilience,
+14. infrastructure, containers and deployment,
+15. runtime infrastructure and Kubernetes depth,
+16. Git, release and documentation truth,
+17. technology stack reasoning,
+18. frontend and experience-API supportability,
+19. performance, resilience and async execution depth,
+20. practical engineering review checklists,
+21. implementation evidence reading.
 
 ## Next High-Value Slices
 

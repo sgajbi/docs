@@ -2,6 +2,8 @@
 
 Operational supportability is an engineering feature. A service is not mature because it starts; it is mature when operators can understand, diagnose and recover supported behavior.
 
+For deeper observability, SRE, runbook and operational supportability guidance, use [`observability-sre-supportability/`](observability-sre-supportability/README.md).
+
 ## Observability Pillars
 
 | Pillar | Purpose |
