@@ -229,3 +229,193 @@ Product governance data should be versioned and consumed centrally. If eligibili
 | Operations | Can the product be settled, custodied and serviced? | Operational readiness checklist and source-owner map. |
 | Reporting | How should restrictions appear to the client? | Report label standard and exception annotations. |
 | QA | What must regression cover? | Rule matrix, decision snapshots and historical replay tests. |
+
+## Example 7. Numeric target-market rule scoring
+
+### Scenario
+
+A client asks about a USD high-yield bond fund. The product is approved for accredited and professional investors, but only when risk profile, liquidity need, knowledge and concentration limits are compatible.
+
+| Attribute | Client | Product rule |
+|---|---:|---:|
+| Risk profile score | 4 of 5 | Minimum 3; maximum mismatch allowed 1 level |
+| Investment horizon | 48 months | Minimum 36 months |
+| Liquidity need | Monthly or longer | Daily liquidity need is negative target market |
+| Credit-product knowledge | Experienced | Basic knowledge blocks |
+| Existing high-yield exposure | 8% of portfolio | Maximum after trade 15% |
+| Proposed allocation | 5% of portfolio | Maximum after trade 15% |
+
+### Score calculation
+
+| Rule | Calculation | Result |
+|---|---|---|
+| Risk profile | client score 4 >= product minimum 3 | Pass |
+| Horizon | 48 months >= 36 months | Pass |
+| Liquidity | monthly liquidity need is compatible | Pass |
+| Knowledge | experienced >= required credit-product knowledge | Pass |
+| Concentration | existing 8% + proposed 5% = 13% <= 15% | Pass |
+| Negative target market | no daily liquidity need and no capital-guarantee objective | Pass |
+
+### Decision output
+
+```text
+decision: ALLOW
+primary_reason: TARGET_MARKET_COMPATIBLE
+rule_version: TARGET-MARKET-HY-FUND-V3
+post_trade_high_yield_exposure_pct: 13.00
+required_disclosures: prospectus, product-risk-disclosure, liquidity-risk-disclosure
+warnings: CREDIT_SPREAD_VOLATILITY, LIQUIDITY_MAY_DETERIORATE
+```
+
+### Implementation notes
+
+1. Store the numeric inputs and rule version used at decision time.
+2. Keep positive target-market checks separate from negative target-market conflicts.
+3. Treat concentration as a post-trade calculation, not a static client attribute.
+4. Return warnings separately from blocks so the advisor can explain material risks.
+5. Do not reduce suitability to one opaque score; preserve the component results.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Existing high-yield exposure is 12% and proposed allocation is 5% | Block or escalate because post-trade exposure is 17%. |
+| Client liquidity need changes to daily | Block due to negative target-market conflict. |
+| Credit-product knowledge is missing | Block until knowledge/experience evidence is available. |
+| Historical decision is replayed after rule version changes | Replay uses the original rule version and original client/product attributes. |
+
+## Example 8. Target-market matrix evaluation for channel and mandate
+
+### Scenario
+
+The same investment-grade bond is available through advisory and DPM channels, but not through online self-directed trading for selected client segments.
+
+| Dimension | Client A | Client B | Client C |
+|---|---|---|---|
+| Client segment | Accredited investor | Retail client | Professional investor |
+| Channel | Advisory | Online self-directed | DPM mandate |
+| Product risk | Medium | Medium | Medium |
+| Product complexity | Non-complex | Non-complex | Non-complex |
+| Required disclosure | Bond factsheet | Bond factsheet | Mandate disclosure pack |
+| Mandate eligibility | Not applicable | Not applicable | Allowed by mandate |
+
+### Matrix result
+
+| Rule | Client A | Client B | Client C |
+|---|---|---|---|
+| Client segment allowed | Pass | Conditional | Pass |
+| Channel allowed | Pass | Block | Pass |
+| Risk profile compatible | Pass | Pass | Pass |
+| Disclosure available | Pass | Pass | Pass |
+| Mandate rule compatible | Not applicable | Not applicable | Pass |
+| Final decision | Allow | Block | Allow |
+
+### Why this matters
+
+A product can be suitable in one distribution model and blocked in another. The decision must preserve:
+
+1. client classification,
+2. channel,
+3. advisory model,
+4. mandate context,
+5. product approval status,
+6. disclosure basis,
+7. reason code for each pass, warning or block.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Retail client switches from online to advisor-assisted channel | Decision is recomputed; online block does not automatically apply to advisory. |
+| DPM mandate excludes below-A rated bonds | Bond is blocked for DPM even if advisory channel would allow it. |
+| Disclosure document is unavailable for one booking centre | Decision blocks in that booking centre but may allow elsewhere. |
+| Matrix row is changed | New decisions use the new matrix version; historical replay uses the old version. |
+
+## Example 9. Disclosure version expiry and re-acknowledgement
+
+### Scenario
+
+A structured deposit is approved and active. A new risk disclosure version is issued after a change in payoff explanation. Existing proposal drafts were created under the old disclosure version.
+
+| Attribute | Old value | New value |
+|---|---|---|
+| Disclosure id | DCI-RISK-v2 | DCI-RISK-v3 |
+| Effective date | 2026-01-15 | 2026-06-01 |
+| Product status | Active | Active |
+| Old acknowledgement | Present | Not valid for new orders after effective date |
+| Affected action | New order submission | Requires new acknowledgement |
+
+### Correct behavior
+
+| Workflow | Treatment |
+|---|---|
+| Draft proposal created before disclosure change | Keep draft, mark disclosure stale. |
+| Advisor edits proposal after new disclosure effective date | Require new disclosure delivery. |
+| Client acknowledged old disclosure but order not submitted | Block submission until new acknowledgement. |
+| Historical report for prior completed order | Show disclosure version used at decision time. |
+
+### Decision output
+
+```text
+decision: BLOCK
+primary_reason: DISCLOSURE_VERSION_EXPIRED
+required_disclosure_id: DCI-RISK-v3
+current_acknowledgement: DCI-RISK-v2
+allowed_actions: save_draft, deliver_disclosure, cancel_proposal
+blocked_actions: submit_order
+```
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| New disclosure version becomes effective before order submission | Submit is blocked until new acknowledgement is captured. |
+| Completed order is replayed for audit | Original disclosure version remains visible. |
+| Disclosure version changes but product remains active | Product is not suspended; only affected actions are blocked. |
+| Advisor attempts to override without permitted exception policy | Override is blocked and audited. |
+
+## Example 10. Product suspension impact across multiple booking centres
+
+### Scenario
+
+A fund is suspended for new subscriptions in Booking Centre A because required local disclosure is expired. The same fund remains available in Booking Centre B where the disclosure is current.
+
+| Attribute | Booking Centre A | Booking Centre B |
+|---|---|---|
+| Product APU status | Suspended for new buys | Active |
+| Reason | Local disclosure expired | Disclosure current |
+| Existing holders | Hold and redeem allowed | Hold, buy and redeem allowed |
+| DPM use | No new allocation | Allowed if mandate compatible |
+| Reporting | Show local restriction on affected accounts | No restriction label required |
+
+### Action matrix
+
+| Action | Booking Centre A | Booking Centre B |
+|---|---|---|
+| New subscription | Block | Allow |
+| Additional subscription | Block | Allow |
+| Redemption | Allow with normal fund rules | Allow with normal fund rules |
+| Transfer-in | Block unless exception-approved | Allow |
+| Existing holding valuation | Continue with NAV/stale controls | Continue with NAV/stale controls |
+| Client statement | Show restricted-for-new-buy label | No local restriction label |
+
+### Audit replay across booking centres
+
+Audit replay must prove:
+
+1. which booking-centre rule applied,
+2. which disclosure version was current,
+3. which action was requested,
+4. which action was allowed or blocked,
+5. whether the client was an existing holder,
+6. whether a DPM mandate or advisory channel was used,
+7. which rule version produced the decision.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Client in Booking Centre A attempts a new subscription | Blocked with local disclosure-expiry reason. |
+| Same client redeems an existing position | Allowed unless another fund lifecycle restriction applies. |
+| Client in Booking Centre B attempts a new subscription | Allowed if target-market, suitability and disclosure checks pass. |
+| Historical replay runs after Booking Centre A disclosure is renewed | Old suspended decision remains reproducible for the original date. |
