@@ -4,7 +4,7 @@
 
 **Audience:** Sandeep and future Codex agents working on Lotus repositories.
 
-**Source provenance:** Consolidated from `C:\Users\Sandeep\.codex\attachments\aa4e687b-b5af-4e25-ba97-7d367cf10595\pasted-text.txt` on 2026-06-27.
+**Curation note:** Curated from provided source material on 2026-06-27 and normalized for reusable practitioner reference.
 
 **Status:** Active reusable reference.
 

@@ -23,7 +23,7 @@ docs/reference/wealth-ai-product-strategy/
 
 ## Provenance
 
-Imported from the provided wealth AI product strategy reference pack on 2026-06-27 and normalized into generic wealth-platform terminology.
+Curated from the provided wealth AI product strategy reference pack on 2026-06-27 and normalized into generic wealth-platform terminology.
 
 Use this pack for strategy, product packaging, roadmap, and business-case work. Use [`../ai-decision-intelligence-wealth-platform/`](../ai-decision-intelligence-wealth-platform/README.md) for AI governance, RAG, evaluation, security, agentic workflow, and implementation controls. Use [`../wealth-platform-architecture/`](../wealth-platform-architecture/README.md) for platform architecture, API, event, source-ownership, and migration patterns.
 

@@ -78,7 +78,7 @@ APIs should expose:
 4. cashflow classifications, including return of capital, income, realised gain, recallable capital, fees, and taxes,
 5. liquidity terms and redemption constraints,
 6. performance metric basis and unavailable/partial-history states,
-7. source provenance for notices, statements, and overrides.
+7. source evidence for notices, statements, and overrides.
 
 UIs should make these states visible:
 

@@ -19,7 +19,7 @@ These products are important in private banking because they create income, dive
 
 ## Why this pack matters for advisory, mandates, analytics and reporting
 
-Real estate and infrastructure are often presented as “income” or “real asset” allocations, but the product behaviour differs materially by wrapper.
+Real estate and infrastructure are often presented as "income" or "real asset" allocations, but the product behaviour differs materially by wrapper.
 
 A listed REIT behaves operationally like an equity, but economically it has property rent, leverage, interest-rate sensitivity, distribution policy and sector exposure.
 
@@ -114,6 +114,6 @@ An infrastructure fund should understand contract duration, inflation linkage, r
 
 Real estate and infrastructure are not one simple asset class. They are a set of product wrappers that deliver exposure to physical assets, property income, operating assets, concession cashflows, infrastructure services and inflation-sensitive assets. For wealth platforms, the challenge is to reconcile listed security behaviour, fund behaviour, private-market behaviour and real-asset analytics into a consistent portfolio model.
 
-## Source provenance
+## Curation Note
 
-Imported from C:\Users\Sandeep\Downloads\real_estate_reits_infrastructure_reference_pack.zip\real_estate_reits_infrastructure_reference_pack on 2026-06-27. The imported material was normalized for reusable practitioner framing.
+Curated from provided source material on 2026-06-27 and normalized for reusable practitioner framing.

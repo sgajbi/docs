@@ -75,7 +75,7 @@ The future professional is not replaced by AI. The stronger professional becomes
 | User may tolerate hallucinations | Hallucinations can misstate product risk, performance or client advice. |
 | Data may be public | Data is confidential, privileged, client-specific and entitlement-controlled. |
 | Output may be exploratory | Output may influence trade recommendations, mandates and client communication. |
-| Source provenance may be optional | Source evidence and audit trail are required for trust and review. |
+| Source evidence may be optional | Source evidence and audit trail are required for trust and review. |
 
 In wealth, AI should be designed like a regulated decision-support system, not like a casual productivity app.
 

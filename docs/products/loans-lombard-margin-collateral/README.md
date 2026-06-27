@@ -15,7 +15,7 @@ It is designed for:
 - transaction, position, collateral and exposure modelling
 - QA, reconciliation, migration and production-support scenarios
 
-**Source provenance:** Imported from `C:\Users\Sandeep\Downloads\loans_lombard_margin_collateral_reference_pack.zip\loans_lombard_margin_collateral_reference_pack` into `docs/products/loans-lombard-margin-collateral/` on 2026-06-27.
+**Curation note:** Curated from provided source material on 2026-06-27 and normalized for reusable practitioner reference.
 
 **Last updated:** 2026-06-27
 

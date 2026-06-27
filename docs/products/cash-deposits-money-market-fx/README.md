@@ -18,7 +18,7 @@ These products look simple, but they drive many difficult platform, advisory and
 - portfolio performance treatment of cashflows, income and FX translation;
 - client reporting of cash, yield, liquidity and currency exposure.
 
-**Source provenance:** Imported from `C:\Users\Sandeep\Downloads\cash_deposits_money_market_fx_reference_pack.zip\cash_deposits_money_market_fx_reference_pack` into `docs/products/cash-deposits-money-market-fx/` on 2026-06-27.
+**Curation note:** Curated from provided source material on 2026-06-27 and normalized for reusable practitioner reference.
 
 **Last updated:** 2026-06-27
 

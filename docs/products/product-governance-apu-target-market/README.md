@@ -17,13 +17,9 @@ It is intended for:
 
 The pack is product-agnostic but uses examples from bonds, notes, funds, equities, derivatives, private markets, insurance-linked products, real assets and cash/FX products.
 
-## Source Provenance
+## Curation Note
 
-| Source | Details |
-|---|---|
-| Source pack | `C:\Users\Sandeep\Downloads\product_governance_apu_target_market_reference_pack.zip\product_governance_apu_target_market_reference_pack` |
-| Import date | 2026-06-27 |
-| Local treatment | Imported, normalized, de-duplicated for reusable platform and practitioner reference, and indexed into the product knowledge library. |
+Curated from provided source material on 2026-06-27 and normalized for reusable practitioner, product, platform and implementation reference.
 
 ## Core idea
 

@@ -13,7 +13,7 @@ Structured products connect the product families already covered in the knowledg
 
 The pack intentionally goes beyond structured notes. Notes are one major wrapper, but structured exposure can also appear through deposits, certificates, warrants, structured funds, accumulators, decumulators, autocallables, participation products, buffer products, leveraged certificates and other market-linked investments.
 
-**Source provenance:** Imported from `C:\Users\Sandeep\Downloads\structured_products_reference_pack.zip\structured_products_reference_pack` into `docs/products/structured-products/` on 2026-06-27.
+**Curation note:** Curated from provided source material on 2026-06-27 and normalized for reusable practitioner reference.
 
 **Last updated:** 2026-06-27
 

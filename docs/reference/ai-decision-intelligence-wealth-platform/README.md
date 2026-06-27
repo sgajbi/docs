@@ -8,13 +8,9 @@ It is written for future study, product/platform design, architecture reviews, o
 
 The pack treats AI as a **core platform capability**, not a standalone chatbot. In a regulated wealth environment, AI must help explain, recommend, detect, summarize, personalize and automate while staying inside product-governance, suitability, data-lineage, entitlement, privacy, audit and human-approval boundaries.
 
-## Source Provenance
+## Curation Note
 
-| Source | Details |
-|---|---|
-| Source pack | `C:\Users\Sandeep\Downloads\ai_decision_intelligence_wealth_platform_reference_pack.zip\ai_decision_intelligence_wealth_platform_reference_pack` |
-| Import date | 2026-06-27 |
-| Local treatment | Imported under reference material, normalized, cleaned of narrow prep framing and product-specific branding, enriched with implementation patterns, and indexed into the reusable knowledge library. |
+Curated from provided source material on 2026-06-27 and normalized for reusable practitioner, product, platform and implementation reference.
 
 ## Recommended repo location
 

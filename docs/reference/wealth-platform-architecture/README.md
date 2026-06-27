@@ -16,13 +16,9 @@ It is designed as a long-term reference for:
 
 The goal is not to describe one specific bank implementation. The goal is to define a reusable architecture language for private-banking / wealth-management platforms.
 
-## Source Provenance
+## Curation Note
 
-| Source | Details |
-|---|---|
-| Source pack | `C:\Users\Sandeep\Downloads\wealth_platform_architecture_reference_pack.zip\wealth_platform_architecture_reference_pack` |
-| Import date | 2026-06-27 |
-| Local treatment | Imported under reference material, normalized, cleaned for platform-neutral wording, enriched with implementation patterns, and indexed into the reusable knowledge library. |
+Curated from provided source material on 2026-06-27 and normalized for reusable practitioner, product, platform and implementation reference.
 
 ## Recommended repo location
 

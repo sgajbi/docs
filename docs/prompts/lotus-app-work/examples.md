@@ -7,15 +7,15 @@ These examples show how to use the placeholder-based prompts. They are examples 
 Source prompt: [`copy-paste-workflows.md`](copy-paste-workflows.md#rfc-planning-only)
 
 ```text
-You are working on `lotus-risk` at `C:\Users\Sandeep\projects\lotus-risk`.
+You are working on `lotus-risk` at `<APP_PATH>`.
 
 Goal:
 Draft or tighten `RFC-0047` before implementation. Do not write code yet.
 
 Use Lotus context in AGENTS order, then read:
-1. `C:\Users\Sandeep\projects\lotus-risk\REPOSITORY-ENGINEERING-CONTEXT.md`
+1. `<APP_PATH>/REPOSITORY-ENGINEERING-CONTEXT.md`
 2. `docs/rfcs/RFC-0047-risk-review.md`
-3. `C:\Users\Sandeep\Downloads\risk-review-reference-pack` if present
+3. `<SOURCE_DOCS_PATH>` if present
 4. the relevant Lotus standard, skill, or playbook for this work
 
 First perform an implementation-readiness review:
@@ -51,7 +51,7 @@ Use Lotus private-banking language. Do not leave generic source documentation un
 Source prompt: [`copy-paste-workflows.md`](copy-paste-workflows.md#backend-refactor)
 
 ```text
-You are working on backend app `lotus-gateway` at `C:\Users\Sandeep\projects\lotus-gateway`.
+You are working on backend app `lotus-gateway` at `<APP_PATH>`.
 
 Goal:
 Refactor `DPM command center Gateway routes and clients` so the app is cleaner, more modular, more secure, more observable, more performant, and closer to the Lotus bank-buyable engineering standard.
@@ -127,7 +127,7 @@ Source prompt: [`copy-paste-workflows.md`](copy-paste-workflows.md#live-runtime-
 Bring up the governed canonical Lotus runtime for `lotus-gateway, lotus-workbench, lotus-risk, lotus-performance, lotus-core, lotus-advise, and lotus-manage` with deterministic seeded data.
 
 Evidence output:
-`C:\Users\Sandeep\AppData\Local\Temp\lotus-risk-module-shots`
+`<EVIDENCE_PATH>`
 
 Use the documented canonical runtime path. For front-office proof, use `PB_SG_GLOBAL_BAL_001` unless the task explicitly requires another dataset.
 

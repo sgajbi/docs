@@ -12,13 +12,9 @@ The pack is designed for:
 - implementation-backed documentation for wealth platforms;
 - QA, control, audit and production-support design.
 
-## Source Provenance
+## Curation Note
 
-| Source | Details |
-|---|---|
-| Source pack | `C:\Users\Sandeep\Downloads\entitlements_digital_channels_advisor_workbench_reference_pack.zip\entitlements_digital_channels_advisor_workbench_reference_pack` |
-| Import date | 2026-06-27 |
-| Local treatment | Imported, normalized, cleaned of narrow study framing, enriched with worked examples, and indexed into the product knowledge library. |
+Curated from provided source material on 2026-06-27 and normalized for reusable practitioner, product, platform and implementation reference.
 
 ## Why this topic matters
 

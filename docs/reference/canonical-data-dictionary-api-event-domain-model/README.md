@@ -1,8 +1,8 @@
 # Canonical Data Dictionary, API, Event and Domain Model Reference
 
-**Source provenance:** Curated from `C:\Users\Sandeep\Downloads\canonical_data_dictionary_api_event_domain_model_reference_pack.zip\canonical_data_dictionary_api_event_domain_model_reference_pack` on 2026-06-27.
+**Curation note:** Curated from provided source material on 2026-06-27 and normalized for reusable practitioner reference.
 
-**Local treatment:** Imported as shared reference material, deduplicated from two overlapping source sequences, normalized into application-neutral terminology, and cleaned for reusable wealth-platform architecture work.
+**Curation treatment:** Shared reference material, deduplicated from two overlapping source sequences, normalized into application-neutral terminology, and cleaned for reusable wealth-platform architecture work.
 
 ## Purpose
 

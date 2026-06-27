@@ -4,7 +4,7 @@ This pack consolidates the useful content from the former `privatebanking-docs` 
 
 The source wiki contained many short pages with overlapping treatment of performance measurement, advisory workflows, discretionary mandates, suitability, order handling, custody, corporate actions, lending, and operating controls. The material has been migrated as curated standards instead of a raw page dump so the repo stays deduplicated, searchable, and consistent with the current documentation structure.
 
-## Source Provenance
+## Migration Note
 
 | Source | Details |
 |---|---|

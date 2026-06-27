@@ -7,15 +7,15 @@ Use this file before sending any prompt from this pack.
 | Placeholder | Replace With | Example |
 |---|---|---|
 | `<APP_NAME>` | Lotus app or repo name | `lotus-risk` |
-| `<APP_PATH>` | Local absolute repo path | `C:\Users\Sandeep\projects\lotus-risk` |
+| `<APP_PATH>` | Local absolute repo path | `<LOCAL_PROJECTS_ROOT>/lotus-risk` |
 | `<RFC_ID>` | RFC or work identifier | `RFC-0047` |
 | `<RFC_PATH>` | RFC file or folder | `docs/rfcs/RFC-0047-risk-review.md` |
-| `<SOURCE_DOCS_PATH>` | External or local docs to review | `C:\Users\Sandeep\Downloads\composite-performance-docs` |
+| `<SOURCE_DOCS_PATH>` | External or local docs to review | `<LOCAL_REFERENCE_PACK_PATH>` |
 | `<FEATURE_BRANCH>` | Branch name | `feature/rfc-0047-risk-review-hardening` |
 | `<SCOPE>` | Short task scope | `risk review API certification` |
 | `<ENDPOINT_OR_FAMILY>` | API endpoint or endpoint group | `/api/v1/risk/review` |
 | `<TARGET_APPS>` | One or more apps in scope | `lotus-gateway and lotus-workbench` |
-| `<EVIDENCE_PATH>` | Evidence output folder | `C:\Users\Sandeep\AppData\Local\Temp\lotus-risk-module-shots` |
+| `<EVIDENCE_PATH>` | Evidence output folder | `<LOCAL_EVIDENCE_OUTPUT_PATH>` |
 | `<PR_NUMBER>` | GitHub PR number | `#123` |
 | `<ISSUE_REPO>` | Repo where an issue should be opened | `sgajbi/lotus-gateway` |
 
@@ -35,7 +35,7 @@ Backend RFC implementation:
 
 ```text
 <APP_NAME> = lotus-risk
-<APP_PATH> = C:\Users\Sandeep\projects\lotus-risk
+<APP_PATH> = <LOCAL_PROJECTS_ROOT>/lotus-risk
 <RFC_ID> = RFC-0047
 <RFC_PATH> = docs/rfcs/RFC-0047-risk-review.md
 <FEATURE_BRANCH> = feature/rfc-0047-risk-review
@@ -45,9 +45,9 @@ Workbench UI audit:
 
 ```text
 <APP_NAME> = lotus-workbench
-<APP_PATH> = C:\Users\Sandeep\projects\lotus-workbench
+<APP_PATH> = <LOCAL_PROJECTS_ROOT>/lotus-workbench
 <SCOPE> = portfolio review and DPM command center UI audit
-<EVIDENCE_PATH> = C:\Users\Sandeep\AppData\Local\Temp\workbench-ui-audit
+<EVIDENCE_PATH> = <LOCAL_EVIDENCE_OUTPUT_PATH>/workbench-ui-audit
 ```
 
 Gateway and Workbench downstream realization:

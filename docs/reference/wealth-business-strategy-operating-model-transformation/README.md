@@ -16,13 +16,9 @@ Use it for strategy, capability mapping, target operating model design, roadmap 
 - Advisory, DPM, risk, compliance and operations stakeholders
 - Product teams building enterprise wealth software
 
-## Source Provenance
+## Curation Note
 
-| Source | Details |
-|---|---|
-| Source pack | `C:\Users\Sandeep\Downloads\wealth_business_strategy_operating_model_transformation_reference_pack.zip\wealth_business_strategy_operating_model_transformation_reference_pack` |
-| Import date | 2026-06-27 |
-| Local treatment | Imported under shared reference material, normalized for practitioner/project use, cleaned of branded and preparation-only framing, and aligned to the repo reference structure. |
+Curated from provided source material on 2026-06-27 and normalized for reusable practitioner, product, platform and implementation reference.
 
 ## Reading Order
 

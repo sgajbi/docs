@@ -6,13 +6,9 @@ This pack documents the accounting-grade layer behind a private-banking / wealth
 
 It is written for product knowledge, architecture, business analysis, portfolio analytics, reporting, investment operations, QA, migration and production-support work. It is not accounting, audit, legal, tax or regulatory advice.
 
-## Source Provenance
+## Curation Note
 
-| Source | Details |
-|---|---|
-| Source pack | `C:\Users\Sandeep\Downloads\investment_accounting_ledger_reference_pack.zip\investment_accounting_ledger_reference_pack` |
-| Import date | 2026-06-27 |
-| Local treatment | Imported, normalized, enriched with worked examples, and indexed into the product knowledge library. |
+Curated from provided source material on 2026-06-27 and normalized for reusable practitioner, product, platform and implementation reference.
 
 ## Recommended repo location
 

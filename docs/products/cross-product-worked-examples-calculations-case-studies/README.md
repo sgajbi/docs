@@ -14,13 +14,9 @@ Use it when the compact examples in [`../cross-product-worked-examples.md`](../c
 - QA and operations teams building regression packs and golden scenarios
 - Advisory, DPM, reporting, portfolio analytics and AI workflow stakeholders
 
-## Source Provenance
+## Curation Note
 
-| Source | Details |
-|---|---|
-| Source pack | `C:\Users\Sandeep\Downloads\cross_product_worked_examples_calculations_case_studies_reference_pack.zip\cross_product_worked_examples_calculations_case_studies_reference_pack` |
-| Import date | 2026-06-27 |
-| Local treatment | Imported under product support material, normalized for practitioner/project use, cleaned of branded and preparation-only framing, and linked to existing example and calculation indexes. |
+Curated from provided source material on 2026-06-27 and normalized for reusable practitioner, product, platform and implementation reference.
 
 ## Reading Order
 

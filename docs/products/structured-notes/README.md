@@ -4,7 +4,7 @@
 
 **Audience:** Product owners, business analysts, architects, engineers, QA, operations, advisors, and anyone who needs to understand notes beyond surface-level product descriptions.
 
-**Source provenance:** Imported from `C:\Users\Sandeep\Downloads\notes_reference_pack` into `docs/products/structured-notes/` on 2026-06-27.
+**Curation note:** Curated from provided source material on 2026-06-27 and normalized for reusable practitioner reference.
 
 **Last updated:** 2026-06-27
 
@@ -79,15 +79,15 @@ Use:
 
 ```text
 Instrument
-  └── NoteContract
-        ├── Underlyings
-        ├── Coupon schedules
-        ├── Observation schedules
-        ├── Barrier terms
-        ├── Settlement terms
-        ├── Optional subtype extensions
-        ├── Lifecycle events
-        └── Valuation records
+  +-- NoteContract
+        +-- Underlyings
+        +-- Coupon schedules
+        +-- Observation schedules
+        +-- Barrier terms
+        +-- Settlement terms
+        +-- Optional subtype extensions
+        +-- Lifecycle events
+        +-- Valuation records
 ```
 
 Accounting transactions should remain compact and economic:
@@ -113,13 +113,13 @@ Observation checks, barrier touches, coupon determinations, and autocall trigger
 
 These sources were used as external validation and investor-education references:
 
-- FINRA — Understanding Structured Notes With Principal Protection: https://www.finra.org/investors/insights/structured-notes-principal-protection
-- Investor.gov — Investor Bulletin: Structured Notes: https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/investor-bulletins-76
-- Investor.gov — Structured Notes With Principal Protection: https://www.investor.gov/introduction-investing/investing-basics/investment-products/structured-notes-principal-protection
-- MoneySense Singapore — Understanding Structured Notes: https://www.moneysense.gov.sg/understanding-structured-notes/
-- MoneySense Singapore — Understanding Specified Investment Products: https://www.moneysense.gov.sg/understanding-specified-investment-products/
-- DBS Treasures — Structured Investments: https://www.dbs.com.sg/treasures/investments/product-suite/structured-investments
-- Standard Chartered Singapore — Fixed Coupon Notes: https://www.sc.com/sg/wealth/investment/fixed-coupon-notes/
+- FINRA - Understanding Structured Notes With Principal Protection: https://www.finra.org/investors/insights/structured-notes-principal-protection
+- Investor.gov - Investor Bulletin: Structured Notes: https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/investor-bulletins-76
+- Investor.gov - Structured Notes With Principal Protection: https://www.investor.gov/introduction-investing/investing-basics/investment-products/structured-notes-principal-protection
+- MoneySense Singapore - Understanding Structured Notes: https://www.moneysense.gov.sg/understanding-structured-notes/
+- MoneySense Singapore - Understanding Specified Investment Products: https://www.moneysense.gov.sg/understanding-specified-investment-products/
+- DBS Treasures - Structured Investments: https://www.dbs.com.sg/treasures/investments/product-suite/structured-investments
+- Standard Chartered Singapore - Fixed Coupon Notes: https://www.sc.com/sg/wealth/investment/fixed-coupon-notes/
 
 ---
 

@@ -14,13 +14,9 @@ Use it to decide what to read next, connect product packs, plan learning paths, 
 - Advisory, DPM, analytics and AI platform stakeholders
 - Repository maintainers and documentation contributors
 
-## Source Provenance
+## Curation Note
 
-| Source | Details |
-|---|---|
-| Source pack | `C:\Users\Sandeep\Downloads\master_index_study_roadmap_playbook_reference_pack.zip\master_index_study_roadmap_playbook_reference_pack` |
-| Import date | 2026-06-27 |
-| Local treatment | Imported under shared reference material, normalized for practitioner/project use, cleaned of branded and preparation-only framing, and aligned to the repo reference structure. |
+Curated from provided source material on 2026-06-27 and normalized for reusable practitioner, product, platform and implementation reference.
 
 ## Reading Order
 

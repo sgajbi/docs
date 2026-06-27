@@ -49,7 +49,7 @@ For worked examples, implementation boundaries and QA scenarios, use file 10.
 
 ## Design principle
 
-Do not model “commodity exposure” as one uniform product. A client can access the same commodity through very different wrappers, each with different accounting, valuation, lifecycle and risk behavior.
+Do not model "commodity exposure" as one uniform product. A client can access the same commodity through very different wrappers, each with different accounting, valuation, lifecycle and risk behavior.
 
 Example: gold exposure can appear as:
 
@@ -65,6 +65,6 @@ Example: gold exposure can appear as:
 
 The underlying economic exposure may be similar, but the position, transaction, valuation, liquidity, credit risk and reporting treatment can be very different.
 
-## Source provenance
+## Curation Note
 
-Imported from C:\Users\Sandeep\Downloads\commodities_precious_metals_real_assets_reference_pack.zip\commodities_precious_metals_real_assets_reference_pack on 2026-06-27. The imported material was normalized for reusable practitioner framing.
+Curated from provided source material on 2026-06-27 and normalized for reusable practitioner framing.

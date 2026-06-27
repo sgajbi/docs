@@ -2,7 +2,7 @@
 
 This folder adds cross-product material and advisory / mandate / analytics / reporting supplements for the product knowledge packs.
 
-**Source provenance:** Imported from `C:\Users\Sandeep\Downloads\equities_and_product_kb_expansion.zip\wealth_product_kb_addenda` into `docs/reference/wealth-product-framework/` on 2026-06-27.
+**Curation note:** Curated from provided source material on 2026-06-27 and normalized for reusable practitioner reference.
 
 The purpose is to keep the financial products knowledge base consistent across product families and useful for:
 

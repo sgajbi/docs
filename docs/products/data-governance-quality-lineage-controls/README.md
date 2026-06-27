@@ -6,13 +6,9 @@ This pack is a professional reference for designing and operating a wealth-manag
 
 It is intended for product owners, architects, business analysts, data owners, data stewards, engineering teams, operations, QA, support, risk, compliance and senior stakeholders working on private-banking or wealth-platform capabilities.
 
-## Source Provenance
+## Curation Note
 
-| Source | Details |
-|---|---|
-| Source pack | `C:\Users\Sandeep\Downloads\data_governance_quality_lineage_controls_reference_pack.zip\data_governance_quality_lineage_controls_reference_pack` |
-| Import date | 2026-06-27 |
-| Local treatment | Imported, normalized, cleaned of narrow prep framing, enriched with worked examples, and indexed into the product knowledge library. |
+Curated from provided source material on 2026-06-27 and normalized for reusable practitioner, product, platform and implementation reference.
 
 ## Why this pack matters
 

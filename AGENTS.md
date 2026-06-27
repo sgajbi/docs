@@ -11,7 +11,7 @@ This repository is the source of truth for Sandeep's reusable documentation libr
 5. Place repo maintenance and documentation workflow material under `docs/operations/`.
 6. Add or update an index whenever a new document set is added.
 7. Prefer stable, lowercase, hyphenated file and folder names.
-8. Preserve source provenance for imported packs, including source folder, import date, and original purpose.
+8. Preserve non-personal source context for imported packs through a curation note, including import date and original purpose where useful, without storing local machine paths.
 9. Treat imported packs as the starting point, not the final product. Add professional enrichment where it improves project usefulness, including platform modelling notes, API/UI implications, QA scenarios, source-ownership questions, stakeholder explanations, and cross-product comparisons.
 10. Do not mix investment education, implementation design, and prompt engineering in one folder unless the document explicitly bridges those topics.
 11. Keep disclaimers clear when material touches investments, regulation, tax, legal, or client advice.

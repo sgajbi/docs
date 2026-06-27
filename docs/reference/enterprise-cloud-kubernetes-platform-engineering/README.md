@@ -24,13 +24,9 @@ It connects runtime platform design to the rest of the wealth knowledge base:
 
 The goal is not to become a cloud administrator only. The goal is to understand how a bank-grade wealth platform is safely hosted, scaled, secured, observed, operated, released and recovered.
 
-## Source Provenance
+## Curation Note
 
-| Source | Details |
-|---|---|
-| Source pack | `C:\Users\Sandeep\Downloads\enterprise_cloud_kubernetes_platform_engineering_reference_pack.zip\enterprise_cloud_kubernetes_platform_engineering_reference_pack` |
-| Import date | 2026-06-27 |
-| Local treatment | Imported under shared reference material, normalized for practitioner/project use, cleaned of preparation-only framing and enriched with implementation patterns. |
+Curated from provided source material on 2026-06-27 and normalized for reusable practitioner, product, platform and implementation reference.
 
 ## Recommended repo path
 

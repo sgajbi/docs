@@ -11,7 +11,7 @@ This documentation pack is a professional, platform-oriented reference for **equ
 - portfolio analytics, performance, risk, concentration and client reporting;
 - engineering design for product master, trade processing, positions, corporate actions, valuations, cost basis, P&L and reporting platforms.
 
-**Source provenance:** Imported from `C:\Users\Sandeep\Downloads\equities_and_product_kb_expansion.zip\equities_reference_pack` into `docs/products/equities/` on 2026-06-27.
+**Curation note:** Curated from provided source material on 2026-06-27 and normalized for reusable practitioner reference.
 
 The pack treats equities as more than a simple buy/sell product. In real wealth-management platforms, equities become complex because of **corporate actions, market data, multiple listings, custody, settlement cycles, tax, FX, ADR/GDR mechanics, cost-basis adjustments, performance classification and reconciliation**.
 

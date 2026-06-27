@@ -16,13 +16,9 @@ The pack treats security as a **business capability**, not only a technical cont
 - Data, reporting, analytics and AI platform teams
 - Advisory, DPM, compliance and operations stakeholders
 
-## Source Provenance
+## Curation Note
 
-| Source | Details |
-|---|---|
-| Source pack | `C:\Users\Sandeep\Downloads\enterprise_security_cyber_resilience_reference_pack.zip\enterprise_security_cyber_resilience_reference_pack` |
-| Import date | 2026-06-27 |
-| Local treatment | Imported under shared reference material, normalized for practitioner/project use, cleaned of preparation-only framing and enriched with implementation patterns. |
+Curated from provided source material on 2026-06-27 and normalized for reusable practitioner, product, platform and implementation reference.
 
 ## Reading order
 

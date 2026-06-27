@@ -21,7 +21,7 @@ Derivatives are important because they sit behind many products already covered 
 
 This pack is written from the perspective of a wealth-management / private-banking platform architect working across advisory, mandates, analytics, reporting and implementation.
 
-**Source provenance:** Imported from `C:\Users\Sandeep\Downloads\derivatives_reference_pack.zip\derivatives_reference_pack` into `docs/products/derivatives/` on 2026-06-27.
+**Curation note:** Curated from provided source material on 2026-06-27 and normalized for reusable practitioner reference.
 
 ## Pack structure
 

@@ -61,6 +61,6 @@ For reporting and analytics, avoid mixing these values without clear labels:
 
 These are not interchangeable.
 
-## Source provenance
+## Curation Note
 
-Imported from C:\Users\Sandeep\Downloads\insurance_annuities_reference_pack.zip\insurance_annuities_reference_pack on 2026-06-27. The imported material was normalized for repository naming and reusable practitioner framing.
+Curated from provided source material on 2026-06-27 and normalized for repository naming and reusable practitioner framing.

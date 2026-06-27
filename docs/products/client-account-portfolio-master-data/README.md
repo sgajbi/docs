@@ -6,13 +6,9 @@ This pack documents the client and account master-data layer behind a private-ba
 
 The goal is to support future study, office knowledge sharing, portfolio analytics, advisory workflows, DPM/mandate management, client reporting, source ownership, migration, reconciliation and platform design.
 
-## Source Provenance
+## Curation Note
 
-| Source | Details |
-|---|---|
-| Source pack | `C:\Users\Sandeep\Downloads\client_account_portfolio_master_reference_pack.zip\client_account_portfolio_master_reference_pack` |
-| Import date | 2026-06-27 |
-| Local treatment | Imported, normalized, cleaned of narrow study framing, enriched with worked examples, and indexed into the product knowledge library. |
+Curated from provided source material on 2026-06-27 and normalized for reusable practitioner, product, platform and implementation reference.
 
 ## Why this topic matters
 

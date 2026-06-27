@@ -21,7 +21,7 @@ Private markets and alternatives are especially important in private banking and
 
 The pack is written for a wealth-management platform architect / portfolio analytics SME. It focuses not only on what the products are, but how they should be represented in a portfolio system: instrument master, position model, transaction model, lifecycle events, valuation, performance, risk, advisory controls, mandate rules and reporting.
 
-**Source provenance:** Imported from `C:\Users\Sandeep\Downloads\private_markets_reference_pack.zip\private_markets_reference_pack` into `docs/products/private-markets/` on 2026-06-27.
+**Curation note:** Curated from provided source material on 2026-06-27 and normalized for reusable practitioner reference.
 
 **Last updated:** 2026-06-27
 

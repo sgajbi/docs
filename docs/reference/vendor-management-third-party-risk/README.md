@@ -15,13 +15,9 @@ Use it when a wealth-platform initiative depends on external software, data, AI,
 - Data, AI, analytics and reporting platform teams
 - Startup or product teams preparing bank-buyable software
 
-## Source Provenance
+## Curation Note
 
-| Source | Details |
-|---|---|
-| Source pack | `C:\Users\Sandeep\Downloads\vendor_management_third_party_risk_reference_pack.zip\vendor_management_third_party_risk_reference_pack` |
-| Import date | 2026-06-27 |
-| Local treatment | Imported under shared reference material, normalized for practitioner/project use, cleaned of branded and preparation-only framing, and aligned to the repo reference structure. |
+Curated from provided source material on 2026-06-27 and normalized for reusable practitioner, product, platform and implementation reference.
 
 ## Reading Order
 

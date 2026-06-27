@@ -21,13 +21,9 @@ It connects the product/domain knowledge base to actual execution:
 
 The pack is designed for future study, office knowledge sharing, enterprise architecture discussions, platform-delivery planning and reusable project work.
 
-## Source Provenance
+## Curation Note
 
-| Source | Details |
-|---|---|
-| Source pack | `C:\Users\Sandeep\Downloads\enterprise_delivery_sdlc_devsecops_operations_reference_pack.zip\enterprise_delivery_sdlc_devsecops_operations_reference_pack` |
-| Import date | 2026-06-27 |
-| Local treatment | Imported under shared reference material, normalized for practitioner/project use, cleaned of preparation-only and product-specific framing and enriched with implementation patterns. |
+Curated from provided source material on 2026-06-27 and normalized for reusable practitioner, product, platform and implementation reference.
 
 ## Suggested repository location
 

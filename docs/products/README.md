@@ -2,7 +2,7 @@
 
 Product documentation belongs here.
 
-Each product family should have its own folder with a local `README.md`, a clear reading order, and source provenance.
+Each product family should have its own folder with a local `README.md`, a clear reading order, and a non-personal curation note when applicable.
 
 ## Product Packs
 

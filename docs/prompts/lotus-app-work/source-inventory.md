@@ -2,7 +2,7 @@
 
 This file records how the pasted prompt dump was consolidated.
 
-Source: `C:\Users\Sandeep\.codex\attachments\aa4e687b-b5af-4e25-ba97-7d367cf10595\pasted-text.txt`
+Source: provided prompt collection consolidated during the 2026-06-27 import.
 
 Import date: 2026-06-27
 

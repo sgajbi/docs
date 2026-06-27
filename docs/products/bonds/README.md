@@ -4,7 +4,7 @@
 
 **Audience:** Product owners, business analysts, architects, engineers, QA, operations, advisors, portfolio analysts, and anyone who needs to understand bonds beyond surface-level product descriptions.
 
-**Source provenance:** Imported from `C:\Users\Sandeep\Downloads\bonds_reference_pack.zip\bonds_reference_pack` into `docs/products/bonds/` on 2026-06-27.
+**Curation note:** Curated from provided source material on 2026-06-27 and normalized for reusable practitioner reference.
 
 **Last updated:** 2026-06-27
 

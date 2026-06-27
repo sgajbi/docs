@@ -4,13 +4,9 @@ This reference pack explains how wealth-management product, transaction, account
 
 It is intended for product owners, business analysts, architects, engineers, QA teams, operations, client-reporting teams, advisors, portfolio managers and knowledge-base maintainers working on private-banking and wealth-management platforms.
 
-## Source Provenance
+## Curation Note
 
-| Source | Details |
-|---|---|
-| Source pack | `C:\Users\Sandeep\Downloads\portfolio_reporting_statement_client_experience_reference_pack.zip\portfolio_reporting_statement_client_experience_reference_pack` |
-| Import date | 2026-06-27 |
-| Local treatment | Imported, normalized, cleaned of narrow prep framing, enriched with worked examples, and indexed into the product knowledge library. |
+Curated from provided source material on 2026-06-27 and normalized for reusable practitioner, product, platform and implementation reference.
 
 ## Why this pack matters
 

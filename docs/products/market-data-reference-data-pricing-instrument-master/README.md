@@ -6,13 +6,9 @@ This pack documents the data foundation behind a private-banking / wealth-manage
 
 The goal is to explain how market data, reference data, pricing, FX, curves, benchmarks, corporate actions, identifiers, vendor feeds, data lineage and data-quality controls should be understood and modelled in a professional wealth platform.
 
-## Source Provenance
+## Curation Note
 
-| Source | Details |
-|---|---|
-| Source pack | `C:\Users\Sandeep\Downloads\market_data_reference_data_pricing_instrument_master_reference_pack.zip\market_data_reference_data_pricing_instrument_master_reference_pack` |
-| Import date | 2026-06-27 |
-| Local treatment | Imported, normalized, cleaned of narrow prep framing, enriched with worked examples, and indexed into the product knowledge library. |
+Curated from provided source material on 2026-06-27 and normalized for reusable practitioner, product, platform and implementation reference.
 
 ## Target audience
 

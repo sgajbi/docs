@@ -113,7 +113,7 @@ Do not make cosmetic-only changes. Preserve behavior unless a change is intentio
 ## Workbench UI Refactor
 
 ```text
-You are working on `lotus-workbench` at `C:\Users\Sandeep\projects\lotus-workbench`.
+You are working on `lotus-workbench` at `<APP_PATH>`.
 
 Goal:
 Refactor or audit `<SCOPE>` so the UI is coherent, modular, fast, dense, useful, and enterprise-grade.

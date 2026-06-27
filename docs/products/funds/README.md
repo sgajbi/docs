@@ -15,7 +15,7 @@ It is designed for:
 
 The pack focuses on practical financial-product understanding, not legal advice, tax advice or investment recommendation.
 
-**Source provenance:** Imported from `C:\Users\Sandeep\Downloads\funds_reference_pack.zip\funds_reference_pack` into `docs/products/funds/` on 2026-06-27.
+**Curation note:** Curated from provided source material on 2026-06-27 and normalized for reusable practitioner reference.
 
 ---
 

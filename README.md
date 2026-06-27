@@ -74,7 +74,7 @@ This repo is organized so new document sets can be added without turning the roo
 
 1. Decide the category first: product, prompt, reference, or operations.
 2. Create a folder with a stable lowercase slug, for example `docs/products/private-markets/`.
-3. Add a local `README.md` that explains purpose, audience, reading order, and source provenance.
+3. Add a local `README.md` that explains purpose, audience, reading order, and a non-personal curation note when applicable.
 4. Add enrichment where useful: modelling distinctions, source ownership, API/UI implications, QA scenarios, controls, and stakeholder explanations.
 5. Add or update the local worked-example file when the material introduces new lifecycle, cashflow, valuation, reporting, suitability, or implementation behavior.
 6. Update the closest index file, the product worked-example index, the product coverage matrix, and this root README.
