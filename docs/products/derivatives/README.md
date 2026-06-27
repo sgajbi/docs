@@ -35,7 +35,7 @@ This pack is written from the perspective of a wealth-management / private-banki
 | `06-derivatives-advisory-mandate-analytics-reporting-deep-dive.md` | Dedicated advisory, mandate, DPM, suitability, concentration, reporting, portfolio-review and client-communication deep dive. |
 | `07-derivatives-platform-implementation-controls-reconciliation-test-scenarios.md` | Platform implementation guide: architecture, event model, transaction model, valuation controls, reconciliation, QA and production triage. |
 | `08-derivatives-glossary-practitioner-reference-and-product-combinations.md` | Glossary, practitioner explanations, product-combination map, and reusable reference tables. |
-| `09-worked-examples-and-implementation-patterns.md` | Worked examples for options, futures, FX forwards, NDFs, swaps, CDS, exposure lenses, margin/collateral treatment, advisory controls, support boundaries and regression tests. |
+| `09-worked-examples-and-implementation-patterns.md` | Worked examples for options, futures, FX forwards, NDFs, swaps, CDS, exposure lenses, margin/collateral treatment, SIMM-style margin inputs, volatility shocks, callable swaps, equity swap dividend adjustments, delivery notices, give-ups, early termination, close-out netting, advisory controls, support boundaries and regression tests. |
 
 ## Recommended Learning and Project Sequence
 

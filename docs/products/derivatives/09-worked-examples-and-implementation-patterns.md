@@ -673,7 +673,268 @@ QA assertions:
 | Strategy group changes | Attribution preserves effective-dated group membership. |
 | Client report hides short leg | Reporting QA fails because legal exposure is incomplete. |
 
-## 22. Advisory And Mandate Checklist
+## 22. SIMM-Style Margin Input Completeness
+
+Scenario:
+
+- An uncleared OTC derivative portfolio requires margin analytics.
+- The platform receives sensitivity files for rates and FX, but the equity vega file is missing.
+- The CSA requires exposure by netting set, product class, risk bucket and currency.
+
+Input completeness check:
+
+| Required input | Example source | Why it matters |
+|---|---|---|
+| Netting set id | CSA / margin agreement | Determines permitted netting and threshold application. |
+| Product class | Trade confirmation / risk system | Separates rates, credit, equity, FX and commodity margin inputs. |
+| Risk-factor sensitivities | Risk engine | Drives delta, vega and curvature-style margin components. |
+| Currency and bucket | Market-data / risk taxonomy | Supports currency conversion, concentration and bucket treatment. |
+| Threshold and independent amount | CSA / credit support annex | Determines call amount after agreed contractual offsets. |
+| Valuation date and model version | Risk engine / margin engine | Supports auditability and stale-input controls. |
+
+Correct treatment:
+
+- do not calculate or display a final margin estimate when mandatory sensitivity inputs are incomplete;
+- show which risk class is partial, stale or missing;
+- keep broker/counterparty margin calls separate from internal estimated margin;
+- preserve source files so operations can reconcile disputes and explain differences.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Equity vega file is missing | Margin estimate is labelled partial or blocked according to policy. |
+| Netting set is absent | Trades cannot be netted for margin analytics. |
+| Threshold is stale | Call amount is not client-ready and requires margin agreement review. |
+| Counterparty call differs | Difference is routed to dispute workflow, not silently overwritten. |
+
+## 23. Volatility-Surface Shock For Option Portfolio
+
+Scenario:
+
+- Portfolio holds listed and OTC equity options on the same index.
+- Current vega exposure is USD 140 per volatility point.
+- Risk asks for a +3 volatility-point shock.
+
+Approximate shock impact:
+
+```text
+estimated_value_change = aggregate_vega x volatility_shock
+estimated_value_change = 140 x 3 = 420
+```
+
+Implementation treatment:
+
+- group shock results by underlying, expiry bucket, option type and model source;
+- distinguish parallel volatility shocks from surface-specific skew, smile or term-structure shocks;
+- use current vega only when valuation date, multiplier, underlying and model source are compatible;
+- label results as approximate sensitivity, not a full revaluation, unless the pricing model reruns.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| One OTC option lacks current vega | Shock result is partial or blocked. |
+| Surface source is stale | Scenario output carries stale-input warning. |
+| Long and short options offset | Net vega reflects sign convention and leg direction. |
+| User requests full revaluation | Platform requires model rerun evidence, not only vega approximation. |
+
+## 24. Callable Swap Exercise And Breakage Review
+
+Scenario:
+
+- Client owns a callable receive-fixed interest-rate swap.
+- Next call date is 2026-09-30.
+- Current swap MTM is USD 320,000 in the client's favor.
+- Estimated break funding and administrative cost is USD 25,000.
+
+Simplified economic review:
+
+```text
+net_exercise_value = current_mtm - break_funding_cost - fees
+net_exercise_value = 320,000 - 25,000 = 295,000
+```
+
+Correct workflow:
+
+```text
+identify call date -> validate exercise window -> obtain dealer valuation -> calculate breakage -> approve instruction -> confirm exercise or leave contract live
+```
+
+Implementation treatment:
+
+- store call schedule, notice deadline, exercise authority and dealer confirmation;
+- separate valuation MTM from breakage, fees and actual termination cash settlement;
+- block late or unauthorized exercise instructions;
+- preserve "not exercised" decisions with rationale when the call window passes.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Notice deadline is missing | Exercise workflow is blocked or escalated. |
+| Dealer valuation is stale | Exercise economics are not client-ready. |
+| Exercise is confirmed | Swap closes and termination cashflow posts with lineage. |
+| Call window expires | Contract remains live and audit trail records missed/declined action. |
+
+## 25. Equity Swap Dividend Adjustment
+
+Scenario:
+
+- Client receives total return on an equity basket through an equity swap.
+- Expected dividend in the model: USD 80,000.
+- Actual dividend confirmed by corporate-action source: USD 92,000.
+- Financing leg is booked separately.
+
+Dividend adjustment:
+
+```text
+dividend_adjustment = actual_dividend - expected_dividend
+dividend_adjustment = 92,000 - 80,000 = 12,000
+```
+
+Correct treatment:
+
+- link dividend adjustment to the reference basket and observation period;
+- keep dividend return, price return and financing leg distinct;
+- do not book physical share income unless the client legally holds the shares;
+- reconcile the adjustment to dealer statement and corporate-action source.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Actual dividend source is missing | Adjustment remains estimated or pending. |
+| Financing leg is netted in source file | Report still separates total return and financing components where possible. |
+| Basket membership changed mid-period | Dividend attribution uses effective-dated basket composition. |
+| Client report labels dividend as share income | Reporting QA fails because exposure is synthetic. |
+
+## 26. Futures Delivery Notice And Physical-Delivery Control
+
+Scenario:
+
+- Portfolio is long 20 deliverable bond futures.
+- First notice day is approaching.
+- The strategy is intended for exposure management, not physical delivery.
+
+Control workflow:
+
+```text
+monitor first notice day -> identify open deliverable positions -> validate roll/close instruction -> confirm no unintended delivery obligation -> process delivery only with source notice
+```
+
+Implementation treatment:
+
+- store last trade date, first notice day, delivery window and contract deliverability terms;
+- raise escalation before delivery-risk dates when positions remain open;
+- distinguish closing/rolling futures from accepting or making delivery;
+- do not create bond positions or warehouse/custody movements without delivery notice evidence.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Long position remains open near first notice day | Delivery-risk alert opens. |
+| Roll trade executes | Old future closes and new contract opens with lineage. |
+| Delivery notice is received | Physical settlement workflow starts with eligible deliverable source. |
+| No delivery notice exists | Platform does not infer a physical bond position. |
+
+## 27. Prime-Broker Give-Up And Clearing Acceptance
+
+Scenario:
+
+- Advisor executes an option trade with an executing broker.
+- The trade is given up to a prime broker / clearing broker.
+- Clearing broker rejects the give-up because account mapping is wrong.
+
+Correct workflow:
+
+```text
+execution fill -> allocation -> give-up submission -> clearing acceptance or rejection -> repair -> final booking and reconciliation
+```
+
+Implementation treatment:
+
+- store executing broker, clearing broker, account, give-up id, acceptance state and rejection reason;
+- keep execution economics visible even when clearing acceptance is pending;
+- block client-ready settled position reporting until clearing acceptance and custody reconciliation pass;
+- preserve repair history instead of overwriting rejected allocations.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Give-up is accepted | Trade books to clearing broker account with execution lineage. |
+| Give-up is rejected | Position remains pending/exceptioned and does not settle silently. |
+| Account mapping changes | Repair event records old and corrected account mapping. |
+| Duplicate acceptance arrives | Idempotency prevents duplicate contract position. |
+
+## 28. Early Termination Amount And Break Funding
+
+Scenario:
+
+- Client terminates an OTC derivative before maturity.
+- Dealer close-out MTM: USD 180,000 payable to client.
+- Accrued net coupon receivable: USD 15,000.
+- Break funding charge: USD 22,000.
+
+Simplified termination amount:
+
+```text
+termination_cash = close_out_mtm + accrued_receivable - break_funding_charge
+termination_cash = 180,000 + 15,000 - 22,000 = 173,000
+```
+
+Correct treatment:
+
+- distinguish close-out valuation, accrued cashflows, break funding, fees and taxes;
+- require source confirmation before closing the legal contract;
+- preserve whether termination is full or partial;
+- update exposure, collateral and performance only after effective termination state is confirmed.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Dealer close-out statement is missing | Termination cashflow is not final. |
+| Partial termination applies | Notional reduces and residual contract remains active. |
+| Accrued coupon is already paid | Cashflow is not double counted in termination amount. |
+| Collateral remains pledged | Collateral release workflow stays open after contract close. |
+
+## 29. Close-Out Netting Set And Independent Amount Dispute
+
+Scenario:
+
+- Three OTC derivative trades sit under the same master agreement and CSA.
+- Trade MTMs: +250,000, -90,000 and +40,000.
+- Posted collateral: USD 120,000.
+- Independent amount required by counterparty: USD 75,000, disputed internally.
+
+Simplified net exposure:
+
+```text
+net_mtm = 250,000 - 90,000 + 40,000 = 200,000
+collateral_adjusted_exposure = net_mtm - posted_collateral
+collateral_adjusted_exposure = 200,000 - 120,000 = 80,000
+```
+
+Correct treatment:
+
+- net only trades that share the same enforceable netting set and legal agreement;
+- track independent amount separately from variation margin and posted collateral;
+- preserve disputed independent amount state with reason, owner, due date and resolution;
+- report gross MTM, net MTM, collateral, independent amount and residual exposure separately.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| One trade lacks netting-set id | It is excluded from netted exposure or blocks the calculation. |
+| Independent amount is disputed | Dispute state is shown separately from agreed collateral. |
+| Posted collateral exceeds net MTM | Residual exposure can become overcollateralized but is not treated as free cash until released. |
+| Master agreement changes | Netting set and historical exposure are effective-dated. |
+
+## 30. Advisory And Mandate Checklist
 
 Before using derivatives in advisory or DPM workflows, check:
 
@@ -688,7 +949,7 @@ Before using derivatives in advisory or DPM workflows, check:
 | Authority | Who may approve trade, exercise, close-out, collateral movement, or unwind? |
 | Reporting | Which client/advisor labels and warnings are required? |
 
-## 23. Current Support Boundary And Candidate Extensions
+## 31. Current Support Boundary And Candidate Extensions
 
 | Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
 |---|---|---|
@@ -699,7 +960,7 @@ Before using derivatives in advisory or DPM workflows, check:
 | Lifecycle events | expiry, exercise, assignment, reset, fixing, settlement, novation, compression, clearing, barrier events and notional exchanges when sourced | automated OTC confirmation matching and event generation |
 | Reporting | market value, exposure, source date, stale/unsupported labels, hedge overlay split, strategy grouping and clearing state where sourced | advanced hedge-effectiveness reporting and multi-factor attribution |
 
-## 24. Regression Test Pack
+## 32. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -728,3 +989,11 @@ Minimum release-gate scenarios:
 23. Collateral dispute tracks call amount, agreed amount, disputed amount, threshold and resolution state.
 24. Clearing-broker default workflow identifies affected contracts, margin, portability and close-out state.
 25. Strategy-level attribution preserves legal option legs while showing grouped payoff and contribution.
+26. SIMM-style margin input completeness blocks unsupported estimates when sensitivity, netting-set or threshold data is missing.
+27. Volatility-surface shock labels approximate vega-based results and blocks stale or incompatible sensitivities.
+28. Callable swap exercise workflow validates call date, notice deadline, dealer valuation and termination lineage.
+29. Equity swap dividend adjustment separates synthetic dividend return from physical share income.
+30. Futures delivery-risk control prevents unintended physical delivery without source notice evidence.
+31. Prime-broker give-up workflow preserves execution lineage and blocks duplicate or rejected clearing acceptance.
+32. Early termination amount separates close-out MTM, accruals, break funding, fees, residual notional and collateral release.
+33. Close-out netting exposure includes only enforceable netting-set trades and tracks independent amount disputes separately.

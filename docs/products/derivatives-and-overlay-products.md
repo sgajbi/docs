@@ -10,7 +10,7 @@ This page connects derivatives knowledge to reusable private-banking platform de
 
 ## Practical Worked Examples
 
-Use [`derivatives/09-worked-examples-and-implementation-patterns.md`](derivatives/09-worked-examples-and-implementation-patterns.md) for concrete examples covering option purchase, covered-call assignment, futures variation margin, FX forward hedge settlement, NDF fixing, interest-rate swap resets, CDS credit events, multi-leg option strategies, hedge effectiveness, OTC novation/compression, central clearing, collateral optimization, portfolio Greeks, variance swaps, barrier options, cross-currency swaps, option exercise windows, collateral disputes, clearing-broker default, strategy-level attribution, exposure lenses, support boundaries and regression tests.
+Use [`derivatives/09-worked-examples-and-implementation-patterns.md`](derivatives/09-worked-examples-and-implementation-patterns.md) for concrete examples covering option purchase, covered-call assignment, futures variation margin, FX forward hedge settlement, NDF fixing, interest-rate swap resets, CDS credit events, multi-leg option strategies, hedge effectiveness, OTC novation/compression, central clearing, collateral optimization, portfolio Greeks, variance swaps, barrier options, cross-currency swaps, option exercise windows, collateral disputes, clearing-broker default, strategy-level attribution, SIMM-style margin input completeness, volatility-surface shocks, callable swap exercise, equity swap dividend adjustments, futures delivery notices, prime-broker give-ups, early termination breakage, close-out netting sets, exposure lenses, support boundaries and regression tests.
 
 ## Core Derivatives Platform Distinctions
 
@@ -38,6 +38,12 @@ Use [`derivatives/09-worked-examples-and-implementation-patterns.md`](derivative
 | Cross-currency swaps | Separate initial notional exchange, periodic coupon exchanges, final notional exchange, FX exposure and valuation. |
 | Collateral disputes and clearing-broker default | Track agreed/disputed collateral, thresholds, margin state, portability, close-out and recovery workflow. |
 | Strategy-level attribution | Preserve legal derivative legs while adding effective-dated analytical grouping for payoff, contribution and risk explanation. |
+| SIMM-style margin inputs | Validate sensitivities, netting set, risk class, currency, threshold, independent amount and valuation-date completeness before margin analytics are used. |
+| Volatility-surface shocks | Label vega-based scenario outputs as approximate unless a full model revaluation is source-backed. |
+| Callable swaps and early termination | Separate exercise windows, dealer valuation, break funding, fees, accruals, residual notional and collateral release. |
+| Equity swap dividend adjustments | Separate synthetic dividend return from physical share income and reconcile to basket composition and dealer statements. |
+| Futures delivery notices and give-ups | Control delivery-risk dates, physical-delivery evidence, execution broker lineage, clearing acceptance and repair history. |
+| Close-out netting sets | Net only enforceable agreement-level trades and track independent amount disputes separately from collateral. |
 
 ## Questions To Ask Before Building A Derivatives Feature
 
@@ -95,4 +101,7 @@ Derivative APIs and UI should make these states explicit:
 21. variance swap settlement and barrier option lifecycle,
 22. cross-currency swap notional exchanges and exercise-window controls,
 23. collateral dispute resolution and clearing-broker default portability,
-24. strategy-level attribution with leg-level legal holdings preserved.
+24. strategy-level attribution with leg-level legal holdings preserved,
+25. SIMM-style margin input completeness and volatility-surface shock controls,
+26. callable swap exercise, equity swap dividend adjustment and early termination breakage,
+27. futures delivery notice, prime-broker give-up and close-out netting-set workflows.
