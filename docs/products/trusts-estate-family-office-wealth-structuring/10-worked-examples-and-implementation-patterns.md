@@ -2433,7 +2433,235 @@ QA assertions:
 | Recipient was not approved | Field remains masked for that recipient. |
 | Audit report is generated | Original masking, approval and correction delivery are traceable. |
 
-## 74. Regression Test Pack
+## 74. Protector Cost Shortfall Escalation
+
+Scenario:
+
+- Final protector indemnity costs exceed the residual true-up reserve.
+- The trustee must decide whether to fund the shortfall from distributable cash, reject the excess cost, or seek further beneficiary notice.
+- Distribution must remain blocked for the disputed shortfall amount until governance is complete.
+
+| Attribute | Value |
+|---|---:|
+| Residual true-up reserve | 150,000 |
+| Accepted final costs submitted | 190,000 |
+| Cost shortfall requiring escalation | 40,000 |
+
+Shortfall:
+
+```text
+cost_shortfall_requiring_escalation = accepted_final_costs_submitted - residual_true_up_reserve
+cost_shortfall_requiring_escalation = 190,000 - 150,000 = 40,000
+```
+
+Correct workflow:
+
+- preserve final cost submission, reserve balance, trustee review, disputed cost classification, beneficiary notice and funding decision;
+- keep the shortfall amount blocked from final distribution until trustee approval or cost rejection;
+- distinguish reserve exhaustion from approval to fund additional costs;
+- update beneficiary reporting with reserve used, shortfall pending and final decision;
+- avoid funding excess costs from distributable cash without an explicit authority path.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Costs exceed residual reserve | Shortfall is escalated and distribution is blocked for that amount. |
+| Trustee rejects excess costs | Shortfall is removed and no additional reserve is created. |
+| Trustee approves additional funding | Funding source and beneficiary notice are recorded. |
+| Statement is generated | Reserve use and shortfall state are reported separately. |
+
+## 75. Co-Investment Concentration Breach Cure
+
+Scenario:
+
+- A reallocated co-investment amount causes one family entity to exceed its concentration limit.
+- The committee approves a cure by reducing the allocation and transferring the excess to a second eligible entity.
+- The exposure model must use post-cure allocations, not the originally breached allocation.
+
+| Attribute | Value |
+|---|---:|
+| Allocation before cure | 1,200,000 |
+| Permitted concentration capacity | 950,000 |
+| Allocation requiring cure | 250,000 |
+
+Cure amount:
+
+```text
+allocation_requiring_cure = allocation_before_cure - permitted_concentration_capacity
+allocation_requiring_cure = 1,200,000 - 950,000 = 250,000
+```
+
+Correct workflow:
+
+- preserve breached allocation, concentration policy, cure approval, recipient entity, revised allocation ledger and exposure recalculation;
+- reduce the breached entity before increasing another entity's allocation;
+- validate recipient eligibility, headroom and authority before accepting the cure;
+- recalculate concentration, commitment, fee and capital-call views after the cure;
+- avoid reporting a cured position using the pre-cure breached allocation.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Allocation exceeds concentration capacity | Breach is detected before commitment finalization. |
+| Cure recipient lacks eligibility | Cure transfer is blocked. |
+| Cure is approved | Exposure and commitment views use revised allocation. |
+| Advisor report is produced | Original breach, cure action and final exposure are visible. |
+
+## 76. Estate Equalization Alternate Asset Substitution
+
+Scenario:
+
+- Equalization cash cannot be fully funded after a waiver reversal.
+- The executor proposes substituting a liquid security position for part of the cash shortfall.
+- The substitution is accepted only up to the approved valuation and transferable amount.
+
+| Attribute | Value |
+|---|---:|
+| Equalization cash shortfall | 180,000 |
+| Approved substitute asset value | 125,000 |
+| Residual cash shortfall | 55,000 |
+
+Substitution:
+
+```text
+residual_cash_shortfall = equalization_cash_shortfall - approved_substitute_asset_value
+residual_cash_shortfall = 180,000 - 125,000 = 55,000
+```
+
+Correct workflow:
+
+- preserve executor proposal, beneficiary consent if required, asset valuation, transferability check, custody instruction and residual cash obligation;
+- apply haircut or transfer restriction rules before accepting substitute value;
+- reduce equalization shortfall only by approved transferable value;
+- keep residual cash shortfall open until funded, waived or further substituted;
+- avoid treating proposed asset market value as accepted equalization value without approval and custody feasibility.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Substitute asset is restricted | Transfer is blocked or haircut is applied. |
+| Approved asset value is below shortfall | Residual cash shortfall remains open. |
+| Beneficiary consent is required but missing | Substitution is blocked. |
+| Distribution report is generated | Cash shortfall, substituted value and residual amount are separated. |
+
+## 77. Foundation Recurring Breach Monitoring
+
+Scenario:
+
+- A recipient has repeated restricted-purpose grant breaches across monitoring periods.
+- The latest breach is partly remediated, but recurrence requires enhanced monitoring.
+- The foundation council must decide whether to suspend future grants or impose additional evidence requirements.
+
+| Attribute | Value |
+|---|---:|
+| Breach events in monitoring window | 3 |
+| Breach recurrence threshold | 2 |
+| Recurrence excess | 1 |
+
+Recurrence:
+
+```text
+recurrence_excess = breach_events_in_monitoring_window - breach_recurrence_threshold
+recurrence_excess = 3 - 2 = 1
+```
+
+Correct workflow:
+
+- preserve breach history, monitoring window, remediation status, recurrence threshold, council decision and future grant restrictions;
+- distinguish current financial exposure from recurrence risk status;
+- escalate recurrence even when the latest breach is partly remediated;
+- apply enhanced monitoring, suspension or evidence requirements according to council decision;
+- avoid resetting breach history after each partial remediation.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Breaches exceed recurrence threshold | Enhanced monitoring or suspension workflow is triggered. |
+| Latest breach is partly remediated | Recurrence state remains active. |
+| Council approves conditional continuation | Future grants require additional evidence. |
+| Monitoring report is generated | Current exposure and recurrence history are both visible. |
+
+## 78. Authority Renewal Post-Approval Ratification
+
+Scenario:
+
+- An approval was signed during an ambiguous delegated-authority renewal period.
+- Later legal review confirms the signatory lacked valid authority at signing time.
+- Ratification is required before the approval can be treated as valid.
+
+| Attribute | Value |
+|---|---:|
+| Approvals signed during ambiguous period | 4 |
+| Approvals ratified by current authority | 3 |
+| Approvals still invalid | 1 |
+
+Ratification:
+
+```text
+approvals_still_invalid = approvals_signed_during_ambiguous_period - approvals_ratified_by_current_authority
+approvals_still_invalid = 4 - 3 = 1
+```
+
+Correct workflow:
+
+- preserve original approval, authority ambiguity, legal review, ratification decision, ratifying authority and downstream transaction impact;
+- mark affected approvals as provisional until ratification is complete;
+- re-run downstream transaction checks for approvals that are ratified after the fact;
+- block unratified approvals from supporting distributions, investments or reporting access;
+- avoid backdating authority validity without explicit ratification evidence.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Legal review invalidates signing authority | Approval becomes provisional or invalid. |
+| Current authority ratifies approval | Approval becomes valid from approved ratification treatment. |
+| Approval is not ratified | Downstream action remains blocked. |
+| Audit report is requested | Original signature, authority gap and ratification evidence are visible. |
+
+## 79. Beneficiary Correction-Package Delivery Failure
+
+Scenario:
+
+- A retrospective disclosure decision requires a correction package for approved beneficiaries.
+- Delivery fails for one beneficiary due to an invalid delivery channel.
+- The disclosure state must remain pending for that recipient until successful delivery or approved alternate delivery.
+
+| Attribute | Value |
+|---|---:|
+| Correction packages approved | 5 |
+| Correction packages delivered | 4 |
+| Delivery failures pending remediation | 1 |
+
+Delivery failure:
+
+```text
+delivery_failures_pending_remediation = correction_packages_approved - correction_packages_delivered
+delivery_failures_pending_remediation = 5 - 4 = 1
+```
+
+Correct workflow:
+
+- preserve correction approval, recipient list, delivery channel, failed-delivery evidence, alternate channel approval and final delivery confirmation;
+- keep failed recipients in pending delivery state without broadening disclosure scope;
+- avoid marking the correction complete until every required recipient is delivered, waived or escalated;
+- retain original report delivery and correction-package delivery evidence separately;
+- avoid exposing correction content through an unapproved alternate channel.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| One delivery fails | Correction remains pending for that recipient. |
+| Alternate channel lacks approval | Redelivery is blocked. |
+| Recipient delivery is waived | Waiver evidence is required before closure. |
+| Delivery audit is generated | Approved, delivered, failed and waived recipients are traceable. |
+
+## 80. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -2510,3 +2738,9 @@ Minimum release-gate scenarios:
 71. Foundation remediation extension waivers apply only to approved amounts and revised deadlines.
 72. Delegated-authority renewal conflicts block or re-route approvals with conflicting authority scope.
 73. Beneficiary redaction retrospective disclosure controls use correction packages without overwriting historical reports.
+74. Protector cost shortfall escalations block distribution until excess costs are approved or rejected.
+75. Co-investment concentration breach cures recalculate exposure after approved allocation changes.
+76. Estate equalization alternate asset substitutions reduce cash shortfalls only by approved transferable value.
+77. Foundation recurring breach monitoring preserves breach history across remediation periods.
+78. Authority renewal post-approval ratification blocks unratified approvals from downstream use.
+79. Beneficiary correction-package delivery failures keep recipient disclosure state pending until remediated.
