@@ -22,6 +22,7 @@ It translates patterns observed across a mature multi-application platform into 
 | [`08-testing-performance-and-resilience.md`](08-testing-performance-and-resilience.md) | Understand test pyramid, meaningful coverage, contract tests, integration tests, E2E tests, performance hygiene and resilience patterns. |
 | [`09-worked-examples-and-engineering-review-checklists.md`](09-worked-examples-and-engineering-review-checklists.md) | Use practical examples and checklists for API changes, new services, data products, production incidents and PR reviews. |
 | [`10-infrastructure-containers-and-deployment.md`](10-infrastructure-containers-and-deployment.md) | Learn container design, local compose, orchestration, deployment strategy, environment configuration, migrations and runtime evidence. |
+| [`runtime-infrastructure-kubernetes/`](runtime-infrastructure-kubernetes/README.md) | Deep-dive into runtime architecture, container image design, local runtime parity, Kubernetes/OpenShift/AKS fundamentals, workloads, ingress, configuration, probes, resources, dependencies, deployment, runtime security, observability, resilience and platform readiness. |
 | [`11-git-release-and-knowledge-management.md`](11-git-release-and-knowledge-management.md) | Apply Git hygiene, PR evidence, release discipline, documentation truth and engineering knowledge-management practices. |
 | [`12-technology-stack-and-engineering-patterns.md`](12-technology-stack-and-engineering-patterns.md) | Understand common technology choices, toolchain patterns, tradeoffs and how to read a new repository. |
 | [`13-frontend-experience-api-and-ui-supportability.md`](13-frontend-experience-api-and-ui-supportability.md) | Learn gateway-first UI delivery, state handling, view models, browser validation, accessibility and frontend supportability. |
@@ -53,10 +54,10 @@ The strongest engineering systems make the correct path easy: one local command 
 |---|---|
 | Backend engineer | Files 02, 03, 05, 08, 09, 13 and the backend/API deep-dive packs. |
 | Architect | Files 01, 03, 04, 06, 09, 12, 13 and the backend/API/data-product deep-dive packs. |
-| DevOps / platform engineer | Files 05, 06, 07, 08, 10, 11 and 12. |
+| DevOps / platform engineer | Files 05, 06, 07, 08, 10, 11, 12 and the CI/CD/runtime deep-dive packs. |
 | QA engineer | Files 03, 05, 08, 09 and 13. |
 | Frontend engineer | Files 03, 06, 08, 09, 12 and 13. |
-| Engineering lead | Files 01, 04, 05, 06, 09, 10, 11, 12, 13, 14, 16, 17, the backend/API/data-product/CI-CD deep-dive packs and the coverage matrix. |
+| Engineering lead | Files 01, 04, 05, 06, 09, 10, 11, 12, 13, 14, 16, 17, the backend/API/data-product/CI-CD/runtime deep-dive packs and the coverage matrix. |
 | New joiner | Read files 01 through 14 in order, then use files 15 through 17 and the coverage matrix to choose deeper slices. |
 
 ## Relationship To Reference Packs

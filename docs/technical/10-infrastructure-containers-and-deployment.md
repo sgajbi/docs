@@ -2,6 +2,8 @@
 
 Enterprise services should be designed so they can run consistently across local development, CI, test environments and production-like runtime. Infrastructure is not an afterthought; it is the execution environment for reliability, security, observability and release evidence.
 
+For deeper runtime, container, Kubernetes, deployment and platform-readiness guidance, use [`runtime-infrastructure-kubernetes/`](runtime-infrastructure-kubernetes/README.md).
+
 ## Runtime Environment Model
 
 Think in layers:
