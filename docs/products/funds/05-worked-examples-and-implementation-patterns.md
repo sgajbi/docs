@@ -3072,3 +3072,242 @@ total_cash_required = 1,000,000 + 30,000 = 1,030,000
 | Investor sends only subscription amount | Order is underfunded, resized or exceptioned by policy. |
 | Capital account is created | Subscription and equalization components are traceable. |
 | Performance report is generated | Pre-admission performance is not attributed as client-earned return. |
+
+## Example 86. Fund expense-ratio cap expiry
+
+### Scenario
+
+A share class had a temporary expense-ratio cap that reduced total expenses for an introductory period. The cap expires, increasing expected ongoing charge and reducing projected net return.
+
+| Attribute | Before expiry | After expiry |
+|---|---:|---:|
+| Client fund value | 500,000 | 500,000 |
+| Gross expense ratio | 1.35% | 1.35% |
+| Expense cap | 0.95% | n/a |
+| Effective expense ratio | 0.95% | 1.35% |
+
+### Expense impact
+
+```text
+old_annual_expense = fund_value x capped_expense_ratio
+old_annual_expense = 500,000 x 0.95% = 4,750
+new_annual_expense = fund_value x gross_expense_ratio
+new_annual_expense = 500,000 x 1.35% = 6,750
+annual_expense_increase = 6,750 - 4,750 = 2,000
+```
+
+### Correct treatment
+
+- preserve cap terms, expiry date, share class, gross expense ratio, administrator notice and fee source;
+- update projected ongoing charges from the effective date, not from the announcement date unless terms require it;
+- avoid treating higher expenses as a market loss or a separate cash debit when NAV is already net of fees;
+- re-check suitability, performance expectations and fee disclosures where ongoing charges materially change;
+- keep historical reporting under the prior capped rate.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Cap expiry date arrives | Effective expense ratio updates for future projections. |
+| Administrator notice is missing | Fee projection remains source-limited. |
+| Historical report is regenerated | Old periods retain capped expense assumption. |
+| Advisory review runs | Higher ongoing charge is visible in suitability and cost disclosure. |
+
+## Example 87. Suspended dealing side-letter override
+
+### Scenario
+
+A fund suspends dealing for all investors, but one institutional investor claims a side-letter right to redeem during suspension. The platform must not release redemption until the administrator confirms the side-letter applies.
+
+| Attribute | Standard terms | Claimed side-letter terms |
+|---|---|---|
+| Dealing state | Suspended | Override claimed |
+| Redemption amount | 400,000 | 400,000 |
+| Administrator status | Suspended | Pending confirmation |
+| Release status | Blocked | Source-limited |
+
+### Override rule
+
+```text
+redemption_allowed = not fund_suspended or confirmed_side_letter_override
+source_limited_amount = requested_redemption_amount if override_claimed and not confirmed_side_letter_override else 0
+```
+
+### Correct treatment
+
+- preserve suspension notice, standard fund terms, side-letter claim, investor identity, administrator confirmation and expiry;
+- block redemption until the administrator confirms the side-letter entitlement and operational path;
+- show claimed override as source-limited, not as approved liquidity;
+- re-check DPM liquidity, client communication and reporting labels while redemption is suspended;
+- audit any preferential liquidity treatment for governance and fairness review.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Fund suspension is active | Standard redemption is blocked. |
+| Side-letter is claimed but unconfirmed | Redemption remains source-limited. |
+| Administrator confirms override | Redemption proceeds under scoped terms. |
+| Client report is generated | Suspended, claimed and approved liquidity states are distinct. |
+
+## Example 88. Private-fund GP-led tender election
+
+### Scenario
+
+A private fund sponsor offers a GP-led tender: investors may sell part of their interest at a discount or roll into a continuation vehicle.
+
+| Attribute | Value |
+|---|---:|
+| Client NAV | 1,200,000 |
+| Tenderable percentage | 40.00% |
+| Tender price as percent of NAV | 92.00% |
+| Maximum tender NAV | 480,000 |
+| Tender cash if elected | 441,600 |
+
+### Tender economics
+
+```text
+maximum_tender_nav = client_nav x tenderable_percentage
+maximum_tender_nav = 1,200,000 x 40.00% = 480,000
+tender_cash = maximum_tender_nav x tender_price_percentage
+tender_cash = 480,000 x 92.00% = 441,600
+discount_to_nav = 480,000 - 441,600 = 38,400
+```
+
+### Correct treatment
+
+- preserve GP-led tender notice, election deadline, tenderable percentage, price, continuation option and proration terms;
+- separate liquidity election, transfer economics, rollover outcome and remaining commitment;
+- do not assume full tender acceptance until final allocation is confirmed;
+- assess suitability, liquidity need, valuation discount, tax and concentration implications before election;
+- update reporting for tendered interest, cash proceeds, remaining NAV and continuation vehicle exposure.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Tender election is submitted | Election status is pending until sponsor acceptance. |
+| Tender is prorated | Cash proceeds and remaining interest use final accepted percentage. |
+| Investor rolls instead of tenders | Exposure migrates to continuation vehicle with lineage. |
+| Client report is generated | Tender discount and remaining private-fund exposure are explainable. |
+
+## Example 89. ETF securities-lending revenue allocation
+
+### Scenario
+
+An ETF earns securities-lending revenue. The sponsor allocates part of the gross lending revenue to the fund after deducting agent fees.
+
+| Attribute | Value |
+|---|---:|
+| ETF market value held by client | 300,000 |
+| ETF total net assets | 1,500,000,000 |
+| Gross lending revenue | 2,400,000 |
+| Agent fee percentage | 20.00% |
+| Net revenue to fund | 1,920,000 |
+
+### Client revenue attribution
+
+```text
+client_ownership_share = client_market_value / etf_total_net_assets
+client_ownership_share = 300,000 / 1,500,000,000 = 0.02%
+net_revenue_to_fund = gross_lending_revenue x (1 - agent_fee_percentage)
+net_revenue_to_fund = 2,400,000 x 80.00% = 1,920,000
+client_attributed_lending_revenue = net_revenue_to_fund x client_ownership_share
+client_attributed_lending_revenue = 1,920,000 x 0.02% = 384
+```
+
+### Correct treatment
+
+- preserve ETF sponsor report, gross lending revenue, agent fee, allocation period, total net assets and client market value;
+- treat lending revenue as look-through fund economics, not a direct client securities-lending transaction;
+- distinguish fund-level revenue attribution from cash distribution unless the ETF distributes it;
+- monitor securities-lending risk disclosures, collateral quality and tracking difference where relevant;
+- avoid double-counting revenue already embedded in ETF NAV return.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Sponsor publishes lending revenue | Attribution can be calculated with sponsor source and period. |
+| ETF does not distribute cash | Revenue is not posted as direct client income. |
+| TNA source is missing | Client attribution remains source-limited. |
+| Performance report is generated | NAV return and look-through revenue explanation are not double counted. |
+
+## Example 90. Feeder-master NAV mismatch repair
+
+### Scenario
+
+A feeder fund publishes NAV before the master fund restates its NAV. The feeder administrator later issues a repair notice for the mismatch.
+
+| Attribute | Original | Corrected |
+|---|---:|---:|
+| Client units | 20,000 | 20,000 |
+| Feeder NAV per unit | 101.25 | 100.90 |
+| Client value | 2,025,000 | 2,018,000 |
+| Valuation difference | n/a | -7,000 |
+
+### Repair amount
+
+```text
+original_value = units x original_nav
+original_value = 20,000 x 101.25 = 2,025,000
+corrected_value = units x corrected_nav
+corrected_value = 20,000 x 100.90 = 2,018,000
+valuation_difference = corrected_value - original_value = -7,000
+```
+
+### Correct treatment
+
+- preserve feeder NAV, master NAV restatement, administrator repair notice, affected dates and materiality policy;
+- restate valuation and performance only for affected periods and reports;
+- do not create subscription/redemption activity when only NAV is repaired;
+- identify downstream impact on advisory, fees, collateral, reporting and performance;
+- keep original and corrected NAV lineage for audit and client explanation.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Master NAV restatement arrives | Feeder repair workflow opens. |
+| Corrected feeder NAV is published | Affected valuation and performance recalculate with lineage. |
+| Client units are unchanged | No synthetic trade is created. |
+| Historical report is regenerated | Original and corrected values are traceable. |
+
+## Example 91. Fund distribution currency-election break
+
+### Scenario
+
+A distributing fund allows investors to elect distribution currency. A client elected USD, but the administrator pays in the default EUR currency.
+
+| Attribute | Expected | Actual |
+|---|---:|---:|
+| Distribution base amount | 12,000 EUR | 12,000 EUR |
+| Elected currency | USD | EUR |
+| FX election rate | 1.0800 | n/a |
+| Expected USD cash | 12,960 | n/a |
+| Actual EUR cash | n/a | 12,000 |
+
+### Currency-election break
+
+```text
+expected_usd_cash = distribution_eur_amount x election_fx_rate
+expected_usd_cash = 12,000 x 1.0800 = 12,960
+currency_election_break = actual_currency != elected_currency
+```
+
+### Correct treatment
+
+- preserve distribution notice, currency election, election deadline, administrator confirmation, actual cash and FX rate source;
+- treat wrong-currency payment as an income distribution with operational break, not a failed entitlement;
+- route repair through FX conversion, administrator claim or client instruction depending on policy;
+- report income amount, received currency, expected currency and repair status separately;
+- avoid converting automatically if client authority or FX policy requires confirmation.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Currency election is confirmed | Expected cash uses elected currency and source-backed rate. |
+| Cash arrives in default currency | Distribution is posted with currency-election break. |
+| Repair FX is approved | Currency conversion or claim links to original distribution. |
+| Client report is generated | Expected election and actual received currency are explainable. |
