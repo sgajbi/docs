@@ -34,6 +34,12 @@ Cash and FX sit underneath nearly every product workflow. They affect buying pow
 | Cross-currency settlement holiday | Calculate valid joint currency value date and identify security-versus-FX funding mismatches before approving orders. |
 | Sweep unwind during stress | Treat money market sweep positions as liquidity products with NAV, cut-off, gate, settlement and redemption confirmation; do not equate them with bank cash. |
 | Credit-line-funded purchase | Approve only after facility, collateral, haircut, currency, concentration, pledge and mandate checks pass; record drawdown and collateral reservation separately from cash. |
+| Overdraft pricing tiers | Accrue utilization cost by tier, currency, effective date and facility status; do not hide financing cost in generic cash movement. |
+| Intraday liquidity restriction | Check cash by payment window, settlement window and cut-off, not only end-of-day projected balance. |
+| Payment cut-off failure | Keep cash reserved, roll value date by calendar and preserve client instruction, approval and release evidence. |
+| Liquidity stress escalation | Rank liquidity sources by certainty, haircut, settlement date, approval need and client communication impact. |
+| Cash pooling | Separate consolidated analytical liquidity from legally transferable cash across accounts, owners and mandates. |
+| Nostro reconciliation | Reconcile internal cash to external statement by account, currency and value date before unresolved balances feed buying power. |
 
 ## Reusable Modelling Pattern
 
@@ -134,7 +140,13 @@ High-value scenarios:
 15. negative interest accrues by threshold, rate period and currency,
 16. cross-currency holiday creates a funding mismatch that is blocked, prefunded or bridged,
 17. gated sweep unwind limits same-day withdrawal cash,
-18. credit-line-funded purchase reserves collateral and records borrowing exposure.
+18. credit-line-funded purchase reserves collateral and records borrowing exposure,
+19. overdraft pricing accrues by utilization tier and effective date,
+20. intraday liquidity blocks same-day usage despite positive end-of-day projection,
+21. missed payment cut-off rolls value date while reserving cash,
+22. stress escalation distinguishes cash from conditional liquidity,
+23. cash pooling respects legal owner, mandate, authority and transfer evidence,
+24. nostro reconciliation blocks unresolved cash breaks from buying power.
 
 ## Useful Project Workflows
 

@@ -52,7 +52,7 @@ These products look simple, but they drive many difficult platform, advisory and
    Source notes and suggested further reading.
 
 10. `10-worked-examples-and-implementation-patterns.md`
-    Practical examples for available cash, deposit breakage, money market fund gates, FX spot settlement, FX forwards, NDFs and liquidity ladders.
+    Practical examples for available cash, deposit breakage, money market fund gates, FX spot settlement, FX forwards, NDFs, liquidity ladders, buying power, failed settlement, sweeps, overdrafts, negative interest, settlement holidays, stress liquidity, payment cut-offs, cash pooling and nostro reconciliation.
 
 ## Core mental model
 

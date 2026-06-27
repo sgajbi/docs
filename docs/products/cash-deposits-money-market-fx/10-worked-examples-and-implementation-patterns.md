@@ -706,3 +706,243 @@ The purchase can proceed only if the credit facility is approved for the client,
 | FX haircut is required | Lending value includes FX haircut before approving funding. |
 | Facility is shared across accounts | Reservation reduces group-level headroom. |
 | Bond settles but drawdown fails | Exception workflow links trade, loan drawdown, cash and collateral states. |
+
+## Example 16. Overdraft Pricing Tiers And Utilization
+
+### Scenario
+
+An account has an approved overdraft facility with tiered pricing. A short-dated funding gap creates temporary overdraft utilization until sale proceeds settle.
+
+| Attribute | Value |
+|---|---:|
+| Overdraft utilization | 180,000 |
+| Tier 1 limit | 100,000 |
+| Tier 1 annual rate | 6.00% |
+| Tier 2 utilization | 80,000 |
+| Tier 2 annual rate | 8.50% |
+| Utilization days | 5 |
+| Day-count basis | 360 |
+
+### Pricing calculation
+
+```text
+tier 1 charge = 100,000 x 6.00% x 5 / 360 = 83.33
+tier 2 charge = 80,000 x 8.50% x 5 / 360 = 94.44
+total overdraft charge = 83.33 + 94.44 = 177.77
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Cash balance | Show negative cash or overdraft utilization separately from free cash. |
+| Facility | Track limit, utilization, buffer, pricing tier, expiry and renewal state. |
+| Interest expense | Accrue overdraft interest by tier, currency, account and effective date. |
+| Performance | Treat overdraft cost as financing expense according to methodology. |
+| Advisory | Explain leverage, cost, settlement dependency and mandate permission. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Utilization crosses a tier threshold | Interest accrual splits by tier. |
+| Facility expires during utilization | New orders using overdraft are blocked and existing usage is escalated. |
+| Mandate disallows leverage | Buying power excludes overdraft despite available facility. |
+| Sale proceeds fail to settle | Utilization remains open and escalation starts. |
+| Rate changes mid-period | Accrual splits by effective date and source evidence. |
+
+## Example 17. Intraday Liquidity Restriction
+
+### Scenario
+
+The account has enough end-of-day projected cash, but a same-day payment queue and market settlement cycle restrict intraday availability.
+
+| Item | Amount | Timing |
+|---|---:|---|
+| Settled cash at start of day | 500,000 | 09:00 |
+| Same-day outgoing payment | -300,000 | 10:30 cut-off |
+| Securities settlement debit | -250,000 | 14:00 |
+| Expected income receipt | 150,000 | End of day |
+| Intraday minimum buffer | -25,000 | All day |
+
+### Liquidity view
+
+```text
+intraday available after payment and settlement = 500,000 - 300,000 - 250,000 - 25,000
+intraday available after payment and settlement = -75,000
+
+end-of-day projected cash = -75,000 + 150,000
+end-of-day projected cash = 75,000
+```
+
+### Correct treatment
+
+End-of-day projected cash is positive, but the account has an intraday shortfall before the income receipt arrives. A platform should not approve new same-day cash usage merely because the end-of-day projection is positive.
+
+| Workflow | Treatment |
+|---|---|
+| Payment approval | Reserve cash before cut-off and check same-day sequencing. |
+| Securities settlement | Consider intraday cash need by settlement window, not only date. |
+| Income receipt | Treat as projected until source confirms receipt. |
+| Escalation | Open funding, overdraft, payment-delay or settlement-priority workflow. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| End-of-day cash is positive but intraday cash is negative | Same-day new orders are blocked or escalated. |
+| Incoming cash is delayed | Intraday shortfall remains and payment priority is reassessed. |
+| Payment cut-off is missed | Payment moves to next valid window with client/service impact status. |
+| Buffer is mandate-specific | Intraday availability changes by account or service model. |
+
+## Example 18. Payment Cut-Off Failure
+
+### Scenario
+
+A client withdrawal is approved, but the payment instruction misses the currency cut-off. Cash is still in the account, yet the client-visible payment date changes.
+
+| Attribute | Value |
+|---|---|
+| Payment currency | EUR |
+| Approved payment amount | 75,000 |
+| Internal approval time | 15:40 |
+| Currency payment cut-off | 15:30 |
+| Original requested value date | Today |
+| Next eligible value date | Next business day |
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Approval | Preserve approval time, approver, amount, currency and client instruction. |
+| Cut-off validation | Compare approval and release time against payment calendar and channel cut-off. |
+| Cash reservation | Keep cash reserved until payment is released, cancelled or amended. |
+| Client communication | Show revised value date and reason code. |
+| Reconciliation | Match payment release, bank acknowledgement and cash ledger movement. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Payment misses cut-off | Value date rolls to next eligible business day. |
+| Cash is still visible in ledger | Reserved cash is excluded from available cash. |
+| Client cancels before next release | Reservation is released with cancellation lineage. |
+| Holiday follows missed cut-off | Next value date respects payment calendar. |
+| Payment is urgent | Escalation path records approval and any manual override evidence. |
+
+## Example 19. Liquidity Stress Escalation
+
+### Scenario
+
+During market stress, a client needs USD 400,000 within two days. The account has multiple cash-like sources, but some have gates, cut-offs or settlement risk.
+
+| Source | Value | Stress availability |
+|---|---:|---:|
+| Settled cash | 120,000 | 120,000 |
+| Money market fund | 200,000 | 80,000 under gate |
+| T-bill sale estimate | 150,000 | 140,000 after haircut and settlement risk |
+| Deposit break estimate | 100,000 | 95,000 after breakage |
+
+### Stress view
+
+```text
+stress available liquidity = 120,000 + 80,000 + 140,000 + 95,000
+stress available liquidity = 435,000
+
+stress surplus = 435,000 - 400,000
+stress surplus = 35,000
+```
+
+### Correct treatment
+
+The surplus is not the same as free cash. It depends on gates, sale execution, deposit break approval, settlement timing and client mandate permissions.
+
+| Escalation item | Required evidence |
+|---|---|
+| Liquidity source ranking | Same-day cash, redeemable MMF, saleable securities, breakable deposits and credit options. |
+| Haircuts | Stress haircut and source for each non-cash liquidity item. |
+| Time horizon | Availability by day, cut-off and settlement status. |
+| Approval | Advisor, DPM, operations, credit or treasury approval depending on action. |
+| Client explanation | Explain uncertainty, sequencing and possible shortfall. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| MMF gate tightens | Stress liquidity recomputes and may breach target. |
+| T-bill sale fails | Alternative funding path or escalation opens. |
+| Deposit break requires approval | Liquidity remains conditional until approved. |
+| Client report is generated | Stress labels distinguish cash from conditional liquidity. |
+| Multiple clients draw liquidity at once | Concentration and operational capacity limits are considered. |
+
+## Example 20. Cash Pooling Across Accounts
+
+### Scenario
+
+A family group uses cash pooling for liquidity monitoring. One account has surplus cash while another has a funding need, but legal ownership and mandate rules constrain movement.
+
+| Account | Legal owner | Currency | Available cash | Funding need |
+|---|---|---|---:|---:|
+| Account A | Parent | USD | 300,000 | 0 |
+| Account B | Child trust | USD | 20,000 | 150,000 |
+| Account C | Operating company | USD | 90,000 | 0 |
+
+### Pooling treatment
+
+| View | Treatment |
+|---|---|
+| Group liquidity view | Show aggregate liquidity for monitoring and planning. |
+| Legal cash availability | Do not move cash across owners without authority, instruction and tax/legal checks. |
+| Mandate impact | DPM and advisory rules apply at account and mandate level, not only group level. |
+| Reporting | Identify pooled view as analytical unless a legal sweep or transfer is executed. |
+| Audit | Preserve instruction, authority, purpose, approval and transfer evidence. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Account B uses Account A surplus without transfer authority | Funding is blocked. |
+| Group report shows aggregate liquidity | Report labels it as consolidated analytical liquidity. |
+| Transfer is approved | Cash movement is posted as transfer, not investment income or performance gain. |
+| Currency differs across accounts | FX funding and value-date rules apply before transfer availability. |
+| Trust account restrictions apply | Pooling excludes restricted cash or labels it unavailable. |
+
+## Example 21. Nostro Reconciliation For Cash Ledger
+
+### Scenario
+
+The internal USD cash ledger and bank nostro statement differ at close of business.
+
+| Component | Amount |
+|---|---:|
+| Internal ledger cash | 1,250,000 |
+| Nostro statement cash | 1,244,500 |
+| Difference | 5,500 |
+
+The difference is explained by a late fee posting and a same-day payment not yet acknowledged by the bank.
+
+| Break component | Amount |
+|---|---:|
+| Missing custody fee | -500 |
+| Pending payment acknowledgement | -5,000 |
+| Total explained break | -5,500 |
+
+### Correct reconciliation
+
+| Step | Treatment |
+|---|---|
+| Detect | Compare internal cash ledger to bank/custodian statement by account, currency, date and source. |
+| Explain | Split break into missing fee, pending payment, timing item, duplicate, unknown or source correction. |
+| Restrict | Exclude unresolved positive cash breaks from available cash. |
+| Resolve | Book missing fee, match payment acknowledgement or escalate unresolved item. |
+| Close | Close only with statement line, internal posting and approver evidence. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Break is fully explained | Reconciliation closes with component evidence. |
+| Break includes unknown component | Unknown amount remains open and aged. |
+| Positive break would increase buying power | Available cash excludes it until resolved. |
+| Manual adjustment is used | Adjustment requires reason, approver and source evidence. |
+| Same break repeats | Root-cause workflow opens for feed, mapping or timing issue. |
