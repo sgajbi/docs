@@ -4721,3 +4721,243 @@ remaining_investor_interest_allocation = 15,000 x 30% = 4,500
 | Investor dispute remains open | Disputed amount is labelled unresolved. |
 | Administrator confirms allocation | Final allocation updates with source evidence. |
 | Liquidity report is generated | Principal repayment, interest allocation and disputed residual are separate. |
+
+## Example 128. Fund Vote Exception Acceptance Reversal Dispute
+
+### Scenario
+
+A transfer agent initially accepts a late fund vote instruction under exception handling, but later reverses the acceptance because the exception approval was issued against the wrong investor account. The platform must reverse accepted vote units without losing the original late-instruction evidence.
+
+| Attribute | Value |
+|---|---:|
+| Exception-accepted units | 35,000 |
+| Reversal-confirmed units | 20,000 |
+| Remaining accepted units | 15,000 |
+| Original late submitted units | 48,000 |
+
+### Reversal coverage
+
+```text
+reversed_acceptance_ratio = reversal_confirmed_units / exception_accepted_units
+reversed_acceptance_ratio = 20,000 / 35,000 = 57.14%
+
+final_accepted_vote_units = exception_accepted_units - reversal_confirmed_units
+final_accepted_vote_units = 35,000 - 20,000 = 15,000
+```
+
+### Correct treatment
+
+- preserve original vote notice, late instruction, exception acceptance, reversal notice, account-mapping error and final vote status;
+- reverse only the units confirmed by the transfer agent as invalidly accepted;
+- keep late-submitted, accepted, reversed and final accepted units separately traceable;
+- prevent final voting reports from counting reversed units as voted;
+- retain the reversal dispute for operations review and control improvement.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Acceptance reversal arrives | Accepted vote units are reduced to final source-confirmed units. |
+| Reversal affects only part of accepted units | Remaining accepted units stay valid with source evidence. |
+| Account mapping is unresolved | Final vote status is blocked or labelled disputed. |
+| Vote report is generated | Late, accepted, reversed and final units reconcile. |
+
+## Example 129. ETF Proxy Renewal Expiry Breach
+
+### Scenario
+
+An ETF basket proxy renewal expires before normal constituent pricing resumes. The valuation process continues to use the expired proxy for part of the basket, creating a pricing-control breach.
+
+| Attribute | Value |
+|---|---:|
+| Renewed proxy coverage | 12,600,000 |
+| Coverage still unpriced after expiry | 8,400,000 |
+| ETF units held | 180,000 |
+| Materiality threshold | 2,500,000 |
+
+### Expired proxy exposure
+
+```text
+expired_proxy_breach_exposure = coverage_still_unpriced_after_expiry
+expired_proxy_breach_exposure = 8,400,000
+
+expired_proxy_exposure_per_unit = expired_proxy_breach_exposure / etf_units_held
+expired_proxy_exposure_per_unit = 8,400,000 / 180,000 = 46.67
+```
+
+### Correct treatment
+
+- preserve proxy approval, renewal expiry, unpriced basket components, valuation timestamp and committee escalation;
+- stop treating expired proxy coverage as approved valuation evidence;
+- label ETF valuation as expired-proxy or provisional when material exposure remains unpriced;
+- block client-ready final reporting until price, renewed proxy or committee override evidence exists;
+- keep expired proxy breach separate from market trading halt state.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Proxy renewal expires | Expired proxy coverage is removed from approved coverage. |
+| Breach exposure exceeds threshold | Valuation-control breach opens. |
+| New proxy is approved | Coverage uses new effective-dated proxy evidence. |
+| ETF report is generated | Expired proxy exposure is labelled separately from priced basket value. |
+
+## Example 130. MFN Retroactive Adjustment Clawback
+
+### Scenario
+
+A private-fund MFN fee adjustment was paid retroactively, but the administrator later claws back part of the adjustment after finding that one investor class was not eligible for the full period.
+
+| Attribute | Value |
+|---|---:|
+| Retroactive MFN adjustment paid | 4,166.67 |
+| Ineligible days identified | 45 |
+| Original retroactive days | 120 |
+| Clawback amount claimed | 1,562.50 |
+
+### Clawback reasonableness
+
+```text
+expected_clawback = retroactive_mfn_adjustment_paid x ineligible_days_identified / original_retroactive_days
+expected_clawback = 4,166.67 x 45 / 120 = 1,562.50
+
+remaining_valid_adjustment = retroactive_mfn_adjustment_paid - clawback_amount_claimed
+remaining_valid_adjustment = 4,166.67 - 1,562.50 = 2,604.17
+```
+
+### Correct treatment
+
+- preserve MFN election, original retroactive adjustment, administrator clawback notice, eligibility correction and affected investor class;
+- reverse clawed-back fee remediation through a linked adjustment;
+- keep clawback separate from distributions, capital calls and investment return;
+- update investor reporting for the corrected eligible period;
+- block clawback posting if administrator evidence does not reconcile to eligibility terms.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Clawback notice arrives | Prior MFN adjustment case is reopened or linked. |
+| Eligibility period is corrected | Clawback is calculated against ineligible days only. |
+| Clawback amount does not reconcile | Posting is blocked for administrator review. |
+| Fee report is generated | Original adjustment, clawback and remaining valid adjustment reconcile. |
+
+## Example 131. Expense-Cap Restatement Investor Notice
+
+### Scenario
+
+A retroactive expense-cap restatement is material enough to require investor notice. The platform must track restatement calculation, approval and notice delivery separately from the NAV adjustment.
+
+| Attribute | Value |
+|---|---:|
+| Retroactive expense restatement | 7,956.16 |
+| Investor notice threshold | 5,000 |
+| Investors requiring notice | 84 |
+| Notices delivered | 79 |
+
+### Notice gap
+
+```text
+notice_required = retroactive_expense_restatement > investor_notice_threshold
+notice_required = 7,956.16 > 5,000 = true
+
+undelivered_investor_notices = investors_requiring_notice - notices_delivered
+undelivered_investor_notices = 84 - 79 = 5
+```
+
+### Correct treatment
+
+- preserve board approval, restatement calculation, materiality threshold, investor notice template, delivery status and exceptions;
+- keep NAV or accrual restatement separate from investor-notice completion;
+- block final client-ready reporting when required notices remain undelivered without approved exception;
+- retain delivered, bounced and pending notices as evidence;
+- avoid treating notice delivery as approval of the restatement itself.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Restatement exceeds threshold | Investor notice workflow is required. |
+| Notices remain undelivered | Final reporting is blocked or exception-labelled. |
+| Notice delivery completes | Notice control closes with delivery evidence. |
+| Fund report is generated | Restatement amount and notice status are separately visible. |
+
+## Example 132. UCITS Residual Breach Extension Approval
+
+### Scenario
+
+A UCITS cure trade partially resolves a breach, but residual exposure remains because market liquidity is insufficient. Compliance approves a short extension for the residual breach. The platform must keep the breach open and track the extension separately from cure completion.
+
+| Attribute | Value |
+|---|---:|
+| Residual breach after cure | 450,000 |
+| Extension-approved residual | 300,000 |
+| Unapproved residual | 150,000 |
+| Extension days approved | 7 |
+
+### Extension coverage
+
+```text
+extension_coverage_ratio = extension_approved_residual / residual_breach_after_cure
+extension_coverage_ratio = 300,000 / 450,000 = 66.67%
+
+unapproved_residual_breach = residual_breach_after_cure - extension_approved_residual
+unapproved_residual_breach = 450,000 - 300,000 = 150,000
+```
+
+### Correct treatment
+
+- preserve original breach, partial cure evidence, liquidity constraint, extension approval, expiry and residual cure plan;
+- keep extension-approved residual and unapproved residual separate;
+- continue escalation for unapproved residual exposure;
+- do not close the breach until exposure is cured or fully approved under policy;
+- show extension expiry and residual exposure in compliance reporting.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Extension covers only part of residual | Unapproved residual remains escalated. |
+| Extension expires | Residual exposure re-enters breach escalation. |
+| Additional cure capacity appears | Residual breach recalculates from fresh evidence. |
+| Compliance report is generated | Original breach, partial cure, extension and residual exposure reconcile. |
+
+## Example 133. Feeder Facility Interest Reallocation Reversal
+
+### Scenario
+
+After a feeder facility interest allocation dispute, the administrator reallocates accrued interest. A later governing-body decision reverses part of the reallocation because redeeming investors were overcharged.
+
+| Attribute | Value |
+|---|---:|
+| Interest reallocated to redeeming investors | 10,500 |
+| Corrected redeeming investor allocation | 9,000 |
+| Interest reallocation reversal | 1,500 |
+| Remaining investor corrected allocation | 6,000 |
+
+### Reallocation reversal
+
+```text
+redeeming_investor_reversal = interest_reallocated_to_redeeming_investors - corrected_redeeming_investor_allocation
+redeeming_investor_reversal = 10,500 - 9,000 = 1,500
+
+total_corrected_interest_allocation = corrected_redeeming_investor_allocation + remaining_investor_corrected_allocation
+total_corrected_interest_allocation = 9,000 + 6,000 = 15,000
+```
+
+### Correct treatment
+
+- preserve original allocation, dispute file, administrator reallocation, governing-body reversal and corrected investor allocation weights;
+- reverse overcharged interest through a linked adjustment;
+- keep facility interest reallocation separate from redemption proceeds, facility principal and fund expenses;
+- prevent statements from showing both old and corrected allocations as final;
+- reconcile corrected allocations to total accrued facility interest.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Reversal decision arrives | Prior reallocation is adjusted with source evidence. |
+| Corrected allocations sum to accrued interest | Interest allocation closes without residual. |
+| Corrected allocations do not reconcile | Posting is blocked for administrator review. |
+| Liquidity report is generated | Facility principal, interest allocation and reversal remain separate. |
