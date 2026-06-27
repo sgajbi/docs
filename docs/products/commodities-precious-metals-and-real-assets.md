@@ -12,7 +12,7 @@ Commodity exposure is wrapper-driven. Physical gold, an allocated metal account,
 
 ## Practical Worked Examples
 
-Use [`commodities-precious-metals-real-assets/10-worked-examples-and-implementation-patterns.md`](commodities-precious-metals-real-assets/10-worked-examples-and-implementation-patterns.md) for concrete examples covering allocated and unallocated gold, commodity futures rolls, ETN issuer risk, pledged gold haircuts, commodity-linked note observations, fund look-through, support boundaries and regression tests.
+Use [`commodities-precious-metals-real-assets/10-worked-examples-and-implementation-patterns.md`](commodities-precious-metals-real-assets/10-worked-examples-and-implementation-patterns.md) for concrete examples covering allocated and unallocated gold, commodity futures rolls, ETN issuer risk, pledged gold haircuts, commodity-linked note observations, fund look-through, storage-fee accruals, paid-in-kind metal fees, commodity option exercise, warehouse receipts, natural-resource fund look-through, commodity index roll yield, delivery-risk workflows, support boundaries and regression tests.
 
 ## Platform Design Distinctions
 
@@ -80,7 +80,7 @@ APIs should expose:
 2. commodity family, commodity, grade, unit, benchmark, price source, and valuation date,
 3. position quantity, contract size, notional, delta-adjusted exposure, and collateral value separately,
 4. custody/provider/issuer/counterparty fields depending on wrapper,
-5. storage fees, roll activity, futures margin, derivative settlement, and lifecycle events,
+5. storage fees, paid-in-kind fees, roll activity, futures margin, derivative settlement, receipt-backed holdings and lifecycle events,
 6. stale price, stale NAV, stale curve, missing unit conversion, and missing FX states,
 7. collateral haircut, pledged quantity, eligible quantity, and availability when used for lending,
 8. suitability and mandate flags for leverage, complexity, delivery risk, and concentration.
@@ -90,9 +90,9 @@ UIs should make these states visible:
 1. gold exposure is physical, allocated, unallocated, ETP, derivative, note, or proxy equity,
 2. value depends on a specific unit and price source,
 3. futures exposure is not the same as margin cash,
-4. ETP performance may differ from spot because of fees, roll, or issuer mechanics,
+4. ETP and index performance may differ from spot because of fees, roll, collateral return, issuer mechanics or tracking methodology,
 5. unallocated metal and ETNs carry provider or issuer credit exposure,
-6. contracts near expiry require roll, close-out, or delivery handling,
+6. contracts near expiry require roll, close-out, exercise or delivery handling,
 7. pledged metal is not freely available,
 8. delivery, storage, liquidity, and suitability limitations are explicit.
 
