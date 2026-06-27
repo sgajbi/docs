@@ -814,7 +814,232 @@ QA assertions:
 | Cancellation is approved | Reserved liquidity releases and commitment state updates. |
 | Report is generated | Paid grant and cancelled pledge are reported as separate lifecycle events. |
 
-## 32. Regression Test Pack
+## 32. Excluded-Person Control
+
+Scenario:
+
+- A trust deed excludes a named person from receiving distributions or report access.
+- The person is related to an active beneficiary and appears in an external CRM relationship group.
+- A distribution request and report-sharing request both need exclusion screening.
+
+| Attribute | Value |
+|---|---|
+| Requested distribution | 75,000 |
+| Excluded person relationship | Family member |
+| Trust deed status | Active exclusion |
+| Report access request | Pending |
+
+Control result:
+
+```text
+distribution_allowed = beneficiary_not_excluded and trustee_approval_present
+report_access_allowed = recipient_not_excluded and recipient_role_entitled
+```
+
+Correct workflow:
+
+- preserve exclusion clause, named person identity, relationship context, effective dates and legal/trustee review evidence;
+- block distributions, loans, report delivery and instruction authority for excluded persons;
+- avoid exposing restricted trust details when denying access or explaining the blocked state;
+- distinguish an excluded person from a beneficiary with temporarily suspended rights.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Excluded person requests report access | Access is blocked without leaking trust details. |
+| Advisor attempts distribution to excluded person | Workflow blocks before cash or beneficiary receivable is created. |
+| Exclusion is amended | Effective-dated source evidence controls future access. |
+| Related active beneficiary receives report | Active beneficiary access is evaluated independently. |
+
+## 33. Foundation Redomiciliation
+
+Scenario:
+
+- A private foundation changes domicile from one jurisdiction to another.
+- Council members remain the same, but reporting, tax status, governing law and bank documentation must be updated from the redomiciliation effective date.
+
+| Attribute | Before | After |
+|---|---|---|
+| Domicile | Jurisdiction A | Jurisdiction B |
+| Governing law | A foundation law | B foundation law |
+| Effective date | Until 30 Sep | From 1 Oct |
+| Open documentation tasks | 0 | 6 |
+
+Transition control:
+
+```text
+active_domicile = domicile where effective_from <= action_date < effective_to
+open_redomiciliation_tasks = 6
+```
+
+Correct workflow:
+
+- preserve redomiciliation approval, registry evidence, legal opinion, effective date and impacted account list;
+- update governing law, reporting labels, tax status and document requirements from the effective date;
+- keep historical reporting under prior domicile and avoid retroactive rewriting unless legal review requires it;
+- block affected actions when mandatory bank or tax documentation is incomplete.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Action date is before redomiciliation | Prior domicile rules apply. |
+| Effective date passes | New domicile, governing law and documentation requirements become active. |
+| Registry evidence is missing | Redomiciliation remains pending or source-limited. |
+| Report spans the transition | Report shows effective-dated domicile history. |
+
+## 34. Emergency Trustee Powers
+
+Scenario:
+
+- A trustee must exercise emergency powers to preserve assets during market disruption.
+- Normal investment committee approval cannot be obtained before the market cut-off.
+- The governing document allows emergency action with post-event ratification.
+
+| Attribute | Value |
+|---|---|
+| Proposed protective sale | 1,200,000 |
+| Normal approval status | Unavailable |
+| Emergency authority | Permitted |
+| Ratification deadline | 5 business days |
+
+Emergency authority:
+
+```text
+emergency_action_allowed = emergency_clause_active and action_purpose == asset_preservation
+ratification_required = true
+```
+
+Correct workflow:
+
+- preserve emergency clause, triggering event, trustee decision, asset-preservation rationale and market cut-off evidence;
+- allow only scoped protective actions, not unrelated discretionary activity;
+- require post-event ratification, beneficiary/confidentiality review and audit evidence;
+- label reporting as emergency-governed until ratification is complete.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Emergency clause applies | Scoped protective workflow can proceed with trustee evidence. |
+| Action is unrelated to preservation | Normal approval workflow is required. |
+| Ratification deadline passes | Exception or breach workflow opens. |
+| Client report is generated | Emergency status and approval lineage are visible to authorized recipients. |
+
+## 35. Private-Trust-Company Board Change
+
+Scenario:
+
+- A private trust company replaces two directors.
+- Board quorum, signing authority and pending approvals must be recalculated from the effective appointment date.
+
+| Attribute | Before | After |
+|---|---:|---:|
+| Board members | 5 | 5 |
+| Directors replaced | 0 | 2 |
+| Quorum requirement | 3 | 3 |
+| Pending approvals | 4 | 4 requiring review |
+
+Approval impact:
+
+```text
+approvals_requiring_revalidation = pending_approvals_at_board_change
+quorum_met = eligible_active_directors >= quorum_requirement
+```
+
+Correct workflow:
+
+- preserve resignation, appointment, acceptance, register update and effective dates for each director;
+- recalculate quorum, signing authority, committee membership and pending approval validity;
+- require revalidation where prior approvals depended on outgoing directors or expired authority;
+- keep trust-level ownership and portfolio performance unchanged while governance authority changes.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Outgoing director approves after effective resignation | Approval is rejected. |
+| Pending approval used outgoing-director authority | Revalidation workflow opens. |
+| Register evidence is missing | New director authority remains pending. |
+| Governance report is generated | Board history and active authority are effective-dated. |
+
+## 36. Beneficiary Consent Campaign
+
+Scenario:
+
+- A restructuring requires consent from multiple beneficiary classes.
+- Some beneficiaries have consent rights, some receive notice only, and one beneficiary is under representation restrictions.
+
+| Beneficiary group | Required consents | Received consents |
+|---|---:|---:|
+| Income beneficiaries | 4 | 3 |
+| Capital beneficiaries | 3 | 3 |
+| Notice-only beneficiaries | 0 | 0 |
+
+Consent coverage:
+
+```text
+required_consents = 4 + 3 = 7
+received_consents = 3 + 3 = 6
+consent_coverage = 6 / 7 = 85.71%
+missing_consents = 1
+```
+
+Correct workflow:
+
+- preserve consent class, notice package, delivery evidence, response status, representative authority and deadline;
+- distinguish consent-required, notice-only and restricted/minor/represented beneficiaries;
+- block final restructuring until required consent threshold and trustee approval are met;
+- show campaign status without exposing other beneficiaries' private details.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Required consent is missing | Restructuring remains pending. |
+| Notice-only beneficiary has not responded | Consent coverage is unaffected. |
+| Representative authority is missing | Beneficiary response is invalid or pending review. |
+| Campaign report is generated | Coverage, missing consents and deadlines are visible to authorized users. |
+
+## 37. Family-Office Expense Allocation Dispute
+
+Scenario:
+
+- A family office allocates shared operating expenses across branches and entities.
+- One branch disputes its allocation because a service was not used by its accounts.
+
+| Branch/entity | Proposed allocation | Accepted allocation |
+|---|---:|---:|
+| Branch A | 90,000 | 90,000 |
+| Branch B | 70,000 | 45,000 |
+| Holding company | 40,000 | 40,000 |
+
+Dispute amount:
+
+```text
+disputed_expense = proposed_branch_b_allocation - accepted_branch_b_allocation
+disputed_expense = 70,000 - 45,000 = 25,000
+accepted_total = 90,000 + 45,000 + 40,000 = 175,000
+```
+
+Correct workflow:
+
+- preserve expense policy, service usage basis, allocation run, disputed amount, approval owner and resolution state;
+- separate payable expense, disputed allocation, accepted allocation and any reallocation to other entities;
+- avoid allocating private entity costs to unrelated beneficiaries or branches;
+- update family-office reporting only after approved allocation or provisional-dispute labelling.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Branch disputes allocation | Disputed amount is tracked separately from accepted expense. |
+| Allocation basis is missing | Expense allocation remains provisional or blocked. |
+| Reallocation is approved | Impacted branches/entities receive versioned allocation updates. |
+| Report is generated | Accepted and disputed costs are labelled by policy and recipient authority. |
+
+## 38. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -849,3 +1074,9 @@ Minimum release-gate scenarios:
 29. Family charter amendment applies the correct rule version and effective date.
 30. Multi-branch reporting restrictions preserve consolidated and recipient-specific reporting perimeters.
 31. Charitable pledge cancellation stops future installments while preserving paid-grant evidence.
+32. Excluded-person controls block distributions and report access without leaking restricted trust details.
+33. Foundation redomiciliation updates domicile, governing law, documentation and reporting from the effective date.
+34. Emergency trustee powers allow only scoped protective actions and require post-event ratification.
+35. Private-trust-company board changes recalculate quorum, signing authority and pending approval validity.
+36. Beneficiary consent campaigns distinguish consent-required, notice-only and represented beneficiaries.
+37. Family-office expense allocation disputes separate accepted, disputed and reallocated cost amounts.
