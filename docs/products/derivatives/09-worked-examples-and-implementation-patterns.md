@@ -2237,7 +2237,216 @@ QA assertions:
 | Clean value also changes | Clean movement and reserve release are separate components. |
 | Valuation report is generated | Model version, evidence source and reserve movement are traceable. |
 
-## 71. Advisory And Mandate Checklist
+## 71. Option Barrier Dispute Settlement
+
+Scenario:
+
+- A client holds a barrier option with a USD 1,000,000 notional.
+- Dealer source says the barrier was touched and payout is zero.
+- Independent market data says the barrier was not touched.
+- The agreed dispute settlement pays 45% of the maximum payout.
+
+Dispute settlement:
+
+```text
+maximum_payout = 1,000,000
+settlement_percentage = 45%
+settled_payout = 1,000,000 x 45% = 450,000
+unpaid_disputed_amount = 1,000,000 - 450,000 = 550,000
+```
+
+Correct treatment:
+
+- preserve dealer observation, independent observation, governing source hierarchy, dispute notice and settlement agreement;
+- keep disputed payoff provisional until settlement evidence is accepted;
+- post the settled payout as dispute settlement, not as normal barrier payoff if the economics were compromised;
+- retain the unpaid disputed amount for audit, complaint, tax and reporting explanation where policy requires;
+- distinguish barrier-source dispute from market valuation movement.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Dealer and independent observations conflict | Payoff remains disputed or provisional. |
+| Settlement agreement is accepted | Settled payout posts with dispute lineage. |
+| Settlement percentage is missing | Final cashflow remains blocked or source-limited. |
+| Client report is generated | Report separates contractual maximum, settled payout and dispute basis. |
+
+## 72. Cleared Swap Compression Fee
+
+Scenario:
+
+- A cleared swap compression cycle reduces gross notional across accepted trades.
+- Accepted notional reduction is USD 25,000,000.
+- Clearing house fee is 0.8 bps of accepted notional.
+- Broker processing fee is USD 3,500.
+
+Compression cost:
+
+```text
+clearing_fee = 25,000,000 x 0.8 / 10,000 = 2,000
+total_compression_fee = 2,000 + 3,500 = 5,500
+```
+
+Correct treatment:
+
+- preserve compression run id, accepted trade list, rejected trade list, notional reduction and fee schedule;
+- reduce notional only for accepted trades and keep compression fee separate from swap MTM;
+- allocate fees by agreed rule, such as notional reduction, trade count or account owner;
+- avoid booking fee before clearing-house confirmation;
+- update exposure, margin and reporting after accepted compression is final.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Compression run has rejected trades | Fees and notional reduction apply only to accepted trades. |
+| Clearing fee schedule is missing | Fee posting is blocked or source-limited. |
+| Broker fee arrives separately | Total cost reconciles without duplicating clearing fee. |
+| Exposure report is generated | Notional reduction and compression fee are separately visible. |
+
+## 73. Futures Position-Limit Remediation
+
+Scenario:
+
+- A futures account breaches an exchange position limit after same-day fills.
+- Exchange limit is 1,000 contracts.
+- Current gross position is 1,080 contracts.
+- Remediation plan reduces 120 contracts before the regulatory deadline.
+
+Limit breach:
+
+```text
+excess_contracts = current_position - exchange_limit
+excess_contracts = 1,080 - 1,000 = 80
+post_remediation_position = 1,080 - 120 = 960
+```
+
+Correct treatment:
+
+- preserve exchange limit, aggregation rule, positions, fills, breach timestamp, remediation order and deadline;
+- block new orders that increase the breach until remediation completes;
+- distinguish exchange hard limits from internal advisory concentration limits;
+- update margin, exposure and client communication after remediation execution;
+- keep breach evidence even after the position is back within limit.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Gross position exceeds exchange limit | Breach workflow opens with excess contracts. |
+| New order increases breach | Order is blocked or escalated by policy. |
+| Remediation trade executes | Position limit state returns within limit with lineage. |
+| Report is generated after remediation | Historical breach and remediation remain auditable. |
+
+## 74. FX Option Fixing Source Override
+
+Scenario:
+
+- An FX option cash settlement depends on a fixing source.
+- Contract specifies Fixing Source A.
+- Source A is unavailable at fixing time.
+- Operations proposes Source B under fallback policy.
+
+Fallback settlement:
+
+| Input | Value |
+|---|---:|
+| Notional | 2,000,000 |
+| Strike | 1.0800 |
+| Source B fixing | 1.0950 |
+| Payout currency | USD |
+
+```text
+intrinsic_rate = max(1.0950 - 1.0800, 0) = 0.0150
+fallback_cash_settlement = 2,000,000 x 0.0150 = 30,000
+```
+
+Correct treatment:
+
+- preserve contractual fixing source, outage evidence, fallback hierarchy, approval and source-B timestamp;
+- label settlement as fallback-source based, not ordinary fixing-source settlement;
+- block settlement if fallback policy or approval is missing;
+- keep client/advisor explanation tied to contract terms and fallback protocol;
+- preserve downstream tax, cash and valuation adjustment lineage.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Contract source is unavailable | Fallback workflow opens with outage evidence. |
+| Fallback source is approved | Settlement uses fallback fixing with explicit label. |
+| Approval is missing | Settlement remains blocked or source-limited. |
+| Client report is generated | Fixing source override is visible without hiding the original source outage. |
+
+## 75. Collateral Dispute Interest Claim
+
+Scenario:
+
+- A collateral dispute delays return of excess cash collateral.
+- Excess collateral amount is USD 750,000.
+- Agreed dispute interest rate is 4.80% annualized.
+- Delay is 12 days.
+- Day-count basis is 360.
+
+Interest claim:
+
+```text
+dispute_interest_claim = 750,000 x 4.80% x 12 / 360 = 1,200
+```
+
+Correct treatment:
+
+- preserve collateral call, agreed/disputed amount, resolution date, interest terms and settlement statement;
+- calculate interest on the agreed delayed amount, not on the full collateral balance unless terms require it;
+- keep collateral principal return, dispute interest and any fees separate;
+- do not accrue client-ready interest when dispute terms or governing rate are missing;
+- reconcile interest claim to dealer or custodian settlement.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Excess collateral return is delayed | Interest claim is calculated from source-backed terms. |
+| Interest rate is missing | Claim remains pending or source-limited. |
+| Dealer pays principal but not interest | Principal closes while interest claim remains open. |
+| Client report is generated | Collateral principal, dispute interest and resolution state are distinct. |
+
+## 76. Model Reserve Backtesting Exception
+
+Scenario:
+
+- A hard-to-value derivative has a valuation reserve calibrated from model backtesting.
+- Backtesting shows realized exits are worse than model values by 1.20%.
+- Current clean value is USD 5,000,000.
+- Existing reserve is USD 40,000.
+- Policy reserve required from backtest is 1.20%.
+
+Reserve exception:
+
+```text
+required_reserve = 5,000,000 x 1.20% = 60,000
+reserve_shortfall = 60,000 - 40,000 = 20,000
+```
+
+Correct treatment:
+
+- preserve backtesting population, realized exits, model values, tolerance, exception owner and reserve policy;
+- increase, retain or review reserve according to valuation governance;
+- separate reserve shortfall from clean market-value movement;
+- route repeated exceptions to model governance, not only trade operations;
+- disclose valuation confidence or degraded state according to reporting policy.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Backtesting breach exceeds tolerance | Reserve exception workflow opens. |
+| Existing reserve is below policy reserve | Reserve shortfall is calculated and routed for approval. |
+| Model governance approves adjustment | Reserve changes with effective date and evidence. |
+| Valuation report is generated | Clean value, reserve, backtest result and exception state are traceable. |
+
+## 77. Advisory And Mandate Checklist
 
 Before using derivatives in advisory or DPM workflows, check:
 
@@ -2252,7 +2461,7 @@ Before using derivatives in advisory or DPM workflows, check:
 | Authority | Who may approve trade, exercise, close-out, collateral movement, or unwind? |
 | Reporting | Which client/advisor labels and warnings are required? |
 
-## 72. Current Support Boundary And Candidate Extensions
+## 78. Current Support Boundary And Candidate Extensions
 
 | Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
 |---|---|---|
@@ -2263,7 +2472,7 @@ Before using derivatives in advisory or DPM workflows, check:
 | Lifecycle events | expiry, exercise, assignment, reset, fixing, settlement, novation, compression, clearing, porting, barrier events and notional exchanges when sourced | automated OTC confirmation matching, lifecycle replay engine and event generation |
 | Reporting | market value, exposure, source date, stale/unsupported labels, hedge overlay split, strategy grouping and clearing state where sourced | advanced hedge-effectiveness reporting and multi-factor attribution |
 
-## 73. Regression Test Pack
+## 79. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -2341,3 +2550,9 @@ Minimum release-gate scenarios:
 72. Futures exchange-for-physical processing closes futures and opens physical exposure only with both-leg evidence.
 73. Client-specific collateral segregation election separates reusable collateral from segregated collateral and calculates shortfall after haircut.
 74. Derivative valuation reserve release separates clean-value movement from approved reserve movement.
+75. Option barrier dispute settlement preserves conflicting observations, settlement agreement and unpaid disputed amount.
+76. Cleared swap compression fees apply only to accepted compressed trades and remain separate from MTM.
+77. Futures position-limit remediation blocks breach-increasing orders and preserves historical breach evidence.
+78. FX option fixing source override requires source outage evidence, fallback hierarchy and approval.
+79. Collateral dispute interest claim separates principal return, dispute interest and open claim state.
+80. Model reserve backtesting exception calculates reserve shortfall and routes repeated breaches to model governance.
