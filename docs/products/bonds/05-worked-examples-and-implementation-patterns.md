@@ -5517,6 +5517,246 @@ unrecovered_compensation_claim = 9,600 - 6,000 = 3,600
 | Claim is settled | Cash posting links to original lock-up release case. |
 | Performance report is generated | Compensation is excluded from bond market return. |
 
+## Example 142. Call Election Reinstatement Dispute
+
+### Scenario
+
+A callable bond election was reversed after a custodian rejection, but the issuer later reinstates the corrected election through a post-cut-off exception. The platform must reinstate the accepted call election without creating a duplicate redemption event.
+
+| Attribute | Value |
+|---|---:|
+| Original elected call nominal | 4,500,000 |
+| Corrected elected call nominal | 2,750,000 |
+| Reinstated accepted nominal | 2,750,000 |
+| Prior reversal nominal | 1,750,000 |
+
+### Reinstatement amount
+
+```text
+reinstated_call_nominal = original_elected_call_nominal - reinstated_accepted_nominal
+reinstated_call_nominal = 4,500,000 - 2,750,000 = 1,750,000
+
+duplicate_redemption_risk = prior_reversal_nominal - reinstated_call_nominal
+duplicate_redemption_risk = 1,750,000 - 1,750,000 = 0
+```
+
+### Correct treatment
+
+- preserve original election, correction, rejection, issuer exception, reinstatement notice and final accepted call file;
+- reinstate the corrected election by reversing the prior correction reversal, not by creating a new call event;
+- update retained nominal, redemption cash projection and client notices from the final accepted election;
+- keep reinstatement dispute state visible until custodian and issuer records reconcile;
+- prevent duplicate redemption cash when both reversal and reinstatement files are present.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Reinstatement notice arrives | Final call nominal follows source-accepted reinstatement. |
+| Prior reversal exists | Reinstatement offsets the prior reversal rather than creating a second event. |
+| Issuer and custodian disagree | Call projection is labelled disputed. |
+| Client report is generated | Original, corrected, rejected, reinstated and final states are traceable. |
+
+## Example 143. Escrow Valuation-Lag Remediation Reversal
+
+### Scenario
+
+A municipal escrow valuation lag created a provisional shortfall remediation entry. Refreshed prices later prove the escrow was sufficiently covered, so the remediation must be reversed without changing the legal substitution event.
+
+| Attribute | Value |
+|---|---:|
+| Provisional shortfall remediation | 120,000 |
+| Refreshed coverage surplus | 90,000 |
+| Remediation already posted | 120,000 |
+| Reversal materiality threshold | 10,000 |
+
+### Reversal amount
+
+```text
+valuation_lag_reversal = min(provisional_shortfall_remediation, remediation_already_posted)
+valuation_lag_reversal = min(120,000, 120,000) = 120,000
+
+remaining_coverage_surplus = refreshed_coverage_surplus
+remaining_coverage_surplus = 90,000
+```
+
+### Correct treatment
+
+- preserve trustee substitution notice, stale price run, remediation approval, refreshed price source and reversal approval;
+- reverse valuation-lag remediation when current prices prove coverage;
+- keep legal escrow substitution acceptance unchanged;
+- explain reversal as stale-price remediation closure rather than bond price return;
+- retain both provisional and refreshed coverage calculations.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Refreshed prices prove coverage | Provisional remediation is reversed. |
+| Remediation was posted | Reversal links to the original remediation entry. |
+| Legal substitution was accepted | Substitution state is unchanged by valuation reversal. |
+| Risk report is generated | Stale, remediated and reversed states are visible. |
+
+## Example 144. ABS Tax Reclassification Amended Statement
+
+### Scenario
+
+An ABS residual tax reclassification changes a previously issued client statement. The platform must issue an amended statement that updates income classification while preserving the original cash receipt and audit trail.
+
+| Attribute | Value |
+|---|---:|
+| Original stated interest | 315,000 |
+| Corrected interest | 220,000 |
+| Return of capital | 95,000 |
+| Prior statement cash received | 315,000 |
+
+### Amended statement split
+
+```text
+interest_restatement = original_stated_interest - corrected_interest
+interest_restatement = 315,000 - 220,000 = 95,000
+
+cash_change_required = prior_statement_cash_received - (corrected_interest + return_of_capital)
+cash_change_required = 315,000 - (220,000 + 95,000) = 0
+```
+
+### Correct treatment
+
+- preserve original statement, corrected tax notice, amended statement version, client delivery evidence and approval state;
+- update tax labels and income classification without changing cash received;
+- show amended statement lineage and superseded statement reference;
+- recalculate downstream tax-pack summaries from the corrected classification;
+- block final delivery when correction approval or tax source evidence is missing.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Amended tax notice arrives | Interest and return-of-capital labels are corrected. |
+| Cash amount is unchanged | Ledger cash and settlement remain unchanged. |
+| Amended statement is generated | Original statement is superseded with lineage. |
+| Approval is missing | Client delivery is blocked or labelled provisional. |
+
+## Example 145. Sovereign Warrant Appeal Settlement Reversal
+
+### Scenario
+
+A sovereign warrant acceleration appeal is settled after a prior reinstatement assumption was booked. The settlement confirms the acceleration, requiring reversal of the reinstatement scenario and valuation adjustment.
+
+| Attribute | Value |
+|---|---:|
+| Reinstated scenario value | 480,000 |
+| Settled accelerated value | 310,000 |
+| Prior valuation adjustment booked | 170,000 |
+| Settlement confidence | 100% |
+
+### Settlement reversal
+
+```text
+appeal_settlement_reversal = reinstated_scenario_value - settled_accelerated_value
+appeal_settlement_reversal = 480,000 - 310,000 = 170,000
+
+remaining_reversal_required = appeal_settlement_reversal - prior_valuation_adjustment_booked
+remaining_reversal_required = 170,000 - 170,000 = 0
+```
+
+### Correct treatment
+
+- preserve appeal filing, scenario valuation, settlement agreement, official expiry treatment and valuation adjustment evidence;
+- reverse reinstatement assumptions once settlement confirms acceleration;
+- keep prior scenario analytics separate from official book valuation;
+- avoid restating historical official valuation unless accounting policy requires it;
+- explain settlement reversal in client and risk reporting where material.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Appeal settlement confirms acceleration | Official expiry remains accelerated. |
+| Reinstatement scenario was booked | Scenario adjustment is reversed or closed with evidence. |
+| Client report is generated | Settlement reversal is explained separately from market movement. |
+| Valuation source is missing | Final reversal remains blocked or provisional. |
+
+## Example 146. Covered-Bond SLA Waiver Expiry Breach
+
+### Scenario
+
+A covered-bond monitor had a temporary SLA waiver for missed post-waiver monitoring updates. The waiver expires before the missing updates arrive. The platform must reopen escalation and avoid treating the expired waiver as active evidence.
+
+| Attribute | Value |
+|---|---:|
+| Required monitoring updates | 4 |
+| Received monitoring updates | 2 |
+| Expired waiver-approved missed updates | 1 |
+| Days since waiver expiry | 5 |
+
+### Expired waiver gap
+
+```text
+raw_missing_updates = required_monitoring_updates - received_monitoring_updates
+raw_missing_updates = 4 - 2 = 2
+
+breach_updates_after_expiry = raw_missing_updates
+breach_updates_after_expiry = 2
+```
+
+### Correct treatment
+
+- preserve monitoring schedule, expired waiver, missed update dates, feed incident and escalation owner;
+- treat expired waiver-approved updates as active breaches after expiry;
+- keep monitoring SLA breach separate from collateral cure status;
+- escalate unremediated monitoring gaps until updates or renewed waiver evidence arrive;
+- show expiry age and missing update count in risk dashboards.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Waiver expires before updates arrive | Monitoring exception reopens or escalates. |
+| Prior waiver exists | Prior waiver remains audit evidence but no longer suppresses breach. |
+| Renewal is approved | New waiver has fresh scope and expiry. |
+| Risk dashboard is generated | Expired waiver, missing updates and cure state are separate. |
+
+## Example 147. Private-Placement Compensation Settlement Reversal
+
+### Scenario
+
+A private-placement lock-up compensation claim was partially settled, but the provider later reverses part of the settlement after finding that the transfer request timestamp was outside the compensable window. The platform must reverse the settled compensation while keeping transferability unchanged.
+
+| Attribute | Value |
+|---|---:|
+| Compensation settlement received | 6,000 |
+| Provider reversal amount | 2,000 |
+| Original claimed compensation | 9,600 |
+| Remaining claim before reversal | 3,600 |
+
+### Reversed settlement exposure
+
+```text
+net_compensation_retained = compensation_settlement_received - provider_reversal_amount
+net_compensation_retained = 6,000 - 2,000 = 4,000
+
+revised_unrecovered_claim = original_claimed_compensation - net_compensation_retained
+revised_unrecovered_claim = 9,600 - 4,000 = 5,600
+```
+
+### Correct treatment
+
+- preserve original claim, settlement notice, reversal notice, compensable-window evidence and transfer request timestamp;
+- reverse compensation cash through a linked adjustment rather than changing bond return or coupon income;
+- keep lock-up release and transferability status unchanged unless source terms change;
+- update unrecovered claim state after reversal;
+- explain reversal separately from market liquidity and private-placement valuation.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Provider reversal is received | Compensation settlement is reduced through linked adjustment. |
+| Transferability was already released | Transferability remains source-effective. |
+| Revised unrecovered claim remains | Claim case stays open with updated amount. |
+| Performance report is generated | Reversal is excluded from bond market return and coupon income. |
+
 ## Implementation-backed capability lens
 
 When reviewing whether a platform truly supports bonds, use these evidence questions:
