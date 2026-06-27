@@ -3219,3 +3219,206 @@ Minimum release-gate scenarios:
 96. Collateral currency substitution FX haircut applies FX mismatch haircut before releasing existing collateral.
 97. Portfolio Greeks stale-source lock blocks or labels incomplete risk reports when required sensitivities are stale.
 98. Derivative client consent remediation blocks risk-increasing actions while preserving permitted risk-reducing workflows.
+
+## 98. Give-Up Allocation Reject
+
+Scenario:
+
+- An executing broker gives up listed option trades to a clearing broker.
+- 120 contracts are executed.
+- The clearing broker accepts 90 contracts and rejects 30 due to account mapping mismatch.
+- Client reporting must not treat all executions as cleared positions.
+
+Rejected exposure:
+
+```text
+rejected_contracts = executed_contracts - accepted_contracts
+rejected_contracts = 120 - 90 = 30
+
+accepted_notional = accepted_contracts x contract_multiplier x underlying_price
+```
+
+Correct treatment:
+
+- preserve execution broker, clearing broker, trade ids, give-up reference, account mapping, acceptance file and reject reason;
+- create cleared position only for accepted contracts;
+- keep rejected executions in pending, repair, reallocation or bust workflow;
+- prevent duplicate positions when corrected give-up files arrive;
+- report execution, clearing acceptance and reject status separately.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Clearing broker rejects part of give-up | Accepted and rejected contracts are separate. |
+| Account mapping is repaired | Corrected acceptance updates pending contracts without duplicate execution. |
+| Reject remains unresolved | Client-ready cleared position excludes rejected contracts. |
+| Operations report is generated | Give-up reference, reject reason and repair owner are visible. |
+
+## 99. Option Assignment Notification Delay
+
+Scenario:
+
+- A short call option is assigned by the clearing house.
+- Assignment notice arrives one day late from the broker.
+- The underlying share sale should be effective from assignment date, not broker notification date.
+
+Assignment economics:
+
+```text
+assigned_underlying_quantity = assigned_contracts x contract_multiplier
+assigned_underlying_quantity = 15 x 100 = 1,500
+
+assignment_sale_proceeds = assigned_underlying_quantity x strike_price
+```
+
+Correct treatment:
+
+- preserve clearing assignment date, broker notification timestamp, option contract, assigned contracts, strike and underlying settlement;
+- book assignment from the source-backed assignment effective date;
+- separate notification delay from economic assignment date;
+- update underlying position, option close-out, realized P&L and settlement cash with assignment lineage;
+- escalate late notices where reporting, funding or short-position controls were affected.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Assignment notice is late | Assignment posts with clearing effective date and late-notice evidence. |
+| Underlying was sold before notification | Position and settlement reconcile to assignment date. |
+| Funding report was already generated | Corrected report preserves prior version and late-source reason. |
+| Option position is reported | Assigned contracts are closed and residual contracts remain open. |
+
+## 100. Clearing-Broker Account Transfer Break
+
+Scenario:
+
+- Cleared futures positions are transferred from one clearing broker account to another.
+- 250 contracts should transfer.
+- New broker accepts 240 contracts and rejects 10 due to stale client account identifiers.
+
+Transfer break:
+
+```text
+untransferred_contracts = expected_transfer_contracts - accepted_transfer_contracts
+untransferred_contracts = 250 - 240 = 10
+```
+
+Correct treatment:
+
+- preserve old broker, new broker, transfer instruction, accepted contracts, rejected contracts, account identifiers and margin transfer evidence;
+- keep rejected contracts at the old broker until accepted, closed or otherwise resolved;
+- separate position transfer state from market P&L;
+- reconcile initial margin, variation margin and open contracts across both brokers;
+- block duplicate exposure where both broker files show the same contract during transition.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| New broker rejects part of transfer | Accepted and rejected contracts remain separately visible. |
+| Old broker still reports rejected contracts | Exposure is not duplicated across brokers. |
+| Margin does not transfer fully | Margin shortfall or excess is reconciled separately from contract count. |
+| Transfer report is generated | Old broker, new broker, accepted, rejected and unresolved states are visible. |
+
+## 101. Portfolio Greeks Sign-Convention Dispute
+
+Scenario:
+
+- Portfolio Greeks are aggregated from two vendors.
+- Vendor A reports option delta from client-position perspective.
+- Vendor B reports delta from dealer-risk perspective.
+- Aggregation without sign normalization reverses hedge conclusions.
+
+Sign-normalized delta:
+
+```text
+normalized_delta = vendor_delta x sign_convention_multiplier
+vendor_b_normalized_delta = -250,000 x -1 = 250,000
+portfolio_delta = vendor_a_delta + vendor_b_normalized_delta
+```
+
+Correct treatment:
+
+- preserve vendor source, product class, sign convention, position perspective, normalization rule and approval owner;
+- aggregate Greeks only after convention compatibility is proven;
+- label risk reports as source-limited when sign convention is unknown;
+- keep original vendor value and normalized value visible for audit;
+- prevent mandate, hedge or rebalance decisions from using unnormalized sensitivities.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Vendor convention differs | Normalization rule is applied before aggregation. |
+| Convention is missing | Portfolio Greeks are blocked or labelled incomplete. |
+| Hedge conclusion changes after normalization | Review evidence captures source and calculation change. |
+| Risk report is generated | Original and normalized sensitivities are traceable. |
+
+## 102. Collateral Dispute Partial Settlement
+
+Scenario:
+
+- A counterparty disputes part of a collateral call.
+- Required collateral is 1,500,000.
+- Agreed amount is 1,100,000.
+- Disputed amount is 400,000.
+- Counterparty settles only the agreed amount pending dispute resolution.
+
+Open dispute:
+
+```text
+open_disputed_collateral = required_collateral - settled_collateral
+open_disputed_collateral = 1,500,000 - 1,100,000 = 400,000
+```
+
+Correct treatment:
+
+- preserve collateral call, threshold, exposure calculation, agreed amount, disputed amount, settlement amount and dispute owner;
+- post settled collateral only for agreed received amount;
+- keep disputed collateral as open exposure or claim, not settled collateral;
+- calculate interest, ageing and escalation on the unresolved disputed amount where CSA terms require it;
+- prevent full dispute closure until governing evidence confirms resolution.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Counterparty pays agreed amount only | Settled collateral and open disputed amount are separate. |
+| Dispute interest accrues | Interest calculation applies only under source-backed terms. |
+| Final settlement arrives | Dispute closes with settlement and residual claim evidence. |
+| Collateral report is generated | Required, agreed, settled, disputed and open amounts are distinct. |
+
+## 103. Variance-Swap Observation Calendar Correction
+
+Scenario:
+
+- A variance swap uses an observation calendar to calculate realized variance.
+- One holiday was incorrectly treated as an observation day.
+- Correcting the calendar removes one return observation and changes realized variance.
+
+Observation correction:
+
+```text
+corrected_observation_count = original_observation_count - invalid_observation_days
+corrected_observation_count = 252 - 1 = 251
+
+realized_variance = sum_squared_log_returns x annualization_factor / corrected_observation_count
+```
+
+Correct treatment:
+
+- preserve original calendar, corrected calendar, invalid day, calculation-agent notice, prior realized variance and corrected realized variance;
+- version realized variance and settlement estimate from the corrected calendar;
+- keep prior client report and corrected report auditable;
+- separate calendar correction from volatility movement or price-source change;
+- require calculation-agent confirmation before final settlement correction.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Observation day is removed | Observation count and realized variance recalculate. |
+| Correction lacks calculation-agent evidence | Settlement remains provisional or source-limited. |
+| Prior report was delivered | Corrected report preserves prior version and correction reason. |
+| Settlement is finalized | Final cashflow uses corrected observation calendar lineage. |
