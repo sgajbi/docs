@@ -1500,3 +1500,217 @@ A fund holding migrates to a new platform account. Units are unchanged, but tax-
 | Future redemption occurs | Lot selection uses migrated acquisition/cost data. |
 | Target account id changes | Lineage maps old and new platform identifiers. |
 | Migration creates cashflow | QA fails because beneficial ownership did not change. |
+
+## Example 44. Fund liquidity facility drawdown
+
+### Scenario
+
+An open-ended fund uses a short-term liquidity facility to meet redemptions before portfolio assets settle. The fund NAV remains published, but leverage and liquidity risk need to be disclosed to portfolio analytics and advisory controls.
+
+| Attribute | Value |
+|---|---:|
+| Fund NAV before facility | 100,000,000 |
+| Liquidity facility drawdown | 5,000,000 |
+| Facility rate | 6.00% |
+| Expected days outstanding | 10 |
+| Fund assets sold but unsettled | 5,200,000 |
+
+### Facility cost estimate
+
+```text
+facility_interest_cost = 5,000,000 x 6.00% x 10 / 360 = 8,333.33
+facility_drawdown_ratio = 5,000,000 / 100,000,000 = 5.00%
+```
+
+### Correct treatment
+
+- keep the client holding as fund units; do not create a client-level loan unless the client directly borrows;
+- track facility drawdown as fund-level leverage/liquidity disclosure where sourced;
+- reflect expected cost through NAV when administrator confirms it, not as a direct client cash charge;
+- escalate advisory, DPM and liquidity analytics if facility use indicates redemption stress.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Facility drawdown is reported | Fund liquidity/leverage state updates with source date. |
+| NAV is published before facility cost is reflected | Analytics label cost estimate separately from confirmed NAV. |
+| Facility ratio breaches policy threshold | Advisory/DPM review opens. |
+| Client report is generated | Fund-level borrowing is explained as fund risk, not client borrowing. |
+
+## Example 45. Redemption-in-kind basket under stress
+
+### Scenario
+
+A fund meets a large redemption by delivering securities in kind rather than cash. The client receives a basket with valuation, liquidity and operational settlement implications.
+
+| Attribute | Value |
+|---|---:|
+| Redemption units | 20,000 |
+| Dealing NAV | 50.00 |
+| Gross redemption value | 1,000,000 |
+| Cash portion | 250,000 |
+| In-kind basket fair value | 750,000 |
+
+### Redemption split
+
+```text
+gross_redemption_value = 20,000 x 50.00 = 1,000,000
+in_kind_ratio = 750,000 / 1,000,000 = 75.00%
+cash_ratio = 250,000 / 1,000,000 = 25.00%
+```
+
+### Correct treatment
+
+- reduce fund units based on accepted redemption;
+- create received securities only after identifiers, quantities, custody eligibility and settlement confirmation are sourced;
+- keep valuation, liquidity and suitability checks for the delivered basket separate from fund redemption cash;
+- report cash and in-kind proceeds distinctly, with residual unsettled components visible.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| In-kind basket identifiers are missing | Securities are not finalized and redemption remains partially pending. |
+| Basket contains restricted assets | Custody, eligibility and suitability exceptions open. |
+| Cash portion settles before securities | Cash and in-kind legs have separate settlement states. |
+| Report shows redemption as cash only | QA fails because in-kind proceeds are hidden. |
+
+## Example 46. Stale private-fund capital-account statement
+
+### Scenario
+
+A private fund has not issued a current capital-account statement. The portfolio report must decide whether to use the latest available NAV, mark it stale, or block final reporting depending on policy.
+
+| Attribute | Value |
+|---|---:|
+| Last capital-account NAV | 880,000 |
+| Statement date | 2026-03-31 |
+| Report date | 2026-06-30 |
+| Staleness threshold | 60 days |
+| Days stale | 91 |
+
+### Staleness test
+
+```text
+days_since_statement = 91
+stale_by = 91 - 60 = 31 days
+```
+
+### Correct treatment
+
+- preserve last administrator statement value and date;
+- mark valuation stale when it breaches policy threshold;
+- avoid fabricating interim NAV unless an approved estimate process exists;
+- reflect stale valuation in report disclosures, performance quality flags and risk analytics coverage.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Statement age exceeds threshold | Valuation is labelled stale or reporting is blocked per policy. |
+| Estimated NAV is entered | Estimate requires source, approver, method and expiry. |
+| Capital call occurs after stale statement | Commitment/cashflow updates separately from stale NAV. |
+| Client report is generated | Report shows valuation date and stale-state disclosure. |
+
+## Example 47. Fund manager replacement
+
+### Scenario
+
+A fund replaces its portfolio manager after underperformance. The legal fund remains the same, but risk, mandate due diligence, watchlist status and recommendation rules may change.
+
+| Attribute | Before | After |
+|---|---|---|
+| Fund ISIN | Same | Same |
+| Manager | Manager A | Manager B |
+| Watchlist status | Normal | Under review |
+| Existing holding | Allowed | Hold allowed, new buys blocked |
+
+### Correct treatment
+
+- do not treat manager replacement as a fund merger, sale or instrument change;
+- preserve effective date, board notice, manager identity, strategy change and due-diligence state;
+- allow existing holdings, new purchases and DPM use according to approved-universe policy;
+- refresh suitability, target market, risk rating and model-portfolio eligibility where required.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Manager changes but fund identifier remains same | Position continuity is preserved. |
+| New buys are blocked during review | Order entry enforces watchlist status. |
+| DPM model includes the fund | Model review opens if approved-universe status changes. |
+| Client report is produced | Manager change is disclosed only where reporting policy requires. |
+
+## Example 48. Side-pocket write-off
+
+### Scenario
+
+A fund side pocket contains an illiquid position that is written down to zero by the administrator. The main fund position remains active.
+
+| Attribute | Value |
+|---|---:|
+| Side-pocket units | 5,000 |
+| Prior side-pocket NAV | 12.00 |
+| New side-pocket NAV | 0.00 |
+| Main fund units | 30,000 |
+
+### Write-off impact
+
+```text
+prior_side_pocket_value = 5,000 x 12.00 = 60,000
+new_side_pocket_value = 5,000 x 0.00 = 0
+valuation_write_down = -60,000
+```
+
+### Correct treatment
+
+- keep main fund and side-pocket positions separate if the administrator reports them separately;
+- process write-off as valuation change unless administrator confirms cancellation, distribution or taxable event;
+- preserve administrator notice, effective date, affected sleeve and reason;
+- report write-off impact separately from main fund market movement where possible.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Side-pocket NAV goes to zero | Side-pocket value is written down with source lineage. |
+| Main fund NAV remains active | Main fund position is not closed. |
+| Administrator later cancels side-pocket units | Cancellation event is separate from valuation write-down. |
+| Performance report is run | Write-off contribution is explainable and not hidden in ordinary fund return. |
+
+## Example 49. ETF index rebalance execution
+
+### Scenario
+
+An ETF tracks an index that rebalances quarterly. The ETF portfolio changes constituents, which affects look-through exposure, turnover, transaction costs and tax reporting, while the client still holds the same ETF units.
+
+| Attribute | Before rebalance | After rebalance |
+|---|---:|---:|
+| Client ETF units | 12,000 | 12,000 |
+| ETF NAV | 25.00 | 24.92 |
+| Look-through coverage | 98% | 98% |
+| Estimated rebalance cost impact | - | 0.08 per unit |
+
+### NAV cost impact
+
+```text
+estimated_rebalance_cost = 12,000 x 0.08 = 960
+post_rebalance_value = 12,000 x 24.92 = 299,040
+```
+
+### Correct treatment
+
+- keep client accounting units unchanged unless the client trades;
+- update ETF look-through constituents from the effective basket/index file;
+- explain NAV impact, turnover and tracking difference without booking client-level constituent trades;
+- refresh risk, sector, country, duration or factor exposures from the new basket.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Index rebalance file arrives | Look-through exposure updates from effective date. |
+| Client did not trade ETF | Client units remain unchanged. |
+| NAV falls due to rebalance cost | Performance reflects NAV movement, not client trade cost. |
+| Basket file is late | Look-through analytics are labelled stale/source-limited. |
