@@ -1194,7 +1194,245 @@ QA assertions:
 | Historical report is regenerated | It uses the valuation version effective at the report date unless restated. |
 | New model materially changes MTM | Impact is surfaced for review and performance explain. |
 
-## 39. Advisory And Mandate Checklist
+## 39. Wrong-Way Risk In Counterparty Exposure
+
+Scenario:
+
+- Client has an OTC equity put option with Bank A.
+- Option MTM receivable from Bank A is USD 1,800,000.
+- Underlying equity is issued by Bank A's parent group.
+- Stress scenario assumes the issuer equity falls 35% and Bank A credit spread widens materially.
+
+Correct treatment:
+
+- identify wrong-way risk when counterparty exposure increases as the counterparty or related issuer weakens;
+- preserve counterparty, issuer relationship, group linkage, stress scenario and exposure profile;
+- separate option market exposure from counterparty credit exposure;
+- escalate collateral, counterparty limit and advisory review when wrong-way risk breaches policy.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Counterparty and underlying issuer are related | Wrong-way risk flag is raised. |
+| Relationship mapping is missing | Counterparty risk report is source-limited. |
+| MTM receivable increases in stress | Counterparty exposure and collateral need update. |
+| Client report is generated | Market payoff and counterparty concentration are explainable separately. |
+
+## 40. Collateral Interest And Settlement Fail
+
+Scenario:
+
+- Counterparty posts USD 2,000,000 cash collateral.
+- Collateral remuneration rate is 4.80%.
+- Interest period is 30 days.
+- Interest payment fails on due date because settlement instructions are invalid.
+
+Simplified interest:
+
+```text
+collateral_interest = 2,000,000 x 4.80% x 30 / 360 = 8,000
+```
+
+Correct treatment:
+
+- accrue collateral interest separately from derivative MTM and investment income;
+- track due, paid, failed and repaired settlement states;
+- preserve collateral agreement terms, rate source, day count, settlement instruction and repair evidence;
+- do not mark collateral interest as received cash until settlement confirmation arrives.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Interest due date arrives | Receivable/payable is created according to CSA terms. |
+| Settlement fails | Cash does not post; failed settlement workflow opens. |
+| SSI is repaired | Payment can settle with original due-date lineage. |
+| Report is generated before repair | Interest is shown as receivable or failed, not settled cash. |
+
+## 41. Fallback-Rate Transition For Swap Reset
+
+Scenario:
+
+- A legacy swap references a discontinued rate.
+- Contract fallback replaces it with the compounded risk-free rate plus spread adjustment.
+- Legacy fixing would have been 5.10%.
+- Fallback compounded rate is 4.85%.
+- Spread adjustment is 0.26%.
+- Notional is USD 25,000,000.
+- Accrual factor is 90/360 = 0.25.
+
+Fallback cashflow:
+
+```text
+fallback_rate = 4.85% + 0.26% = 5.11%
+cashflow = 25,000,000 x 5.11% x 0.25 = 319,375
+```
+
+Correct treatment:
+
+- preserve fallback trigger, contract amendment or protocol adherence evidence;
+- distinguish legacy benchmark, fallback benchmark, spread adjustment and compounding method;
+- recalculate cashflows and valuation from the effective fallback date;
+- label unsupported fallback data rather than using stale discontinued fixings.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Legacy rate is discontinued | Reset uses source-backed fallback method. |
+| Spread adjustment is missing | Cashflow is blocked or labelled incomplete. |
+| Protocol adherence differs by counterparty | Fallback treatment is contract-specific. |
+| Historical report is rerun | Uses the benchmark effective on the report date. |
+
+## 42. Option Lifecycle Amendment
+
+Scenario:
+
+- A client and dealer amend an OTC option before expiry.
+- Original strike is 100.
+- Amended strike is 95.
+- Amendment fee is USD 12,000 payable by the client.
+- Contract id remains the same.
+
+Correct treatment:
+
+- preserve the original contract and amendment history instead of creating an unrelated new option;
+- update strike, effective date, fee, valuation impact and approval evidence;
+- treat amendment fee as lifecycle cashflow, not premium for a new opening trade unless legal terms say so;
+- recalculate Greeks, payoff diagram, suitability and reporting labels from amended terms.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Amendment is confirmed | Contract terms version from effective date. |
+| Amendment fee settles | Fee posts as lifecycle cashflow with amendment reference. |
+| Advisor report is generated | Payoff uses amended strike and shows amendment history where required. |
+| Amendment source is missing | Contract remains pending amendment and original terms stay effective. |
+
+## 43. Cross-Clearinghouse Portability
+
+Scenario:
+
+- A cleared futures portfolio is migrated from Clearinghouse A to Clearinghouse B after market infrastructure change.
+- Open contracts: 300.
+- Initial margin at A: USD 450,000.
+- Required initial margin at B: USD 520,000.
+- Porting acceptance covers all contracts.
+
+Margin top-up:
+
+```text
+margin_top_up = 520,000 - 450,000 = 70,000
+```
+
+Correct treatment:
+
+- preserve old clearinghouse, new clearinghouse, porting date, acceptance file and contract mapping;
+- update margin methodology and account references only after acceptance evidence;
+- separate porting from trade close/open so performance and realized P&L are not distorted;
+- calculate margin top-up or release from the target clearinghouse requirement.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Porting acceptance is complete | Contracts retain economic continuity with new clearinghouse lineage. |
+| Target margin exceeds source margin | Top-up requirement opens before port completion. |
+| Contract mapping is incomplete | Unmapped contracts remain in exception state. |
+| Report spans port date | No false realized P&L or position close/open appears. |
+
+## 44. Valuation Model Backtesting Exception
+
+Scenario:
+
+- A derivatives valuation model is backtested against independent exit quotes.
+- Model value is USD 1,250,000.
+- Independent quote is USD 1,180,000.
+- Tolerance is USD 50,000.
+
+Backtest break:
+
+```text
+valuation_difference = 1,250,000 - 1,180,000 = 70,000
+tolerance_excess = 70,000 - 50,000 = 20,000
+```
+
+Correct treatment:
+
+- keep model value, independent quote, source timestamp, tolerance and breach owner;
+- open model review when backtest variance breaches threshold;
+- avoid changing client valuation until approved valuation policy or model correction is applied;
+- preserve whether breach is caused by model, input, liquidity, quote quality or product terms.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Difference exceeds tolerance | Backtesting exception opens. |
+| Independent quote is stale | Backtest result is source-limited. |
+| Model correction is approved | Valuation changes from effective approval date. |
+| Report is produced during review | Model value is labelled with valuation-review state where required. |
+
+## 45. Hedge-Accounting Evidence Pack
+
+Scenario:
+
+- A swap is designated as a hedge of a fixed-rate bond position.
+- Hedged item DV01 is USD 42,000.
+- Swap DV01 is USD -39,500.
+- Policy requires hedge ratio between 80% and 125%.
+
+Hedge ratio:
+
+```text
+hedge_ratio = abs(-39,500) / 42,000 = 94.05%
+```
+
+Correct treatment:
+
+- preserve hedged item, hedge instrument, designation date, risk component, hedge objective and effectiveness method;
+- report accounting hedge evidence separately from economic risk overlay reporting;
+- keep prospective and retrospective effectiveness evidence with source data and approval;
+- de-designate or escalate when hedge ratio or documentation falls outside policy.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Hedge ratio is within band | Hedge remains eligible if documentation is complete. |
+| Designation document is missing | Hedge-accounting status is incomplete even if economics offset. |
+| Hedged item is sold | De-designation or redesignation workflow opens. |
+| Effectiveness test fails | Accounting treatment and reporting state update with evidence. |
+
+## 46. Client-Reporting Explain Pack For Structured Derivative
+
+Scenario:
+
+- A client holds an autocallable option package.
+- Current MTM is -USD 85,000.
+- Delta exposure is USD 620,000.
+- Worst downside scenario is linked to a 35% fall in the worst-performing equity.
+- Next observation date is in 21 days.
+
+Correct treatment:
+
+- explain MTM, exposure, payoff condition, observation date and downside risk separately;
+- avoid using notional alone as the client-facing exposure measure;
+- preserve payoff diagram/version, underlying prices, barrier levels, observation calendar and valuation source;
+- flag stale valuation, missing Greeks or unsupported scenario output before client-ready reporting.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| MTM is negative but payoff may recover | Report explains conditional payoff and observation mechanics. |
+| Delta is missing | Exposure explain is partial or blocked. |
+| Observation calendar is stale | Next-event reporting is source-limited. |
+| Scenario output is generated | Worst-case narrative links to source-backed payoff terms. |
+
+## 47. Advisory And Mandate Checklist
 
 Before using derivatives in advisory or DPM workflows, check:
 
@@ -1209,7 +1447,7 @@ Before using derivatives in advisory or DPM workflows, check:
 | Authority | Who may approve trade, exercise, close-out, collateral movement, or unwind? |
 | Reporting | Which client/advisor labels and warnings are required? |
 
-## 40. Current Support Boundary And Candidate Extensions
+## 48. Current Support Boundary And Candidate Extensions
 
 | Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
 |---|---|---|
@@ -1220,7 +1458,7 @@ Before using derivatives in advisory or DPM workflows, check:
 | Lifecycle events | expiry, exercise, assignment, reset, fixing, settlement, novation, compression, clearing, porting, barrier events and notional exchanges when sourced | automated OTC confirmation matching, lifecycle replay engine and event generation |
 | Reporting | market value, exposure, source date, stale/unsupported labels, hedge overlay split, strategy grouping and clearing state where sourced | advanced hedge-effectiveness reporting and multi-factor attribution |
 
-## 41. Regression Test Pack
+## 49. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -1266,3 +1504,11 @@ Minimum release-gate scenarios:
 40. Exchange position-limit control blocks or escalates orders that breach hard exchange or aggregation limits.
 41. Cleared OTC porting preserves old and new clearing-broker lineage and separates rejected contracts from ported contracts.
 42. Valuation model-change approval separates market movement from model impact and preserves versioned audit history.
+43. Wrong-way risk flags related counterparty/underlying exposure and separates market payoff from counterparty concentration.
+44. Collateral interest settlement fail tracks receivable/payable, failed cash state and SSI repair lineage.
+45. Fallback-rate transition uses source-backed fallback benchmark, spread adjustment and compounding method.
+46. Option amendment versions contract terms and posts amendment fee as lifecycle cashflow when sourced.
+47. Cross-clearinghouse portability preserves continuity and calculates target margin top-up or release.
+48. Model backtesting opens exception workflow when model value breaches independent quote tolerance.
+49. Hedge-accounting evidence keeps designation, hedge ratio, effectiveness testing and de-designation state.
+50. Client-reporting explain pack separates MTM, exposure, payoff condition, observation calendar and scenario risk.
