@@ -1432,7 +1432,207 @@ QA assertions:
 | Observation calendar is stale | Next-event reporting is source-limited. |
 | Scenario output is generated | Worst-case narrative links to source-backed payoff terms. |
 
-## 47. Advisory And Mandate Checklist
+## 47. Autocall Observation Correction
+
+Scenario:
+
+- A structured derivative has an autocall observation date.
+- The first source file marks the underlying basket above the autocall level.
+- A corrected exchange close later shows one underlying below the required threshold.
+- Autocall amount would have been USD 1,000,000 principal plus USD 32,000 coupon.
+
+Observation state:
+
+```text
+initial_autocall_state = triggered
+corrected_autocall_state = not_triggered
+cashflow_reversal = 1,032,000 if initial payment was posted
+```
+
+Correct treatment:
+
+- preserve original observation, corrected observation, source timestamps and correction reason;
+- reverse or block autocall cashflows only when corrected governing source evidence is accepted;
+- keep the contract alive when corrected terms show no autocall occurred;
+- update client reports, lifecycle state, next observation date and coupon accrual treatment.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Corrected observation invalidates autocall | Contract remains open and autocall cashflow is reversed or blocked. |
+| Payment already settled | Correction workflow creates controlled reversal, not manual deletion. |
+| Corrected source is not governing | Observation remains disputed or source-limited. |
+| Client report spans correction date | Report shows corrected lifecycle state with audit lineage. |
+
+## 48. Commodity Futures Delivery Alternative
+
+Scenario:
+
+- A client holds a deliverable commodity futures contract close to first notice date.
+- The mandate permits cash exposure but not physical delivery.
+- Futures notional is 100 contracts x 1,000 barrels.
+- Last trade price is USD 78.20.
+- Broker offers roll, cash close-out or exchange-for-physical alternative.
+
+Exposure:
+
+```text
+deliverable_quantity = 100 x 1,000 = 100,000 barrels
+notional_value = 100,000 x 78.20 = 7,820,000
+```
+
+Correct treatment:
+
+- identify physical-delivery risk before first notice date;
+- block unintended delivery when mandate, custody or operational capability does not support it;
+- preserve broker notice, available alternatives, roll/close-out instruction and execution state;
+- separate futures P&L from operational delivery-avoidance workflow.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Contract approaches delivery window | Delivery-risk workflow opens before notice deadline. |
+| Mandate disallows physical delivery | Delivery instruction is blocked; roll or close-out is required. |
+| Broker alternative is selected | Lifecycle records roll, close-out or EFP with source evidence. |
+| Deadline is missed | Exception escalates with delivery, custody and client-impact state. |
+
+## 49. FX Option Premium Settlement
+
+Scenario:
+
+- A client buys a EUR/USD option.
+- Premium is USD 45,000, payable T+2.
+- Trade date valuation includes the option position, but cash is not settled until premium payment date.
+
+Premium state:
+
+```text
+trade_date_option_position = open
+premium_payable = 45,000
+available_cash_impact_before_settlement = reserve_or_payable, not settled_cash_debit
+settled_cash_debit_on_pay_date = 45,000
+```
+
+Correct treatment:
+
+- create option position from trade confirmation;
+- reserve or recognize premium payable according to accounting policy before settlement;
+- debit cash only on settlement date when payment is confirmed;
+- report premium separately from option MTM and FX exposure.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Option trade is confirmed | Option position opens with premium payable state. |
+| Premium has not settled | Cash is reserved/payable, not silently removed from settled cash. |
+| Premium settlement fails | Option remains open but cash/payment exception is visible. |
+| Client report is generated | Premium, MTM and exposure are labelled separately. |
+
+## 50. Swap Portfolio Novation Wave
+
+Scenario:
+
+- A portfolio of swaps is novated from Dealer A to Dealer B.
+- 18 swaps are in scope.
+- 16 swaps are accepted by Dealer B.
+- 2 swaps are rejected due to missing consent.
+- Clean MTM of accepted swaps is USD 2,400,000.
+
+Novation coverage:
+
+```text
+accepted_ratio = 16 / 18 = 88.89%
+rejected_count = 2
+accepted_clean_mtm = 2,400,000
+```
+
+Correct treatment:
+
+- preserve old counterparty, new counterparty, novation consent, effective date and contract mapping;
+- update counterparty exposure only for accepted swaps;
+- keep rejected swaps with original counterparty until consent or close-out occurs;
+- avoid booking false terminations or new trades when legal continuity is preserved.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Some swaps are rejected | Accepted and rejected populations are separated. |
+| Accepted swaps have mapping | Counterparty changes with novation lineage and no false realized P&L. |
+| Consent is missing | Swap remains with original dealer and exception state. |
+| Exposure report runs after wave | Dealer A and Dealer B exposures reconcile to accepted/rejected state. |
+
+## 51. Collateral Substitution Dispute
+
+Scenario:
+
+- A counterparty requests to substitute pledged collateral under a CSA.
+- Existing collateral is USD cash of 1,000,000.
+- Proposed collateral is a government bond with market value 1,050,000.
+- CSA haircut for the bond is 8%.
+- Required collateral value is 1,000,000.
+
+Eligibility value:
+
+```text
+eligible_bond_value = 1,050,000 x (1 - 8%) = 966,000
+substitution_shortfall = 1,000,000 - 966,000 = 34,000
+```
+
+Correct treatment:
+
+- evaluate substitution against CSA eligibility, haircut, concentration and currency rules;
+- reject, resize or dispute substitution when eligible value is below requirement;
+- preserve request, valuation source, haircut policy, agreed/disputed state and settlement instructions;
+- avoid releasing existing collateral until replacement collateral is accepted and settled.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Proposed collateral is insufficient after haircut | Substitution is disputed or requires top-up. |
+| Collateral source price is stale | Substitution remains pending/source-limited. |
+| Replacement settles successfully | Existing collateral releases only after accepted replacement. |
+| Counterparty disputes haircut | Dispute state tracks agreed and disputed collateral values. |
+
+## 52. XVA Sensitivity Explain Pack
+
+Scenario:
+
+- An OTC derivatives portfolio has clean value and valuation adjustments.
+- Clean MTM is USD 3,200,000.
+- CVA is -USD 140,000.
+- DVA is USD 45,000.
+- FVA is -USD 30,000.
+- A credit-spread stress increases CVA loss by USD 25,000.
+
+Adjusted value:
+
+```text
+adjusted_value = 3,200,000 - 140,000 + 45,000 - 30,000 = 3,075,000
+stressed_adjusted_value = 3,075,000 - 25,000 = 3,050,000
+```
+
+Correct treatment:
+
+- separate clean MTM, CVA, DVA, FVA and stress sensitivities;
+- preserve model version, counterparty credit inputs, funding inputs and netting-set scope;
+- explain XVA movement separately from underlying market movement;
+- label sensitivities approximate when driven by scenario or first-order estimates.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| XVA components are sourced | Adjusted value reconciles to clean value plus valuation adjustments. |
+| Credit-spread stress is applied | CVA sensitivity is shown separately from clean MTM. |
+| Netting-set scope changes | XVA is recalculated or labelled not comparable. |
+| Client report is produced | XVA explain pack separates valuation components and methodology version. |
+
+## 53. Advisory And Mandate Checklist
 
 Before using derivatives in advisory or DPM workflows, check:
 
@@ -1447,7 +1647,7 @@ Before using derivatives in advisory or DPM workflows, check:
 | Authority | Who may approve trade, exercise, close-out, collateral movement, or unwind? |
 | Reporting | Which client/advisor labels and warnings are required? |
 
-## 48. Current Support Boundary And Candidate Extensions
+## 54. Current Support Boundary And Candidate Extensions
 
 | Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
 |---|---|---|
@@ -1458,7 +1658,7 @@ Before using derivatives in advisory or DPM workflows, check:
 | Lifecycle events | expiry, exercise, assignment, reset, fixing, settlement, novation, compression, clearing, porting, barrier events and notional exchanges when sourced | automated OTC confirmation matching, lifecycle replay engine and event generation |
 | Reporting | market value, exposure, source date, stale/unsupported labels, hedge overlay split, strategy grouping and clearing state where sourced | advanced hedge-effectiveness reporting and multi-factor attribution |
 
-## 49. Regression Test Pack
+## 55. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -1512,3 +1712,9 @@ Minimum release-gate scenarios:
 48. Model backtesting opens exception workflow when model value breaches independent quote tolerance.
 49. Hedge-accounting evidence keeps designation, hedge ratio, effectiveness testing and de-designation state.
 50. Client-reporting explain pack separates MTM, exposure, payoff condition, observation calendar and scenario risk.
+51. Autocall observation correction preserves original and corrected observations and controls reversal of lifecycle cashflows.
+52. Commodity futures delivery alternative blocks unintended physical delivery and records roll, close-out or EFP evidence.
+53. FX option premium settlement separates trade-date position, premium payable/reserve and settled cash debit.
+54. Swap portfolio novation wave separates accepted and rejected contracts and prevents false close/open P&L.
+55. Collateral substitution dispute applies CSA eligibility and haircut rules before releasing existing collateral.
+56. XVA sensitivity explain pack reconciles clean value, CVA, DVA, FVA and stressed adjustment movement.
