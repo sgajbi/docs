@@ -3784,3 +3784,231 @@ active_return_amount = 8,000,000 x 0.45% = 36,000
 | Historical report is regenerated | Prior benchmark remains applied to prior periods. |
 | Mandate relies on benchmark type | Suitability or model classification review opens. |
 | Performance report is generated | Benchmark lineage and active-return basis are visible. |
+
+## Example 104. Fund Proxy-Voting Restriction
+
+### Scenario
+
+A discretionary mandate holds a fund share class that restricts investors from directing proxy votes. The client requests vote-by-vote instruction on an underlying issuer, but the platform can only record stewardship preference, not execute a direct vote.
+
+| Attribute | Value |
+|---|---:|
+| Fund market value | 900,000 |
+| Look-through issuer exposure | 4.00% |
+| Effective issuer exposure | 36,000 |
+| Direct voting allowed | No |
+
+### Effective exposure
+
+```text
+effective_issuer_exposure = fund_market_value x look_through_issuer_exposure
+effective_issuer_exposure = 900,000 x 4.00% = 36,000
+```
+
+### Correct treatment
+
+- preserve fund voting policy, share-class terms, stewardship policy, client preference, look-through exposure and manager voting report;
+- separate economic exposure from voting authority;
+- record client preference where policy permits, but do not show a direct proxy instruction if the fund does not allow it;
+- route stewardship exceptions to advisory, DPM or governance review according to mandate policy;
+- report manager-voted outcome and client preference separately where evidence exists.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Client tries to vote underlying issuer directly | Direct vote action is blocked or labelled unsupported. |
+| Fund manager publishes voting report | Outcome is captured as manager stewardship evidence. |
+| Client preference is recorded | Preference remains advisory metadata, not executed vote. |
+| Client report is generated | Economic exposure and voting authority are distinct. |
+
+## Example 105. ETF Trading Halt Fair-Value Override
+
+### Scenario
+
+An ETF is halted before market close while underlying securities continue trading. Pricing policy requires a fair-value override for client reporting and risk, with a source-limited tradability label.
+
+| Attribute | Value |
+|---|---:|
+| Last ETF traded price | 98.40 |
+| Fair-value estimate | 97.10 |
+| Units held | 12,000 |
+| Valuation difference | -15,600 |
+
+### Fair-value impact
+
+```text
+valuation_difference = units_held x (fair_value_estimate - last_traded_price)
+valuation_difference = 12,000 x (97.10 - 98.40) = -15,600
+```
+
+### Correct treatment
+
+- preserve halt notice, last trade, underlying basket value, fair-value source, approval, timestamp and override expiry;
+- use fair value for reporting only when policy and approval support it;
+- keep tradability, valuation confidence and pricing source separately visible;
+- prevent tradeability assumptions from using the fair-value estimate as executable market price;
+- reverse or replace the override when ETF trading resumes and official close is available.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| ETF is halted at close | Valuation uses approved fair value or is source-limited. |
+| Fair-value approval is missing | Pricing is blocked, provisional or escalated. |
+| ETF resumes trading | Override expires and official price replaces it from effective time. |
+| Risk report is generated | Last traded price, fair value and halt state are distinct. |
+
+## Example 106. Private-Fund NAV Side-Letter Reporting Tier
+
+### Scenario
+
+A private-fund investor has a side letter that permits quarterly enhanced NAV transparency. Another investor in the same fund receives only standard NAV reporting.
+
+| Attribute | Investor A | Investor B |
+|---|---:|---:|
+| Capital account | 5,000,000 | 5,000,000 |
+| Standard NAV reporting | Yes | Yes |
+| Enhanced look-through tier | Yes | No |
+| Look-through exposure shared | 2,100,000 | 0 |
+
+### Enhanced coverage
+
+```text
+enhanced_coverage = look_through_exposure_shared / capital_account
+enhanced_coverage = 2,100,000 / 5,000,000 = 42.00%
+```
+
+### Correct treatment
+
+- preserve side letter, investor id, reporting tier, entitlement approval, look-through file and recipient permissions;
+- separate fund-level NAV from investor-specific disclosure rights;
+- prevent enhanced look-through fields from leaking to investors without entitlement;
+- label reports by reporting tier and source date;
+- keep analytics reusable internally only where policy permits aggregation without breaching confidentiality.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Investor has enhanced reporting tier | Additional look-through fields are visible only to authorized recipients. |
+| Investor lacks side-letter entitlement | Standard NAV report excludes enhanced fields. |
+| Side-letter expires | Enhanced reporting stops or becomes provisional until renewed. |
+| Report is generated | NAV amount and disclosure tier are independently auditable. |
+
+## Example 107. Fund Expense Accrual Cut-Off Dispute
+
+### Scenario
+
+A fund administrator accrues an annual audit expense after the NAV cut-off. The manager disputes whether the expense belongs in the current NAV or next valuation period.
+
+| Attribute | Value |
+|---|---:|
+| Fund NAV before expense | 40,000,000 |
+| Audit expense | 120,000 |
+| Units outstanding | 2,000,000 |
+| NAV impact per unit | 0.06 |
+
+### NAV impact
+
+```text
+nav_impact_per_unit = audit_expense / units_outstanding
+nav_impact_per_unit = 120,000 / 2,000,000 = 0.06
+
+post_expense_nav = fund_nav_before_expense - audit_expense
+post_expense_nav = 40,000,000 - 120,000 = 39,880,000
+```
+
+### Correct treatment
+
+- preserve expense invoice, approval date, service period, NAV cut-off, administrator calculation and manager dispute;
+- keep current-period NAV, disputed expense accrual and final confirmed NAV separately visible;
+- avoid posting final investor NAV impact until administrator confirms period treatment;
+- disclose provisional NAV or expense dispute where reporting policy requires it;
+- update performance, fees and equalization after final treatment is confirmed.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Expense approval is after cut-off | Expense period is disputed or allocated to next period according to policy. |
+| Administrator confirms current NAV impact | NAV and per-unit impact update with source lineage. |
+| Final decision reverses accrual | NAV restates without duplicate expense booking. |
+| Client report is generated | Expense dispute and provisional/final NAV state are visible. |
+
+## Example 108. UCITS Eligible-Asset Breach Cure
+
+### Scenario
+
+A UCITS fund temporarily breaches an eligible-asset rule after a security is reclassified. The manager sells the ineligible asset within the cure period.
+
+| Attribute | Value |
+|---|---:|
+| Fund NAV | 60,000,000 |
+| Ineligible exposure | 1,800,000 |
+| Breach ratio | 3.00% |
+| Cure deadline | 30 days |
+
+### Breach ratio
+
+```text
+breach_ratio = ineligible_exposure / fund_nav
+breach_ratio = 1,800,000 / 60,000,000 = 3.00%
+```
+
+### Correct treatment
+
+- preserve eligibility rule, classification source, breach notice, manager action plan, sale evidence and cure date;
+- label breach state separately from fund suspension, fund liquidation or client mandate breach;
+- keep buy eligibility, model eligibility and reporting warnings policy-driven during cure period;
+- clear breach only when source evidence confirms exposure reduction or rule remediation;
+- retain breach history for governance, audit and suitability review.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Asset becomes ineligible | Breach ratio and cure deadline are calculated. |
+| Cure sale completes within deadline | Breach clears with sale and exposure evidence. |
+| Cure period expires unresolved | Escalation, restriction or suspension workflow opens. |
+| Advisory proposal is generated | Fund is warning-labelled or blocked according to policy. |
+
+## Example 109. Feeder Liquidity Mismatch Stress
+
+### Scenario
+
+A feeder fund offers monthly liquidity, but the master fund changes liquidity to quarterly during stress. The feeder must adjust projected redemption capacity and client communication.
+
+| Attribute | Value |
+|---|---:|
+| Feeder redemption requests | 10,000,000 |
+| Master available liquidity | 6,000,000 |
+| Feeder liquidity support | 1,000,000 |
+| Unfunded redemption demand | 3,000,000 |
+
+### Liquidity mismatch
+
+```text
+total_feeder_redemption_capacity = master_available_liquidity + feeder_liquidity_support
+total_feeder_redemption_capacity = 6,000,000 + 1,000,000 = 7,000,000
+
+unfunded_redemption_demand = feeder_redemption_requests - total_feeder_redemption_capacity
+unfunded_redemption_demand = 10,000,000 - 7,000,000 = 3,000,000
+```
+
+### Correct treatment
+
+- preserve feeder terms, master fund liquidity notice, bridge facility, redemption queue, gate policy and client communication approval;
+- separate feeder-level liquidity promise from master-level liquidity source;
+- update projected redemption cash, queue state, gates and DPM funding assumptions;
+- label stress state without treating all feeder NAV as unavailable;
+- retain mismatch history for liquidity risk, suitability and product-governance review.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Master liquidity becomes quarterly | Feeder projected capacity recalculates from master and support sources. |
+| Requests exceed capacity | Unfunded demand, queue and client communication workflow open. |
+| Bridge support is approved | Capacity includes support only with source-backed terms. |
+| Liquidity report is generated | Feeder promise, master liquidity and unfunded demand are distinct. |
