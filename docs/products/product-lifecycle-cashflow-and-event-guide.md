@@ -55,6 +55,18 @@ Use these questions before classifying any product event:
 9. Is there a later reversal, correction, or restatement path?
 10. Which client-reporting label should be used, and what should not be inferred?
 
+## Operational Correction Patterns
+
+| Pattern | Required Treatment |
+|---|---|
+| Allocation correction | Link original order, execution, trade, allocation, approval evidence, corrected account split, position/cash/lot delta and report impact. |
+| Linked FX settlement | Preserve security trade, FX order, funding dependency, value date, cash reservation and settlement exception state as connected facts. |
+| Income reversal | Reverse gross income, tax and net cash with lineage; create receivable or reclaim workflow when cash/tax cannot reverse immediately. |
+| Trade cancellation | Preserve original order/execution/trade and cancel through a versioned lifecycle event rather than deleting history. |
+| Late fee or tax posting | Post fees/taxes as linked transaction legs or adjustments; decide cost-basis and performance treatment by policy. |
+| Performance restatement | Preserve original output, corrected inputs, recalculation result, materiality decision and report/client notice decision. |
+| Reconciliation break closure | Store break components, source evidence, resolution action, tolerance/materiality decision and close/reopen state. |
+
 ## Cross-Product Event Matrix
 
 | Product Area | Event Or Transaction | Cash Effect | Position Or Obligation Effect | Reporting And Analytics Treatment |

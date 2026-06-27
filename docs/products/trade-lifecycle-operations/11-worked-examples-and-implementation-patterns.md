@@ -232,3 +232,206 @@ The platform should not overwrite the original dividend transaction silently. It
 ### Design principle
 
 Every material number in a client report, portfolio review, mandate breach, buying-power calculation or reconciliation break should be traceable to source lifecycle events. A platform that can only show current positions but cannot explain the lifecycle path is weak for operations, QA, audit and client servicing.
+
+## Example 7. Post-Trade Allocation Correction
+
+### Scenario
+
+A block trade for 10,000 shares was allocated 60% to Account A and 40% to Account B. Operations later identifies that the approved allocation should have been 50%/50%.
+
+| Account | Original allocation | Corrected allocation | Quantity delta |
+|---|---:|---:|---:|
+| Account A | 6,000 | 5,000 | -1,000 |
+| Account B | 4,000 | 5,000 | +1,000 |
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Detect error | Link exception to order, execution, trade, allocation and approval evidence. |
+| Freeze downstream impact | Identify impacted positions, cash, tax lots, performance and reports. |
+| Correct allocation | Create adjustment or cancel/rebook workflow according to accounting policy. |
+| Recalculate | Update cost basis, cash consideration, fees, tax and performance for both accounts. |
+| Publish | Record maker/checker sign-off and report restatement decision. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Corrected allocation changes account quantities | Position, cash, lots and performance update with lineage. |
+| Client report was already issued | Impact assessment decides restatement or next-period disclosure. |
+| Mandate breach appears after correction | Breach is evaluated against corrected account exposure. |
+| Correction lacks approval | Allocation correction remains blocked. |
+
+## Example 8. FX Settlement Linked To Security Trade
+
+### Scenario
+
+A USD account buys a EUR security. Funding requires an FX trade that must settle before or on the security settlement date.
+
+| Attribute | Value |
+|---|---:|
+| EUR security purchase | 100,000 |
+| EUR/USD FX rate | 1.0800 |
+| USD funding required | 108,000 |
+| Security settlement date | T+2 |
+| FX value date | T+2 |
+
+### Correct workflow
+
+```text
+security order -> funding check -> linked FX order -> FX confirmation -> cash reservation -> security settlement -> position and cash posting
+```
+
+### Failure states
+
+| Failure | Required behavior |
+|---|---|
+| FX trade missing | Security trade is blocked, prefunded, bridged or escalated by policy. |
+| FX settles late | EUR cash remains unavailable; linked security settlement is at risk. |
+| FX rate changes before execution | Buying-power estimate and actual cash posting retain separate rates. |
+| One FX leg fails | Cash is restricted and linked settlement workflow is exceptioned. |
+
+## Example 9. Income Reversal After Entitlement Error
+
+### Scenario
+
+A coupon payment of 5,000 was booked to a client account. Custodian later confirms the account was not entitled because the bond was sold before record date.
+
+| Attribute | Value |
+|---|---:|
+| Original gross coupon | 5,000 |
+| Withholding tax | 500 |
+| Net cash credited | 4,500 |
+| Correct entitlement | 0 |
+
+### Correct reversal
+
+| Posting | Treatment |
+|---|---|
+| Gross income reversal | Reverse 5,000 income with source reason. |
+| Tax reversal | Reverse or reclaim 500 withholding according to custodian/tax source. |
+| Net cash reversal | Debit 4,500 or create receivable if cash is unavailable. |
+| Report update | Mark impacted statement/income report for correction review. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Cash is insufficient for reversal | Receivable/exception workflow opens. |
+| Tax cannot be reversed immediately | Tax reclaim or pending tax adjustment is tracked. |
+| Performance period is closed | Performance restatement decision is recorded. |
+| Original income is audited | Original and reversal remain visible with lineage. |
+
+## Example 10. Trade Cancellation After Booking
+
+### Scenario
+
+A trade is booked and reported on trade date, but the broker cancels it before settlement because the execution was erroneous.
+
+### Correct cancellation workflow
+
+| Artifact | Required action |
+|---|---|
+| Order | Preserve original order and cancellation reason. |
+| Execution | Mark cancelled or busted with broker evidence. |
+| Trade | Reverse booked trade or mark cancelled according to book-of-record policy. |
+| Cash reservation | Release pending cash reservation. |
+| Position | Remove trade-date exposure or create reversal entry. |
+| Performance | Reverse any provisional performance impact. |
+| Report | Flag impacted report output if already published. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Trade is cancelled before settlement | No settled cash or settled position remains. |
+| Trade was included in a report | Report correction workflow identifies impacted line items. |
+| Fees were already posted | Fee reversal or broker adjustment is linked to cancellation. |
+| User tries to delete trade | Deletion is blocked; cancellation is versioned. |
+
+## Example 11. Fee And Tax Posting After Trade Settlement
+
+### Scenario
+
+An equity purchase settles, then stamp duty and exchange fees arrive in a separate file after settlement.
+
+| Attribute | Value |
+|---|---:|
+| Gross consideration | 50,000 |
+| Broker commission | 75 |
+| Exchange fee | 10 |
+| Stamp duty | 100 |
+| Total cash cost | 50,185 |
+
+### Correct treatment
+
+```text
+total cash cost = gross consideration + commission + exchange fee + stamp duty
+total cash cost = 50,000 + 75 + 10 + 100 = 50,185
+```
+
+| Area | Treatment |
+|---|---|
+| Cash ledger | Fees/taxes post as separate legs or linked adjustments. |
+| Cost basis | Inclusion depends on configured accounting/tax policy. |
+| Performance | Fees reduce return according to methodology. |
+| Reconciliation | Late fee file creates expected adjustment, not unexplained cash break. |
+
+## Example 12. Performance Restatement From Trade Correction
+
+### Scenario
+
+A trade price was corrected from 24.10 to 24.00 after month-end performance was published.
+
+| Attribute | Original | Corrected |
+|---|---:|---:|
+| Quantity | 10,000 | 10,000 |
+| Trade price | 24.10 | 24.00 |
+| Consideration | 241,000 | 240,000 |
+
+### Impact
+
+```text
+cash difference = original consideration - corrected consideration
+cash difference = 241,000 - 240,000 = 1,000
+```
+
+Correct workflow:
+
+- store corrected trade price and source reason;
+- post cash/position/lot adjustment according to correction policy;
+- identify impacted performance periods, reports, mandate checks and fees;
+- decide whether to restate, annotate or carry forward based on materiality;
+- preserve original performance output and corrected output.
+
+## Example 13. Reconciliation Break Closure
+
+### Scenario
+
+Internal cash shows USD 1,000,000 while custodian cash shows USD 997,500. The difference is traced to a missing fee and a pending FX cash leg.
+
+| Break component | Amount |
+|---|---:|
+| Missing custody fee | -500 |
+| Pending FX settlement leg | -2,000 |
+| Total break | -2,500 |
+
+### Closure workflow
+
+| Step | Treatment |
+|---|---|
+| Detect | Identify account, currency, date, source balances and tolerance breach. |
+| Classify | Split break into known pending item, missing posting, timing difference or unknown. |
+| Resolve | Book missing fee and link pending FX leg to expected settlement. |
+| Evidence | Attach custodian statement, fee file and FX confirmation. |
+| Close | Close break only after balances reconcile or approved exception remains. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Break is within tolerance but client-visible | Materiality policy decides whether closure is allowed. |
+| Break has multiple causes | Closure stores component-level explanation. |
+| Pending item passes expected date | Break reopens or escalates. |
+| Manual adjustment is used | Adjustment requires reason, approver and source evidence. |
