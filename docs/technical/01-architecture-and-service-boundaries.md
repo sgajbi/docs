@@ -94,4 +94,3 @@ Before approving an architecture slice, confirm:
 4. cross-service calls have timeouts and safe failure behavior,
 5. tests exist at the correct layer,
 6. docs, runbooks and CI evidence match the implementation.
-

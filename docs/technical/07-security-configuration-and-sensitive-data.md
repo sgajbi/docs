@@ -140,4 +140,3 @@ Before sharing evidence, remove:
 5. Does CI block known security findings?
 6. Is permission denial product-safe?
 7. Are generated artifacts safe to retain?
-

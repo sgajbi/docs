@@ -156,4 +156,3 @@ Prefer refactoring when you see:
 4. Can an operator diagnose a failed request from logs and metrics?
 5. Can a downstream consumer trust the OpenAPI contract?
 6. Does the code preserve source lineage and supportability state?
-

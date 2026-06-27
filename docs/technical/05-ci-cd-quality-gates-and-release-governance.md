@@ -130,4 +130,3 @@ Avoid:
 4. Does it prevent a real regression?
 5. Does the PR evidence tell the truth?
 6. Is main still releasable after merge?
-

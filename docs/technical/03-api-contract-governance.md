@@ -161,4 +161,3 @@ Before approving a new endpoint, ask:
 6. Is pagination bounded?
 7. Does OpenAPI show the current implementation?
 8. Are tests protecting schema, behavior and failure semantics?
-

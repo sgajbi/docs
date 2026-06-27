@@ -121,4 +121,3 @@ Services with persistence need:
 4. Is heavy work isolated from request/response paths?
 5. Are retries bounded?
 6. Can the system recover from partial failure?
-

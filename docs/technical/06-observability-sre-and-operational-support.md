@@ -164,4 +164,3 @@ Use explicit states instead of vague labels.
 4. Are degraded states visible to clients?
 5. Is there a runbook for common failures?
 6. Is recovery tested?
-

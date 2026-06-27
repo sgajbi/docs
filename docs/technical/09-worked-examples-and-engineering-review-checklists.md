@@ -170,4 +170,3 @@ Use this as a personal checklist after reading a service:
 7. Can I explain how it handles stale, partial, unavailable and permission-blocked states?
 8. Can I identify the highest-risk failure mode?
 9. Can I propose one small improvement slice with tests and evidence?
-

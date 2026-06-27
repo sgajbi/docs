@@ -140,4 +140,3 @@ Avoid:
 5. Can consumers see degraded state?
 6. Are generated artifacts derived from source truth?
 7. Does certification run in CI or release validation?
-

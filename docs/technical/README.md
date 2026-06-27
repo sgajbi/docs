@@ -59,4 +59,3 @@ This section is the learning and implementation layer. For deeper background, cr
 ## Curation Note
 
 Curated from implementation patterns, standards, CI structure, documentation conventions and operating controls observed across a multi-application wealth-platform ecosystem. The content has been normalized into neutral practitioner guidance and avoids local paths, product names, private repository labels and implementation claims that are not generally reusable.
-
