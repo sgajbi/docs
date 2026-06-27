@@ -8,6 +8,10 @@ This page connects derivatives knowledge to reusable private-banking platform de
 |---|---|---|
 | Derivatives | [`derivatives/`](derivatives/README.md) | Options, futures, forwards, FX derivatives, commodities, swaps, CDS, OTC contracts, valuation, Greeks, margin, collateral, counterparty risk, advisory, mandate controls, reporting, implementation, and QA. |
 
+## Practical Worked Examples
+
+Use [`derivatives/09-worked-examples-and-implementation-patterns.md`](derivatives/09-worked-examples-and-implementation-patterns.md) for concrete examples covering option purchase, covered-call assignment, futures variation margin, FX forward hedge settlement, NDF fixing, interest-rate swap resets, CDS credit events, exposure lenses, support boundaries and regression tests.
+
 ## Core Derivatives Platform Distinctions
 
 | Concept | Project Implication |

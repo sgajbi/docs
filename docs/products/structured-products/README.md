@@ -40,6 +40,9 @@ The pack intentionally goes beyond structured notes. Notes are one major wrapper
 7. `07-glossary-practitioner-reference-and-review-checklists.md`  
    Provides a glossary, practitioner-ready explanations, common mistakes, product comparison tables and reusable review checklists.
 
+8. `08-worked-examples-and-implementation-patterns.md`
+   Provides worked examples for autocallables, memory coupons, principal protection, buffers, dual currency investments, accumulators, decumulators, certificates, warrants, valuation controls, suitability, mandate treatment, support boundaries and regression tests.
+
 ## Core modelling principle
 
 A structured product should be modelled as a legally held instrument or account product, not as every embedded component being separately held by the client.

@@ -17,7 +17,8 @@
 | `01-notes-fundamentals-and-product-taxonomy.md` | Explains what notes are, how they differ from bonds/deposits, why clients buy them, key risks, and major product variants. |
 | `02-note-lifecycle-transactions-and-position-modelling.md` | Explains lifecycle events, transaction types, position modelling, physical settlement, maturity, autocall, credit events, and performance treatment. |
 | `03-note-data-model-valuation-and-risk.md` | Gives a common data model for notes, nullable/extension attributes, valuation hierarchy, pricing inputs, clean/dirty price handling, and look-through risk. |
-| `04-platform-implementation-advisory-and-practitioner-reference.md` | Provides implementation checklists, advisory/suitability views, reporting requirements, operational controls, test cases, glossary, and practitioner explanations and questions and answers. |
+| `04-platform-implementation-advisory-and-practitioner-reference.md` | Provides implementation checklists, advisory/suitability views, reporting requirements, operational controls, test cases, glossary, practitioner explanations and reusable review questions. |
+| `05-worked-examples-and-implementation-patterns.md` | Provides worked examples for fixed coupon notes, reverse convertibles, autocallable Phoenix notes, credit-linked notes, dual currency notes, barrier state reporting, valuation, performance treatment, support boundaries and regression tests. |
 
 ---
 

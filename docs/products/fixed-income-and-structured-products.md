@@ -10,6 +10,14 @@ This page connects product reference packs that are often used together in priva
 | Structured products | [`structured-products/`](structured-products/README.md) | Broad wrapper-plus-payoff modelling for notes, deposits, certificates, warrants, structured funds, accumulators, decumulators, autocallables, participation products, buffers, and leveraged structures. |
 | Structured notes | [`structured-notes/`](structured-notes/README.md) | Structured payoff modelling, embedded derivative terms, lifecycle events, barrier/autocall/physical settlement handling, valuation, risk, and suitability controls. |
 
+## Practical Worked Examples
+
+| Example Pack | Use |
+|---|---|
+| [`bonds/05-worked-examples-and-implementation-patterns.md`](bonds/05-worked-examples-and-implementation-patterns.md) | Bond settlement, accrued interest, yields, duration, credit events, maturity ladder and reporting examples. |
+| [`structured-products/08-worked-examples-and-implementation-patterns.md`](structured-products/08-worked-examples-and-implementation-patterns.md) | Autocallable, memory coupon, principal-protection, buffer, dual-currency, accumulator, decumulator, certificate, valuation-control and mandate examples. |
+| [`structured-notes/05-worked-examples-and-implementation-patterns.md`](structured-notes/05-worked-examples-and-implementation-patterns.md) | Note-wrapper examples for fixed coupon notes, reverse convertibles, Phoenix autocalls, credit-linked notes, dual currency notes, barrier reporting and lifecycle support boundaries. |
+
 ## Structured Products Versus Structured Notes
 
 Use `structured-products/` as the broad product-family pack. It covers the wrapper-plus-payoff architecture across note, deposit, certificate, warrant, fund, OTC, accumulator, decumulator, participation, buffer, and leveraged forms.

@@ -35,6 +35,7 @@ This pack is written from the perspective of a wealth-management / private-banki
 | `06-derivatives-advisory-mandate-analytics-reporting-deep-dive.md` | Dedicated advisory, mandate, DPM, suitability, concentration, reporting, portfolio-review and client-communication deep dive. |
 | `07-derivatives-platform-implementation-controls-reconciliation-test-scenarios.md` | Platform implementation guide: architecture, event model, transaction model, valuation controls, reconciliation, QA and production triage. |
 | `08-derivatives-glossary-practitioner-reference-and-product-combinations.md` | Glossary, practitioner explanations, product-combination map, and reusable reference tables. |
+| `09-worked-examples-and-implementation-patterns.md` | Worked examples for options, futures, FX forwards, NDFs, swaps, CDS, exposure lenses, margin/collateral treatment, advisory controls, support boundaries and regression tests. |
 
 ## Recommended Learning and Project Sequence
 
@@ -45,7 +46,8 @@ This pack is written from the perspective of a wealth-management / private-banki
 5. Read File 05 for valuation, Greeks, exposure and risk modelling.
 6. Read File 06 for advisory, mandate, DPM analytics and reporting.
 7. Use File 07 as an implementation and QA reference.
-8. Use File 08 for quick revision and practitioner preparation.
+8. Use File 08 for glossary, product combinations and practitioner reference.
+9. Use File 09 for worked examples, QA scenarios, support-boundary decisions and implementation review.
 
 ## Core mental model
 
