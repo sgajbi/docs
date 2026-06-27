@@ -2446,7 +2446,218 @@ QA assertions:
 | Model governance approves adjustment | Reserve changes with effective date and evidence. |
 | Valuation report is generated | Clean value, reserve, backtest result and exception state are traceable. |
 
-## 77. Advisory And Mandate Checklist
+## 77. Cross-Product Delta-Limit Aggregation
+
+Scenario:
+
+- A client holds listed equity, equity options and a structured note linked to the same issuer.
+- The internal concentration limit uses delta-adjusted exposure across direct and derivative positions.
+- Direct equity market value is USD 400,000.
+- Call option delta-adjusted exposure is USD 180,000.
+- Structured note delta-adjusted exposure is USD 260,000.
+- Client portfolio value is USD 5,000,000.
+- Issuer delta-limit is 15.00% of portfolio value.
+
+Limit usage:
+
+```text
+aggregate_delta_exposure = 400,000 + 180,000 + 260,000 = 840,000
+delta_limit_amount = 5,000,000 x 15.00% = 750,000
+excess_delta_exposure = 840,000 - 750,000 = 90,000
+limit_usage = 840,000 / 750,000 = 112.00%
+```
+
+Correct treatment:
+
+- preserve direct holdings, derivative contracts, structured-note sensitivity source, portfolio value and limit rule;
+- aggregate only compatible as-of exposures with current delta or source-backed sensitivity;
+- label missing or stale sensitivity as source-limited instead of assuming zero exposure;
+- distinguish legal holding concentration from delta-adjusted economic exposure;
+- route breach, waiver or remediation workflow according to mandate and advisory policy.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| All sensitivities are current | Aggregate delta exposure and excess are calculated. |
+| Structured-note delta is stale | Limit check is blocked, labelled partial or escalated by policy. |
+| Direct holding is sold | Aggregate exposure updates without deleting derivative lineage. |
+| Client report is generated | Legal holdings and delta-adjusted issuer exposure are not confused. |
+
+## 78. Client Collateral Concentration Breach
+
+Scenario:
+
+- A client posts collateral for an OTC derivative portfolio.
+- CSA allows equity collateral, but internal collateral policy limits any single issuer to 40.00% of posted collateral value.
+- Posted collateral value is USD 1,200,000.
+- Single-issuer stock collateral value is USD 620,000.
+- Applicable haircut is 25.00%.
+
+Concentration and lending value:
+
+```text
+issuer_concentration = 620,000 / 1,200,000 = 51.67%
+issuer_concentration_excess = 51.67% - 40.00% = 11.67%
+lending_value = 620,000 x (1 - 25.00%) = 465,000
+```
+
+Correct treatment:
+
+- preserve CSA terms, internal concentration rule, collateral inventory, issuer mapping, source prices and haircuts;
+- calculate concentration on market value while margin sufficiency uses haircut-adjusted lending value;
+- do not release or substitute collateral until replacement is accepted and settled;
+- separate CSA eligibility from private-bank collateral concentration policy;
+- open remediation workflow with advisor, credit and operations visibility.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Issuer concentration exceeds limit | Breach workflow opens with concentration and excess. |
+| Collateral is CSA-eligible | Breach may still remain under internal policy. |
+| Replacement collateral is pending | Existing collateral remains active until settled. |
+| Collateral report is generated | Market value, haircut value and concentration breach are distinct. |
+
+## 79. OTC Confirmation Mismatch Ageing
+
+Scenario:
+
+- An OTC swap trade has an internal trade capture record and a dealer confirmation.
+- Notional matches, but the fixed-rate leg differs.
+- Mismatch has remained unresolved for 9 business days.
+- Policy escalates unresolved economic mismatches after 5 business days.
+
+Ageing:
+
+```text
+mismatch_age = business_days_between(mismatch_detected_date, today)
+mismatch_age = 9
+escalation_overdue_days = 9 - 5 = 4
+```
+
+Correct treatment:
+
+- preserve internal trade terms, dealer confirmation, mismatch fields, timestamps, owner and escalation state;
+- classify economic mismatches separately from non-economic text or reference mismatches;
+- avoid downstream settlement or valuation overrides until governing terms are resolved;
+- keep provisional valuation and exposure labelled when confirmation terms are disputed;
+- escalate ageing mismatches to operations, risk and advisor-facing support where client reporting may be affected.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Economic field mismatches | Confirmation break opens with field-level difference. |
+| Mismatch age exceeds threshold | Escalation state and overdue days are visible. |
+| Dealer sends correction | Break closes only when governing terms reconcile. |
+| Client report is generated before closure | Position is labelled provisional or source-limited by policy. |
+
+## 80. Option Exercise Funding Shortfall
+
+Scenario:
+
+- A client holds in-the-money call options that are eligible for exercise.
+- Exercise would require cash to buy the underlying shares.
+- Available cash is USD 180,000.
+- Exercise funding requirement is USD 260,000.
+- Exercise deadline is today.
+
+Funding shortfall:
+
+```text
+funding_shortfall = exercise_funding_required - available_cash
+funding_shortfall = 260,000 - 180,000 = 80,000
+exercise_allowed = funding_shortfall <= 0 or approved_credit_available
+```
+
+Correct treatment:
+
+- preserve option contracts, exercise notice, strike, deliverable quantity, cash requirement, deadline and funding source;
+- separate exercise value from settlement funding need;
+- block, partial-exercise, finance or escalate according to mandate, credit and operational policy;
+- avoid accidental exercise if funding, authority or settlement route is unresolved;
+- reflect missed, partial or funded exercise in client reporting with clear opportunity-cost context where appropriate.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Funding is sufficient | Exercise can proceed subject to authority and deadline. |
+| Funding is short | Exercise is blocked, resized, financed or escalated by policy. |
+| Credit approval arrives before deadline | Exercise state updates with funding evidence. |
+| Exercise deadline passes unresolved | Option expiry or non-exercise treatment is recorded with evidence. |
+
+## 81. Clearing-House Default Fund Assessment
+
+Scenario:
+
+- A clearing house issues a default fund assessment after a member default.
+- Client cleared derivatives are not closed out, but a pass-through assessment is allocated by clearing broker.
+- Client share of default fund allocation base is 2.50%.
+- Total assessment pool is USD 4,000,000.
+
+Assessment:
+
+```text
+client_assessment = assessment_pool x client_allocation_share
+client_assessment = 4,000,000 x 2.50% = 100,000
+```
+
+Correct treatment:
+
+- preserve clearing-house notice, clearing-broker statement, allocation base, client share, assessment date and dispute state;
+- separate default fund assessment from margin call, trading P&L and brokerage fees;
+- check client agreement, pass-through terms, reporting classification and tax treatment before posting;
+- keep affected cleared positions, margin and assessment evidence linked;
+- route disputed assessments separately from ordinary margin operations.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Clearing-broker assessment is confirmed | Client assessment is calculated with allocation lineage. |
+| Allocation basis is missing | Posting remains blocked or source-limited. |
+| Client disputes assessment | Payable, dispute and settlement states remain separate. |
+| Statement is generated | Assessment is not reported as derivative MTM or variation margin. |
+
+## 82. Structured Payoff Model Recalibration
+
+Scenario:
+
+- A structured derivative payoff model is recalibrated because volatility surface inputs changed.
+- Official issuer price is unchanged for the day, but scenario payoff and Greeks change.
+- Old delta is 0.42.
+- New delta is 0.51.
+- Notional is USD 1,000,000.
+
+Sensitivity change:
+
+```text
+delta_change = new_delta - old_delta
+delta_change = 0.51 - 0.42 = 0.09
+delta_equivalent_change = notional x delta_change
+delta_equivalent_change = 1,000,000 x 0.09 = 90,000
+```
+
+Correct treatment:
+
+- preserve model version, calibration inputs, volatility surface, effective timestamp, old sensitivities and new sensitivities;
+- separate payoff model recalibration from official valuation movement when price is unchanged;
+- update scenario analytics, concentration checks and hedge reporting from the recalibration effective date;
+- require model governance approval where recalibration changes client-facing risk or suitability metrics;
+- keep prior sensitivity available for audit, report restatement and explain-pack comparisons.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Model recalibration is approved | New sensitivities are effective from approved timestamp. |
+| Official price is unchanged | Market value does not move solely because Greeks changed. |
+| Mandate exposure check runs | It uses current source-backed sensitivities. |
+| Client explain pack is generated | Old and new scenario results are versioned and traceable. |
+
+## 83. Advisory And Mandate Checklist
 
 Before using derivatives in advisory or DPM workflows, check:
 
@@ -2461,7 +2672,7 @@ Before using derivatives in advisory or DPM workflows, check:
 | Authority | Who may approve trade, exercise, close-out, collateral movement, or unwind? |
 | Reporting | Which client/advisor labels and warnings are required? |
 
-## 78. Current Support Boundary And Candidate Extensions
+## 84. Current Support Boundary And Candidate Extensions
 
 | Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
 |---|---|---|
@@ -2472,7 +2683,7 @@ Before using derivatives in advisory or DPM workflows, check:
 | Lifecycle events | expiry, exercise, assignment, reset, fixing, settlement, novation, compression, clearing, porting, barrier events and notional exchanges when sourced | automated OTC confirmation matching, lifecycle replay engine and event generation |
 | Reporting | market value, exposure, source date, stale/unsupported labels, hedge overlay split, strategy grouping and clearing state where sourced | advanced hedge-effectiveness reporting and multi-factor attribution |
 
-## 79. Regression Test Pack
+## 85. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -2556,3 +2767,9 @@ Minimum release-gate scenarios:
 78. FX option fixing source override requires source outage evidence, fallback hierarchy and approval.
 79. Collateral dispute interest claim separates principal return, dispute interest and open claim state.
 80. Model reserve backtesting exception calculates reserve shortfall and routes repeated breaches to model governance.
+81. Cross-product delta-limit aggregation combines compatible current exposures and labels stale or missing sensitivities.
+82. Client collateral concentration breach separates CSA eligibility, haircut lending value and internal concentration policy.
+83. OTC confirmation mismatch ageing escalates unresolved economic breaks and labels disputed downstream states.
+84. Option exercise funding shortfall blocks, resizes, finances or escalates exercise before deadline.
+85. Clearing-house default fund assessment is separated from margin, trading P&L and ordinary fees.
+86. Structured payoff model recalibration versions sensitivities without changing official valuation when price is unchanged.
