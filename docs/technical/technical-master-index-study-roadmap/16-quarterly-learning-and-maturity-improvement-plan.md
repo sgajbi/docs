@@ -125,6 +125,40 @@ At the end of the quarter, aim to have a compact portfolio of reusable artifacts
 
 ---
 
+## Monthly Evidence Cadence
+
+Use this cadence to keep learning tied to visible engineering improvement.
+
+| Month | Evidence review | Minimum artifact | Good maturity signal |
+|---:|---|---|---|
+| 1 | Current-state discovery | Repo or platform assessment with scored gaps | The gap list separates production risk, security risk, delivery friction and documentation debt. |
+| 2 | Standards adoption | One updated standard, checklist, runbook or quality gate | The standard has an owner, trigger, evidence expectation and failure behavior. |
+| 3 | Team enablement | KT session, teach-back output and improvement backlog | The team can explain the standard and has at least one follow-up repo action. |
+
+## Personal Learning Scorecard
+
+Use this scorecard at the end of each month. Score each area from 1 to 5 and write one evidence-backed note.
+
+| Area | Evidence to inspect | Strong answer looks like |
+|---|---|---|
+| Architecture judgement | Boundary notes, dependency maps, decision records | I can explain the tradeoff, owner, contract and failure mode. |
+| Delivery discipline | PRs, CI gates, release evidence, branch hygiene | I can prove what changed, how it was tested and how it will be supported. |
+| Runtime awareness | Deployment docs, health checks, dashboards, runbooks | I can diagnose readiness, degradation, rollback and recovery paths. |
+| Security thinking | Secrets policy, authorization checks, sensitive-data rules | I can identify enforcement points and verification evidence. |
+| Domain depth | Product, portfolio, reporting or data examples | I can connect technical behavior to business correctness. |
+| Leadership communication | Review notes, stakeholder updates, KT outputs | I can translate technical risk into clear decisions and next actions. |
+
+## Backlog Selection Rule
+
+Pick quarterly improvements using a balanced view:
+
+1. one item that reduces production or support risk,
+2. one item that improves delivery quality or developer speed,
+3. one item that strengthens security, data trust or audit evidence,
+4. one item that improves KT, onboarding or durable documentation.
+
+---
+
 ## Improvement Principle
 
 Do not try to implement all standards at once.

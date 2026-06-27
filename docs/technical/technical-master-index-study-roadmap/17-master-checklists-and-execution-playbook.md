@@ -21,6 +21,19 @@ Use it as the final execution guide.
 
 ---
 
+## Knowledge-To-Action Checklist
+
+Use this checklist after reading any guide so the learning produces durable engineering value.
+
+- [ ] Identify one concept that changes how a system should be designed, tested or operated.
+- [ ] Find the matching evidence in a repository, architecture note, runbook, API contract or delivery workflow.
+- [ ] Write one concise improvement action with owner, scope and expected evidence.
+- [ ] Decide whether the action belongs in code, tests, CI, documentation, operations or team KT.
+- [ ] Keep the action small enough to land as a reviewable change.
+- [ ] Add a follow-up only when the remaining work is real, named and traceable.
+
+---
+
 ## Repo Adoption Checklist
 
 - [ ] README current.
@@ -197,6 +210,36 @@ When applying any checklist, keep the output compact:
 3. identify the owner,
 4. record the next action,
 5. revisit the artifact after the next material change.
+
+---
+
+## Maturity Review Rubric
+
+Use this rubric when reviewing a team, repository or platform area.
+
+| Level | Signal | Evidence |
+|---:|---|---|
+| 1 | Knowledge is individual and inconsistent. | People can explain parts of the system, but durable docs, tests, runbooks or contracts are missing. |
+| 2 | Core practices exist but are uneven. | README, API docs, tests and runbooks exist, but gaps are found during review or incidents. |
+| 3 | Practices are repeatable. | PRs, releases, runbooks, dashboards and documentation follow a visible standard. |
+| 4 | Practices are governed and measured. | Quality gates, scorecards, ownership, risk acceptance and review cadence are active. |
+| 5 | Practices improve from evidence. | Incidents, reviews, migrations, buyer feedback and delivery metrics produce durable improvements. |
+
+## Review Output Template
+
+Keep review output short and action-oriented:
+
+```text
+Area reviewed:
+Current maturity:
+Evidence inspected:
+Top strengths:
+Top risks:
+Decision or recommendation:
+Owner:
+Next action:
+Follow-up date:
+```
 
 ---
 

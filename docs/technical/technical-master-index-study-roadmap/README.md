@@ -71,6 +71,22 @@ It includes:
 
 ---
 
+## How To Choose A Path Quickly
+
+Use this section when you have a practical goal and need a short route through the wider technical library.
+
+| Goal | Start with | Then produce |
+|---|---|---|
+| Learn the platform architecture | `01-master-pack-index-and-knowledge-map.md` and the architecture, backend, API and data-product guides | Boundary map, dependency map, key contracts and open architecture questions. |
+| Prepare a new joiner KT plan | `09-kt-onboarding-and-team-training-plan.md` and the role-specific path | Reading sequence, walkthrough exercise, teach-back questions and follow-up improvement action. |
+| Improve a repository | `08-repo-adoption-model-and-documentation-structure.md` and `17-master-checklists-and-execution-playbook.md` | Repo documentation map, missing artifact list, small adoption PR plan and evidence checklist. |
+| Review a design | `10-architecture-review-and-design-governance-map.md` | Decision note, tradeoff analysis, risk list, acceptance criteria and owner actions. |
+| Raise PR quality | `11-pr-review-quality-gates-and-engineering-standards-map.md` | PR evidence rule, test placement rule, security review points and documentation update rule. |
+| Prepare for production | `12-production-readiness-and-operational-excellence-map.md` | Ownership, support model, dashboards, runbooks, rollback note, known-risk register and go/no-go evidence. |
+| Build leadership depth | `03-engineering-lead-and-architect-study-roadmap.md`, `15-practitioner-and-leadership-readiness-roadmap.md` and `16-quarterly-learning-and-maturity-improvement-plan.md` | Maturity scorecard, stakeholder narrative, operating rhythm and next-quarter improvement backlog. |
+
+---
+
 ## Reading Order For This Pack
 
 | Step | File | Purpose |
