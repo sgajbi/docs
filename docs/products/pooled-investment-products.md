@@ -7,6 +7,7 @@ This page connects fund-related product knowledge to reusable private-banking pl
 | Product Area | Pack | Main Use |
 |---|---|---|
 | Funds | [`funds/`](funds/README.md) | Fund product taxonomy, share classes, subscriptions/redemptions, switches, transfers, distributions, NAV, fees, look-through exposure, risk, performance, and platform controls. |
+| Private markets | [`private-markets/`](private-markets/README.md) | Private equity, private credit, real assets, hedge funds, commitments, capital calls, distributions, NAV lag, liquidity, suitability, mandate, reporting, and platform controls. |
 
 ## Product Families Covered
 
@@ -21,6 +22,8 @@ This page connects fund-related product knowledge to reusable private-banking pl
 | Fund of funds | Nested exposure requires source quality controls and clear double-counting treatment. |
 | Hedge funds | Often have lockups, gates, notice periods, side pockets, and less frequent NAV. |
 | Private market funds | Commitment, capital call, distribution, unfunded commitment, NAV update, and vintage-year modelling matter. |
+
+For deeper private-market implementation guidance, use [`private-markets-and-alternatives.md`](private-markets-and-alternatives.md).
 
 ## Core Platform Distinctions
 

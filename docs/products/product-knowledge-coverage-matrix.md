@@ -10,6 +10,7 @@ This matrix tracks the current product-library coverage and where enrichment sho
 | Derivatives | [`derivatives/`](derivatives/README.md) | [`derivatives-and-overlay-products.md`](derivatives-and-overlay-products.md) | Strong coverage of options, futures, forwards, swaps, CDS, valuation, Greeks, exposure, margin, collateral, mandate controls, and QA. | Add product-by-product exposure measure examples and a margin/collateral accounting vs performance treatment guide. |
 | Equities | [`equities/`](equities/README.md) | [`direct-equities-and-market-operations.md`](direct-equities-and-market-operations.md) | Strong coverage of direct equity lifecycle, settlement, corporate actions, cost basis, P&L, performance, risk, and market operations. | Add a corporate-action processing decision tree and source-ownership model for issuer, exchange, custodian, and market-data inputs. |
 | Funds | [`funds/`](funds/README.md) | [`pooled-investment-products.md`](pooled-investment-products.md) | Strong coverage of fund taxonomy, share classes, order lifecycle, NAV, fees, distributions, look-through, risk, and private fund flows. | Add a dealing-calendar/cut-off workflow map and explicit treatment for stale NAV, gates, suspensions, and side pockets in UI/API states. |
+| Private markets | [`private-markets/`](private-markets/README.md) | [`private-markets-and-alternatives.md`](private-markets-and-alternatives.md) | Strong coverage of private equity, private credit, real assets, hedge funds, commitments, capital calls, distributions, NAV lag, performance multiples, advisory, mandate controls, implementation, reconciliation, and QA. | Add a source-ownership matrix by administrator, GP, custodian, document portal, internal ledger, and valuation committee for each private-market data area. |
 | Structured products | [`structured-products/`](structured-products/README.md) | [`fixed-income-and-structured-products.md`](fixed-income-and-structured-products.md) | Strong coverage of structured wrappers, payoff building blocks, lifecycle/event modelling, valuation, Greeks, scenario analytics, advisory, mandate controls, reconciliation, and QA. | Add a cross-wrapper source-ownership matrix for notes, deposits, certificates, warrants, structured funds, accumulators, decumulators, and OTC structures. |
 | Structured notes | [`structured-notes/`](structured-notes/README.md) | [`fixed-income-and-structured-products.md`](fixed-income-and-structured-products.md) | Strong note-wrapper deep dive covering structured-note taxonomy, lifecycle, payoff terms, barriers, autocalls, valuation, risk, physical settlement, advisory, and QA. | Keep as the note-specific implementation deep dive and cross-link future note payoffs back to the broader structured-products pack. |
 
@@ -49,11 +50,10 @@ Potential future packs:
 
 1. cash and deposits,
 2. FX spot, forwards, swaps, and deposits as a dedicated pack,
-3. private markets and alternatives,
-4. commodities and precious metals,
-5. insurance-linked and capital-protected products,
-6. mandates and advisory workflows,
-7. client reporting and portfolio review methodology,
-8. performance and attribution methodology,
-9. risk and concentration methodology,
-10. source-data and market-data governance.
+3. commodities and precious metals,
+4. insurance-linked and capital-protected products,
+5. mandates and advisory workflows,
+6. client reporting and portfolio review methodology,
+7. performance and attribution methodology,
+8. risk and concentration methodology,
+9. source-data and market-data governance.
