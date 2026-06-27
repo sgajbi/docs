@@ -1714,3 +1714,229 @@ post_rebalance_value = 12,000 x 24.92 = 299,040
 | Client did not trade ETF | Client units remain unchanged. |
 | NAV falls due to rebalance cost | Performance reflects NAV movement, not client trade cost. |
 | Basket file is late | Look-through analytics are labelled stale/source-limited. |
+
+## Example 50. Fund distribution waterfall
+
+### Scenario
+
+A fund pays a distribution made up of income, realized gains and return of capital. The client receives cash after withholding tax. Reporting must show the economic components rather than treating the entire amount as ordinary income.
+
+| Component | Amount per unit |
+|---|---:|
+| Interest and dividend income | 0.1800 |
+| Realized capital gain | 0.0700 |
+| Return of capital | 0.0500 |
+| Total distribution | 0.3000 |
+
+Client units are 20,000 and withholding applies only to the income component at 15%.
+
+### Distribution calculation
+
+```text
+gross_distribution = 20,000 x 0.3000 = 6,000
+income_component = 20,000 x 0.1800 = 3,600
+capital_gain_component = 20,000 x 0.0700 = 1,400
+return_of_capital_component = 20,000 x 0.0500 = 1,000
+withholding = 3,600 x 15% = 540
+net_cash = 6,000 - 540 = 5,460
+```
+
+### Correct treatment
+
+- preserve fund administrator tax breakdown and effective date;
+- report income, capital gain and return-of-capital components separately where source-backed;
+- reduce cost basis for return of capital only where policy and jurisdiction require it;
+- do not classify the full distribution as yield when part of it is capital return.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Distribution breakdown is available | Report shows income, gain and capital-return components. |
+| Tax breakdown arrives late | Initial report is labelled estimated or corrected when final breakdown arrives. |
+| Return of capital exists | Cost-basis treatment follows configured jurisdiction and source evidence. |
+| Withholding applies only to income | Withholding is not applied to every component unless source policy says so. |
+
+## Example 51. Series accounting equalization for hedge fund subscription
+
+### Scenario
+
+A hedge fund uses series accounting. A client subscribes mid-performance period into a new series so performance-fee equalization is isolated from earlier investors.
+
+| Attribute | Value |
+|---|---:|
+| Subscription amount | 500,000 |
+| Series NAV at subscription | 100.00 |
+| Units issued | 5,000 |
+| Series high-water mark | 100.00 |
+| Later series NAV | 112.00 |
+| Performance fee rate | 20% |
+
+### Fee accrual
+
+```text
+gross_gain_per_unit = 112.00 - 100.00 = 12.00
+performance_fee_per_unit = 12.00 x 20% = 2.40
+performance_fee_accrual = 5,000 x 2.40 = 12,000
+```
+
+### Correct treatment
+
+- assign units to the correct series at subscription;
+- calculate high-water mark and performance fee by series, not only by fund;
+- merge or convert series only when administrator confirms the event;
+- preserve administrator series id, subscription date, NAV and fee method.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Client subscribes mid-period | New units receive the correct series id. |
+| Performance fee accrues | Fee uses series high-water mark and series NAV. |
+| Series merge notice arrives | Units convert only from source-confirmed ratio and date. |
+| Report aggregates fund holding | Series-level fee economics remain traceable underneath the summary. |
+
+## Example 52. Retirement-plan eligibility restriction
+
+### Scenario
+
+A fund is available to ordinary discretionary accounts but not to a retirement-plan account because the share class fails an eligibility rule.
+
+| Attribute | Value |
+|---|---|
+| Fund share class | Institutional accumulation class |
+| Account type | Retirement plan |
+| Eligibility status | Not eligible |
+| Existing holding | None |
+| Proposed subscription | 100,000 |
+
+### Correct treatment
+
+- evaluate fund eligibility by account type, jurisdiction, tax wrapper, investor type and share class;
+- block new subscriptions when eligibility fails;
+- do not use a generic fund approval to override wrapper-specific restrictions;
+- preserve eligibility source, reason code, review date and allowed alternatives.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Retirement account orders ineligible class | Order is blocked before placement. |
+| Same fund has eligible share class | Alternative class can be suggested if approved. |
+| Existing holding becomes ineligible later | Holding, sell, switch and buy rules follow policy state. |
+| Eligibility source is stale | Order entry blocks or requires review. |
+
+## Example 53. Fund expense cap reimbursement
+
+### Scenario
+
+A fund has an expense cap. Actual expenses exceed the cap, so the manager reimburses the fund. Client reporting should show the NAV effect without booking a direct client cash payment unless the administrator distributes cash.
+
+| Attribute | Value |
+|---|---:|
+| Average fund assets | 200,000,000 |
+| Actual expense ratio | 1.25% |
+| Expense cap | 1.00% |
+| Client ownership share | 0.40% |
+| Days | 365 |
+
+### Reimbursement estimate
+
+```text
+excess_expense_rate = 1.25% - 1.00% = 0.25%
+fund_reimbursement = 200,000,000 x 0.25% = 500,000
+client_nav_benefit_estimate = 500,000 x 0.40% = 2,000
+```
+
+### Correct treatment
+
+- treat reimbursement as fund-level NAV support unless client-level cash distribution is confirmed;
+- preserve expense-cap agreement, actual expense source, reimbursement notice and NAV impact;
+- distinguish expense-cap economics from trailer rebates or client fee discounts;
+- report as estimate until administrator confirms final NAV and reimbursement amount.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Expense cap is breached | Reimbursement estimate is calculated at fund level. |
+| Administrator confirms NAV | Client value reflects NAV, not a separate cash receivable unless confirmed. |
+| Client fee report is generated | Expense-cap reimbursement is not confused with advisory fee rebate. |
+| Cap agreement expires | Future calculations stop or move to exception state. |
+
+## Example 54. ETF heartbeat trade and low-basis basket
+
+### Scenario
+
+An ETF uses an in-kind creation/redemption basket that removes low-basis securities from the fund. The client still holds ETF units, but tax and tracking analytics need to understand the fund-level event.
+
+| Attribute | Value |
+|---|---:|
+| Client ETF units | 15,000 |
+| ETF NAV before event | 40.00 |
+| ETF NAV after event | 40.02 |
+| Low-basis securities removed by ETF | 12,000,000 |
+| Client direct taxable sale | 0 |
+
+### Client value
+
+```text
+client_value_before = 15,000 x 40.00 = 600,000
+client_value_after = 15,000 x 40.02 = 600,300
+nav_change = 300
+```
+
+### Correct treatment
+
+- keep client accounting position as ETF units;
+- do not book client-level sales of the ETF basket constituents;
+- track heartbeat event as ETF-level tax/portfolio-management context where source-backed;
+- refresh look-through holdings and tax-distribution expectations after the basket event.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| ETF heartbeat basket is reported | Look-through and tax context update at ETF level. |
+| Client did not trade ETF units | No client realized gain/loss is booked. |
+| Basket file is missing | Event is source-limited and not used for detailed look-through. |
+| Tax estimate is shown | Estimate is labelled fund-level and not client tax advice. |
+
+## Example 55. Fund liquidation tax reporting
+
+### Scenario
+
+A fund liquidates and pays a final distribution. The event closes the fund position, but tax reporting must separate final proceeds, cost basis, withholding and any post-liquidation receivable.
+
+| Attribute | Value |
+|---|---:|
+| Units held | 12,000 |
+| Liquidation NAV | 18.50 |
+| Gross liquidation proceeds | 222,000 |
+| Cost basis | 195,000 |
+| Withholding | 3,000 |
+| Estimated post-liquidation receivable | 4,000 |
+
+### Liquidation result
+
+```text
+realized_gain_before_withholding = 222,000 - 195,000 = 27,000
+net_cash_received = 222,000 - 3,000 = 219,000
+estimated_receivable = 4,000
+```
+
+### Correct treatment
+
+- close fund units only when liquidation is final and transfer agent confirms cancellation;
+- record realized gain/loss from proceeds and cost basis according to configured tax-lot policy;
+- keep post-liquidation receivable separate from final cash until confirmed;
+- preserve liquidation notice, NAV, cancellation date, withholding and tax breakdown.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Liquidation proceeds settle | Fund units close and cash posts with liquidation lineage. |
+| Post-liquidation receivable is estimated | Receivable is labelled estimated and excluded from available cash until confirmed. |
+| Tax-lot history is missing | Realized gain/loss is provisional or blocked according to policy. |
+| Withholding is present | Net cash, gross proceeds and withholding are separately reportable. |
