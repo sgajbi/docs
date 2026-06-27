@@ -53,9 +53,11 @@ This pack should be used with:
 9. [`../../products/trade-lifecycle-operations/`](../../products/trade-lifecycle-operations/README.md)
 10. [`../../products/investment-accounting-ledger/`](../../products/investment-accounting-ledger/README.md)
 11. [`../../products/market-data-reference-data-pricing-instrument-master/`](../../products/market-data-reference-data-pricing-instrument-master/README.md)
-12. [`../../products/lending-collateral-and-buying-power.md`](../../products/lending-collateral-and-buying-power.md)
-13. [`../../products/direct-equities-and-market-operations.md`](../../products/direct-equities-and-market-operations.md)
-14. [`../private-banking-platform-knowledge-map.md`](../private-banking-platform-knowledge-map.md)
+12. [`../../products/data-governance-quality-lineage-controls/`](../../products/data-governance-quality-lineage-controls/README.md)
+13. [`../../products/portfolio-reporting-statement-client-experience/`](../../products/portfolio-reporting-statement-client-experience/README.md)
+14. [`../../products/lending-collateral-and-buying-power.md`](../../products/lending-collateral-and-buying-power.md)
+15. [`../../products/direct-equities-and-market-operations.md`](../../products/direct-equities-and-market-operations.md)
+16. [`../private-banking-platform-knowledge-map.md`](../private-banking-platform-knowledge-map.md)
 
 ## Migration Standard
 
