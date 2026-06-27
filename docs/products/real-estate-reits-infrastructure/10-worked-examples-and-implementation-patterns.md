@@ -2037,7 +2037,224 @@ QA assertions:
 | Temporary power is approved | Only temporary available capacity supports income recognition. |
 | Utility milestone changes | Forecasts version prior and revised connection dates. |
 
-## 64. Advisory And Mandate Checklist
+## 64. Real-Estate Loan Maturity-Extension Negotiation
+
+Scenario:
+
+A private real estate fund negotiates an extension on a property-level loan that would otherwise mature before leasing stabilization is complete.
+
+| Attribute | Current terms | Extension proposal |
+|---|---:|---:|
+| Outstanding loan | 18,000,000 | 18,000,000 |
+| Current maturity | 2026-12-31 | 2028-12-31 |
+| Extension fee | n/a | 180,000 |
+| Current interest margin | 2.25% | 2.75% |
+| Stabilized NOI expected | 1,900,000 | 2,350,000 |
+
+Extension impact:
+
+```text
+extension_fee_rate = 180,000 / 18,000,000 = 1.00%
+annual_incremental_interest = 18,000,000 x (2.75% - 2.25%) = 90,000
+noi_uplift_expected = 2,350,000 - 1,900,000 = 450,000
+```
+
+Treatment:
+
+- preserve lender term sheet, maturity date, extension conditions, fee, margin change and covenant package;
+- separate one-off extension fee, recurring interest cost, loan maturity ladder and valuation assumptions;
+- do not treat extension as completed refinancing until lender execution evidence exists;
+- route liquidity, covenant, valuation and distribution policy review when extension conditions are unresolved.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Extension term sheet is non-binding | Loan remains current-maturity with pending extension note. |
+| Extension is executed | Maturity ladder, financing cost and covenant package update from effective date. |
+| Conditions are missed | Default/refinancing risk workflow opens. |
+
+## 65. Anchor-Tenant Insolvency Administration
+
+Scenario:
+
+An anchor tenant enters insolvency administration. Rent is unpaid, occupancy remains physically unchanged, and recovery depends on administrator decision.
+
+| Attribute | Value |
+|---|---:|
+| Tenant share of rental income | 38.00% |
+| Annual contracted rent | 2,400,000 |
+| Rent unpaid | 400,000 |
+| Expected recovery | 35.00% |
+
+Rent-at-risk:
+
+```text
+expected_recovery_cash = 400,000 x 35.00% = 140,000
+expected_write_off = 400,000 - 140,000 = 260,000
+annual_income_at_risk = 2,400,000
+```
+
+Treatment:
+
+- preserve insolvency notice, lease terms, unpaid rent, administrator correspondence and recovery estimate;
+- separate physical occupancy, legal lease status, receivable, expected recovery and rent-at-risk;
+- update tenant concentration, valuation assumptions and covenant analytics from insolvency status;
+- apply confidentiality controls where tenant details are restricted.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Tenant enters administration | Rent receivable and rent-at-risk states are opened. |
+| Administrator confirms continued occupation | Occupancy and cash collection assumptions remain separate. |
+| Recovery estimate changes | Expected recovery and write-off are versioned. |
+
+## 66. REIT Asset-Sale Special Distribution
+
+Scenario:
+
+A listed REIT sells a mature asset and declares a special distribution. The distribution includes operating income and capital-return components.
+
+| Component | Amount per unit |
+|---|---:|
+| Operating distribution | 0.025 |
+| Capital-return special distribution | 0.075 |
+| Units held | 20,000 |
+| Withholding rate on income component | 10.00% |
+
+Distribution split:
+
+```text
+operating_distribution = 20,000 x 0.025 = 500
+capital_return_distribution = 20,000 x 0.075 = 1,500
+withholding = 500 x 10.00% = 50
+net_cash = 500 + 1,500 - 50 = 1,950
+```
+
+Treatment:
+
+- preserve asset-sale announcement, distribution circular, component split, ex-date, pay date and withholding terms;
+- separate ordinary distribution, capital return, withholding, cost-basis adjustment and realized performance impact;
+- do not classify the entire cash amount as recurring income;
+- update REIT leverage and portfolio composition analytics after asset disposal.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Special distribution is confirmed | Cash is split by source-backed income/capital components. |
+| Component split is missing | Tax/reporting remains source-limited. |
+| REIT asset disposal changes leverage | Exposure analytics update separately from cash distribution. |
+
+## 67. Infrastructure Step-In-Right Event
+
+Scenario:
+
+A lender or grantor exercises step-in rights after repeated project company service failures. The equity investor retains ownership but loses operational control during remediation.
+
+| Attribute | Value |
+|---|---:|
+| Quarterly availability payment | 4,500,000 |
+| Deduction during step-in | 12.00% |
+| Step-in remediation cost | 350,000 |
+| Expected duration | 2 quarters |
+
+Step-in impact:
+
+```text
+quarterly_deduction = 4,500,000 x 12.00% = 540,000
+two_quarter_deductions = 540,000 x 2 = 1,080,000
+total_near_term_impact = 1,080,000 + 350,000 = 1,430,000
+```
+
+Treatment:
+
+- preserve concession agreement, step-in notice, triggering default, control rights, remediation plan and expiry conditions;
+- separate ownership, operational control, availability deductions, remediation cost and valuation assumptions;
+- do not treat step-in as disposal unless legal ownership changes;
+- update risk, governance and income-quality reporting until control is restored.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Step-in notice is issued | Operational-control state changes without closing ownership. |
+| Deductions continue during step-in | Availability revenue and remediation cost remain separate. |
+| Control is restored | Step-in state closes with evidence and residual actions. |
+
+## 68. Direct-Property Foreign-Ownership Restriction
+
+Scenario:
+
+A direct-property purchase is subject to foreign-ownership restrictions. The client has signed a purchase agreement, but regulator approval is pending.
+
+| Attribute | Value |
+|---|---:|
+| Purchase price | 6,800,000 |
+| Deposit paid | 680,000 |
+| Regulatory approval status | Pending |
+| Potential penalty if rejected | 120,000 |
+
+Restricted completion exposure:
+
+```text
+cash_at_risk = deposit_paid + potential_penalty
+cash_at_risk = 680,000 + 120,000 = 800,000
+```
+
+Treatment:
+
+- preserve purchase agreement, buyer nationality/residency status, regulatory filing, approval deadline and deposit terms;
+- keep signed, conditional and completed ownership states separate;
+- do not create full property holding or collateral value until legal completion and registration evidence exists;
+- report deposit, penalty exposure and conditional ownership status separately.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Regulator approval is pending | Property holding remains conditional or source-limited. |
+| Approval is rejected | Deposit/penalty workflow opens without creating final ownership. |
+| Approval is granted | Ownership and valuation activate from completion evidence. |
+
+## 69. Brownfield Contamination Indemnity Claim
+
+Scenario:
+
+A brownfield property acquisition includes seller indemnity for known contamination. Remediation cost exceeds the initial reserve and the buyer files an indemnity claim.
+
+| Attribute | Value |
+|---|---:|
+| Initial remediation reserve | 1,200,000 |
+| Updated remediation estimate | 1,850,000 |
+| Indemnity cap | 500,000 |
+| Seller accepted claim | 350,000 |
+
+Indemnity exposure:
+
+```text
+reserve_shortfall = 1,850,000 - 1,200,000 = 650,000
+maximum_recoverable = min(650,000, 500,000) = 500,000
+unrecovered_shortfall_after_acceptance = 650,000 - 350,000 = 300,000
+```
+
+Treatment:
+
+- preserve environmental report, acquisition agreement, indemnity cap, claim notice, seller response and remediation estimate;
+- separate remediation reserve, indemnity receivable, accepted recovery, disputed recovery and valuation impact;
+- avoid treating claimed indemnity as cash until settlement;
+- update lending, sale and valuation restrictions while contamination remains unresolved.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Updated estimate exceeds reserve | Reserve shortfall and recoverable claim are calculated. |
+| Seller partially accepts claim | Accepted receivable and disputed amount remain separate. |
+| Remediation is unresolved | Property report carries environmental restriction and valuation impact. |
+
+## 70. Advisory And Mandate Checklist
 
 | Dimension | Required question |
 |---|---|
@@ -2050,7 +2267,7 @@ QA assertions:
 | DPM mandate | allowed wrapper, illiquid allocation, income target, leverage limit, concentration cap? |
 | Reporting | legal holding, economic exposure, income classification, valuation date and liquidity label? |
 
-## 65. Current Support Boundary And Candidate Extensions
+## 71. Current Support Boundary And Candidate Extensions
 
 | Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
 |---|---|---|
@@ -2060,7 +2277,7 @@ QA assertions:
 | Infrastructure exposure | fund/security/private fund position, sector tags, concession, revenue model, clawback terms, availability deductions and regulated asset base reset terms where sourced | advanced concession, inflation-linkage, offtake, clawback and regulatory-risk analytics |
 | Reporting | wrapper, exposure, value, income, source date, liquidity label, operating metrics, development state and governance overrides where sourced | consolidated real-asset income and stress dashboard |
 
-## 66. Regression Test Pack
+## 72. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -2128,3 +2345,9 @@ Minimum release-gate scenarios:
 62. Lease break-option exercise updates WALE, rent forecast, break-fee cash and dispute state from valid notice evidence.
 63. Renewable warranty claim separates repair expense, warranty receivable, denied amount and lost generation.
 64. Data-centre grid-connection queue delay separates built capacity, powered capacity, deferred capacity and forecast revenue.
+65. Real-estate loan maturity extension separates one-off fee, recurring interest cost, maturity ladder and unresolved conditions.
+66. Anchor-tenant insolvency administration separates physical occupancy, legal lease status, receivable, recovery and rent-at-risk.
+67. REIT asset-sale special distribution separates ordinary income, capital return, withholding and cost-basis treatment.
+68. Infrastructure step-in-right event changes operational-control state without closing ownership unless legal title changes.
+69. Direct-property foreign-ownership restriction keeps signed, conditional and completed ownership states separate.
+70. Brownfield contamination indemnity claim separates reserve shortfall, accepted recovery, disputed recovery and valuation impact.
