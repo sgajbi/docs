@@ -32,6 +32,8 @@ This map turns product reference material into reusable project knowledge for we
 | Real estate, REITs and infrastructure | Separate listed/fund/private/direct wrapper behavior from property or infrastructure economic exposure, valuation basis, leverage, income, liquidity, and look-through coverage. |
 | Structured notes | Separate legal note position from embedded derivative terms; model barriers, observations, autocalls, payoff terms, physical settlement, and issuer risk explicitly. |
 | Structured products | Separate wrapper, issuer, payoff formula, underlyings, barriers, observations, scenario outcomes, liquidity limits, and settlement terms. |
+| Tax, regulatory reporting and cross-border client reporting | Separate product economics from tax classification, withholding, tax lots, documentation, regulatory reportability, disclosure, and archive evidence. |
+| Trusts, estate planning, family office and wealth structuring | Separate legal owner, beneficial owner, controller, authorized instructor, mandate scope, reporting recipient, tax profile, and access rights. |
 
 ## Source-Ownership Questions
 
@@ -48,8 +50,10 @@ Use these before designing APIs or UI:
 9. Who owns advisory suitability and proposal state?
 10. Who owns reporting, rendering, archive, and legal evidence?
 11. Who owns fund NAV, share-class terms, dealing status, fees, distributions, and look-through files?
-12. Which data is source truth, derived view, cached projection, or user-entered override?
-13. How does the system fail closed when the source owner cannot provide evidence?
+12. Who owns tax classification, withholding, tax-lot, cost-basis, documentation, and regulatory-reporting truth?
+13. Who owns party/entity roles, beneficial ownership, authority, access rights, governing documents, and reporting hierarchy?
+14. Which data is source truth, derived view, cached projection, or user-entered override?
+15. How does the system fail closed when the source owner cannot provide evidence?
 
 ## API Design Checklist
 
@@ -108,3 +112,5 @@ Good project documentation should include:
 | [`../products/product-source-intake-and-migration-guide.md`](../products/product-source-intake-and-migration-guide.md) | Source-intake and migration guidance for field profiling, source ownership, reconciliation, degraded states, and sign-off evidence. |
 | [`../products/product-taxonomy-and-vocabulary-guide.md`](../products/product-taxonomy-and-vocabulary-guide.md) | Vocabulary standard for separating product family, subtype, wrapper, legal holding, exposure, lifecycle, valuation, liquidity, reporting, and supportability states. |
 | [`../products/source-ownership-calculation-reporting-matrix.md`](../products/source-ownership-calculation-reporting-matrix.md) | Source ownership, calculation dependencies, reporting requirements, QA controls, and implementation boundaries. |
+| [`../products/tax-regulatory-and-reporting.md`](../products/tax-regulatory-and-reporting.md) | Tax-aware reporting, withholding, tax lots, documentation, regulatory reportability, client reports, controls, and QA. |
+| [`../products/wealth-structuring-trusts-and-family-office.md`](../products/wealth-structuring-trusts-and-family-office.md) | Trusts, estates, family offices, holding vehicles, beneficial ownership, authority, access control, reporting hierarchy, and QA. |

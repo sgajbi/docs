@@ -20,6 +20,8 @@ Each product family should have its own folder with a local `README.md`, a clear
 | Real estate, REITs and infrastructure | [`real-estate-reits-infrastructure/`](real-estate-reits-infrastructure/README.md) | Wealth-management reference for listed REITs, business trusts, property securities, private real estate funds, direct property, infrastructure funds, income, valuation, risk, advisory, reporting, implementation, and QA. |
 | Structured products | [`structured-products/`](structured-products/README.md) | Wealth-management reference for structured wrappers, payoff building blocks, underlyings, lifecycle events, valuation, scenario analytics, advisory controls, implementation, reconciliation, and QA. |
 | Structured notes | [`structured-notes/`](structured-notes/README.md) | Wealth-management reference for notes, structured notes, lifecycle, data model, valuation, risk, advisory, implementation, and QA. |
+| Tax, regulatory reporting and cross-border client reporting | [`tax-regulatory-reporting/`](tax-regulatory-reporting/README.md) | Wealth-management reference for tax-aware reporting, income classification, withholding, tax lots, cost basis, cross-border documentation, regulatory reporting, client statements, controls, implementation, and QA. |
+| Trusts, estate planning, family office and wealth structuring | [`trusts-estate-family-office-wealth-structuring/`](trusts-estate-family-office-wealth-structuring/README.md) | Wealth-management reference for trusts, estates, foundations, family offices, holding vehicles, beneficial ownership, authority, mandates, access control, reporting, implementation, and QA. |
 
 ## Product Area Maps
 
@@ -49,6 +51,8 @@ Each product family should have its own folder with a local `README.md`, a clear
 | [`real-estate-reits-and-infrastructure.md`](real-estate-reits-and-infrastructure.md) | Captures reusable platform-design distinctions for listed REITs, property securities, private real estate, infrastructure, income, valuation, liquidity, and reporting. |
 | [`product-knowledge-coverage-matrix.md`](product-knowledge-coverage-matrix.md) | Tracks current product coverage, companion maps, and useful next enrichment areas. |
 | [`source-ownership-calculation-reporting-matrix.md`](source-ownership-calculation-reporting-matrix.md) | Defines cross-product source ownership, calculation dependencies, reporting requirements, data-quality states, QA scenarios, and implementation boundaries. |
+| [`tax-regulatory-and-reporting.md`](tax-regulatory-and-reporting.md) | Captures reusable platform-design distinctions for tax classification, withholding, tax lots, cross-border documentation, regulatory reporting, client statements, controls, and QA. |
+| [`wealth-structuring-trusts-and-family-office.md`](wealth-structuring-trusts-and-family-office.md) | Captures reusable platform-design distinctions for trusts, estates, family offices, holding vehicles, beneficial ownership, authority, access control, reporting groups, and QA. |
 
 ## Suggested Pack Structure
 
