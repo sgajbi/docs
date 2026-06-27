@@ -3499,3 +3499,237 @@ QA assertions:
 | Priority settlement is reversed | Recallable and commitment ledgers are corrected with lineage. |
 | Cash already funded | Cash remains reconciled while funding classification changes. |
 | Investor report is generated | Original settlement, reversal and corrected funding priority are visible. |
+
+## 103. Property Reviewer Waiver Expiry Breach
+
+Scenario:
+
+A property valuation reviewer remediation waiver expires before the second independent review is completed. The valuation amount may still be the latest available appraisal, but it must be marked governance-breached until reviewer remediation evidence arrives.
+
+| Attribute | Value |
+|---|---:|
+| Current appraised value | 24,800,000 |
+| Waiver period | 60 days |
+| Days since waiver approval | 75 |
+| Client ownership share | 1.75% |
+
+Expired waiver exposure:
+
+```text
+waiver_expiry_breach_days = days_since_waiver_approval - waiver_period
+waiver_expiry_breach_days = 75 - 60 = 15
+
+client_governance_limited_value = current_appraised_value x client_ownership_share
+client_governance_limited_value = 24,800,000 x 1.75% = 434,000
+```
+
+Treatment:
+
+- preserve appraisal, reviewer tenure breach, waiver approval, waiver expiry, second-review plan and escalation owner;
+- keep appraised value, governance breach and valuation usability state separate;
+- label valuation as governance-breached after waiver expiry until independent review completes;
+- route reporting and advisory workflows when governance-limited value is material;
+- avoid treating expired waiver as active reviewer independence evidence.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Waiver expires before second review | Valuation remains available but governance-breached. |
+| Second review arrives | Breach closes with source evidence. |
+| Report is generated during breach | Appraised value and governance limitation are both visible. |
+
+## 104. REIT Reinclusion Backdated Benchmark Restatement
+
+Scenario:
+
+An index provider confirms that a REIT benchmark reinclusion effective date should be backdated. Performance attribution must restate benchmark exposure for the affected days without changing portfolio holdings.
+
+| Attribute | Value |
+|---|---:|
+| Portfolio benchmark value | 420,000,000 |
+| Formal benchmark weight | 0.42% |
+| Backdated restatement days | 2 |
+| Portfolio REIT holding value | 1,850,000 |
+
+Backdated benchmark exposure:
+
+```text
+restated_benchmark_exposure = portfolio_benchmark_value x formal_benchmark_weight
+restated_benchmark_exposure = 420,000,000 x 0.42% = 1,764,000
+
+active_exposure_after_restatement = portfolio_REIT_holding_value - restated_benchmark_exposure
+active_exposure_after_restatement = 1,850,000 - 1,764,000 = 86,000
+```
+
+Treatment:
+
+- preserve index-provider correction, prior benchmark file, backdated effective date, restatement approval and attribution rerun evidence;
+- restate benchmark exposure only for approved effective dates;
+- keep portfolio holding history unchanged;
+- label performance restatement as benchmark-history correction, not trade activity;
+- retain original and restated attribution versions for audit.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Provider confirms backdated date | Benchmark history is restated from confirmed date. |
+| Portfolio holdings are unchanged | Holding position and transaction history remain unchanged. |
+| Attribution report is regenerated | Original and restated benchmark exposure are traceable. |
+
+## 105. Concession Reserve Release Reversal Dispute
+
+Scenario:
+
+A concession reserve release was approved and forecast as distributable, but a lender later reverses part of the release because coverage-ratio evidence was restated. The platform must reverse distributable liquidity while preserving the reserve account history.
+
+| Attribute | Value |
+|---|---:|
+| Lender-approved release | 900,000 |
+| Reversed release amount | 250,000 |
+| Client look-through share | 2.20% |
+| Prior client approved release | 19,800 |
+
+Client reversal:
+
+```text
+client_release_reversal = reversed_release_amount x client_lookthrough_share
+client_release_reversal = 250,000 x 2.20% = 5,500
+
+revised_client_approved_release = prior_client_approved_release - client_release_reversal
+revised_client_approved_release = 19,800 - 5,500 = 14,300
+```
+
+Treatment:
+
+- preserve original lender approval, restated coverage-ratio evidence, reversal notice, reserve statement and revised release file;
+- reduce distributable liquidity only by source-confirmed reversal amount;
+- keep reserve-account cash, released cash and reversed release separately reconciled;
+- avoid treating reversal as operating expense or income loss;
+- update client distribution forecasts and infrastructure liquidity reporting.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Lender reverses part of release | Distributable release is reduced with source evidence. |
+| Reserve cash remains held | Reserve account balance and release forecast reconcile. |
+| Liquidity report is generated | Approved, reversed and revised release amounts are separate. |
+
+## 106. Renewable Hedge Slippage Claim Settlement
+
+Scenario:
+
+A renewable replacement hedge slippage claim is partially settled by the execution provider. The settlement must reduce the disputed slippage exposure without changing the executed hedge price used for revenue forecasts.
+
+| Attribute | Value |
+|---|---:|
+| Gross price slippage claim | 142,500 |
+| Provider settlement | 80,000 |
+| Client look-through share | 2.50% |
+| Client original slippage exposure | 3,562.50 |
+
+Client settlement:
+
+```text
+client_claim_settlement = provider_settlement x client_lookthrough_share
+client_claim_settlement = 80,000 x 2.50% = 2,000
+
+client_unrecovered_slippage = client_original_slippage_exposure - client_claim_settlement
+client_unrecovered_slippage = 3,562.50 - 2,000 = 1,562.50
+```
+
+Treatment:
+
+- preserve replacement hedge execution, target price approval, slippage claim, provider settlement and cash receipt;
+- keep executed hedge price unchanged for future revenue forecasts;
+- classify settlement as claim recovery, not renewable operating revenue;
+- track unrecovered slippage until rejected, settled or written off;
+- report claim settlement separately from market price movement.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Claim settlement is received | Disputed exposure reduces by settled amount. |
+| Hedge forecast is generated | Forecast still uses executed hedge price. |
+| Client report is generated | Claim settlement and unrecovered slippage are visible. |
+
+## 107. Data-Centre Tenant Termination Withdrawal Notice
+
+Scenario:
+
+A data-centre tenant withdraws a termination notice after a commercial settlement. The platform must reverse termination exposure while preserving SLA cure-period history and any service-credit settlement.
+
+| Attribute | Value |
+|---|---:|
+| Gross termination rent at risk | 7,200,000 |
+| Settlement service credit | 350,000 |
+| Client ownership share | 1.50% |
+| Termination exposure withdrawn | 7,200,000 |
+
+Client exposure reversal:
+
+```text
+client_termination_exposure_reversal = termination_exposure_withdrawn x client_ownership_share
+client_termination_exposure_reversal = 7,200,000 x 1.50% = 108,000
+
+client_service_credit_impact = settlement_service_credit x client_ownership_share
+client_service_credit_impact = 350,000 x 1.50% = 5,250
+```
+
+Treatment:
+
+- preserve original termination notice, withdrawal notice, settlement terms, service-credit agreement, SLA cure history and lease status;
+- remove termination exposure from vacancy forecast when withdrawal is source-confirmed;
+- keep service-credit settlement separate from rent continuation and termination reversal;
+- retain SLA breach history for operational risk reporting;
+- update income forecast and occupancy state from withdrawal effective date.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Withdrawal notice is confirmed | Termination exposure is reversed. |
+| Service credit remains payable | Service-credit impact remains separate from rent forecast. |
+| Report is generated | Cure history, withdrawal state and settlement impact are traceable. |
+
+## 108. Recallable Priority Reversal Tax Reclassification
+
+Scenario:
+
+A recallable distribution priority settlement reversal changes the investor tax classification from recallable distribution usage to new commitment funding. The platform must update tax labels without changing the actual cash funded.
+
+| Attribute | Value |
+|---|---:|
+| Reclassified funding amount | 210,000 |
+| Original recallable distribution tax basis | 210,000 |
+| Correct commitment-funded basis | 210,000 |
+| Cash funded | 210,000 |
+
+Tax reclassification:
+
+```text
+tax_basis_reclassified = original_recallable_distribution_tax_basis
+tax_basis_reclassified = 210,000
+
+cash_change_required = cash_funded - correct_commitment_funded_basis
+cash_change_required = 210,000 - 210,000 = 0
+```
+
+Treatment:
+
+- preserve original tax classification, side-letter reversal, administrator correction, investor ledger and amended tax statement;
+- update tax labels and funding classification without changing cash funded;
+- keep recallable balance reinstatement, commitment funding and tax basis correction separate;
+- block final tax reporting until administrator confirmation is available;
+- retain original and corrected tax classification versions.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Tax classification changes | Tax labels update without cash movement. |
+| Administrator evidence is missing | Corrected tax output is blocked or provisional. |
+| Investor report is generated | Original classification, reversal and corrected tax basis are visible. |
