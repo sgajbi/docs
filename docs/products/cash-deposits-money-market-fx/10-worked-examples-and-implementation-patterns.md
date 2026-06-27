@@ -2504,3 +2504,246 @@ stale_reported_balance = 2,750,000
 | Fallback approval exists | Usability is labelled fallback-approved with evidence. |
 | Balance refresh arrives | Certification state updates from new source timestamp. |
 | Advisor attempts payment funding | Funding check blocks or warns on uncertified cash according to policy. |
+
+## Example 62. FX overlay funding waterfall
+
+### Scenario
+
+A DPM portfolio runs a currency overlay to maintain target USD exposure while the base reporting currency is EUR. A monthly rebalance requires USD funding, but the platform must choose funding sources in a controlled waterfall rather than automatically converting all available EUR cash.
+
+| Funding source | Available amount | Haircut/buffer | Policy order |
+|---|---:|---:|---:|
+| Settled USD cash | 180,000 | 0% | 1 |
+| USD money-market fund redemption | 250,000 | 2% | 2 |
+| EUR cash conversion | 400,000 EUR | 1.5% FX buffer | 3 |
+| Credit-line draw | 500,000 | 5% reserve | 4 |
+
+### Funding waterfall
+
+```text
+required_usd_funding = 600,000
+usable_usd_cash = 180,000
+usable_mmf_cash = 250,000 x (1 - 2%) = 245,000
+remaining_after_cash_and_mmf = 600,000 - 180,000 - 245,000 = 175,000
+eur_conversion_required_before_buffer = 175,000 / (1 - 1.5%) = 177,665
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Waterfall | Use funding sources in policy order and preserve the reason when a source is skipped. |
+| FX buffer | Apply FX buffer to source-currency conversion and label funding estimate as indicative until trade execution. |
+| Liquidity | Do not use MMF proceeds as cash until redemption state and settlement timing allow it. |
+| Advisory/DPM | Show overlay funding as mandate execution, not a client external cashflow. |
+| Evidence | Preserve target exposure, funding policy, FX quote, redemption state and approval lineage. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| USD cash is insufficient | Waterfall consumes next eligible source in policy order. |
+| MMF redemption is gated | Waterfall skips or haircuts MMF source and opens liquidity exception. |
+| EUR FX quote is stale | Conversion amount is blocked or labelled indicative. |
+| Credit line is used | Draw is visible as financing, not free cash. |
+
+## Example 63. Liquidity stress communication
+
+### Scenario
+
+A market-wide liquidity event reduces same-day access to cash-like instruments. Advisors need a client communication that explains available liquidity, conditional liquidity and restricted liquidity without implying guaranteed access.
+
+| Liquidity bucket | Normal value | Stress-usable value | Reason |
+|---|---:|---:|---|
+| Bank cash | 350,000 | 350,000 | Settled cash |
+| Money-market fund | 500,000 | 300,000 | 40% stress gate |
+| Term deposit | 750,000 | 710,000 | Break penalty |
+| FX conversion | 250,000 | 0 | Currency rail restriction |
+
+### Stress view
+
+```text
+normal_liquidity = 350,000 + 500,000 + 750,000 + 250,000 = 1,850,000
+stress_usable_liquidity = 350,000 + 300,000 + 710,000 + 0 = 1,360,000
+restricted_or_conditional_liquidity = 490,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Communication | Separate confirmed, conditional and restricted liquidity in client/advisor messaging. |
+| Source state | Link each liquidity bucket to gate notice, deposit quote, rail status or bank confirmation. |
+| Claims | Avoid guaranteeing same-day liquidity where execution, redemption, break approval or rail status is uncertain. |
+| Operations | Track audience, approval, timestamp and next-update cadence. |
+| Reporting | Preserve stress scenario assumptions and do not overwrite normal liquidity metrics. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| MMF gate changes | Stress-usable value recalculates and communication version updates. |
+| Deposit break approval is missing | Term-deposit liquidity is labelled conditional. |
+| FX rail is restricted | FX conversion contributes zero same-day stress liquidity. |
+| Advisor sends communication | Message includes assumptions, source timestamp and approved wording. |
+
+## Example 64. Negative-rate client disclosure
+
+### Scenario
+
+A client holds a large EUR cash balance in a booking centre with a negative-rate policy. The charge applies only above the exempt threshold and must be disclosed before the client report is finalized.
+
+| Attribute | Value |
+|---|---:|
+| Average EUR cash balance | 2,400,000 |
+| Exempt threshold | 1,000,000 |
+| Annual negative rate | -0.60% |
+| Days in period | 30 |
+| Day-count basis | 360 |
+
+### Charge
+
+```text
+chargeable_balance = 2,400,000 - 1,000,000 = 1,400,000
+negative_interest_charge = 1,400,000 x 0.60% x 30 / 360 = 700
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Disclosure | Show threshold, chargeable balance, rate, period and booking centre policy. |
+| Accrual | Accrue charge by effective-dated rate and split periods when policy changes. |
+| Reporting | Label charge as negative interest or cash charge, not investment loss. |
+| Advisory | Surface alternatives only as policy-approved liquidity discussion, not tax or investment advice. |
+| Evidence | Preserve rate table, threshold, average-balance calculation and client disclosure version. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Balance is below threshold | No charge is calculated. |
+| Rate changes mid-period | Charge is split by effective date. |
+| Disclosure is missing | Client-ready report is blocked or exception-labelled. |
+| Multi-currency report is generated | Negative charge remains in source currency with reporting-currency translation. |
+
+## Example 65. Multi-currency cash pledge dispute
+
+### Scenario
+
+A client pledges USD and CHF cash against a Lombard facility. A dispute arises because treasury applies different FX haircuts and excludes one restricted cash bucket from collateral value.
+
+| Cash bucket | Amount | FX to USD | Haircut | Eligibility |
+|---|---:|---:|---:|---|
+| USD free cash | 300,000 | 1.0000 | 5% | Eligible |
+| CHF free cash | 500,000 | 1.1000 | 8% | Eligible |
+| EUR restricted cash | 200,000 | 1.0800 | n/a | Ineligible |
+
+### Pledge value
+
+```text
+usd_collateral_value = 300,000 x (1 - 5%) = 285,000
+chf_collateral_value_usd = 500,000 x 1.1000 x (1 - 8%) = 506,000
+eligible_collateral_value = 285,000 + 506,000 = 791,000
+excluded_restricted_cash_usd = 200,000 x 1.0800 = 216,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Eligibility | Apply pledge eligibility before FX translation and haircut treatment. |
+| Dispute | Preserve client claim, policy version, FX rate, haircut source and restriction reason. |
+| Buying power | Use only eligible collateral value for credit headroom. |
+| Reporting | Show pledged, restricted and excluded cash separately. |
+| Resolution | Recalculate only from approved policy or corrected source evidence. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Restricted EUR cash is pledged by client request | It remains excluded unless eligibility changes with approval. |
+| FX rate is stale | Collateral value is blocked or haircut-adjusted by fallback policy. |
+| Haircut policy changes | Pledge value recalculates from effective date with lineage. |
+| Dispute is opened | Original and revised collateral values remain auditable. |
+
+## Example 66. Payment screening queue ageing
+
+### Scenario
+
+Cross-border payments are held in screening. Operations need an ageing dashboard that distinguishes new holds from SLA breaches and identifies liquidity that remains reserved while payment release is pending.
+
+| Queue bucket | Payments | Reserved cash |
+|---|---:|---:|
+| 0-2 hours | 18 | 420,000 |
+| 2-6 hours | 9 | 310,000 |
+| 6-24 hours | 4 | 125,000 |
+| Over 24 hours | 2 | 80,000 |
+
+### Ageing metrics
+
+```text
+total_held_payments = 18 + 9 + 4 + 2 = 33
+total_reserved_cash = 420,000 + 310,000 + 125,000 + 80,000 = 935,000
+breach_payment_count = 2
+breach_rate = 2 / 33 = 6.06%
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Queue state | Track screening reason, hold timestamp, owner, SLA and next action. |
+| Liquidity | Keep cash reserved while release, reject or cancel outcome is pending. |
+| Escalation | Escalate aged items by SLA, amount, client impact and regulatory sensitivity. |
+| Reporting | Do not show held payment as completed or failed until final outcome. |
+| Analytics | Separate false positives, data repair, sanctions review and compliance review. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Payment exceeds SLA | Queue item escalates with ageing bucket and owner. |
+| Payment is released | Reserved cash moves to released payment state with timestamp. |
+| Payment is rejected | Cash reservation reverses with rejection evidence. |
+| Dashboard is generated | Held count, reserved cash and breach rate reconcile to queue data. |
+
+## Example 67. Treasury policy exception attestation
+
+### Scenario
+
+Treasury approves a temporary exception to place cash above normal counterparty limits during a market disruption. The exception must be time-bound, attested and reviewed after expiry.
+
+| Attribute | Value |
+|---|---:|
+| Normal counterparty limit | 5,000,000 |
+| Temporary approved limit | 7,000,000 |
+| Actual peak exposure | 6,400,000 |
+| Exception duration | 5 business days |
+
+### Exception headroom
+
+```text
+normal_limit_breach = 6,400,000 - 5,000,000 = 1,400,000
+temporary_limit_headroom = 7,000,000 - 6,400,000 = 600,000
+exception_utilization = 6,400,000 / 7,000,000 = 91.43%
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Approval | Preserve exception approver, reason, scope, start date, expiry and maximum limit. |
+| Monitoring | Track peak exposure, daily utilization and breaches of temporary limit. |
+| Expiry | Automatically revert to normal limit after expiry unless renewed with evidence. |
+| Attestation | Require post-event review of usage, outcome and any residual exposure. |
+| Reporting | Show exception-adjusted compliance separately from normal policy compliance. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Exposure exceeds normal limit but stays within temporary approval | Position is exception-compliant with approval lineage. |
+| Exposure exceeds temporary limit | Breach workflow opens. |
+| Exception expires | Normal limit is restored automatically. |
+| Attestation is missing after expiry | Governance closure remains incomplete. |
