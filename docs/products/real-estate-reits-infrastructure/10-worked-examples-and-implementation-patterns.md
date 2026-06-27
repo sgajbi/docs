@@ -1398,7 +1398,218 @@ QA assertions:
 | Certification is not yet achieved | ESG status remains remediation-in-progress, not certified. |
 | Green-financing margin benefit is conditional | Benefit remains scenario-labelled until lender confirms. |
 
-## 46. Advisory And Mandate Checklist
+## 46. REIT Debt Covenant Waiver Package
+
+Scenario:
+
+A listed REIT breaches an interest-coverage covenant after rate increases. Lenders grant a temporary waiver with a fee, additional reporting and a reduced distribution policy.
+
+| Attribute | Before breach | Waiver package |
+|---|---:|---:|
+| EBITDA | 90,000,000 | 90,000,000 |
+| Interest expense | 38,000,000 | 38,000,000 |
+| Covenant threshold | 2.50x | 2.20x temporary waiver |
+| Waiver fee | - | 1,200,000 |
+
+Calculation:
+
+```text
+interest_coverage = 90,000,000 / 38,000,000 = 2.37x
+covenant_gap_to_original = 2.50x - 2.37x = 0.13x
+```
+
+Treatment:
+
+- preserve lender waiver letter, covenant period, fee, revised threshold, reporting obligations and distribution restrictions;
+- keep the REIT holding and valuation separate from loan covenant state;
+- update leverage, distribution quality, watchlist and mandate risk from the effective waiver terms;
+- distinguish waiver from permanent amendment, default, refinancing or asset sale.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Waiver is approved | Covenant state changes to waived with expiry and conditions. |
+| Waiver fee is paid | Fee is tracked separately from recurring interest expense. |
+| Waiver expires without cure | Breach workflow reopens or escalates. |
+
+## 47. Infrastructure Concession Extension Bid
+
+Scenario:
+
+An infrastructure operator bids to extend a concession. The extension could add terminal value, but the bid is competitive and not yet awarded.
+
+| Attribute | Value |
+|---|---:|
+| Current concession years remaining | 6 |
+| Proposed extension | 8 years |
+| Bid cost incurred | 2,400,000 |
+| Estimated annual EBITDA if awarded | 7,500,000 |
+| Probability-weighted success case | 40% |
+
+Scenario value:
+
+```text
+undiscounted_extension_ebitda = 8 x 7,500,000 = 60,000,000
+probability_weighted_ebitda = 60,000,000 x 40% = 24,000,000
+```
+
+Treatment:
+
+- preserve bid submission, authority, bid cost, award criteria, decision date and probability basis;
+- label valuation uplift as scenario or bid-contingent until concession award is legally confirmed;
+- expense or capitalize bid cost only according to accounting policy and source evidence;
+- update cashflow, terminal value and risk only when the concession state changes.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Bid is submitted | Bid state and cost are tracked without extending concession term. |
+| Award is not confirmed | Valuation uplift remains scenario-labelled. |
+| Extension is awarded | Concession term, cashflow and terminal assumptions update from effective date. |
+
+## 48. Direct-Property Tenant-Improvement Allowance
+
+Scenario:
+
+A landlord grants a tenant-improvement allowance to secure a long lease. Cash outflow occurs upfront, while lease economics improve over the committed lease term.
+
+| Attribute | Value |
+|---|---:|
+| Tenant-improvement allowance | 750,000 |
+| Lease term | 10 years |
+| Annual rent | 1,200,000 |
+| Rent-free period | 3 months |
+
+Lease economics:
+
+```text
+annualized_allowance_cost = 750,000 / 10 = 75,000
+rent_free_cash_impact = 1,200,000 x 3 / 12 = 300,000
+first_year_cash_impact = 750,000 + 300,000 = 1,050,000
+```
+
+Treatment:
+
+- preserve lease, allowance approval, tenant works scope, drawdown schedule and rent-free terms;
+- separate upfront cash outflow from recurring NOI and straight-line/effective rent analytics;
+- update lease expiry, WALE, tenant concentration and valuation only from executed lease evidence;
+- monitor unspent allowance, reimbursement claims and completion evidence.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Allowance is approved | Capex or lease incentive reserve is created. |
+| Tenant draws allowance in stages | Cashflow follows approved drawdown evidence. |
+| Lease is not executed | Allowance and valuation uplift remain blocked or provisional. |
+
+## 49. Renewable Offtake Replacement
+
+Scenario:
+
+A renewable project replaces an expiring power-purchase agreement with a lower-priced offtake contract. Merchant exposure decreases, but contracted revenue also falls.
+
+| Attribute | Old offtake | New offtake |
+|---|---:|---:|
+| Contracted annual MWh | 180,000 | 170,000 |
+| Contract price per MWh | 72 | 64 |
+| Term | 5 years | 7 years |
+
+Revenue impact:
+
+```text
+old_annual_revenue = 180,000 x 72 = 12,960,000
+new_annual_revenue = 170,000 x 64 = 10,880,000
+annual_revenue_reduction = 2,080,000
+```
+
+Treatment:
+
+- preserve old contract expiry, new offtake agreement, contracted volume, price, term and credit support;
+- separate price reduction from merchant-risk reduction and tenor extension;
+- update valuation, DSCR, distribution capacity and revenue quality from effective contract date;
+- track uncontracted volume and counterparty credit exposure.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| New offtake is signed | Revenue forecast updates from effective date. |
+| Old contract expires before replacement | Merchant exposure is visible for the gap period. |
+| Contracted volume changes | Revenue quality and uncontracted volume analytics update. |
+
+## 50. Valuation Cap-Rate Shock Committee
+
+Scenario:
+
+A valuation committee applies a cap-rate shock to an office property after market evidence shows weaker leasing demand. The shock affects valuation but does not create a cash transaction.
+
+| Attribute | Base case | Shock case |
+|---|---:|---:|
+| Stabilized NOI | 3,600,000 | 3,600,000 |
+| Cap rate | 5.25% | 6.00% |
+| Implied value | 68,571,429 | 60,000,000 |
+
+Valuation impact:
+
+```text
+value_delta = 60,000,000 - 68,571,429 = -8,571,429
+value_decline_percentage = 8,571,429 / 68,571,429 = 12.50%
+```
+
+Treatment:
+
+- preserve market evidence, committee minutes, approved cap rate, effective date, rationale and expiry/review date;
+- label valuation change as committee-approved or scenario-adjusted according to policy;
+- do not book a realized loss unless a sale or impairment event is source-confirmed;
+- update LTV, mandate concentration, performance attribution and client reporting commentary.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Committee shock is approved | Valuation uses approved cap rate with source label. |
+| Shock is scenario-only | Report keeps base valuation and scenario valuation separate. |
+| Sale later occurs | Realized result is calculated from sale proceeds, not shock alone. |
+
+## 51. Property Escrow Release Dispute
+
+Scenario:
+
+A property sale closes with part of proceeds held in escrow for warranty claims. The buyer disputes release after identifying defects.
+
+| Attribute | Value |
+|---|---:|
+| Gross sale proceeds | 12,000,000 |
+| Escrow holdback | 600,000 |
+| Cash released at closing | 11,400,000 |
+| Disputed repair claim | 180,000 |
+
+Escrow exposure:
+
+```text
+undisputed_escrow = 600,000 - 180,000 = 420,000
+cash_received_percentage = 11,400,000 / 12,000,000 = 95.00%
+```
+
+Treatment:
+
+- close property ownership only from legal completion evidence;
+- separate received cash, escrow receivable, disputed claim and final release;
+- preserve sale agreement, escrow terms, defect notice, dispute state and release approval;
+- do not treat disputed escrow as available cash or final realized proceeds until released.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Sale completes with escrow | Property closes and escrow receivable is tracked separately. |
+| Buyer disputes release | Disputed amount is not available cash. |
+| Escrow is released | Cash posts from release date with dispute lineage. |
+
+## 52. Advisory And Mandate Checklist
 
 | Dimension | Required question |
 |---|---|
@@ -1411,7 +1622,7 @@ QA assertions:
 | DPM mandate | allowed wrapper, illiquid allocation, income target, leverage limit, concentration cap? |
 | Reporting | legal holding, economic exposure, income classification, valuation date and liquidity label? |
 
-## 47. Current Support Boundary And Candidate Extensions
+## 53. Current Support Boundary And Candidate Extensions
 
 | Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
 |---|---|---|
@@ -1421,7 +1632,7 @@ QA assertions:
 | Infrastructure exposure | fund/security/private fund position, sector tags, concession, revenue model, clawback terms, availability deductions and regulated asset base reset terms where sourced | advanced concession, inflation-linkage, offtake, clawback and regulatory-risk analytics |
 | Reporting | wrapper, exposure, value, income, source date, liquidity label, operating metrics, development state and governance overrides where sourced | consolidated real-asset income and stress dashboard |
 
-## 48. Regression Test Pack
+## 54. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -1471,3 +1682,9 @@ Minimum release-gate scenarios:
 44. Infrastructure refinancing separates recurring interest saving, one-off cost, maturity ladder and covenant changes.
 45. Data-room due diligence gap blocks final approval or labels preliminary valuation as source-limited.
 46. Real-asset ESG remediation separates approved capex, certification state, financing benefit and reporting status.
+47. REIT debt covenant waiver package tracks waiver state, fee, expiry and distribution restrictions.
+48. Infrastructure concession extension bid keeps bid-contingent value separate from awarded concession terms.
+49. Direct-property tenant-improvement allowance separates upfront cash, rent-free period and recurring lease economics.
+50. Renewable offtake replacement updates contracted revenue, merchant exposure and counterparty credit from source terms.
+51. Valuation cap-rate shock separates committee-approved valuation from cash sale or realized loss events.
+52. Property escrow release dispute separates received cash, escrow receivable, disputed claim and final release.
