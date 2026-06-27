@@ -986,3 +986,312 @@ new feeder units = 8,750
 | New feeder fails eligibility | Exception workflow opens before position conversion. |
 | Master exposure is unchanged | Look-through avoids double-counting old and new feeder exposure. |
 | Fee terms change | Reporting and rebate logic use new effective-dated terms. |
+
+## Example 30. Omnibus transfer-agent allocation
+
+### Scenario
+
+A platform submits one omnibus subscription order to the transfer agent, then allocates confirmed units across multiple client accounts. The transfer agent confirms the aggregate order, not each client allocation.
+
+| Attribute | Value |
+|---|---:|
+| Omnibus subscription amount | 1,000,000 |
+| Confirmed NAV | 25.00 |
+| Confirmed omnibus units | 40,000.0000 |
+| Client A intended amount | 400,000 |
+| Client B intended amount | 350,000 |
+| Client C intended amount | 250,000 |
+
+### Allocation
+
+```text
+client allocation ratio = client intended amount / omnibus amount
+Client A units = 40,000 x 40.00% = 16,000
+Client B units = 40,000 x 35.00% = 14,000
+Client C units = 40,000 x 25.00% = 10,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Order lifecycle | Preserve omnibus order id, transfer-agent confirmation and client allocation instructions. |
+| Units | Allocate confirmed units, not estimated units, using governed rounding policy. |
+| Cash | Reconcile each client reservation to allocated units, NAV, fees and residual rounding cash. |
+| Reporting | Show client-level position while retaining omnibus source lineage. |
+| Operations | Open allocation break if client allocations do not reconcile to omnibus confirmation. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Omnibus confirmation arrives | Client allocations are created from confirmed aggregate units. |
+| Rounding leaves residual units or cash | Residual is allocated or posted according to policy with evidence. |
+| One client becomes ineligible before allocation | Allocation is blocked or rebalanced according to order policy. |
+| Transfer-agent confirmation differs from estimate | Client units and cash use confirmed source values. |
+| Reconciliation is run | Sum of client units equals omnibus units within precision tolerance. |
+
+## Example 31. ETF creation/redemption basket and authorized participant flow
+
+### Scenario
+
+An ETF trades on exchange, but large institutional flows may use a creation/redemption process through an authorized participant. The basket can contain securities plus a cash balancing amount.
+
+| Attribute | Value |
+|---|---:|
+| Creation unit size | 50,000 ETF shares |
+| ETF market price | 20.10 |
+| Published NAV | 20.00 |
+| Basket securities value | 998,000 |
+| Cash balancing amount | 2,000 |
+| Creation fee | 500 |
+
+### Basket value
+
+```text
+creation unit NAV value = creation unit size x NAV
+creation unit NAV value = 50,000 x 20.00 = 1,000,000
+
+total basket consideration = basket securities value + cash balancing amount + creation fee
+total basket consideration = 998,000 + 2,000 + 500 = 1,000,500
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Retail order | Normal client ETF trades use exchange trade lifecycle. |
+| Creation/redemption | Basket workflow applies only when participant, size and product terms support it. |
+| Valuation | ETF market price, NAV and basket value are separate source concepts. |
+| Liquidity | Premium/discount and creation-unit liquidity should be visible where relevant. |
+| Reporting | Do not confuse ETF shares held by the client with underlying basket securities unless delivered. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Client holds ETF shares | Position remains ETF shares, not underlying basket holdings. |
+| Creation basket is used | Securities and cash balancing amount reconcile to ETF units created. |
+| Basket security is missing in instrument master | Creation workflow remains in exception state. |
+| Market price diverges from NAV | Premium/discount analytics show the difference. |
+| ETF is halted | Liquidity and valuation quality states update. |
+
+## Example 32. Liquidity bucket reclassification after fund notice
+
+### Scenario
+
+A fund changes dealing terms from weekly liquidity to quarterly liquidity with 60 days' notice. Portfolio liquidity reports must reclassify the holding from short-term to less liquid.
+
+| Attribute | Before | After |
+|---|---|---|
+| Dealing frequency | Weekly | Quarterly |
+| Notice period | 5 business days | 60 calendar days |
+| Redemption gate | None | Up to 25% |
+| Effective date | Before notice | From fund notice date |
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Product master | Store effective-dated liquidity terms by share class. |
+| Liquidity analytics | Reclassify the holding based on new notice and dealing terms. |
+| Advisory | Explain that market value did not change, but accessible liquidity worsened. |
+| DPM | Rebalance engines should not assume the holding can fund near-term trades. |
+| Reporting | Show liquidity bucket, notice period, gate terms and source date. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Fund notice changes liquidity terms | Bucket changes from old terms to new effective-dated terms. |
+| Report date is before notice | Historical report uses old liquidity bucket. |
+| Redemption is submitted under new terms | Notice period and gate are applied. |
+| Liquidity terms source is missing | Liquidity report is source-limited rather than overconfident. |
+| Model rebalance needs cash in 10 days | Holding is excluded from near-term funding source. |
+
+## Example 33. Swing-factor governance and NAV adjustment
+
+### Scenario
+
+A fund applies swing pricing because net redemptions exceed the swing threshold. The administrator publishes both unswung and swung NAV for the dealing date.
+
+| Attribute | Value |
+|---|---:|
+| Unswung NAV | 10.0000 |
+| Swing factor | -0.75% |
+| Swung NAV | 9.9250 |
+| Redeemed units | 20,000 |
+
+### Redemption value
+
+```text
+swung NAV = unswung NAV x (1 + swing factor)
+swung NAV = 10.0000 x (1 - 0.75%) = 9.9250
+
+gross redemption value = redeemed units x swung NAV
+gross redemption value = 20,000 x 9.9250 = 198,500
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| NAV source | Store swung NAV, unswung NAV, swing factor and administrator source. |
+| Cash | Use confirmed dealing NAV for settlement, not estimated unswung NAV. |
+| Performance | Explain swing adjustment separately from market movement where source supports it. |
+| Advisory | Explain dilution protection and why proceeds differ from indicative NAV. |
+| Controls | Prevent local recalculation from overriding administrator-confirmed NAV. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Swing factor applies | Redemption proceeds use swung NAV. |
+| Only unswung NAV is available | Order remains estimated or source-limited. |
+| Swing factor is corrected | Cash/proceeds correction workflow preserves original NAV and corrected source. |
+| Report shows NAV movement | Swing-pricing note is available for client explanation. |
+| Subscription and redemption swing differently | Direction and dealing-side rules are source-backed. |
+
+## Example 34. Fund-of-funds fee layering
+
+### Scenario
+
+A client invests in a fund-of-funds. The top-level fund charges a management fee and underlying funds also charge fees. Reporting should avoid showing only the top-level fee when look-through fee data is available.
+
+| Layer | Weight | Annual fee |
+|---|---:|---:|
+| Top-level fund | 100% | 0.75% |
+| Underlying Fund A | 60% | 0.90% |
+| Underlying Fund B | 40% | 1.20% |
+
+### Effective fee estimate
+
+```text
+weighted underlying fee = 60% x 0.90% + 40% x 1.20%
+weighted underlying fee = 0.54% + 0.48% = 1.02%
+
+estimated layered fee = top-level fee + weighted underlying fee
+estimated layered fee = 0.75% + 1.02% = 1.77%
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Disclosure | Label fee layering as estimate unless source provides official ongoing charges. |
+| Performance | Do not double-book fees already embedded in NAV. |
+| Advisory | Explain all-in cost, uncertainty and data coverage. |
+| Reporting | Show top-level fee, look-through fee coverage and unknown residual where applicable. |
+| QA | Confirm fee source date, share class and effective period. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Underlying fee data is partial | Report shows fee coverage percentage. |
+| Underlying fund changes weight | Effective layered fee recalculates by source date. |
+| Fee is embedded in NAV | No separate cash fee is posted. |
+| Share-class fee differs | Calculation uses held share class, not umbrella-level average. |
+| Official ongoing-charge figure exists | Report prioritizes governed official figure where policy requires. |
+
+## Example 35. Side-letter liquidity term override
+
+### Scenario
+
+A family-office client has a negotiated side letter that permits quarterly redemption with 30 days' notice, while the standard fund term is annual redemption with 90 days' notice.
+
+| Attribute | Standard term | Side-letter term |
+|---|---|---|
+| Redemption frequency | Annual | Quarterly |
+| Notice period | 90 days | 30 days |
+| Investor scope | All investors | Specific client/entity |
+| Source | Offering document | Signed side letter |
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Eligibility | Apply side-letter terms only to the entitled client/entity and share class. |
+| Liquidity analytics | Show both standard term and client-specific override where relevant. |
+| Orders | Redemption order uses the client's governed side-letter terms. |
+| Confidentiality | Side-letter terms are sensitive and should not leak to unrelated users or reports. |
+| Audit | Preserve document reference, effective date, approver and expiry/review date. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Side-letter client redeems | Order uses side-letter notice and frequency. |
+| Another client redeems same fund | Standard fund terms apply. |
+| Side-letter expires | Liquidity terms revert or move to review state. |
+| Report is generated for unrelated user | Confidential side-letter detail is not exposed. |
+| Side-letter source document is missing | Override cannot support client-ready liquidity treatment. |
+
+## Example 36. Fund class-action proceeds
+
+### Scenario
+
+A fund receives class-action settlement proceeds linked to securities previously held by the fund. The administrator allocates proceeds to investors based on eligible units during the claim period.
+
+| Attribute | Value |
+|---|---:|
+| Eligible units during claim period | 12,000 |
+| Proceeds per eligible unit | 0.08 |
+| Gross proceeds | 960 |
+| Withholding or admin cost | 40 |
+| Net cash | 920 |
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Cashflow | Book as administrator-confirmed class-action proceeds or special distribution according to source classification. |
+| Eligibility | Use historical eligible units, not current units if holdings changed. |
+| Performance | Link proceeds to fund event; do not treat as external contribution. |
+| Reporting | Explain claim period, source classification and net cash. |
+| Tax | Use jurisdiction/source classification where available; otherwise label incomplete. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Client no longer holds fund | Proceeds may still post if historical eligibility is source-confirmed. |
+| Eligible units differ from current units | Calculation uses claim-period units. |
+| Source classification is missing | Reporting labels cashflow classification incomplete. |
+| Proceeds are received net of cost | Gross, cost and net are separately reportable where sourced. |
+| Duplicate administrator file arrives | Duplicate detection prevents double posting. |
+
+## Example 37. Fund-platform migration event
+
+### Scenario
+
+A fund platform migrates holdings from one transfer-agent account structure to another. The economic holdings should remain unchanged, but identifiers, accounts, order channels and reconciliation sources change.
+
+| Attribute | Before migration | After migration |
+|---|---|---|
+| Fund account id | TA-OLD-1001 | TA-NEW-8821 |
+| Units | 25,000.0000 | 25,000.0000 |
+| Share class | Same ISIN | Same ISIN |
+| Order channel | Legacy platform | New platform |
+| Migration date | 2026-09-30 | 2026-10-01 |
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Position | Preserve units, cost basis, holding history and performance lineage. |
+| Identifiers | Map old and new transfer-agent account identifiers with effective dates. |
+| Orders | Freeze or route orders during cutover according to migration plan. |
+| Reconciliation | Compare pre- and post-migration unit balances by fund, account and share class. |
+| Reporting | Avoid showing migration as a sale, redemption, subscription or contribution. |
+| Operations | Keep cutover evidence, exception list and sign-off. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Units match before and after migration | No client cashflow or realized result is created. |
+| Share-class mapping fails | Position enters exception state until instrument/account mapping is resolved. |
+| Order is submitted during freeze | Order is blocked, queued or routed according to cutover rule. |
+| Performance report crosses migration date | Return continuity is preserved. |
+| Transfer-agent balance differs post-cutover | Migration reconciliation break remains open with owner and aging. |
