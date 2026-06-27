@@ -2382,3 +2382,226 @@ net_retained_distribution = 300,000 - 36,000 = 264,000
 | Cash repayment is made | Cash outflow is linked to the clawback notice and prior distribution. |
 | Clawback is disputed | Obligation remains pending or disputed rather than removed. |
 | Client report is generated | Original distribution, clawback payable and net retained amount are explainable. |
+
+## Example 68. Semi-liquid fund queue switching
+
+### Scenario
+
+A semi-liquid fund offers quarterly liquidity with a redemption queue. A client originally elects cash redemption, then asks to switch the queued instruction into an in-kind rollover sleeve before the dealing deadline. The platform must preserve queue priority, election history and liquidity treatment.
+
+| Attribute | Value |
+|---|---:|
+| Queued redemption value | 750,000 |
+| Original cash election | 100.00% |
+| Revised rollover election | 60.00% |
+| Revised cash election | 40.00% |
+| Queue position | 18 |
+
+### Revised election split
+
+```text
+rollover_value = 750,000 x 60.00% = 450,000
+cash_redemption_value = 750,000 x 40.00% = 300,000
+```
+
+### Correct treatment
+
+- preserve original election, revised election, queue position, cut-off and administrator acceptance;
+- do not reset queue priority unless the fund terms say the switch creates a new instruction;
+- create rollover sleeve exposure only after source-confirmed acceptance and identifier setup;
+- keep cash redemption, rollover value, fees and tax treatment separately explainable;
+- label liquidity as queued, switched, accepted or rejected rather than freely redeemable.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Switch request arrives before deadline | Election changes with history and queue treatment preserved. |
+| Fund terms reset queue priority | Queue position updates with source-backed reason. |
+| Rollover sleeve identifier is missing | New position creation is blocked or source-limited. |
+| Client report is generated | Cash, rollover and queued status are separately visible. |
+
+## Example 69. ETF collateral basket failure
+
+### Scenario
+
+An ETF creation basket includes collateral securities that fail sponsor eligibility checks. The authorized participant must replace the failed securities before the creation order can settle.
+
+| Basket component | Proposed value | Eligible value |
+|---|---:|---:|
+| Government bonds | 4,000,000 | 4,000,000 |
+| Corporate bonds | 2,500,000 | 1,800,000 |
+| Cash component | 500,000 | 500,000 |
+| Failed collateral | 700,000 | 0 |
+
+### Eligibility shortfall
+
+```text
+proposed_basket_value = 4,000,000 + 2,500,000 + 500,000 = 7,000,000
+eligible_basket_value = 4,000,000 + 1,800,000 + 500,000 = 6,300,000
+collateral_shortfall = 7,000,000 - 6,300,000 = 700,000
+```
+
+### Correct treatment
+
+- keep ETF shares uncreated until basket acceptance and settlement are confirmed;
+- preserve sponsor rejection reason, failed securities, replacement basket and AP response;
+- do not use rejected basket for look-through, liquidity or tax analytics;
+- show primary-market creation failure separately from secondary-market ETF trading;
+- track whether the failure affects client orders, AP concentration or ETF liquidity quality.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Basket component fails eligibility | Creation order remains pending or rejected. |
+| Replacement basket is accepted | ETF creation proceeds from accepted basket with lineage. |
+| Client report is generated before acceptance | No ETF shares are shown from rejected basket. |
+| Liquidity analytics are updated | Basket failure is visible as primary-market liquidity degradation. |
+
+## Example 70. Private-fund valuation committee override
+
+### Scenario
+
+A private fund administrator reports a NAV, but the internal valuation committee approves a temporary override because a material portfolio company write-down is known but not yet reflected in the administrator statement.
+
+| Attribute | Administrator NAV | Committee override |
+|---|---:|---:|
+| Client capital account | 2,400,000 | 2,160,000 |
+| Override percentage | n/a | -10.00% |
+| Effective period | Current month | Until next statement |
+
+### Override impact
+
+```text
+valuation_override_delta = 2,160,000 - 2,400,000 = -240,000
+override_percentage = -240,000 / 2,400,000 = -10.00%
+```
+
+### Correct treatment
+
+- preserve administrator NAV, committee price, rationale, approval, expiry and review owner;
+- label valuation basis as committee override, not official administrator NAV;
+- expire or reapprove the override when the next administrator statement arrives;
+- separate valuation override from cashflows, capital calls and distributions;
+- route client reporting and performance attribution through approved degraded-state labels.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Override is approved | Valuation uses committee basis with label and expiry. |
+| Approval is missing | Administrator NAV remains active or report is blocked. |
+| Next statement arrives | Override expires, reconciles or requires reapproval. |
+| Performance report is generated | Valuation basis and delta are explainable. |
+
+## Example 71. Class hedging cost allocation
+
+### Scenario
+
+A fund has USD base shares and a CHF-hedged class. Hedge costs are charged only to the hedged class. The platform must allocate hedging cost to the correct share class without diluting unhedged class performance.
+
+| Share class | Class NAV | Hedging cost | Units held |
+|---|---:|---:|---:|
+| USD unhedged | 25,000,000 | 0 | 80,000 |
+| CHF hedged | 15,000,000 | 45,000 | 60,000 |
+
+### Hedged-class cost per unit
+
+```text
+hedging_cost_per_hedged_unit = 45,000 / 60,000 = 0.75
+hedging_cost_rate = 45,000 / 15,000,000 = 0.30%
+```
+
+### Correct treatment
+
+- allocate hedging costs only to the hedged class or series specified by administrator data;
+- preserve class NAV, hedge-cost notice, FX hedge source and allocation basis;
+- avoid charging unhedged class holders for hedged-class cost;
+- explain hedged-class performance as fund return plus hedge cost/benefit;
+- block final allocation when class-level cost data is missing or inconsistent.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Hedging cost applies to CHF class | Cost affects only hedged-class analytics. |
+| Class-level cost source is missing | Allocation is blocked or source-limited. |
+| Unhedged class report is generated | No hedging cost is allocated to unhedged class. |
+| Administrator restates cost | Class-level performance and NAV bridge are versioned. |
+
+## Example 72. Notice-period side-letter conflict
+
+### Scenario
+
+A fund has a standard 90-day redemption notice period. A side letter grants one investor 45-day notice, but the transfer agent rejects the instruction because the side-letter entitlement is not linked to the account.
+
+| Attribute | Standard terms | Side-letter terms |
+|---|---:|---:|
+| Notice period | 90 days | 45 days |
+| Redemption value | 1,000,000 | 1,000,000 |
+| Requested notice days | 48 | 48 |
+| Transfer-agent status | Rejected | Pending evidence |
+
+### Eligibility gap
+
+```text
+standard_notice_shortfall = 90 - 48 = 42 days
+side_letter_notice_surplus = 48 - 45 = 3 days
+```
+
+### Correct treatment
+
+- preserve standard terms, side-letter terms, account entitlement mapping and transfer-agent rejection;
+- accept shorter notice only when side-letter entitlement is source-backed for that account and share class;
+- keep redemption queued, rejected or repaired according to transfer-agent response;
+- prevent generic side-letter terms from applying to unrelated clients or accounts;
+- explain liquidity terms by investor-specific entitlement where authorized.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Side-letter entitlement is missing | Redemption is rejected or routed to repair under standard terms. |
+| Entitlement is linked and valid | 45-day notice treatment is allowed. |
+| Transfer agent rejects despite entitlement | Dispute/repair workflow preserves both sources. |
+| Client report is generated | Notice term and source basis are visible where permitted. |
+
+## Example 73. Fund fee rebate clawback
+
+### Scenario
+
+A client receives a fee rebate based on an assumed service tier. Later, the fund platform determines that the client was not eligible for part of the period and claws back a portion of the rebate.
+
+| Attribute | Value |
+|---|---:|
+| Original rebate paid | 18,000 |
+| Ineligible days | 60 |
+| Original rebate period days | 180 |
+| Clawback percentage | 33.33% |
+| Clawback amount | 6,000 |
+
+### Clawback
+
+```text
+clawback_amount = original_rebate_paid x ineligible_days / original_period_days
+clawback_amount = 18,000 x 60 / 180 = 6,000
+net_retained_rebate = 18,000 - 6,000 = 12,000
+```
+
+### Correct treatment
+
+- preserve original rebate, eligibility basis, corrected eligibility period and clawback notice;
+- create receivable/payable or reversal according to policy instead of deleting the original rebate;
+- distinguish fund fee rebate clawback from fund distribution clawback and advisor fee billing;
+- update client reporting, fee analytics and tax treatment according to source classification;
+- track whether clawback is paid in cash, offset against future rebates or disputed.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Eligibility correction reduces rebate | Clawback workflow opens with calculation lineage. |
+| Original rebate was already paid | Original payment remains visible and linked to clawback. |
+| Clawback is offset against future rebate | Offset is tracked separately from cash repayment. |
+| Client report is generated | Gross rebate, clawback and net retained rebate are explainable. |
