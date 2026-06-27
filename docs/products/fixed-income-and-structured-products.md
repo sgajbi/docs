@@ -66,4 +66,4 @@ Use these packs when working on:
 7. advisor suitability and disclosure workflows,
 8. QA scenario design,
 9. stakeholder, practitioner, and project preparation for wealth-platform work,
-10. Lotus domain vocabulary and user-facing language.
+10. domain vocabulary and user-facing language for wealth-platform work.

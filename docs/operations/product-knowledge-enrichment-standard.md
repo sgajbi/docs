@@ -2,7 +2,7 @@
 
 This standard defines how product packs should be improved after import.
 
-The goal is not to store raw notes. The goal is to build a professional, reusable knowledge base for private-banking product work, Lotus project work, platform design, API modelling, UI design, QA, advisory, reporting, and stakeholder communication.
+The goal is not to store raw notes. The goal is to build a professional, reusable knowledge base for private-banking product work, platform design, API modelling, UI design, QA, advisory, reporting, and stakeholder communication.
 
 ## Core Rule
 
@@ -39,6 +39,7 @@ For each product pack, add or strengthen these areas when useful:
 | Controls | Reconciliation, audit, stale data, overrides, operational exceptions, and failure behavior. |
 | Practitioner explanations | Questions and answers for stakeholder conversations, product reviews, and project handoffs. |
 | Cross-product comparisons | Similarities and differences versus adjacent products. |
+| Worked examples | Product terms, timeline, transactions, cashflows, valuation, risk, reporting, QA, and implementation boundary. |
 
 ## Where To Add Enrichment
 
@@ -46,8 +47,9 @@ Prefer this order:
 
 1. Product pack README for purpose, reading order, provenance, and high-level notes.
 2. Product-area map under `docs/products/` when the guidance applies across the product family.
-3. Cross-product reference under `docs/reference/` when the guidance applies to multiple product families.
-4. Imported source file only when the source wording is unprofessional, narrow, stale, or unclear.
+3. Cross-product review under `docs/products/practical-product-implementation-review.md` when the guidance applies across many product families.
+4. Cross-product reference under `docs/reference/` when the guidance applies to multiple product families.
+5. Imported source file only when the source wording is unprofessional, narrow, stale, or unclear.
 
 Do not overload imported source files with broad platform commentary when a separate map would be clearer.
 
@@ -92,6 +94,7 @@ Before committing a product-pack update, check:
 10. Do relative links resolve?
 11. Does the root/product/reference index point to the new material?
 12. Is the coverage matrix updated if the product library changed?
+13. Does the practical product implementation review need a new example, capability boundary, or candidate extension?
 
 ## Ongoing Improvement Principle
 

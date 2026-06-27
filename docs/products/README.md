@@ -9,6 +9,7 @@ Each product family should have its own folder with a local `README.md`, a clear
 | Product Pack | Location | Purpose |
 |---|---|---|
 | Bonds | [`bonds/`](bonds/README.md) | Wealth-management reference for bond fundamentals, lifecycle, transaction and position modelling, valuation, yield, duration, credit risk, advisory, implementation, and QA. |
+| Cash, deposits, money market and FX | [`cash-deposits-money-market-fx/`](cash-deposits-money-market-fx/README.md) | Wealth-management reference for cash balances, deposits, money market instruments, money market funds, FX spot, forwards, swaps, NDFs, liquidity, buying power, income, settlement, advisory, reporting, implementation, and QA. |
 | Derivatives | [`derivatives/`](derivatives/README.md) | Wealth-management reference for options, futures, forwards, swaps, CDS, OTC derivatives, lifecycle events, valuation, Greeks, exposure, margin, collateral, advisory, mandate controls, implementation, and QA. |
 | Equities | [`equities/`](equities/README.md) | Wealth-management reference for direct equities, trade lifecycle, settlement, corporate actions, dividends, cost basis, valuation, P&L, performance, risk, advisory, DPM, reporting, implementation, and QA. |
 | Funds | [`funds/`](funds/README.md) | Wealth-management reference for funds, ETFs, share classes, lifecycle, subscriptions/redemptions, NAV, fees, look-through, performance, advisory, implementation, and QA. |
@@ -20,11 +21,13 @@ Each product family should have its own folder with a local `README.md`, a clear
 
 | Map | Purpose |
 |---|---|
+| [`cash-deposits-money-market-and-fx.md`](cash-deposits-money-market-and-fx.md) | Captures reusable platform-design distinctions for currency cash, settlement, available cash, deposits, money market products, FX, liquidity, buying power, and reporting. |
 | [`derivatives-and-overlay-products.md`](derivatives-and-overlay-products.md) | Captures reusable platform-design distinctions for derivatives, overlays, exposure, lifecycle events, margin, collateral, advisory, and mandate controls. |
 | [`direct-equities-and-market-operations.md`](direct-equities-and-market-operations.md) | Captures reusable platform-design distinctions for direct equities, trading, corporate actions, P&L, risk, and market operations. |
 | [`fixed-income-and-structured-products.md`](fixed-income-and-structured-products.md) | Compares bonds and structured notes and captures reusable platform-design distinctions across fixed income and structured products. |
 | [`private-markets-and-alternatives.md`](private-markets-and-alternatives.md) | Captures reusable platform-design distinctions for commitments, capital calls, distributions, lagged NAVs, alternatives, mandate controls, liquidity planning, and reporting. |
 | [`pooled-investment-products.md`](pooled-investment-products.md) | Captures reusable platform-design distinctions for funds, ETFs, fund of funds, hedge funds, and private market funds. |
+| [`practical-product-implementation-review.md`](practical-product-implementation-review.md) | Provides a cross-product review lens, product-family example matrix, generic platform baseline, candidate extensions, and example-expansion backlog. |
 | [`product-knowledge-coverage-matrix.md`](product-knowledge-coverage-matrix.md) | Tracks current product coverage, companion maps, and useful next enrichment areas. |
 
 ## Suggested Pack Structure

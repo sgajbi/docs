@@ -19,6 +19,7 @@ This repo is organized so new document sets can be added without turning the roo
 | Document Set | Location | Status |
 |---|---|---|
 | Bonds reference pack | [`docs/products/bonds/`](docs/products/bonds/README.md) | Imported from `C:\Users\Sandeep\Downloads\bonds_reference_pack.zip\bonds_reference_pack` on 2026-06-27. |
+| Cash, deposits, money market and FX reference pack | [`docs/products/cash-deposits-money-market-fx/`](docs/products/cash-deposits-money-market-fx/README.md) | Imported from `C:\Users\Sandeep\Downloads\cash_deposits_money_market_fx_reference_pack.zip\cash_deposits_money_market_fx_reference_pack` on 2026-06-27. |
 | Derivatives reference pack | [`docs/products/derivatives/`](docs/products/derivatives/README.md) | Imported from `C:\Users\Sandeep\Downloads\derivatives_reference_pack.zip\derivatives_reference_pack` on 2026-06-27. |
 | Equities reference pack | [`docs/products/equities/`](docs/products/equities/README.md) | Imported from `C:\Users\Sandeep\Downloads\equities_and_product_kb_expansion.zip\equities_reference_pack` on 2026-06-27. |
 | Funds reference pack | [`docs/products/funds/`](docs/products/funds/README.md) | Imported from `C:\Users\Sandeep\Downloads\funds_reference_pack.zip\funds_reference_pack` on 2026-06-27. |
@@ -30,11 +31,13 @@ This repo is organized so new document sets can be added without turning the roo
 
 | Map | Purpose |
 |---|---|
+| [`docs/products/cash-deposits-money-market-and-fx.md`](docs/products/cash-deposits-money-market-and-fx.md) | Product and platform-design map for cash, deposits, money market instruments, money market funds, FX, liquidity, buying power, settlement, and reporting. |
 | [`docs/products/derivatives-and-overlay-products.md`](docs/products/derivatives-and-overlay-products.md) | Product and platform-design map for derivatives, hedging overlays, exposure, Greeks, margin, collateral, lifecycle events, and mandate controls. |
 | [`docs/products/direct-equities-and-market-operations.md`](docs/products/direct-equities-and-market-operations.md) | Product and platform-design map for direct equities, trading, settlement, corporate actions, P&L, risk, and market operations. |
 | [`docs/products/fixed-income-and-structured-products.md`](docs/products/fixed-income-and-structured-products.md) | Product and platform-design comparison for bonds and structured notes. |
 | [`docs/products/private-markets-and-alternatives.md`](docs/products/private-markets-and-alternatives.md) | Product and platform-design map for private equity, private credit, real assets, hedge funds, commitments, cashflows, NAV lag, liquidity, controls, and reporting. |
 | [`docs/products/pooled-investment-products.md`](docs/products/pooled-investment-products.md) | Product and platform-design map for funds, ETFs, fund of funds, hedge funds, and private market funds. |
+| [`docs/products/practical-product-implementation-review.md`](docs/products/practical-product-implementation-review.md) | Cross-product review layer for examples, cashflows, valuation, analytics, advisory, mandate, reporting, QA, and implementation boundaries. |
 | [`docs/reference/private-banking-platform-knowledge-map.md`](docs/reference/private-banking-platform-knowledge-map.md) | Reusable checklist for applying product knowledge to APIs, UI, docs, QA, and source-ownership decisions. |
 | [`docs/reference/wealth-product-framework/`](docs/reference/wealth-product-framework/README.md) | Cross-product canonical position, transaction, advisory, mandate, analytics, reporting, and knowledge-base quality framework. |
 | [`docs/products/product-knowledge-coverage-matrix.md`](docs/products/product-knowledge-coverage-matrix.md) | Coverage and enrichment roadmap for the product library. |
