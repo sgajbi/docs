@@ -509,7 +509,241 @@ QA assertions:
 | Final amount differs by category | Income, gain and return-of-capital labels update with lineage. |
 | Final source is missing | Estimated classification remains labelled and not treated as final. |
 
-## 21. Advisory And Reporting Boundary
+## 21. Wash-Sale Style Control
+
+Scenario:
+
+A client sells a security at a loss and buys back the same or substantially similar security within a configured restriction window. The platform should flag the pattern for review without presenting a final legal tax conclusion.
+
+| Attribute | Value |
+|---|---:|
+| Sale proceeds | 92,000 |
+| Cost basis | 110,000 |
+| Realized loss | 18,000 |
+| Repurchase amount | 95,000 |
+| Configured monitoring window | 30 days |
+| Days between sale and repurchase | 12 |
+
+Calculation:
+
+```text
+realized_loss = 92,000 - 110,000 = -18,000
+within_monitoring_window = 12 <= 30
+flagged_loss_amount = 18,000
+```
+
+Correct treatment:
+
+- flag the pattern using configured jurisdiction/account policy rather than hardcoding a universal rule;
+- preserve sale lot, repurchase trade, security similarity basis, dates and exception owner;
+- label result as wash-sale style review, not final disallowance, unless a sourced tax rule applies;
+- keep realized P&L and reportable tax treatment as separate states.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Repurchase is inside configured window | Review flag opens with linked trades/lots. |
+| Security similarity mapping is missing | Flag is source-limited rather than silently absent. |
+| Jurisdiction does not apply rule | Monitoring can be disabled or informational only by configuration. |
+| Client report is generated | Output does not state final tax treatment without sourced rule. |
+
+## 22. Cross-Border Tax-Lot Method Conflict
+
+Scenario:
+
+A client has reporting obligations in two jurisdictions. One report requires FIFO, while another permits average cost. The same sale must preserve method-specific realized results without corrupting the underlying lot history.
+
+| Lot | Quantity | Cost per unit |
+|---|---:|---:|
+| Lot A | 100 | 40.00 |
+| Lot B | 100 | 60.00 |
+| Sale | 150 | 70.00 |
+
+Calculation:
+
+```text
+fifo_cost = 100 x 40 + 50 x 60 = 7,000
+fifo_gain = 150 x 70 - 7,000 = 3,500
+average_cost = (100 x 40 + 100 x 60) / 200 = 50
+average_cost_gain = 150 x 70 - 150 x 50 = 3,000
+method_difference = 500
+```
+
+Correct treatment:
+
+- store lot history independently from jurisdiction-specific reporting method;
+- compute method-specific outputs with clear report labels and calculation version;
+- prevent one jurisdiction's tax-lot method from overwriting another's basis view;
+- preserve policy source, method, effective date and report output version.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Two jurisdictions use different methods | Both outputs are produced from the same source lots. |
+| Method configuration is missing | Report is blocked or labelled incomplete. |
+| Lots are later corrected | Both method-specific reports are impact-assessed. |
+
+## 23. Mid-Year Tax Residency Change
+
+Scenario:
+
+A client changes tax residency during the year. Income, withholding, CRS/FATCA status and report delivery may need to be split by effective date.
+
+| Attribute | Before change | After change |
+|---|---|---|
+| Residency | Country A | Country B |
+| Effective date | 2026-01-01 | 2026-07-01 |
+| Dividend before change | 8,000 | - |
+| Dividend after change | - | 6,000 |
+| Withholding rate | 15% | 25% |
+
+Calculation:
+
+```text
+withholding_before = 8,000 x 15% = 1,200
+withholding_after = 6,000 x 25% = 1,500
+total_withholding = 2,700
+```
+
+Correct treatment:
+
+- effective-date residency and documentation status by income event date;
+- split reportability, withholding, treaty status and client report output by period where required;
+- preserve residency evidence, approval, received date and remediation workflow;
+- avoid retroactively changing earlier events unless the source confirms retroactive effect.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Residency changes mid-year | Event classification follows event date and effective date. |
+| Documentation arrives late | Prior events are impact-assessed, not overwritten silently. |
+| Report spans both periods | Output clearly separates or labels residency periods according to policy. |
+
+## 24. Qualified Intermediary Pool Reporting
+
+Scenario:
+
+A qualified intermediary process reports pooled withholding by documentation pool. Client-level allocations must reconcile to pool totals and documentation status.
+
+| Pool | Pool income | Pool withholding | Allocated client withholding |
+|---|---:|---:|---:|
+| Documented treaty pool | 500,000 | 75,000 | 75,000 |
+| Undocumented pool | 120,000 | 36,000 | 34,500 |
+
+Calculation:
+
+```text
+undocumented_pool_break = 36,000 - 34,500 = 1,500
+```
+
+Correct treatment:
+
+- separate QI pool totals from client-level allocations;
+- reconcile withholding by pool, currency, income type, source country and report period;
+- block or exception final filing when material pool breaks remain;
+- preserve documentation status, withholding statement, allocation rule and sign-off evidence.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Pool total differs from allocation | Pool reconciliation break opens. |
+| Documentation status changes | Client allocation moves pool only from effective date/source rule. |
+| Filing is generated | Filing evidence includes pool totals, allocations and unresolved exceptions. |
+
+## 25. Estate Or Trust Distribution Tax Statement
+
+Scenario:
+
+A trust distributes income and capital to beneficiaries. Beneficiary statements need distribution character, source period and entity authority without exposing unrelated beneficiary details.
+
+| Beneficiary | Income distribution | Capital distribution | Withholding |
+|---|---:|---:|---:|
+| Beneficiary A | 20,000 | 5,000 | 2,000 |
+| Beneficiary B | 12,000 | 8,000 | 1,200 |
+
+Correct treatment:
+
+- separate trust-level income, capital, expenses, withholding and beneficiary allocation;
+- preserve trustee approval, beneficiary class, entitlement basis and statement version;
+- apply delivery entitlements so each beneficiary sees only authorized information;
+- avoid treating distribution character as personal tax advice.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Beneficiary class is missing | Statement generation is blocked or exceptioned. |
+| Trustee approval changes | Statement version and distribution allocation are regenerated with lineage. |
+| Beneficiary requests other beneficiary data | Delivery is blocked or masked according to entitlement. |
+
+## 26. CRS/FATCA Remediation Campaign
+
+Scenario:
+
+A remediation campaign identifies clients with expiring or inconsistent CRS/FATCA documentation. The platform must track outreach, status, reporting impact and restrictions.
+
+| Client group | Accounts | Expiring forms | Inconsistent self-certifications |
+|---|---:|---:|---:|
+| Individual clients | 240 | 35 | 8 |
+| Entity clients | 90 | 18 | 12 |
+
+Calculation:
+
+```text
+total_accounts_in_scope = 240 + 90 = 330
+total_remediation_items = 35 + 8 + 18 + 12 = 73
+remediation_item_rate = 73 / 330 = 22.12%
+```
+
+Correct treatment:
+
+- track campaign id, client/account scope, document type, due date, outreach status and reportability impact;
+- distinguish expired, missing, inconsistent and under-review documentation states;
+- restrict report finalization or apply configured reporting status where documentation remains unresolved;
+- preserve communications, reminders, waivers and compliance sign-off.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Documentation expires before report date | Reportability/remediation state updates by effective date. |
+| Client submits inconsistent form | Review workflow opens instead of marking complete. |
+| Campaign closes with unresolved items | Residual exceptions and reporting impact are visible. |
+
+## 27. Regulatory Filing Rejection Workflow
+
+Scenario:
+
+A regulator rejects a submitted file because a required beneficial-owner identifier is missing for one reportable account. The filing must be corrected and resubmitted without losing the original submission record.
+
+| Attribute | Value |
+|---|---:|
+| Submitted records | 12,000 |
+| Rejected records | 1 |
+| Original submission version | v1 |
+| Corrected submission version | v2 |
+
+Correct treatment:
+
+- preserve original filing, rejection code, regulator acknowledgement and rejected record id;
+- repair source data and regenerate corrected filing version;
+- track resubmission, acceptance/rejection state, deadline and approval;
+- notify internal owners and affected client-reporting workflows if policy requires.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Filing rejection arrives | Rejection workflow opens with original submission retained. |
+| Source data is repaired | Corrected version is generated with delta and approval lineage. |
+| Resubmission is accepted | Filing state closes with regulator acknowledgement. |
+| Deadline is at risk | Escalation state and owner are visible. |
+
+## 28. Advisory And Reporting Boundary
 
 | Activity | Platform can support | Platform should not imply |
 |---|---|---|
@@ -519,7 +753,7 @@ QA assertions:
 | show reportable event | configured reporting regime | universal reporting obligation |
 | simulate rebalance tax impact | estimated gains/losses under assumptions | advice to execute for tax reasons |
 
-## 22. Current Support Boundary And Candidate Extensions
+## 29. Current Support Boundary And Candidate Extensions
 
 | Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
 |---|---|---|
@@ -532,8 +766,9 @@ QA assertions:
 | Reclaims and pools | expected reclaim, filed status, fees, refund receipt, pool total and allocation reconciliation when source-backed | tax authority workflow integration |
 | Ownership reporting | legal owner, beneficial owner, controlling person, reporting recipient and delivery scope where sourced | cross-regime entity classification engine |
 | Late classifications | estimated/final tax breakdown, received date and impact assessment where sourced | automated late-breakdown correction and client-notice orchestration |
+| Cross-border controls | residency changes, documentation pools, method-specific output and filing status where sourced | full jurisdiction-specific tax-rule engine and regulator integration |
 
-## 23. Regression Test Pack
+## 30. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -558,3 +793,10 @@ Minimum release-gate scenarios:
 19. Report delivery entitlement prevents unauthorized tax-pack delivery.
 20. Client correction notice identifies prior version, corrected fields, impact period, delivery scope and approval.
 21. Late fund tax-breakdown ingestion preserves estimated and final classifications with correction lineage.
+22. Wash-sale style control flags linked loss sale and repurchase patterns without asserting final tax treatment.
+23. Cross-border tax-lot method conflict preserves source lots and produces method-specific report outputs.
+24. Mid-year residency change applies event-date effective residency and documentation status.
+25. QI pool reporting reconciles pool totals, client allocations and documentation status before filing.
+26. Estate or trust distribution statement separates beneficiary allocations and delivery entitlement.
+27. CRS/FATCA remediation campaign tracks document states, outreach, reportability impact and unresolved exceptions.
+28. Regulatory filing rejection preserves original submission and corrected resubmission evidence.
