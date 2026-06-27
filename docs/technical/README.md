@@ -31,6 +31,7 @@ It translates patterns observed across a mature multi-application platform into 
 | [`12-technology-stack-and-engineering-patterns.md`](12-technology-stack-and-engineering-patterns.md) | Understand common technology choices, toolchain patterns, tradeoffs and how to read a new repository. |
 | [`13-frontend-experience-api-and-ui-supportability.md`](13-frontend-experience-api-and-ui-supportability.md) | Learn gateway-first UI delivery, state handling, view models, browser validation, accessibility and frontend supportability. |
 | [`technical-knowledge-coverage-matrix.md`](technical-knowledge-coverage-matrix.md) | Track current technical KB coverage, strongest areas and next enrichment slices. |
+| [`technical-learning-path-and-role-guide.md`](technical-learning-path-and-role-guide.md) | Choose reading paths by role, project type and engineering problem across the technical deep-dive packs. |
 | [`14-engineering-leadership-learning-roadmap.md`](14-engineering-leadership-learning-roadmap.md) | Follow a 30/60/90-day self-learning and KT path for enterprise platform engineering leadership. |
 | [`15-performance-scalability-resilience-and-async-work.md`](15-performance-scalability-resilience-and-async-work.md) | Deepen performance, timeout, retry, back-pressure, idempotency, async execution, recovery, caching and large-read design. |
 | [`performance-scalability-resilience-async/`](performance-scalability-resilience-async/README.md) | Deep-dive into performance mindset, latency, throughput, saturation, API performance, timeouts, retries, circuit breakers, back-pressure, idempotency, async jobs, workers, queues, caching, batching, database performance, graceful degradation, autoscaling, SLOs, performance testing and recovery runbooks. |
@@ -63,7 +64,7 @@ The strongest engineering systems make the correct path easy: one local command 
 | DevOps / platform engineer | Files 05, 06, 07, 08, 10, 11, 12 and the CI/CD/runtime/observability deep-dive packs. |
 | QA engineer | Files 03, 05, 08, 09 and 13. |
 | Frontend engineer | Files 03, 06, 08, 09, 12 and 13. |
-| Engineering lead | Files 01, 04, 05, 06, 09, 10, 11, 12, 13, 14, 16, 17, the backend/API/data-product/CI-CD/runtime/observability/security/testing/Git/documentation-governance deep-dive packs and the coverage matrix. |
+| Engineering lead | Files 01, 04, 05, 06, 09, 10, 11, 12, 13, 14, 16, 17, the technical learning path, the backend/API/data-product/CI-CD/runtime/observability/security/testing/Git/documentation-governance deep-dive packs and the coverage matrix. |
 | New joiner | Read files 01 through 14 in order, then use files 15 through 17 and the coverage matrix to choose deeper slices. |
 
 ## Relationship To Reference Packs
