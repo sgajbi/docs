@@ -4354,6 +4354,240 @@ projected_redemption_reversed = 1,000,000
 | Client expected call liquidity | Liquidity forecast removes expected redemption and flags extension risk. |
 | Report is generated | Non-call, reset coupon and extension risk are visible. |
 
+## Example 112. Callable Consent-Revocation Window
+
+### Scenario
+
+A callable bond consent campaign allows investors to support a covenant amendment and related call-price adjustment. The investor submits consent, then revokes during the permitted revocation window before the tabulation date.
+
+| Attribute | Value |
+|---|---:|
+| Nominal consented | 2,500,000 |
+| Consent fee | 0.25 points |
+| Revoked nominal | 1,000,000 |
+| Remaining valid consent | 1,500,000 |
+
+### Valid consent fee
+
+```text
+valid_consented_nominal = consented_nominal - revoked_nominal
+valid_consented_nominal = 2,500,000 - 1,000,000 = 1,500,000
+
+valid_consent_fee = valid_consented_nominal x consent_fee / 100
+valid_consent_fee = 1,500,000 x 0.25 / 100 = 3,750
+```
+
+### Correct treatment
+
+- preserve consent instruction, revocation request, revocation deadline, tabulation notice, custodian acknowledgement and final acceptance;
+- remove revoked nominal from consented holdings while keeping original instruction lineage;
+- accrue or project consent fee only on valid accepted nominal;
+- keep callable terms, revised covenants and call-price assumptions provisional until campaign outcome is final;
+- report revoked consent as lifecycle instruction history, not as trade activity.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Revocation arrives before deadline | Valid consented nominal and fee reduce. |
+| Revocation arrives after deadline | Consent remains pending or accepted unless source terms allow late revocation. |
+| Campaign fails threshold | Consent fee and covenant changes are reversed or cancelled. |
+| Client report is generated | Original consent, revocation and final valid instruction are explainable. |
+
+## Example 113. Municipal Tax-Status Reclassification
+
+### Scenario
+
+A municipal bond coupon was reported as tax-exempt. The issuer later reclassifies part of the income as taxable due to a private-use or project-status change.
+
+| Attribute | Value |
+|---|---:|
+| Coupon received | 45,000 |
+| Taxable reclassification percentage | 35% |
+| Reclassified taxable income | 15,750 |
+| Remaining tax-exempt income | 29,250 |
+
+### Reclassified income
+
+```text
+taxable_income = coupon_received x taxable_reclassification_percentage
+taxable_income = 45,000 x 35% = 15,750
+
+tax_exempt_income = coupon_received - taxable_income
+tax_exempt_income = 45,000 - 15,750 = 29,250
+```
+
+### Correct treatment
+
+- preserve issuer tax notice, original coupon classification, revised classification, tax year, statement version and correction evidence;
+- restate income character without changing the original cash receipt amount;
+- update tax reporting, performance income buckets and client statement labels from the effective tax period;
+- retain prior statement lineage and issue correction notices where client reporting was already delivered;
+- avoid treating tax-status reclassification as bond default, price loss or new cashflow.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Tax notice reclassifies coupon | Taxable and tax-exempt income buckets update. |
+| Cash receipt is unchanged | No duplicate cash transaction is booked. |
+| Prior statement was delivered | Correction workflow preserves prior and revised versions. |
+| Tax report is generated | Income character and source notice are visible. |
+
+## Example 114. ABS Servicer Replacement
+
+### Scenario
+
+An ABS trust replaces its servicer after servicing-quality failures. The pool continues, but payment files, delinquency reporting and advance assumptions move to the successor servicer.
+
+| Attribute | Before | After |
+|---|---|---|
+| Servicer | Servicer A | Servicer B |
+| Pool balance | 80,000,000 | 80,000,000 |
+| Investor share | 1.50% | 1.50% |
+| Transition reserve | - | 600,000 |
+
+### Investor reserve exposure
+
+```text
+investor_reserve_exposure = transition_reserve x investor_share
+investor_reserve_exposure = 600,000 x 1.50% = 9,000
+```
+
+### Correct treatment
+
+- preserve trustee notice, old servicer, successor servicer, transition date, payment file format, reserve terms and remittance calendar;
+- update servicer source ownership without duplicating or closing the ABS position;
+- label cashflow projections as transition-sensitive until successor files are certified;
+- separate transition reserve exposure from realized principal loss or coupon shortfall;
+- refresh operational reconciliation and data-quality checks for the new servicer feed.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Successor servicer is effective | Source owner updates from transition date. |
+| First successor file is missing | Position remains open but cashflow state is source-limited. |
+| Transition reserve is created | Reserve exposure is reported separately from realized loss. |
+| Remittance is received | Payment is reconciled to successor servicer evidence. |
+
+## Example 115. Sovereign GDP-Warrant Attachment
+
+### Scenario
+
+A sovereign restructuring package includes new bonds plus GDP-linked warrants. The warrant entitlement is attached to the original eligible nominal and should not be treated as ordinary coupon income.
+
+| Attribute | Value |
+|---|---:|
+| Eligible restructured nominal | 3,000,000 |
+| GDP warrant ratio | 0.08 warrants per 100 nominal |
+| Warrant units received | 2,400 |
+| Initial fair value per warrant | 12.50 |
+
+### Warrant fair value
+
+```text
+warrant_units = eligible_nominal / 100 x warrant_ratio
+warrant_units = 3,000,000 / 100 x 0.08 = 2,400
+
+initial_warrant_value = warrant_units x fair_value_per_warrant
+initial_warrant_value = 2,400 x 12.50 = 30,000
+```
+
+### Correct treatment
+
+- preserve restructuring terms, eligible nominal, exchange allocation, warrant identifier, valuation source and custody receipt;
+- create or update the GDP warrant as a linked lifecycle entitlement, not as coupon income;
+- keep bond recovery, new-bond position and warrant exposure separately visible;
+- include GDP trigger, valuation uncertainty, liquidity and suitability considerations in advisory and reporting views;
+- avoid booking warrant value before custody or source-backed entitlement confirmation.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Warrant entitlement is confirmed | Linked warrant position or entitlement is created with lineage. |
+| Warrant valuation is unavailable | Exposure is source-limited and not priced with bond clean price. |
+| Restructured bond is reported | New bond recovery and warrant upside are distinct. |
+| Client report is generated | GDP warrant trigger and valuation state are explainable. |
+
+## Example 116. Covered-Bond Liquidity-Reserve Drawdown
+
+### Scenario
+
+A covered-bond program draws on its liquidity reserve to cover temporary cashflow timing stress. The drawdown supports coupon payment but weakens cover-pool support metrics until replenished.
+
+| Attribute | Value |
+|---|---:|
+| Liquidity reserve before draw | 18,000,000 |
+| Reserve drawdown | 4,500,000 |
+| Required reserve level | 15,000,000 |
+| Reserve after drawdown | 13,500,000 |
+
+### Reserve shortfall
+
+```text
+reserve_after_drawdown = liquidity_reserve_before_draw - reserve_drawdown
+reserve_after_drawdown = 18,000,000 - 4,500,000 = 13,500,000
+
+reserve_shortfall = required_reserve_level - reserve_after_drawdown
+reserve_shortfall = 15,000,000 - 13,500,000 = 1,500,000
+```
+
+### Correct treatment
+
+- preserve cover-pool monitor report, reserve draw notice, coupon payment evidence, reserve requirement, cure plan and replenishment status;
+- keep coupon payment status separate from reserve-strength and cover-pool deterioration analytics;
+- update eligibility, collateral, rating-watch and concentration labels where reserve shortfall matters;
+- avoid treating reserve drawdown as principal loss or bond redemption;
+- show replenishment progress and breach cure status in operational reporting.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Reserve falls below required level | Reserve shortfall and cure workflow open. |
+| Coupon is paid using reserve | Coupon status is paid while support metric weakens. |
+| Reserve is replenished | Breach or watch state clears only from source-backed replenishment. |
+| Risk report is generated | Coupon payment, reserve draw and reserve shortfall are distinct. |
+
+## Example 117. Private-Placement Transfer Restriction Waiver
+
+### Scenario
+
+A private-placement bond has transfer restrictions. A client requests a transfer to an approved buyer, and the issuer grants a one-time waiver after suitability, KYC and investor-qualification checks.
+
+| Attribute | Value |
+|---|---:|
+| Nominal to transfer | 1,200,000 |
+| Transfer price | 98.40 |
+| Gross transfer consideration | 1,180,800 |
+| Waiver status | Approved for one buyer |
+
+### Transfer consideration
+
+```text
+gross_transfer_consideration = nominal_to_transfer x transfer_price / 100
+gross_transfer_consideration = 1,200,000 x 98.40 / 100 = 1,180,800
+```
+
+### Correct treatment
+
+- preserve private-placement memorandum, transfer restriction, waiver approval, approved buyer, investor qualification, settlement instruction and expiry;
+- allow transfer only within the source-backed waiver scope;
+- keep waiver evidence, buyer eligibility, settlement status and any price discount visible;
+- prevent reuse of the waiver for a different buyer, amount, account or expiry period;
+- treat the event as restricted transfer or secondary sale, not as redemption or issuer call.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Waiver approves one buyer | Transfer is allowed only for that buyer and nominal scope. |
+| Transfer request exceeds approved nominal | Excess amount is blocked or requires new waiver. |
+| Waiver expires before settlement | Transfer is blocked or re-approved. |
+| Client report is generated | Restriction, waiver, transfer price and settlement state are visible. |
+
 ## Implementation-backed capability lens
 
 When reviewing whether a platform truly supports bonds, use these evidence questions:
