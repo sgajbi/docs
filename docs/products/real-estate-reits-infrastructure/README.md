@@ -76,6 +76,9 @@ This distinction is essential for:
 9. `09-source-notes-and-further-reading.md`
    Provides factual grounding and source notes.
 
+10. `10-worked-examples-and-implementation-patterns.md`
+    Provides worked examples for listed REIT distributions, rights issues, private real estate capital calls, appraisal restatements, infrastructure fund distributions, redemption queues, direct property valuation, leverage analytics, advisory controls, support boundaries and regression tests.
+
 ## Core modelling principle
 
 Do not model the theme only. Model both wrapper and economic exposure.

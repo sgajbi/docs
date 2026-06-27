@@ -10,6 +10,10 @@ Real estate and infrastructure are wrapper-sensitive product families. A listed 
 |---|---|---|
 | Real estate, REITs, infrastructure and real-asset funds | [`real-estate-reits-infrastructure/`](real-estate-reits-infrastructure/README.md) | Listed REITs, business trusts, property securities, private real estate funds, direct property exposure, infrastructure funds, lifecycle, valuation, income, risk, advisory, reporting, implementation, controls, and QA reference. |
 
+## Practical Worked Examples
+
+Use [`real-estate-reits-infrastructure/10-worked-examples-and-implementation-patterns.md`](real-estate-reits-infrastructure/10-worked-examples-and-implementation-patterns.md) for concrete examples covering listed REIT distributions, rights issues, private real estate capital calls, appraisal restatements, infrastructure fund distributions, redemption queues, direct property valuation, leverage analytics, support boundaries and regression tests.
+
 ## Platform Design Distinctions
 
 | Question | Listed Security Or Fund View | Real Estate And Infrastructure View |

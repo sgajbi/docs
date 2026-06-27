@@ -10,6 +10,10 @@ Commodity exposure is wrapper-driven. Physical gold, an allocated metal account,
 |---|---|---|
 | Commodities, precious metals and real-asset-linked trading exposures | [`commodities-precious-metals-real-assets/`](commodities-precious-metals-real-assets/README.md) | Physical and account-based precious metals, commodity ETPs, derivatives, structured products, real-asset exposures, lifecycle, valuation, performance, risk, advisory, reporting, implementation, controls, and QA reference. |
 
+## Practical Worked Examples
+
+Use [`commodities-precious-metals-real-assets/10-worked-examples-and-implementation-patterns.md`](commodities-precious-metals-real-assets/10-worked-examples-and-implementation-patterns.md) for concrete examples covering allocated and unallocated gold, commodity futures rolls, ETN issuer risk, pledged gold haircuts, commodity-linked note observations, fund look-through, support boundaries and regression tests.
+
 ## Platform Design Distinctions
 
 | Question | Ordinary Security View | Commodity And Real-Asset Exposure View |

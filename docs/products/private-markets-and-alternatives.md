@@ -10,6 +10,10 @@ Private markets should be handled as a product family with commitment, cashflow,
 |---|---|---|
 | Private markets and alternatives | [`private-markets/`](private-markets/README.md) | Commitment, capital-call, distribution, NAV-lag, private equity, private credit, real assets, hedge fund, alternatives, advisory, mandate, reporting, implementation, controls, and QA reference. |
 
+## Practical Worked Examples
+
+Use [`private-markets/11-worked-examples-and-implementation-patterns.md`](private-markets/11-worked-examples-and-implementation-patterns.md) for concrete examples covering commitment ledgers, capital calls, distribution classification, NAV lag, restatements, partial-history IRR, private credit distributions, hedge fund redemption gates, secondary sales, support boundaries and regression tests.
+
 ## Platform Design Distinctions
 
 | Question | Public Securities | Private Markets And Alternatives |

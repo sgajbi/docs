@@ -33,6 +33,7 @@ This pack covers:
 7. [07-advisory-mandate-suitability-and-client-reporting-deep-dive.md](07-advisory-mandate-suitability-and-client-reporting-deep-dive.md)
 8. [08-platform-implementation-controls-reconciliation-test-scenarios-and-glossary.md](08-platform-implementation-controls-reconciliation-test-scenarios-and-glossary.md)
 9. [09-source-notes-and-further-reading.md](09-source-notes-and-further-reading.md)
+10. [10-worked-examples-and-implementation-patterns.md](10-worked-examples-and-implementation-patterns.md)
 
 ## How to use this pack
 
@@ -43,6 +44,8 @@ For platform design, focus on files 05, 06 and 08.
 For advisory, DPM mandates, portfolio analytics and client reporting, focus on files 06 and 07.
 
 For practitioner review, read files 01, 04, 06 and 07, then use the glossary in file 08.
+
+For worked examples, implementation boundaries and QA scenarios, use file 10.
 
 ## Design principle
 

@@ -57,6 +57,9 @@ The pack is written for a wealth-management platform architect / portfolio analy
 10. `10-source-notes-and-further-reading.md`
     Captures source notes, regulatory nuance, and further learning topics.
 
+11. `11-worked-examples-and-implementation-patterns.md`
+    Provides worked examples for commitment ledgers, capital calls, distribution classification, NAV lag, restatements, partial-history IRR, private credit distributions, hedge fund gates, secondary sales, advisory controls, support boundaries and regression tests.
+
 ## Core modelling principle
 
 Private markets should not be modelled like normal daily-priced securities only. They need a two-layer position model:
