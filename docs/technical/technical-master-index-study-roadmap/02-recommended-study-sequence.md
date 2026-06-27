@@ -66,20 +66,20 @@ Outcome:
 
 Choose based on need:
 
-| Specialization | Packs |
+| Specialization | Guides |
 |---|---|
-| AI and agentic engineering | Pack 14 |
-| Wealth technology domain | Pack 15 |
-| Reporting/archive/evidence | Pack 16 |
-| Productization and bank-buyable readiness | Pack 17 |
-| Migration and cutover | Pack 18 |
-| Production support and incident excellence | Pack 19 |
+| AI and agentic engineering | Guide 14 |
+| Wealth technology domain | Guide 15 |
+| Reporting/archive/evidence | Guide 16 |
+| Productization and bank-buyable readiness | Guide 17 |
+| Migration and cutover | Guide 18 |
+| Production support and incident excellence | Guide 19 |
 
 ---
 
 ## Phase 5: Synthesis
 
-Use this master pack to connect everything.
+Use this master roadmap to connect everything.
 
 Outcome:
 
@@ -110,9 +110,9 @@ Suggested personal rhythm:
 
 ---
 
-## How To Read Each Pack
+## How To Read Each Guide
 
-For each pack:
+For each guide:
 
 1. Read README first.
 2. Skim all file titles.
@@ -120,7 +120,7 @@ For each pack:
 4. Read the files closest to your current work.
 5. Read the final checklist file.
 6. Convert at least one checklist into a repo action.
-7. Summarize the pack in your own words.
+7. Summarize the guide in your own words.
 
 ---
 
@@ -128,4 +128,4 @@ For each pack:
 
 Study is valuable only when converted into practice.
 
-For every pack, produce at least one practical improvement: a doc, checklist, PR review rule, CI gate, runbook, test, or architecture note.
+For every guide, produce at least one practical improvement: a doc, checklist, PR review rule, CI gate, runbook, test, or architecture note.

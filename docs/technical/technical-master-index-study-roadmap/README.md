@@ -4,7 +4,7 @@
 
 This technical guide ties together the full enterprise technical knowledge-base series into a practical learning, KT, documentation, and engineering-leadership roadmap.
 
-It is designed to help you use the individual packs as a structured curriculum for:
+It is designed to help you use the individual guides as a structured curriculum for:
 
 - becoming stronger as an engineering lead and architect
 - preparing KT for developers, architects, QA, SRE, BA, and product teams
@@ -44,13 +44,13 @@ It is designed to help you use the individual packs as a structured curriculum f
 
 ---
 
-## What This Master Pack Adds
+## What This Roadmap Adds
 
 This guide does not repeat all content from the deeper technical guides. It organizes them into usable learning and execution paths.
 
 It includes:
 
-- master index of all packs
+- master index of all curated guides
 - recommended study sequence
 - role-based learning paths
 - engineering-lead curriculum
@@ -77,7 +77,7 @@ Use this section when you have a practical goal and need a short route through t
 
 | Goal | Start with | Then produce |
 |---|---|---|
-| Learn the platform architecture | `01-master-pack-index-and-knowledge-map.md` and the architecture, backend, API and data-product guides | Boundary map, dependency map, key contracts and open architecture questions. |
+| Learn the platform architecture | `01-master-guide-index-and-knowledge-map.md` and the architecture, backend, API and data-product guides | Boundary map, dependency map, key contracts and open architecture questions. |
 | Prepare a new joiner KT plan | `09-kt-onboarding-and-team-training-plan.md` and the role-specific path | Reading sequence, walkthrough exercise, teach-back questions and follow-up improvement action. |
 | Improve a repository | `08-repo-adoption-model-and-documentation-structure.md` and `17-master-checklists-and-execution-playbook.md` | Repo documentation map, missing artifact list, small adoption PR plan and evidence checklist. |
 | Review a design | `10-architecture-review-and-design-governance-map.md` | Decision note, tradeoff analysis, risk list, acceptance criteria and owner actions. |
@@ -87,12 +87,12 @@ Use this section when you have a practical goal and need a short route through t
 
 ---
 
-## Reading Order For This Pack
+## Reading Order For This Roadmap
 
 | Step | File | Purpose |
 |---:|---|---|
 | 1 | `README.md` | Master purpose, curated guide map, and navigation. |
-| 2 | `01-master-pack-index-and-knowledge-map.md` | Full knowledge map across all 19 curated guides. |
+| 2 | `01-master-guide-index-and-knowledge-map.md` | Full knowledge map across all 19 curated guides. |
 | 3 | `02-recommended-study-sequence.md` | Suggested learning order from foundation to leadership. |
 | 4 | `03-engineering-lead-and-architect-study-roadmap.md` | Deep roadmap for engineering lead and architect growth. |
 | 5 | `04-backend-developer-and-senior-engineer-learning-path.md` | Learning path for developers and senior engineers. |
@@ -101,9 +101,9 @@ Use this section when you have a practical goal and need a short route through t
 | 8 | `07-founder-productization-and-bank-buyable-readiness-path.md` | Startup/productization path for enterprise buyers and banks. |
 | 9 | `08-repo-adoption-model-and-documentation-structure.md` | How to apply the guides into repositories through maturity stages, durable truth artifacts and small adoption PRs. |
 | 10 | `09-kt-onboarding-and-team-training-plan.md` | KT plan for new joiners and cross-functional teams, including role outcomes, teach-back prompts and reusable evidence. |
-| 11 | `10-architecture-review-and-design-governance-map.md` | Which packs to use for architecture reviews. |
-| 12 | `11-pr-review-quality-gates-and-engineering-standards-map.md` | Which packs to use for PR review, CI, quality, and standards. |
-| 13 | `12-production-readiness-and-operational-excellence-map.md` | Which packs to use for production readiness and support. |
+| 11 | `10-architecture-review-and-design-governance-map.md` | Which guides to use for architecture reviews. |
+| 12 | `11-pr-review-quality-gates-and-engineering-standards-map.md` | Which guides to use for PR review, CI, quality, and standards. |
+| 13 | `12-production-readiness-and-operational-excellence-map.md` | Which guides to use for production readiness and support. |
 | 14 | `13-migration-reporting-wealth-domain-and-platform-specialization-map.md` | Domain-specialized map across migration, reporting, wealth, and platform readiness. |
 | 15 | `14-ai-and-agentic-engineering-adoption-map.md` | How to adopt AI, RAG, copilots, and coding agents safely. |
 | 16 | `15-practitioner-and-leadership-readiness-roadmap.md` | How to use the guides for senior technical leadership narratives, executive conversations, and practitioner readiness. |
@@ -159,10 +159,10 @@ Use this loop when the roadmap is being used for self-learning, KT or team matur
 
 ## Curation Guardrails
 
-When adding future packs or lessons into this roadmap:
+When adding future guides or lessons into this roadmap:
 
 1. keep the content product-neutral and reusable across enterprise banking and wealth platforms,
-2. do not retain local source paths, package provenance or generated-pack headers,
+2. do not retain local source paths, package provenance or generated-source headers,
 3. avoid prep-only framing; write for practitioner readiness, KT, leadership depth and delivery excellence,
 4. link to curated repo guides instead of duplicating large sections,
 5. update the coverage matrix when a topic becomes materially stronger or a new gap appears.

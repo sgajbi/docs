@@ -1,4 +1,4 @@
-# Master Pack Index and Knowledge Map
+# Master Guide Index and Knowledge Map
 
 ## Purpose
 
