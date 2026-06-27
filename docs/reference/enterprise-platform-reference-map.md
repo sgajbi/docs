@@ -9,6 +9,7 @@ Use it when a project question cuts across architecture, runtime platform, SDLC,
 | Layer | Primary reference | Use |
 |---|---|---|
 | Domain and platform architecture | [`wealth-platform-architecture/`](wealth-platform-architecture/README.md) | Define domain boundaries, APIs, events, source ownership, analytics workflows, migration and architecture governance. |
+| Canonical contracts and dictionaries | [`canonical-data-dictionary-api-event-domain-model/`](canonical-data-dictionary-api-event-domain-model/README.md) | Define canonical domain fields, API contracts, event schemas, validation rules, lineage controls, QA scenarios and service-boundary evidence. |
 | Product and analytical model | [`wealth-product-framework/`](wealth-product-framework/README.md) | Align position, transaction, advisory, mandate, analytics and reporting vocabulary across product families. |
 | Runtime and cloud platform | [`enterprise-cloud-kubernetes-platform-engineering/`](enterprise-cloud-kubernetes-platform-engineering/README.md) | Design Kubernetes, networking, storage, identity, observability, resilience, cost and regulated workload patterns. |
 | Delivery and operations | [`enterprise-delivery-sdlc-devsecops-operations/`](enterprise-delivery-sdlc-devsecops-operations/README.md) | Govern requirements, SDLC, CI/CD, quality engineering, releases, production readiness, incidents and operating metrics. |
@@ -26,6 +27,7 @@ Use it when a project question cuts across architecture, runtime platform, SDLC,
 | If the project question is... | Start with | Then cross-check |
 |---|---|---|
 | What owns this capability and which API or event boundary should exist? | [`wealth-platform-architecture/`](wealth-platform-architecture/README.md) | [`wealth-product-framework/`](wealth-product-framework/README.md), product pack, delivery reference. |
+| Which canonical fields, schemas and validation rules should the contract use? | [`canonical-data-dictionary-api-event-domain-model/`](canonical-data-dictionary-api-event-domain-model/README.md) | Architecture reference, product framework, data-governance pack, market-data or ledger pack as applicable. |
 | How should this workload run, scale, recover and be observed? | [`enterprise-cloud-kubernetes-platform-engineering/`](enterprise-cloud-kubernetes-platform-engineering/README.md) | Security reference, delivery reference, architecture reference. |
 | What evidence is needed before release? | [`enterprise-delivery-sdlc-devsecops-operations/`](enterprise-delivery-sdlc-devsecops-operations/README.md) | Security reference, product QA matrix, architecture governance. |
 | How should client, account, report or AI-context access be controlled? | [`enterprise-security-cyber-resilience-controls/`](enterprise-security-cyber-resilience-controls/README.md) | Entitlements product pack, architecture reference, AI decision-intelligence reference. |
@@ -56,6 +58,7 @@ The enterprise security and cyber resilience reference is the control layer acro
 | Pattern | References to combine | Expected output |
 |---|---|---|
 | Secure portfolio API | Architecture, security, product framework, product pack. | API contract with entitlement model, input validation, source ownership, audit event and degraded-state behavior. |
+| Canonical dictionary to API/event contract | Canonical contracts pack, architecture, data governance, relevant product pack. | Field dictionary mapped to API schema, event schema, source owner, validation rule, lineage field and contract test. |
 | Client report generation | Product reporting pack, security, cloud, delivery. | Report job design with snapshot lineage, access control, rendering, delivery, archive, test evidence and incident path. |
 | Advisor copilot | AI decision intelligence, security, AI product strategy, product evidence guide. | RAG and tool-use design with entitlement-aware retrieval, prompt controls, output review, forbidden actions and evaluation evidence. |
 | Market-data ingestion | Cloud, architecture, data governance, market-data pack. | Batch/event pipeline design with source ownership, lineage, stale-price handling, reconciliation and operational alerts. |

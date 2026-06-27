@@ -14,7 +14,7 @@ This page connects product reference packs that are often used together in priva
 
 | Example Pack | Use |
 |---|---|
-| [`bonds/05-worked-examples-and-implementation-patterns.md`](bonds/05-worked-examples-and-implementation-patterns.md) | Bond settlement, accrued interest, yields, duration, credit events, maturity ladder and reporting examples. |
+| [`bonds/05-worked-examples-and-implementation-patterns.md`](bonds/05-worked-examples-and-implementation-patterns.md) | Bond settlement, accrued interest, yields, duration, callable bonds, downgrades, default/recovery, inflation-linked uplift, amortising schedules, convertibles, ABS prepayments and multi-currency performance examples. |
 | [`structured-products/08-worked-examples-and-implementation-patterns.md`](structured-products/08-worked-examples-and-implementation-patterns.md) | Autocallable, memory coupon, principal-protection, buffer, dual-currency, accumulator, decumulator, certificate, valuation-control and mandate examples. |
 | [`structured-notes/05-worked-examples-and-implementation-patterns.md`](structured-notes/05-worked-examples-and-implementation-patterns.md) | Note-wrapper examples for fixed coupon notes, reverse convertibles, Phoenix autocalls, credit-linked notes, dual currency notes, barrier reporting and lifecycle support boundaries. |
 
@@ -34,6 +34,16 @@ Use `structured-notes/` when the work is specifically about issuer-note wrappers
 | Main valuation focus | Clean/dirty price, accrued interest, yield, spread, duration, DV01. | Issuer quote/model value, payoff path, option inputs, barrier/autocall state, look-through exposure. |
 | Main risk split | Issuer, rates, spread, liquidity, currency, seniority, default/recovery. | Issuer, underlying/payoff, barrier, path dependency, liquidity, complexity, currency, physical settlement. |
 | Accounting warning | Do not confuse coupon, accrued interest, clean price, and dirty value. | Do not create separate client positions for embedded derivatives unless assets are legally delivered. |
+
+## Fixed-Income Edge Cases To Model Explicitly
+
+| Case | Why It Matters |
+|---|---|
+| Inflation-linked bonds | Principal, coupon and performance depend on sourced index ratios; reporting must separate real return from inflation uplift. |
+| Amortising bonds | Outstanding principal, coupon accrual, maturity ladder and liquidity forecasts change after each principal repayment. |
+| Convertible bonds | Legal holding remains a bond until conversion, while risk and advisory views need equity optionality and conversion-value context. |
+| Asset-backed securities | Factor, scheduled principal, prepayment and remittance source dates drive valuation, yield and reinvestment-risk reporting. |
+| Multi-currency bonds | Local bond return, income, FX translation and hedge effects must be explainable separately in reporting-currency performance. |
 
 ## Reusable Modelling Pattern
 

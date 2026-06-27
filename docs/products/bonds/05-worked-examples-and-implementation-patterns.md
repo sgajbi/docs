@@ -373,6 +373,199 @@ recovery cash received = 130,000
 | Recovery arrives later | Cash is linked to original default event, not treated as external contribution. |
 | Position is exchanged for new notes | Old and new securities maintain lineage. |
 
+## Example 9. Inflation-linked bond principal uplift
+
+### Scenario
+
+A portfolio holds an inflation-linked government bond. The client statement must show the real coupon basis, the index uplift and the current market value without mixing them into one unexplained price move.
+
+| Attribute | Value |
+|---|---:|
+| Original nominal | 100,000 |
+| Base CPI index | 100.0000 |
+| Current CPI index | 108.0000 |
+| Real annual coupon | 1.50% |
+| Clean real price | 102.00 |
+
+### Calculation
+
+```text
+
+index ratio = current CPI / base CPI
+index ratio = 108.0000 / 100.0000 = 1.0800
+
+inflation-adjusted principal = original nominal x index ratio
+inflation-adjusted principal = 100,000 x 1.0800 = 108,000
+
+semi-annual coupon = inflation-adjusted principal x real coupon / 2
+semi-annual coupon = 108,000 x 1.50% / 2 = 810
+
+clean market value = inflation-adjusted principal x clean real price / 100
+clean market value = 108,000 x 102.00 / 100 = 110,160
+
+```
+
+### Reporting interpretation
+
+The client owns the bond nominal, but reporting should explain the inflation-adjusted principal used for valuation and coupon calculation. Performance should separate real price movement, inflation uplift and FX effect where applicable.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Current CPI is stale | Adjusted principal is labelled stale or blocked according to policy. |
+| Deflation floor applies | Principal floor is applied only when the bond terms support it. |
+| Coupon is projected | Coupon is labelled projected until the index ratio and payment are confirmed. |
+| Performance is explained | Real return, inflation uplift and currency effect are separately attributable. |
+
+## Example 10. Amortising bond principal schedule
+
+### Scenario
+
+A client holds an amortising bond. Principal is returned in instalments, so coupon income, outstanding exposure and maturity ladder reporting all change over time.
+
+| Year | Opening principal | Coupon at 4.00% | Principal repayment | Closing principal |
+|---:|---:|---:|---:|---:|
+| 1 | 500,000 | 20,000 | 100,000 | 400,000 |
+| 2 | 400,000 | 16,000 | 100,000 | 300,000 |
+| 3 | 300,000 | 12,000 | 100,000 | 200,000 |
+| 4 | 200,000 | 8,000 | 100,000 | 100,000 |
+| 5 | 100,000 | 4,000 | 100,000 | 0 |
+
+### Platform implication
+
+The position model needs current face or outstanding principal, not only original nominal. Cashflow processing must split coupon from principal repayment so income, capital returned, realized performance and projected liquidity remain explainable.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Principal repayment posts | Outstanding principal falls and cash increases by the principal amount. |
+| Coupon accrues after repayment | Accrual uses reduced principal from the effective schedule date. |
+| Maturity ladder is shown | Ladder uses scheduled principal return dates, not only final legal maturity. |
+| Schedule is missing | Bond is flagged as schedule-incomplete rather than treated as bullet maturity. |
+
+## Example 11. Convertible bond conversion exposure
+
+### Scenario
+
+A client holds a convertible bond. The legal position is still a bond until conversion, but the advisory and risk views need to show equity optionality.
+
+| Attribute | Value |
+|---|---:|
+| Bond nominal | 100,000 |
+| Conversion price | 25.00 |
+| Underlying share price | 28.00 |
+| Bond floor valuation | 96,000 |
+
+### Calculation
+
+```text
+
+shares on conversion = bond nominal / conversion price
+shares on conversion = 100,000 / 25.00 = 4,000
+
+conversion value = shares on conversion x underlying share price
+conversion value = 4,000 x 28.00 = 112,000
+
+equity option value indicator = conversion value - bond floor valuation
+equity option value indicator = 112,000 - 96,000 = 16,000
+
+```
+
+### Correct holding treatment
+
+The client should not see a direct equity position before conversion. Reporting can show analytical exposure, conversion value and downside bond floor, but the accounting position remains the convertible bond until a confirmed conversion event creates equity shares and closes or reduces the bond position.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Underlying share price is missing | Conversion value is unavailable and clearly labelled. |
+| Conversion election is pending | Bond position remains open until conversion confirmation. |
+| Conversion completes | Equity position is created from confirmed terms with lineage to the bond. |
+| Mandate blocks direct equity | Workflow distinguishes current bond holding from potential equity delivery. |
+
+## Example 12. Asset-backed security prepayment
+
+### Scenario
+
+An asset-backed security receives scheduled principal and unscheduled prepayment. Yield and weighted-average life must update because principal returns faster than expected.
+
+| Attribute | Value |
+|---|---:|
+| Original principal | 1,000,000 |
+| Opening current principal | 800,000 |
+| Monthly coupon rate | 4.00% / 12 |
+| Scheduled principal | 20,000 |
+| Unscheduled prepayment | 80,000 |
+
+### Calculation
+
+```text
+
+monthly interest = opening current principal x annual coupon / 12
+monthly interest = 800,000 x 4.00% / 12 = 2,666.67
+
+ending current principal = opening current principal - scheduled principal - unscheduled prepayment
+ending current principal = 800,000 - 20,000 - 80,000 = 700,000
+
+ending factor = ending current principal / original principal
+ending factor = 700,000 / 1,000,000 = 0.7000
+
+```
+
+### Platform implication
+
+ABS reporting needs factor, current principal, scheduled principal, unscheduled principal, interest and source remittance date. Prepayment changes reinvestment risk and yield; it should not be treated as a price gain.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Trustee remittance report arrives | Principal, interest and factor update from the same source period. |
+| Unscheduled prepayment posts | Cashflow is classified as principal return, not income. |
+| Factor is restated | Prior period valuation and performance can be corrected with audit trail. |
+| Prepayment model is unavailable | Yield projection is labelled source-limited rather than over-precise. |
+
+## Example 13. Multi-currency bond performance
+
+### Scenario
+
+A USD-reporting portfolio holds a EUR bond. The bond rises in local currency, but EUR weakens against USD.
+
+| Attribute | Start | End |
+|---|---:|---:|
+| Local EUR value | 100,000 | 101,500 |
+| EUR/USD FX rate | 1.1000 | 1.0800 |
+| USD reporting value | 110,000 | 109,620 |
+
+### Calculation
+
+```text
+
+local return = (101,500 - 100,000) / 100,000 = 1.50%
+
+base-currency return = (109,620 - 110,000) / 110,000 = -0.35%
+
+currency effect approximation = base-currency return - local return
+currency effect approximation = -0.35% - 1.50% = -1.85%
+
+```
+
+### Reporting interpretation
+
+The bond performed positively in EUR, but the USD statement shows a small loss because the currency move offset the local return. Reports should separate local security return, income, FX conversion effect and any hedge effect.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| FX rate is stale | Reporting value and performance are labelled stale or blocked. |
+| Coupon is paid in EUR | Income is converted using the policy rate for the cashflow date. |
+| FX hedge exists | Hedged and unhedged performance views are separated. |
+| Client asks why value fell | Explanation shows local bond return versus currency effect. |
+
 ## Implementation-backed capability lens
 
 When reviewing whether a platform truly supports bonds, use these evidence questions:

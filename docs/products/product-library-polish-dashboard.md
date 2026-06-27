@@ -35,7 +35,7 @@ Every product area should be reviewed across these dimensions:
 
 | Product area | Current review posture | Strongest coverage | Next polish slice |
 |---|---|---|---|
-| Bonds | Strong | Taxonomy, lifecycle, accrued interest, yield, duration, credit risk, valuation, QA and worked examples. | Inflation-linked uplift, amortising bonds, convertibles, asset-backed prepayments and multi-currency performance. |
+| Bonds | Strong | Taxonomy, lifecycle, accrued interest, yield, duration, credit risk, valuation, QA, clean/dirty settlement, callable yield-to-worst, downgrades, default/recovery, inflation-linked uplift, amortising schedules, convertibles, asset-backed prepayments and multi-currency performance. | Sinkable bonds, make-whole calls, distressed exchanges, tax-lot reporting, accrued-interest corrections and hedged bond attribution. |
 | Cash, deposits, money market and FX | Strong | Ledger cash, available cash, deposits, money market instruments, repos, FX spot, forwards, swaps, liquidity, multi-currency buying power, failed FX settlement and cash sweeps. | Overdraft funding, negative interest, cross-currency settlement holidays, sweep unwind during stress and credit-line-funded purchases. |
 | Client, account, portfolio and relationship master data | Strong | Client hierarchy, accounts, portfolios, households, beneficial ownership, mandates, booking centres and access control. | Joint accounts, EAM relationships, trust/company structures, closed-account reporting and advisor coverage changes. |
 | Commodities, precious metals and real assets | Strong | Physical metals, metal accounts, commodity ETPs, derivatives, structured exposure, collateral and unit controls. | Storage fees, paid-in-kind metal fees, commodity option exercise, warehouse receipts and index roll yield. |
@@ -81,7 +81,7 @@ The library now has strong cross-product support for:
 The next useful enrichment work should prioritize:
 
 1. overdraft funding, negative interest, cross-currency settlement holidays and sweep unwind during stress,
-2. inflation-linked, amortising, convertible and asset-backed bond examples,
+2. sinkable bond, make-whole call, distressed exchange and hedged bond attribution examples,
 3. fund equalization, share-class conversion, fund mergers and transfer-agent rejects,
 4. multi-leg options, hedge effectiveness, OTC lifecycle and collateral optimization,
 5. property-level real estate and infrastructure operating detail,
