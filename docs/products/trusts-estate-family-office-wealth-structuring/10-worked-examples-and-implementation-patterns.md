@@ -1976,7 +1976,236 @@ QA assertions:
 | Approval expires | Fields return to default redaction. |
 | Audit is requested | Delivered fields, recipients and purpose are traceable. |
 
-## 62. Regression Test Pack
+## 62. Protector Reserve Release Appeal Closure
+
+Scenario:
+
+- A protector indemnity reserve was retained while a beneficiary appeal was open.
+- The appeal is now closed with trustee approval to release part of the reserve.
+- A residual amount remains restricted for final cost true-up and appeal-period evidence retention.
+
+| Attribute | Value |
+|---|---:|
+| Appeal-period reserve | 400,000 |
+| Trustee-approved release | 250,000 |
+| Residual true-up reserve | 150,000 |
+
+Reserve closure:
+
+```text
+residual_true_up_reserve = appeal_period_reserve - trustee_approved_release
+residual_true_up_reserve = 400,000 - 250,000 = 150,000
+```
+
+Correct workflow:
+
+- preserve original reserve approval, appeal closure, trustee release approval, beneficiary notice, residual reserve basis and evidence retention date;
+- move released cash from restricted reserve to distributable cash only after the appeal closure is effective;
+- keep residual reserve restricted until cost true-up, expiry or separate trustee approval;
+- produce a closure audit trail showing reserve opening, appeal state, release approval and remaining restriction;
+- avoid releasing the full reserve merely because the appeal status changed to closed.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Appeal closes without trustee release approval | Reserve remains restricted. |
+| Partial release is approved | Only the approved amount becomes distributable. |
+| Residual reserve has no basis | Workflow requires trustee confirmation or release. |
+| Closure report is generated | Opening reserve, release, residual restriction and evidence dates are visible. |
+
+## 63. Family-Office Co-Investment Syndication Reallocation
+
+Scenario:
+
+- A family-office co-investment was approved with an initial allocation.
+- One participating entity reduces its allocation after syndication.
+- The investment committee reallocates part of the released amount to waitlisted entities and leaves the balance uncommitted.
+
+| Attribute | Value |
+|---|---:|
+| Original approved allocation | 2,000,000 |
+| Allocation surrendered | 500,000 |
+| Reallocated to waitlisted entities | 350,000 |
+| Uncommitted balance | 150,000 |
+
+Reallocation:
+
+```text
+uncommitted_balance = allocation_surrendered - reallocated_to_waitlisted_entities
+uncommitted_balance = 500,000 - 350,000 = 150,000
+```
+
+Correct workflow:
+
+- preserve original allocation approval, surrender notice, waitlist priority, committee reallocation approval, entity-level funding evidence and revised commitment ledger;
+- validate that each recipient entity has authority, eligibility, funding headroom and concentration capacity;
+- reduce the surrendering entity's commitment before increasing recipient commitments;
+- keep uncommitted balance out of portfolio exposure, capital-call forecasts and fee allocation;
+- avoid reallocating released capacity without a fresh committee decision and recipient-level checks.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Recipient lacks funding headroom | Reallocation is blocked for that recipient. |
+| Surrender is not effective | Original commitment remains active. |
+| Partial reallocation is approved | Uncommitted balance is tracked separately. |
+| Capital-call forecast is recalculated | Forecast uses revised commitment by entity. |
+
+## 64. Estate Equalization Cash Waiver Reversal
+
+Scenario:
+
+- A beneficiary previously waived part of an equalization cash payment linked to an in-kind estate distribution.
+- The waiver is reversed after a valid dispute outcome.
+- Replacement funding is partial, so the estate cannot close the final distribution.
+
+| Attribute | Value |
+|---|---:|
+| Reversed waiver amount | 300,000 |
+| Replacement cash funded | 120,000 |
+| Residual equalization shortfall | 180,000 |
+
+Shortfall:
+
+```text
+residual_equalization_shortfall = reversed_waiver_amount - replacement_cash_funded
+residual_equalization_shortfall = 300,000 - 120,000 = 180,000
+```
+
+Correct workflow:
+
+- preserve waiver, reversal decision, dispute outcome, funding source, beneficiary entitlement basis and revised distribution schedule;
+- re-open the equalization obligation from the reversal effective date;
+- block final estate closure while the residual shortfall remains unresolved;
+- distinguish funded replacement cash from unfunded equalization receivable;
+- avoid treating a historical waiver as permanent when a valid reversal decision exists.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Waiver reversal is accepted | Equalization obligation is re-opened. |
+| Replacement funding is partial | Residual shortfall blocks final distribution. |
+| Beneficiary report is generated | Funded and unfunded equalization amounts are separated. |
+| Estate closure is requested | Closure is blocked until shortfall is funded, waived again or reallocated. |
+
+## 65. Foundation Remediation Deadline Breach
+
+Scenario:
+
+- A foundation grant restriction breach had an approved remediation plan.
+- The recipient completed part of the remediation before the deadline.
+- The remaining amount is overdue and must be escalated for council review.
+
+| Attribute | Value |
+|---|---:|
+| Required remediation by deadline | 500,000 |
+| Accepted remediation completed on time | 300,000 |
+| Overdue remediation exposure | 200,000 |
+
+Deadline breach:
+
+```text
+overdue_remediation_exposure = required_remediation_by_deadline - accepted_remediation_completed_on_time
+overdue_remediation_exposure = 500,000 - 300,000 = 200,000
+```
+
+Correct workflow:
+
+- preserve remediation plan, deadline, accepted evidence, overdue exposure, escalation owner, council decision and recipient communication;
+- keep accepted remediation separate from overdue remediation exposure;
+- escalate overdue exposure to council, legal or grant monitoring workflow as required by governing documents;
+- suspend further grant releases when the plan requires completion before additional funding;
+- avoid marking the original breach resolved until overdue remediation is accepted or formally waived.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Deadline passes with partial remediation | Overdue exposure is calculated. |
+| Further grant release is requested | Release is blocked when completion is a condition precedent. |
+| Council grants extension | Overdue state changes only within approved extension scope. |
+| Monitoring report is produced | Completed, overdue and escalated amounts are visible. |
+
+## 66. Director Resignation Delegated-Authority Expiry
+
+Scenario:
+
+- A private-trust-company director resigned and an interim delegate was appointed.
+- The delegation expired before all pending approvals were completed.
+- Remaining approvals must be re-routed to a current authority path.
+
+| Attribute | Value |
+|---|---:|
+| Pending approvals under delegated authority | 7 |
+| Approvals completed before delegation expiry | 4 |
+| Approvals requiring reapproval | 3 |
+
+Reapproval requirement:
+
+```text
+approvals_requiring_reapproval = pending_approvals_under_delegated_authority - approvals_completed_before_delegation_expiry
+approvals_requiring_reapproval = 7 - 4 = 3
+```
+
+Correct workflow:
+
+- preserve resignation notice, delegation instrument, delegation scope, expiry, pending approvals, completed approvals and replacement authority route;
+- validate each pending approval against delegation scope and effective dates;
+- freeze or re-route approvals that were not completed before delegation expiry;
+- distinguish valid approvals completed during the delegated period from approvals requiring fresh authority;
+- avoid extending delegated authority implicitly because the underlying transaction is still open.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Approval completed before delegation expiry | Approval remains valid if in scope. |
+| Approval remains pending after expiry | Approval requires reapproval or alternate authority. |
+| Delegation scope excludes transaction type | Approval is blocked even before expiry. |
+| Authority report is generated | Completed, expired and re-routed approvals are separated. |
+
+## 67. Beneficiary Redaction Appeal Expiry Dispute
+
+Scenario:
+
+- A beneficiary had temporary approval to unmask selected contact fields for a coordination workflow.
+- The approval expired, but an extension dispute is pending.
+- Reporting must return fields to masked state unless a current approval exists.
+
+| Attribute | Value |
+|---|---:|
+| Temporarily unmasked fields | 2 |
+| Fields with current extension approval | 0 |
+| Fields to remask | 2 |
+
+Expiry treatment:
+
+```text
+fields_to_remask = temporarily_unmasked_fields - fields_with_current_extension_approval
+fields_to_remask = 2 - 0 = 2
+```
+
+Correct workflow:
+
+- preserve original approval, approved fields, purpose, expiry, extension request, dispute state, trustee decision and report delivery evidence;
+- remask fields immediately after expiry unless current extension approval exists;
+- keep the extension dispute visible to operations without exposing restricted contact data in reports;
+- apply the outcome prospectively unless trustee decision explicitly authorizes retrospective disclosure;
+- avoid treating a pending extension request as active permission to disclose.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Approval expires with no extension | Previously unmasked fields are remasked. |
+| Extension dispute is pending | Reports remain masked until approval exists. |
+| Partial extension is approved | Only approved fields remain unmasked. |
+| Audit is requested | Original approval, expiry and dispute state are traceable. |
+
+## 68. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -2041,3 +2270,9 @@ Minimum release-gate scenarios:
 59. Foundation grant restriction breach remediation tracks accepted remediation separately from residual breach exposure.
 60. Private-trust-company director resignation authority gaps revalidate pending approvals against the current authority matrix.
 61. Beneficiary contact-data redaction appeals apply field-level disclosure and preserve masking outside approved scope.
+62. Protector reserve release appeal closures release only trustee-approved cash and retain residual true-up reserves.
+63. Family-office co-investment syndication reallocations validate recipient headroom and track uncommitted balances.
+64. Estate equalization cash waiver reversals re-open equalization obligations and block closure while shortfalls remain.
+65. Foundation remediation deadline breaches separate accepted remediation from overdue exposure and escalation state.
+66. Director resignation delegated-authority expiries re-route pending approvals after delegation expiry.
+67. Beneficiary redaction appeal expiry disputes remask expired fields unless current extension approval exists.
