@@ -2137,3 +2137,246 @@ sla_breach_days = 5 - 2 = 3
 | Cash impact is material | Priority or severity reflects materiality policy. |
 | Remediation is incomplete | Exception remains open even if comments are added. |
 | Exception closes | Closure requires source-backed resolution and timestamp. |
+
+## Example 58. Custody Freeze Release Sequencing
+
+### Scenario
+
+A custodian freezes an asset because of a legal hold. The freeze is later released, but settlement and reporting workflows must process release evidence before allowing transfer, sale, or client-ready availability.
+
+| Attribute | Value |
+|---|---:|
+| Frozen nominal | 1,500,000 |
+| Release-approved nominal | 1,100,000 |
+| Still-frozen nominal | 400,000 |
+| Pending settlement instructions | 3 |
+
+### Release coverage
+
+```text
+still_frozen_nominal = frozen_nominal - release_approved_nominal
+still_frozen_nominal = 1,500,000 - 1,100,000 = 400,000
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Freeze | Preserve freeze notice, legal hold reason, asset id, affected accounts and effective timestamp. |
+| Release | Apply release only to source-approved nominal and effective date. |
+| Settlement | Revalidate pending transfer or sale instructions after release evidence is accepted. |
+| Reporting | Show released and still-frozen quantities separately until fully resolved. |
+| Control | Prevent trades or transfers against still-frozen quantity. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Partial release arrives | Released and still-frozen nominal are both visible. |
+| Pending settlement exists | Settlement is revalidated after release, not auto-settled blindly. |
+| Release evidence is missing | Frozen state remains active. |
+| Client report is generated | Asset restriction state reflects release sequence and residual freeze. |
+
+## Example 59. Corporate-Action Oversubscription Refund Delay
+
+### Scenario
+
+A corporate-action oversubscription is prorated. Excess subscription cash should be refunded, but the custodian delays the refund after final allocation.
+
+| Attribute | Value |
+|---|---:|
+| Oversubscription cash reserved | 240,000 |
+| Accepted subscription cash | 155,000 |
+| Expected refund | 85,000 |
+| Refund received | 30,000 |
+
+### Delayed refund amount
+
+```text
+expected_refund = oversubscription_cash_reserved - accepted_subscription_cash
+expected_refund = 240,000 - 155,000 = 85,000
+
+delayed_refund_amount = expected_refund - refund_received
+delayed_refund_amount = 85,000 - 30,000 = 55,000
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Election | Preserve election, reserved cash, proration result and accepted allocation. |
+| Refund | Track expected, received and delayed refund separately. |
+| Cash | Keep delayed refund as receivable or pending cash, not available cash. |
+| Reporting | Explain accepted subscription and pending refund in cash activity. |
+| Control | Escalate delayed refund against custodian SLA and materiality threshold. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Final proration is received | Expected refund is calculated from reserved less accepted cash. |
+| Refund is partial | Delayed refund amount remains open. |
+| Cash forecast is generated | Pending refund is not treated as settled cash. |
+| Custodian pays remaining refund | Receivable closes with settlement evidence. |
+
+## Example 60. Tri-Party Collateral Substitution Reject
+
+### Scenario
+
+A tri-party collateral agent rejects a proposed collateral substitution because the replacement asset fails eligibility rules. The original collateral remains pledged until an accepted replacement is confirmed.
+
+| Attribute | Value |
+|---|---:|
+| Original collateral value | 980,000 |
+| Proposed replacement value | 1,025,000 |
+| Eligible replacement value | 0 |
+| Required collateral value | 950,000 |
+
+### Substitution shortfall after reject
+
+```text
+accepted_replacement_value = eligible_replacement_value
+accepted_replacement_value = 0
+
+post_reject_collateral_surplus = original_collateral_value - required_collateral_value
+post_reject_collateral_surplus = 980,000 - 950,000 = 30,000
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Proposal | Preserve substitution request, proposed asset, valuation, eligibility rule and agent response. |
+| Reject | Keep original collateral pledged and mark replacement as rejected. |
+| Exposure | Recalculate collateral surplus or shortfall using accepted collateral only. |
+| Operations | Route replacement repair with reject reason and eligible-asset requirement. |
+| Reporting | Do not show rejected replacement as pledged collateral. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Replacement fails eligibility | Substitution is rejected and original pledge remains. |
+| Replacement value is higher | Higher value does not matter when eligibility fails. |
+| Collateral report is generated | Accepted collateral and rejected replacement are separate. |
+| Repair asset is accepted | Pledge changes only after tri-party acceptance. |
+
+## Example 61. Proxy-Vote Late Repair Approval
+
+### Scenario
+
+A proxy-vote instruction is repaired after the normal internal deadline but before the external custodian deadline. A late repair approval is required before the corrected instruction can be sent.
+
+| Attribute | Value |
+|---|---:|
+| Eligible shares | 18,500 |
+| Rejected instruction shares | 18,500 |
+| Late repair-approved shares | 18,500 |
+| Internal deadline missed | Yes |
+
+### Late repair coverage
+
+```text
+late_repair_coverage = late_repair_approved_shares / rejected_instruction_shares
+late_repair_coverage = 18,500 / 18,500 = 100%
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Rejection | Preserve original reject, reason, timestamp, eligible shares and meeting id. |
+| Late repair | Require approval when internal repair deadline is missed. |
+| Custodian | Send repaired instruction only if external deadline remains open. |
+| Governance | Link approval to repaired vote instruction and accountable owner. |
+| Reporting | Show original reject, late approval and custodian acceptance separately. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Internal deadline is missed | Repair requires late approval. |
+| External deadline is still open | Approved repair can be transmitted. |
+| Approval is missing | Repair remains blocked. |
+| Custodian accepts repair | Vote state changes with full reject-to-repair lineage. |
+
+## Example 62. Income-Tax Reclaim Duplicate Custody File
+
+### Scenario
+
+A custodian sends a duplicate income-tax reclaim support file after a previous file was already ingested. The duplicate has the same voucher id but a different delivery timestamp.
+
+| Attribute | Value |
+|---|---:|
+| Original file reclaim amount | 72,000 |
+| Duplicate file reclaim amount | 72,000 |
+| Voucher id match | Yes |
+| Delivery timestamp differs | Yes |
+
+### Duplicate exposure
+
+```text
+duplicate_reclaim_amount = duplicate_file_reclaim_amount if voucher_id_match else 0
+duplicate_reclaim_amount = 72,000
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Intake | Preserve both file ids, voucher id, delivery timestamp and custodian source. |
+| Duplicate check | Suppress duplicate processing when voucher id and economic content match. |
+| Reclaim | Avoid doubling expected reclaim, receivable or client benefit. |
+| Audit | Retain duplicate file lineage and suppression decision. |
+| Reporting | Show single active reclaim support file with duplicate evidence retained. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Duplicate voucher id arrives | Duplicate file is suppressed from active reclaim calculation. |
+| Economic content differs | Exception opens instead of blind suppression. |
+| Report is generated | Expected reclaim amount is not doubled. |
+| Audit evidence is requested | Original and duplicate file lineage is available. |
+
+## Example 63. Exception SLA Waiver Approval
+
+### Scenario
+
+A long-running exception breaches SLA, but operations requests a time-boxed waiver because remediation depends on an external custodian response. The waiver changes escalation treatment but does not close the exception.
+
+| Attribute | Value |
+|---|---:|
+| Exception age | 7 business days |
+| SLA threshold | 2 business days |
+| Waiver days approved | 5 business days |
+| Days beyond waiver | 0 |
+
+### Waiver-adjusted breach
+
+```text
+waiver_adjusted_sla_threshold = sla_threshold + waiver_days_approved
+waiver_adjusted_sla_threshold = 2 + 5 = 7
+
+days_beyond_waiver = max(exception_age - waiver_adjusted_sla_threshold, 0)
+days_beyond_waiver = max(7 - 7, 0) = 0
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Breach | Preserve original SLA breach age and escalation evidence. |
+| Waiver | Record waiver approver, reason, expiry and external dependency. |
+| Exception | Keep exception open until source-backed remediation closes it. |
+| Monitoring | Escalate again if exception age exceeds waiver-adjusted threshold. |
+| Reporting | Show original breach, waiver state and current days beyond waiver. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Waiver is approved | Escalation state changes but exception remains open. |
+| Waiver expires | Escalation reopens when unresolved beyond adjusted threshold. |
+| Remediation evidence arrives | Exception closes with source-backed resolution. |
+| Dashboard is generated | Original SLA, waiver, adjusted threshold and open status are visible. |
