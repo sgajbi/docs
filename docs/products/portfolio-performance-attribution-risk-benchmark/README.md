@@ -51,6 +51,7 @@ Read the files in order if you are studying. Use the individual files as referen
 | `08-client-reporting-advisory-dpm-and-mandate-deep-dive.md` | Advisory, DPM, reporting and client experience |
 | `09-platform-controls-reconciliation-test-scenarios-and-glossary.md` | Controls, reconciliation, QA scenarios and glossary |
 | `10-source-notes-and-further-reading.md` | Standards, references and source notes |
+| `11-worked-examples-and-implementation-patterns.md` | Numeric examples for TWR, MWR, contribution, attribution, currency, benchmarks, risk, composites, degraded states and QA |
 
 ## Core mental model
 
