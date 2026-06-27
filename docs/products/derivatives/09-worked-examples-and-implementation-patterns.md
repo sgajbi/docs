@@ -441,7 +441,239 @@ QA assertions:
 | Multiplier changes after corporate action | Greek aggregation uses adjusted contract multiplier. |
 | Client report shows exposure | Delta-equivalent exposure is labelled separately from market value. |
 
-## 15. Advisory And Mandate Checklist
+## 15. Variance Swap Realized Variance Settlement
+
+Scenario:
+
+- Client enters a long variance swap on an equity index.
+- Variance notional: USD 50,000 per variance point.
+- Strike volatility: 20%.
+- Realized volatility over the observation period: 24%.
+
+Simplified settlement:
+
+```text
+strike variance = 20%^2 = 400 variance points
+realized variance = 24%^2 = 576 variance points
+variance difference = 576 - 400 = 176 variance points
+settlement = 176 x 50,000 = 8,800,000
+```
+
+Implementation treatment:
+
+- store volatility strike, variance strike, observation calendar and realized-variance methodology explicitly;
+- use sourced fixings and observation dates, not a single end-date price move;
+- cap or floor settlement only when the confirmation includes that term;
+- report variance exposure separately from simple delta exposure;
+- preserve valuation model, realized-variance file and counterparty confirmation lineage.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Observation file is missing | Settlement remains pending or support-limited. |
+| Volatility is used instead of variance | Calculation QA fails because variance swaps settle on squared volatility terms. |
+| Cap applies | Settlement respects source-confirmed cap. |
+| Client report shows index exposure | Report labels volatility/variance exposure separately from directional equity exposure. |
+
+## 16. Barrier Option Knock-Out
+
+Scenario:
+
+- Client holds a long up-and-out call option.
+- Strike: 100.
+- Knock-out barrier: 120.
+- Underlying trades at 121 during the observation window.
+
+Lifecycle:
+
+```text
+barrier observation -> barrier breached -> option terminates or rebate applies -> position closes with source event lineage
+```
+
+Correct treatment:
+
+| Area | Treatment |
+|---|---|
+| Observation | Use source-owned intraday or close-based observation rule from the confirmation. |
+| Position | Close the option only when breach is confirmed under product terms. |
+| Rebate | Book rebate cash only if terms include a rebate. |
+| Reporting | Show barrier event, date, source and resulting position state. |
+| Risk | Remove future option Greeks after confirmed knock-out. |
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Barrier source is missing | Knock-out is not inferred from incomplete price data. |
+| Barrier is close-only | Intraday high does not trigger unless terms support intraday observation. |
+| Rebate exists | Rebate cashflow is separate from option market value. |
+| Barrier not breached | Option remains live until expiry or another lifecycle event. |
+
+## 17. Cross-Currency Swap Notional Exchange
+
+Scenario:
+
+- Client enters a USD/EUR cross-currency swap.
+- Initial exchange: pay USD 1,100,000 and receive EUR 1,000,000.
+- Final exchange at maturity reverses notionals.
+- Periodic coupons are exchanged during the life of the swap.
+
+Cashflow pattern:
+
+```text
+trade date initial exchange -> periodic USD/EUR coupon exchanges -> maturity final notional exchange
+```
+
+Implementation treatment:
+
+- store both currency notionals, exchange rates, reset rules and final exchange terms;
+- distinguish notional exchanges from coupon payments and MTM valuation;
+- report FX exposure, rate exposure and counterparty exposure separately;
+- avoid creating permanent cash balances from projected future notional exchanges;
+- link collateral and CSA currency eligibility to the swap.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Initial exchange posts | Cash legs settle in both currencies and contract remains open. |
+| Final exchange is projected | Future cashflows are projected, not booked as settled cash. |
+| FX rate source is stale | Valuation and exposure are degraded or blocked. |
+| One leg is missing | Swap cashflow schedule is incomplete and client-ready reporting is blocked. |
+
+## 18. Option Exercise Window And Missed Exercise
+
+Scenario:
+
+- Client holds an American-style equity call option.
+- Option is in the money before expiry.
+- Exercise instruction deadline is 15:00 on expiry date.
+- Advisor submits instruction after the deadline.
+
+Workflow:
+
+```text
+monitor exercise value -> validate mandate and cash/shares -> capture instruction before deadline -> submit to broker/exchange -> confirm exercise or expiry outcome
+```
+
+Correct treatment:
+
+| State | Treatment |
+|---|---|
+| Before deadline | Exercise instruction can be accepted if controls pass. |
+| After deadline | Instruction is rejected or escalated according to broker policy. |
+| Exercise confirmed | Option closes and underlying trade/cash settlement is created. |
+| Exercise missed | Option expires or is handled by automatic-exercise rules if applicable. |
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Deadline is missing | Exercise workflow is blocked or urgent exception is raised. |
+| Cash required for exercise is unavailable | Exercise is blocked unless financing is approved. |
+| Automatic exercise applies | Outcome follows exchange/broker rule with source evidence. |
+| Advisor submits late instruction | No underlying position is created without accepted exercise confirmation. |
+
+## 19. Collateral Dispute Resolution
+
+Scenario:
+
+- Counterparty margin call: USD 750,000.
+- Internal valuation supportable collateral requirement: USD 710,000.
+- Dispute threshold: USD 25,000.
+
+Calculation:
+
+```text
+dispute amount = 750,000 - 710,000 = 40,000
+threshold breach = 40,000 > 25,000
+```
+
+Correct workflow:
+
+```text
+receive margin call -> compare valuation -> identify disputed amount -> post agreed amount if policy allows -> open dispute workflow -> resolve or escalate
+```
+
+Implementation treatment:
+
+- store call amount, agreed amount, disputed amount, threshold, due date and resolution state;
+- avoid treating disputed collateral as freely available;
+- preserve valuation source and counterparty statement;
+- report liquidity impact, collateral restriction and unresolved dispute status separately.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Dispute exceeds threshold | Dispute workflow opens with required approval. |
+| Agreed amount is posted | Cash/collateral movement is linked to margin call. |
+| Disputed amount later resolves | Additional collateral or return posts with lineage. |
+| Counterparty file is stale | Margin-call status is stale or exceptioned. |
+
+## 20. Clearing-Broker Default Portability
+
+Scenario:
+
+- Client has cleared derivatives through a clearing broker.
+- Clearing broker defaults.
+- Positions may be ported to another clearing broker or closed out under clearing rules.
+
+Required controls:
+
+| Area | Treatment |
+|---|---|
+| Position inventory | Freeze affected cleared contracts for event review. |
+| Margin | Reconcile initial margin, variation margin and excess collateral. |
+| Portability | Track target broker, consent, deadline and acceptance. |
+| Close-out | If porting fails, process close-out valuation and cash settlement. |
+| Reporting | Label event state, counterparty structure and collateral uncertainty. |
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Broker default notice arrives | Affected positions and collateral are identified by clearing broker. |
+| Porting is accepted | Contract metadata updates with lineage and no duplicate position. |
+| Porting fails | Close-out workflow applies and collateral recovery remains tracked. |
+| Margin file is unavailable | Collateral reporting is degraded and escalation remains open. |
+
+## 21. Strategy-Level Attribution For Option Spread
+
+Scenario:
+
+- Client holds a bull call spread.
+- Long call gains USD 12,000.
+- Short call loses USD 5,000.
+- Net premium amortization and fees reduce performance by USD 800.
+
+Attribution:
+
+```text
+gross leg contribution = 12,000 - 5,000 = 7,000
+strategy net contribution = 7,000 - 800 = 6,200
+```
+
+Reporting treatment:
+
+| View | Treatment |
+|---|---|
+| Legal position | Show each option leg separately. |
+| Strategy view | Show grouped payoff, maximum loss/gain and net contribution. |
+| Risk | Aggregate delta/gamma/vega only when sensitivities are compatible and current. |
+| Attribution | Separate long-leg gain, short-leg loss, premium/fees, FX and residual effects. |
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| One leg is missing from group | Strategy attribution is incomplete and labelled partial. |
+| Leg valuation dates differ | Attribution is stale or blocked by policy. |
+| Strategy group changes | Attribution preserves effective-dated group membership. |
+| Client report hides short leg | Reporting QA fails because legal exposure is incomplete. |
+
+## 22. Advisory And Mandate Checklist
 
 Before using derivatives in advisory or DPM workflows, check:
 
@@ -456,18 +688,18 @@ Before using derivatives in advisory or DPM workflows, check:
 | Authority | Who may approve trade, exercise, close-out, collateral movement, or unwind? |
 | Reporting | Which client/advisor labels and warnings are required? |
 
-## 16. Current Support Boundary And Candidate Extensions
+## 23. Current Support Boundary And Candidate Extensions
 
 | Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
 |---|---|---|
-| Contract position | contract id, notional, quantity, underlying, expiry, counterparty, market value, leg grouping where sourced | advanced strategy decomposition and scenario replay |
-| Exposure | notional, delta-equivalent, DV01/CS01 where supplied | central cross-product exposure engine and strategy-level attribution |
-| Margin/collateral | broker/dealer margin postings and collateral balances | full margin simulation, optimization and substitution workflow |
-| Valuation | vendor/dealer/exchange values with source timestamps | independent model valuation with explain and calibration |
-| Lifecycle events | expiry, exercise, assignment, reset, fixing, settlement, novation, compression and clearing when sourced | automated OTC confirmation matching and event generation |
-| Reporting | market value, exposure, source date, stale/unsupported labels, hedge overlay split where sourced | advanced hedge-effectiveness reporting and multi-factor attribution |
+| Contract position | contract id, notional, quantity, underlying, expiry, counterparty, market value, leg grouping where sourced | advanced scenario replay and automated strategy discovery |
+| Exposure | notional, delta-equivalent, DV01/CS01, Greeks and volatility exposure where supplied | central cross-product exposure engine and full strategy-level attribution |
+| Margin/collateral | broker/dealer margin postings, collateral balances, dispute status and agreed/disputed amounts | full margin simulation, optimization, substitution and dispute analytics |
+| Valuation | vendor/dealer/exchange values with source timestamps and model labels | independent model valuation with explain, calibration and variance/barrier replay |
+| Lifecycle events | expiry, exercise, assignment, reset, fixing, settlement, novation, compression, clearing, barrier events and notional exchanges when sourced | automated OTC confirmation matching and event generation |
+| Reporting | market value, exposure, source date, stale/unsupported labels, hedge overlay split, strategy grouping and clearing state where sourced | advanced hedge-effectiveness reporting and multi-factor attribution |
 
-## 17. Regression Test Pack
+## 24. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -489,3 +721,10 @@ Minimum release-gate scenarios:
 16. Cleared swap margin distinguishes initial margin from daily variation margin.
 17. Collateral optimization applies CSA eligibility, haircut, currency and liquidity constraints.
 18. Portfolio Greeks aggregate only compatible, current sensitivities and label partial coverage.
+19. Variance swap settlement uses realized variance, not simple volatility or index return.
+20. Barrier option closes only when source-backed observation terms confirm knock-out or knock-in state.
+21. Cross-currency swap separates initial exchange, coupon exchanges, final exchange, FX exposure and valuation.
+22. Exercise-window workflow blocks late or unsupported exercise instructions.
+23. Collateral dispute tracks call amount, agreed amount, disputed amount, threshold and resolution state.
+24. Clearing-broker default workflow identifies affected contracts, margin, portability and close-out state.
+25. Strategy-level attribution preserves legal option legs while showing grouped payoff and contribution.

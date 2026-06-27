@@ -10,7 +10,7 @@ This page connects derivatives knowledge to reusable private-banking platform de
 
 ## Practical Worked Examples
 
-Use [`derivatives/09-worked-examples-and-implementation-patterns.md`](derivatives/09-worked-examples-and-implementation-patterns.md) for concrete examples covering option purchase, covered-call assignment, futures variation margin, FX forward hedge settlement, NDF fixing, interest-rate swap resets, CDS credit events, multi-leg option strategies, hedge effectiveness, OTC novation/compression, central clearing, collateral optimization, portfolio Greeks, exposure lenses, support boundaries and regression tests.
+Use [`derivatives/09-worked-examples-and-implementation-patterns.md`](derivatives/09-worked-examples-and-implementation-patterns.md) for concrete examples covering option purchase, covered-call assignment, futures variation margin, FX forward hedge settlement, NDF fixing, interest-rate swap resets, CDS credit events, multi-leg option strategies, hedge effectiveness, OTC novation/compression, central clearing, collateral optimization, portfolio Greeks, variance swaps, barrier options, cross-currency swaps, option exercise windows, collateral disputes, clearing-broker default, strategy-level attribution, exposure lenses, support boundaries and regression tests.
 
 ## Core Derivatives Platform Distinctions
 
@@ -34,6 +34,10 @@ Use [`derivatives/09-worked-examples-and-implementation-patterns.md`](derivative
 | Central clearing | Distinguish cleared contract, clearing broker/CCP metadata, initial margin, variation margin and counterparty-risk posture. |
 | Collateral optimization | Apply CSA eligibility, haircut, currency, concentration, substitution and liquidity-buffer rules before pledging collateral. |
 | Portfolio Greeks | Aggregate only compatible sensitivities with consistent underlying, multiplier, valuation date, model source and sign convention. |
+| Variance and barrier products | Store observation terms, realized-variance or barrier-source files, caps/floors, rebates and lifecycle outcomes explicitly. |
+| Cross-currency swaps | Separate initial notional exchange, periodic coupon exchanges, final notional exchange, FX exposure and valuation. |
+| Collateral disputes and clearing-broker default | Track agreed/disputed collateral, thresholds, margin state, portability, close-out and recovery workflow. |
+| Strategy-level attribution | Preserve legal derivative legs while adding effective-dated analytical grouping for payoff, contribution and risk explanation. |
 
 ## Questions To Ask Before Building A Derivatives Feature
 
@@ -64,7 +68,7 @@ Derivative APIs and UI should make these states explicit:
 11. advisory eligibility and mandate limit posture,
 12. hedge or overlay purpose where formally recorded,
 13. unsupported states and blocked capabilities,
-14. strategy grouping, hedge link, novation/compression lineage, clearing status and collateral eligibility where applicable.
+14. strategy grouping, hedge link, novation/compression lineage, clearing status, collateral eligibility, dispute state, barrier state and exercise deadlines where applicable.
 
 ## QA Scenarios To Preserve
 
@@ -87,4 +91,8 @@ Derivative APIs and UI should make these states explicit:
 17. OTC novation/compression lineage and counterparty exposure recalculation,
 18. central clearing initial margin versus variation margin treatment,
 19. CSA collateral optimization and substitution workflow,
-20. portfolio Greek aggregation with stale or partial sensitivities.
+20. portfolio Greek aggregation with stale or partial sensitivities,
+21. variance swap settlement and barrier option lifecycle,
+22. cross-currency swap notional exchanges and exercise-window controls,
+23. collateral dispute resolution and clearing-broker default portability,
+24. strategy-level attribution with leg-level legal holdings preserved.
