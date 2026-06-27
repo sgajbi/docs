@@ -2273,6 +2273,225 @@ pending_accrued_paid = 6,100
 | Bond is sold before lot history is complete | Realized gain/loss is provisional or blocked according to policy. |
 | Final lot file arrives | Tax lots reconcile to transferred nominal and prior custodian evidence. |
 
+## Example 58. Convertible hedge-accounting designation
+
+### Scenario
+
+A portfolio holds a convertible bond and uses an equity hedge to reduce embedded equity exposure. The accounting team wants to designate the hedge relationship from the start of the next reporting period. The platform must keep economic exposure, hedge attribution and hedge-accounting evidence separate.
+
+| Attribute | Value |
+|---|---:|
+| Convertible nominal | 1,000,000 |
+| Conversion price | 50.00 |
+| Underlying share price | 62.00 |
+| Convertible delta | 0.62 |
+| Equity hedge shares | 12,000 |
+
+### Hedge coverage
+
+```text
+conversion_shares = 1,000,000 / 50.00 = 20,000
+delta_equivalent_shares = 20,000 x 0.62 = 12,400
+hedge_coverage = 12,000 / 12,400 = 96.77%
+```
+
+### Correct treatment
+
+- preserve convertible terms, conversion ratio, delta source, hedge instrument, hedge ratio and designation effective date;
+- show economic hedge coverage even before formal hedge-accounting designation is approved;
+- do not backdate hedge-accounting treatment before required documentation and effectiveness criteria are met;
+- separate bond income, credit spread movement, embedded equity exposure and hedge P&L in reporting.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Hedge documentation is approved | Hedge-accounting designation becomes effective from approved date. |
+| Hedge documentation is missing | Economic hedge analytics may show, but hedge-accounting label is blocked. |
+| Convertible delta changes | Hedge coverage recalculates from the approved analytics source. |
+| Hedge shares exceed policy tolerance | Exception workflow opens for rebalance or redesignation review. |
+
+## Example 59. Municipal call refunding
+
+### Scenario
+
+A municipal issuer calls an outstanding bond after issuing a lower-coupon refunding bond. The client receives call proceeds and may reinvest, but the old bond's income, tax-equivalent yield and maturity profile must close from the call date.
+
+| Attribute | Value |
+|---|---:|
+| Called nominal | 500,000 |
+| Call price | 101.25 |
+| Accrued interest | 4,800 |
+| Old coupon | 4.50% |
+| Replacement yield | 3.35% |
+
+### Call proceeds
+
+```text
+principal_call_cash = 500,000 x 101.25 / 100 = 506,250
+total_call_cash = 506,250 + 4,800 = 511,050
+annual_coupon_income_lost = 500,000 x 4.50% = 22,500
+```
+
+### Correct treatment
+
+- process the call as issuer redemption of the old identifier, not as a market sale;
+- separate call premium, accrued interest and principal redemption in transactions and reporting;
+- update maturity ladder, income projection and tax-equivalent yield from the call date;
+- treat any replacement bond as a new suitability, tax and mandate decision.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Call notice is confirmed | Old bond position closes on call date with principal, premium and accrued interest. |
+| Replacement bond is subscribed | New holding is created with its own identifier and terms. |
+| Call notice is pending | Maturity ladder and income projection are labelled provisional. |
+| Client report is generated | Report explains redemption and reinvestment separately. |
+
+## Example 60. Sinking-fund lottery allocation
+
+### Scenario
+
+A sinking-fund bond redeems part of outstanding principal through a lottery. The client holds several lots, but only selected certificates are redeemed. The platform must reduce the selected nominal and keep unrecalled lots intact.
+
+| Lot | Held nominal | Lottery selected | Redemption price |
+|---|---:|---:|---:|
+| Lot A | 300,000 | 100,000 | 100.50 |
+| Lot B | 400,000 | 0 | 100.50 |
+| Lot C | 300,000 | 150,000 | 100.50 |
+
+### Redemption amount
+
+```text
+selected_nominal = 100,000 + 150,000 = 250,000
+redemption_cash = 250,000 x 100.50 / 100 = 251,250
+remaining_nominal = 1,000,000 - 250,000 = 750,000
+```
+
+### Correct treatment
+
+- reduce only lottery-selected nominal and lots when source evidence identifies them;
+- preserve lottery notice, selected certificates or lots, redemption price, accrued interest and effective date;
+- do not apply a simple pro-rata reduction when the event is certificate-specific;
+- update future coupon accrual and maturity ladder from remaining nominal.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Lottery-selected lots are supplied | Selected lots reduce by confirmed nominal only. |
+| Selection file is missing | Redemption remains source-limited instead of estimated pro rata. |
+| Coupon accrues after redemption | Accrual uses remaining nominal from redemption date. |
+| Tax-lot report is generated | Redeemed and remaining lots remain traceable. |
+
+## Example 61. Covered-bond rating watch trigger
+
+### Scenario
+
+A covered bond remains investment grade, but the cover pool is placed on negative watch. Collateral policy reduces eligibility until the watch is resolved. The bond valuation may stay stable while collateral and concentration treatment change.
+
+| Attribute | Before watch | After watch |
+|---|---:|---:|
+| Market value | 1,200,000 | 1,195,000 |
+| Collateral haircut | 18% | 30% |
+| Facility exposure allocated | 850,000 | 850,000 |
+
+### Eligible collateral value
+
+```text
+eligible_value_before = 1,200,000 x (1 - 18%) = 984,000
+eligible_value_after = 1,195,000 x (1 - 30%) = 836,500
+coverage_gap = 850,000 - 836,500 = 13,500
+```
+
+### Correct treatment
+
+- preserve rating-watch notice, cover-pool source, haircut policy, facility id and effective date;
+- separate market value movement from collateral eligibility change;
+- trigger cure, collateral review or facility exception only when policy threshold is breached;
+- keep client reporting explicit that rating watch is not the same as default or issuer call.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Rating watch changes collateral policy | Eligible collateral value recalculates from effective date. |
+| Market price remains stable | Valuation stays source-priced while collateral treatment changes. |
+| Facility exposure exceeds eligible value | Cure or exception workflow opens. |
+| Watch is removed | Haircut treatment reverts only from source-confirmed effective date. |
+
+## Example 62. Callable-bond scenario ladder
+
+### Scenario
+
+An advisor reviews a callable bond where the issuer may call in year 2, call in year 4 or leave the bond to maturity. Reporting should show scenario cashflows and yield-to-worst without implying that the worst case is a forecast.
+
+| Scenario | Redemption date | Redemption price | Scenario yield |
+|---|---|---:|---:|
+| First call | Year 2 | 101.00 | 3.20% |
+| Second call | Year 4 | 100.50 | 3.55% |
+| Final maturity | Year 7 | 100.00 | 4.10% |
+
+### Yield ladder
+
+```text
+yield_to_worst = min(3.20%, 3.55%, 4.10%) = 3.20%
+yield_to_best = max(3.20%, 3.55%, 4.10%) = 4.10%
+```
+
+### Correct treatment
+
+- calculate scenario yields from confirmed call schedule, price, coupon and settlement date;
+- label yield-to-worst as scenario metric, not expected return;
+- preserve the full scenario ladder for advisory explanation and suitability review;
+- update projected cashflows when issuer notice or market price changes.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Call schedule is complete | Scenario ladder shows each valid call and maturity case. |
+| Call schedule is missing | Yield-to-worst is blocked or labelled incomplete. |
+| Issuer gives call notice | Projection switches from scenario to confirmed lifecycle event. |
+| Client report is generated | Report distinguishes yield-to-worst, yield-to-maturity and confirmed call state. |
+
+## Example 63. Bond fund in-kind redemption impact
+
+### Scenario
+
+A bond fund processes a large redemption partly in kind. The client gives up fund units and receives a basket of individual bonds plus residual cash. The legal holding, liquidity, valuation source and analytics treatment change after settlement.
+
+| Component | Value |
+|---|---:|
+| Redeemed fund value | 2,000,000 |
+| Bond basket value | 1,850,000 |
+| Residual cash | 140,000 |
+| Transaction costs | 10,000 |
+
+### Settlement value
+
+```text
+net_received_value = 1,850,000 + 140,000 - 10,000 = 1,980,000
+implementation_shortfall = 2,000,000 - 1,980,000 = 20,000
+```
+
+### Correct treatment
+
+- close or reduce fund units based on confirmed redemption terms and settlement date;
+- create individual bond positions only from confirmed in-kind basket identifiers, quantities and prices;
+- separate residual cash, transaction costs and any implementation shortfall from ordinary fund performance;
+- update look-through, issuer concentration, liquidity, yield, duration and tax-lot treatment after basket settlement.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| In-kind basket is confirmed | Individual bond holdings are created with source identifiers and quantities. |
+| Basket file is missing | Redemption remains pending or source-limited. |
+| Basket contains restricted bonds | Advisory, mandate and reporting restrictions are evaluated after settlement. |
+| Performance report is generated | Fund redemption, received bonds, residual cash and costs are explainable separately. |
+
 ## Implementation-backed capability lens
 
 When reviewing whether a platform truly supports bonds, use these evidence questions:
