@@ -2,7 +2,7 @@
 
 This matrix helps convert product knowledge into implementation-ready requirements.
 
-Use it when designing APIs, data models, QA scenarios, reporting views, advisory workflows, DPM controls, operations dashboards, migration checks, or product-support runbooks. For source-file intake and migration workflow design, use [`product-source-intake-and-migration-guide.md`](product-source-intake-and-migration-guide.md). The purpose is to make source ownership, calculation inputs, degraded states, and reporting obligations explicit before implementation begins.
+Use it when designing APIs, data models, QA scenarios, reporting views, advisory workflows, DPM controls, operations dashboards, migration checks, or product-support runbooks. For deeper product-family source ownership, use [`product-source-ownership-deep-dive.md`](product-source-ownership-deep-dive.md). For source-file intake and migration workflow design, use [`product-source-intake-and-migration-guide.md`](product-source-intake-and-migration-guide.md). The purpose is to make source ownership, calculation inputs, degraded states, and reporting obligations explicit before implementation begins.
 
 ## Core Principle
 
