@@ -935,3 +935,247 @@ material_cash_impact_rate = 3 / 18 = 16.67%
 | Client-specific notice is needed | Notice includes only authorized client-specific information. |
 | Pending confirmations remain | Incident cannot be closed as fully resolved. |
 | Post-incident review completes | Root cause, corrective actions and evidence are linked to affected trades. |
+
+## Example 28. Trade Affirmation Mismatch Repair
+
+### Scenario
+
+A bond trade is confirmed by the broker, but the affirmation file from the custodian shows a different accrued interest amount. The platform must prevent settlement from being treated as clean until the mismatch is resolved or approved as an exception.
+
+| Field | Internal trade | Custodian affirmation | Difference |
+|---|---:|---:|---:|
+| Nominal | 2,000,000 | 2,000,000 | 0 |
+| Clean consideration | 1,984,000 | 1,984,000 | 0 |
+| Accrued interest | 18,750 | 19,125 | 375 |
+| Total settlement cash | 2,002,750 | 2,003,125 | 375 |
+
+### Mismatch amount
+
+```text
+affirmation_cash_break = custodian_total_settlement_cash - internal_total_settlement_cash
+affirmation_cash_break = 2,003,125 - 2,002,750 = 375
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Match attempt | Compare trade id, account, nominal, price, accrued interest, settlement date and counterparty. |
+| Break classification | Classify as accrued-interest mismatch, not price movement or fee adjustment. |
+| Repair | Route to trade support with source day-count, settlement calendar and broker/custodian evidence. |
+| Settlement gating | Keep settlement state pending or exception-approved until repair completes. |
+| Reporting | Show pending affirmation state with break reason and materiality. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Accrued interest differs | Affirmation break opens with amount and source fields. |
+| Broker confirms internal value | Repair records broker evidence and corrected custodian response. |
+| Exception is approved | Settlement proceeds with approval lineage and unresolved-break label where required. |
+| Report is generated before repair | Trade is not shown as fully affirmed. |
+
+## Example 29. Corporate-Action Election Escalation
+
+### Scenario
+
+A voluntary tender offer requires client election before the custodian deadline. The advisor submits the instruction late, leaving insufficient time for operations to validate, approve and submit the election.
+
+| Attribute | Value |
+|---|---|
+| Client eligible quantity | 10,000 shares |
+| Client elected quantity | 7,500 shares |
+| Internal instruction cut-off | 14:00 |
+| Advisor submission time | 14:35 |
+| Custodian deadline | 16:00 |
+
+### Deadline breach
+
+```text
+internal_cutoff_miss_minutes = 35
+remaining_minutes_to_custodian_deadline = 85
+election_submission_risk = late_internal_instruction and custodian_deadline_not_yet_passed
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Eligibility check | Validate eligible position, election quantity and client authority. |
+| Late instruction | Escalate to operations and supervisor with cut-off breach reason. |
+| Submission decision | Submit only if authority, validation and custodian acceptance can still be evidenced. |
+| Failure handling | If not submitted, preserve late instruction, failed election state and client impact analysis. |
+| Reporting | Show election status separately from underlying holding until event completion. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Advisor submits after internal cut-off | Escalation workflow opens automatically. |
+| Custodian deadline has passed | Election is rejected or marked missed with evidence. |
+| Custodian accepts late instruction | Accepted election carries late-submission approval lineage. |
+| Quantity exceeds eligibility | Workflow blocks over-election or routes it to repair. |
+
+## Example 30. Failed FX Settlement Compensation
+
+### Scenario
+
+An FX spot trade linked to a securities purchase fails to settle because the counterparty misses the value-date payment. The client incurs replacement funding cost while the securities settlement cash remains reserved.
+
+| Attribute | Value |
+|---|---:|
+| Failed FX receive amount | 1,500,000 |
+| Original value date | T+2 |
+| Replacement funding rate | 5.40% |
+| Contractual compensation rate | 3.90% |
+| Delay days | 3 |
+| Day-count basis | 360 |
+
+### Compensation gap
+
+```text
+replacement_funding_cost = 1,500,000 x 5.40% x 3 / 360 = 675.00
+contractual_compensation = 1,500,000 x 3.90% x 3 / 360 = 487.50
+unrecovered_cost = 675.00 - 487.50 = 187.50
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Fail recognition | Track failed currency, value date, counterparty, linked security trade and cash reservation. |
+| Replacement funding | Estimate funding cost separately from final compensation receivable. |
+| Claim workflow | File counterparty claim with rate, day count, value date and evidence. |
+| Cash treatment | Do not release reserved settlement cash until security settlement and FX repair resolve. |
+| Reporting | Label compensation as receivable, disputed or received based on source state. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| FX receive fails on value date | Linked security funding state becomes exceptioned. |
+| Funding cost exceeds compensation | Unrecovered cost is measurable and separately reported. |
+| Counterparty pays claim | Receivable closes against confirmed cash. |
+| Claim is disputed | Compensation remains non-cash and dispute evidence is retained. |
+
+## Example 31. Omnibus Allocation Rounding Dispute
+
+### Scenario
+
+A fund order settles at omnibus level, but client-level allocation creates a residual because units must be rounded to three decimals. The residual cannot be hidden in one client account without an approved allocation policy.
+
+| Client | Target cash allocation | NAV | Rounded units |
+|---|---:|---:|---:|
+| Client A | 100,000.00 | 12.3456 | 8,100.052 |
+| Client B | 75,000.00 | 12.3456 | 6,075.039 |
+| Client C | 25,000.00 | 12.3456 | 2,025.013 |
+| Omnibus confirmation | 200,000.00 | 12.3456 | 16,200.105 |
+
+### Rounding break
+
+```text
+sum_client_units = 8,100.052 + 6,075.039 + 2,025.013 = 16,200.104
+omnibus_unit_break = 16,200.105 - 16,200.104 = 0.001
+cash_equivalent_break = 0.001 x 12.3456 = 0.0123456
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Allocation calculation | Apply configured rounding precision and residual policy. |
+| Break handling | Track residual units and cash equivalent instead of forcing hidden adjustment. |
+| Dispute | Route disputed residuals to operations with omnibus confirmation and allocation run evidence. |
+| Client fairness | Allocate residual only under approved pro-rata, largest-remainder or house-account policy. |
+| Reporting | Reconcile client holdings to omnibus custody after residual handling. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Rounded client units do not equal omnibus units | Rounding break is visible with residual quantity. |
+| No residual policy exists | Allocation cannot be marked final. |
+| Policy assigns residual to house account | Client allocations remain policy-consistent and auditable. |
+| NAV correction arrives | Allocation and residual calculation re-run with version lineage. |
+
+## Example 32. Settlement Penalty Pass-Through
+
+### Scenario
+
+A market settlement fail generates a penalty. Operations must determine whether the penalty is absorbed, passed to a client, charged to a broker or allocated across multiple contributing causes.
+
+| Cause | Responsible party | Penalty amount |
+|---|---|---:|
+| Late client funding | Client | 320 |
+| Broker confirmation delay | Broker | 180 |
+| Internal SSI repair delay | Internal operations | 95 |
+| Total penalty | Mixed | 595 |
+
+### Pass-through amount
+
+```text
+client_pass_through = 320
+broker_claim = 180
+internal_absorb = 95
+total_penalty = 320 + 180 + 95 = 595
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Penalty ingestion | Capture market penalty id, fail id, settlement date, amount and currency. |
+| Cause attribution | Link penalty to funding, confirmation, SSI, custody or market-infrastructure cause. |
+| Approval | Require policy and approval before client pass-through. |
+| Recovery | Track broker or custodian claim separately from client charge and internal absorption. |
+| Reporting | Show penalty as cost, claim, waived amount or absorbed amount according to final decision. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Penalty has mixed causes | Allocation records client, broker and internal components separately. |
+| Client charge lacks approval | Pass-through is blocked. |
+| Broker accepts claim | Broker receivable closes when cash is received. |
+| Penalty is waived | Waiver evidence is retained and no client charge is booked. |
+
+## Example 33. Post-Incident Control Attestation
+
+### Scenario
+
+After a settlement incident, management requires evidence that corrective controls were implemented, tested and attested before the incident can be closed for governance reporting.
+
+| Control action | Owner | Evidence state |
+|---|---|---|
+| Cut-off monitoring alert | Operations technology | Implemented |
+| SSI repair dashboard | Operations | Tested |
+| Daily fail ageing review | Settlement team | Attested |
+| Client-impact review checklist | Client service | Pending |
+
+### Attestation coverage
+
+```text
+completed_control_actions = 3
+required_control_actions = 4
+control_attestation_coverage = 3 / 4 = 75%
+open_actions = 1
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Incident closure | Require linked root cause, impacted trades, remediation actions and control owners. |
+| Evidence | Preserve test result, reviewer, timestamp and exception decision for each action. |
+| Attestation | Allow closure only when mandatory actions are implemented or formally risk-accepted. |
+| Knowledge management | Link lessons learned to runbooks, reconciliation checks and monitoring dashboards. |
+| Reporting | Separate operational recovery from governance closure when controls remain open. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| One mandatory control remains pending | Governance closure is blocked or risk-accepted with approval. |
+| Evidence is uploaded without reviewer | Attestation remains incomplete. |
+| Control test fails | Incident stays open for corrective action. |
+| All mandatory actions pass | Incident closure includes control evidence and durable runbook links. |
