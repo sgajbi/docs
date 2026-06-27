@@ -55,9 +55,10 @@ This pack should be used with:
 11. [`../../products/market-data-reference-data-pricing-instrument-master/`](../../products/market-data-reference-data-pricing-instrument-master/README.md)
 12. [`../../products/data-governance-quality-lineage-controls/`](../../products/data-governance-quality-lineage-controls/README.md)
 13. [`../../products/portfolio-reporting-statement-client-experience/`](../../products/portfolio-reporting-statement-client-experience/README.md)
-14. [`../../products/lending-collateral-and-buying-power.md`](../../products/lending-collateral-and-buying-power.md)
-15. [`../../products/direct-equities-and-market-operations.md`](../../products/direct-equities-and-market-operations.md)
-16. [`../private-banking-platform-knowledge-map.md`](../private-banking-platform-knowledge-map.md)
+14. [`../../products/client-account-portfolio-master-data/`](../../products/client-account-portfolio-master-data/README.md)
+15. [`../../products/lending-collateral-and-buying-power.md`](../../products/lending-collateral-and-buying-power.md)
+16. [`../../products/direct-equities-and-market-operations.md`](../../products/direct-equities-and-market-operations.md)
+17. [`../private-banking-platform-knowledge-map.md`](../private-banking-platform-knowledge-map.md)
 
 ## Migration Standard
 
@@ -69,7 +70,7 @@ The former wiki content is not copied one page at a time because that would recr
 4. links point to current repo-local guides,
 5. wording is platform-neutral and private-banking oriented,
 6. unsupported implementation claims are framed as requirements, controls, or future capability candidates,
-7. validation scans pass for branding leakage, career-prep positioning, broken relative links, and Markdown hygiene.
+7. validation scans pass for branding leakage, narrow career-only positioning, broken relative links, and Markdown hygiene.
 
 ## Disclaimer
 
