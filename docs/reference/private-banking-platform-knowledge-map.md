@@ -98,6 +98,7 @@ Good project documentation should include:
 | Guide | Use |
 |---|---|
 | [`../products/advisory-mandate-reporting-decision-guide.md`](../products/advisory-mandate-reporting-decision-guide.md) | Advisory explanation, mandate controls, reporting requirements, QA evidence, and common review failures across product families. |
+| [`../products/client-reporting-and-portfolio-review-guide.md`](../products/client-reporting-and-portfolio-review-guide.md) | Client statements, portfolio reviews, report labels, exception panels, client explanations, and report QA. |
 | [`../products/product-capability-boundary-matrix.md`](../products/product-capability-boundary-matrix.md) | Generic versus product-specific support boundaries, support-limited states, future candidates, and QA evidence. |
 | [`../products/product-calculation-example-catalog.md`](../products/product-calculation-example-catalog.md) | Compact calculation examples, reporting labels, degraded states, and QA assertions. |
 | [`../products/product-performance-attribution-risk-guide.md`](../products/product-performance-attribution-risk-guide.md) | Performance, contribution, attribution, risk denominators, degraded analytics states, and analytics QA. |

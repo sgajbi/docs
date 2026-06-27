@@ -24,6 +24,7 @@ This matrix tracks the current product-library coverage and where enrichment sho
 | Reference | Use |
 |---|---|
 | [`advisory-mandate-reporting-decision-guide.md`](advisory-mandate-reporting-decision-guide.md) | Cross-product guide for advisory explanation, DPM/mandate controls, reporting requirements, QA evidence, and common review failures. |
+| [`client-reporting-and-portfolio-review-guide.md`](client-reporting-and-portfolio-review-guide.md) | Cross-product client statement and portfolio review guide covering report sections, labels, exception panels, client explanations, and report QA. |
 | [`cross-product-worked-examples.md`](cross-product-worked-examples.md) | Practical examples for lifecycle, transactions, cashflows, calculations, reporting, QA, and implementation boundaries across product families. |
 | [`product-capability-boundary-matrix.md`](product-capability-boundary-matrix.md) | Cross-product boundary matrix for generic support, source-backed product-specific capabilities, support-limited states, future candidates, reporting claims, and QA evidence. |
 | [`product-calculation-example-catalog.md`](product-calculation-example-catalog.md) | Cross-product calculation examples with formulas, source-input expectations, reporting labels, degraded-state behavior, and QA assertions. |
@@ -65,7 +66,6 @@ Use these dimensions when deciding whether a product area is complete enough for
 Potential future packs:
 
 1. mandates and advisory workflows,
-2. client reporting and portfolio review methodology,
-3. client-facing explanation packs,
-4. report template examples,
-5. source-data and market-data governance.
+2. client-facing explanation packs,
+3. report template examples,
+4. source-data and market-data governance.
