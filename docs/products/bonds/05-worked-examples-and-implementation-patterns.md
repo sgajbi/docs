@@ -4122,6 +4122,238 @@ restored_percentage_of_original = 800,000 / 1,000,000 = 80.00%
 | Coupon basis changes | Future accrual uses restored current nominal from effective date. |
 | Client report is generated | Write-down history and write-up recovery are explainable. |
 
+## Example 106. Coupon Deferral Election Reversal
+
+### Scenario
+
+An issuer of a hybrid bond elects to defer a discretionary coupon. The issuer later reverses the election before the contractual cut-off and confirms that the coupon will be paid.
+
+| Attribute | Value |
+|---|---:|
+| Nominal | 1,500,000 |
+| Coupon rate | 5.20% |
+| Coupon frequency | Semiannual |
+| Deferred coupon status | Reversed before cut-off |
+
+### Coupon reinstatement
+
+```text
+semiannual_coupon = nominal x coupon_rate / 2
+semiannual_coupon = 1,500,000 x 5.20% / 2 = 39,000
+```
+
+### Correct treatment
+
+- preserve original deferral notice, reversal notice, contractual cut-off, paying-agent confirmation and coupon schedule version;
+- move coupon state from deferred to payable only when reversal is source-backed and before the permitted cut-off;
+- restore accrued income and expected cashflow from the effective source date;
+- keep the deferral history visible for credit, income reliability and suitability review;
+- avoid duplicating coupon accrual if provisional deferral and reversal both touched the same coupon period.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Deferral reversal is accepted before cut-off | Coupon status changes to payable with source lineage. |
+| Reversal arrives after cut-off | Coupon remains deferred unless paying-agent evidence overrides. |
+| Accrual was already stopped | Accrual resumes without duplicate coupon income. |
+| Client report is generated | Deferral history and reinstated coupon are explainable. |
+
+## Example 107. Make-Whole Notice Rescission
+
+### Scenario
+
+A corporate issuer announces a make-whole call, then rescinds the notice before the redemption date due to a financing delay.
+
+| Attribute | Value |
+|---|---:|
+| Nominal | 2,000,000 |
+| Announced make-whole price | 103.25 |
+| Expected redemption cash | 2,065,000 |
+| Rescission status | Confirmed |
+
+### Reversed redemption cash
+
+```text
+expected_redemption_cash = nominal x make_whole_price / 100
+expected_redemption_cash = 2,000,000 x 103.25 / 100 = 2,065,000
+reversed_projected_cash = 2,065,000
+```
+
+### Correct treatment
+
+- preserve original call notice, rescission notice, redemption date, paying-agent source and notice validity terms;
+- reverse projected redemption cash and restore ongoing position state when rescission is confirmed;
+- keep accrued interest, yield-to-call, yield-to-maturity and reinvestment assumptions versioned;
+- prevent premature position closure or realized gain/loss booking;
+- show the rescinded call as a lifecycle event for audit and advisor explanation.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Make-whole call is rescinded | Position remains open and projected redemption cash is reversed. |
+| Position was pre-closed | Closure is reversed with lifecycle lineage, not treated as new purchase. |
+| Yield analytics are recalculated | Yield-to-call is removed or source-limited while maturity yield remains. |
+| Client report is generated | Rescinded notice is visible as lifecycle history. |
+
+## Example 108. Inflation Floor Restatement Dispute
+
+### Scenario
+
+An inflation-linked bond has a deflation floor. The calculation agent restates an index period, and investors dispute whether the floor should apply before or after restatement.
+
+| Attribute | Value |
+|---|---:|
+| Principal before restatement | 1,020,000 |
+| Restated indexed principal | 990,000 |
+| Floor principal | 1,000,000 |
+| Disputed amount | 10,000 |
+
+### Floor impact
+
+```text
+floored_principal = max(restated_indexed_principal, floor_principal)
+floored_principal = max(990,000, 1,000,000) = 1,000,000
+disputed_floor_adjustment = floored_principal - restated_indexed_principal
+disputed_floor_adjustment = 10,000
+```
+
+### Correct treatment
+
+- preserve index restatement, bond terms, floor clause, calculation-agent notice, dispute state and final determination;
+- separate provisional indexed principal, floored principal, disputed floor adjustment and final paying-agent cash;
+- avoid treating the disputed floor amount as settled cash until determination is final;
+- keep performance and income analytics source-limited while the principal basis is disputed;
+- update client reporting with restatement lineage and dispute status.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Restated index breaches floor | Floored and unfloored principal are both visible. |
+| Floor treatment is disputed | Disputed adjustment remains provisional. |
+| Final determination arrives | Principal basis and cashflow restate with source lineage. |
+| Performance report is generated | Inflation contribution is labelled provisional or final as appropriate. |
+
+## Example 109. Covered-Bond Issuer Substitution
+
+### Scenario
+
+A covered-bond program substitutes the issuer after a legal reorganization. The cover pool remains in place, but issuer identity, rating and reporting lineage change.
+
+| Attribute | Before | After |
+|---|---|---|
+| Issuer | Bank A |
+| Substitute issuer | - | Bank B |
+| Cover pool | Program 2028 Pool | Program 2028 Pool |
+| Rating | A | A- |
+| ISIN | Unchanged | Unchanged |
+
+### Rating-notch movement
+
+```text
+issuer_identity_changed = true
+isin_changed = false
+rating_changed = true
+```
+
+### Correct treatment
+
+- preserve issuer substitution notice, legal opinion, rating notice, cover-pool continuity evidence and effective date;
+- update issuer, obligor and concentration analytics from the effective date without duplicating the position;
+- retain cover-pool lineage and historical issuer identity for audit and reporting;
+- refresh eligibility, collateral, mandate and concentration tests where issuer identity matters;
+- avoid treating issuer substitution as a sale, transfer or new issue unless the source terms require it.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Issuer is substituted and ISIN is unchanged | Position continues with updated issuer lineage. |
+| Rating changes | Credit and mandate analytics refresh from effective date. |
+| Cover pool remains same | Collateral lineage carries forward with substitution evidence. |
+| Client report is generated | Prior issuer, substitute issuer and effective date are explainable. |
+
+## Example 110. MBS Delinquency Severity Shock
+
+### Scenario
+
+An MBS pool reports a sharp increase in serious delinquencies and loss severity. Cashflow projections must update without treating projected losses as realized principal losses before remittance evidence.
+
+| Attribute | Prior | Revised |
+|---|---:|---:|
+| Pool balance | 50,000,000 | 50,000,000 |
+| Serious delinquency rate | 3.00% | 8.00% |
+| Loss severity assumption | 25.00% | 40.00% |
+| Investor share | 2.00% | 2.00% |
+
+### Expected loss shock
+
+```text
+prior_expected_loss = pool_balance x prior_delinquency_rate x prior_loss_severity
+prior_expected_loss = 50,000,000 x 3.00% x 25.00% = 375,000
+revised_expected_loss = pool_balance x revised_delinquency_rate x revised_loss_severity
+revised_expected_loss = 50,000,000 x 8.00% x 40.00% = 1,600,000
+investor_expected_loss_delta = (1,600,000 - 375,000) x 2.00% = 24,500
+```
+
+### Correct treatment
+
+- preserve servicer delinquency report, severity model version, pool balance, investor share and remittance evidence;
+- update projected cashflows, yield, extension risk and credit analytics from the revised assumptions;
+- keep modelled expected loss separate from realized principal write-down or cash shortfall;
+- require remittance or trustee evidence before booking realized principal loss;
+- label client reporting as scenario, modelled or realized according to source state.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Delinquency and severity assumptions rise | Expected loss and cashflow projections update. |
+| No realized remittance loss exists | Principal write-down is not booked. |
+| Remittance confirms loss | Realized loss posts with trustee or servicer lineage. |
+| Risk report is generated | Scenario loss and realized loss are distinct. |
+
+## Example 111. Subordinated Call-Skip Event
+
+### Scenario
+
+An issuer has the right to call a subordinated note at the first call date but chooses not to call. The bond remains outstanding and resets to a higher coupon margin.
+
+| Attribute | Value |
+|---|---:|
+| Nominal | 1,000,000 |
+| Pre-call coupon | 4.75% |
+| Reset coupon after call skip | 6.10% |
+| Expected call redemption | 1,000,000 |
+| Call outcome | Not called |
+
+### Coupon reset impact
+
+```text
+annual_coupon_increase = nominal x (reset_coupon - pre_call_coupon)
+annual_coupon_increase = 1,000,000 x (6.10% - 4.75%) = 13,500
+projected_redemption_reversed = 1,000,000
+```
+
+### Correct treatment
+
+- preserve call notice window, non-call announcement, reset terms, coupon fixing and effective date;
+- reverse projected call redemption and keep the position open;
+- update coupon schedule, yield, duration, extension risk and reinvestment assumptions;
+- distinguish issuer non-call risk from payment default or missed coupon;
+- refresh advisory, suitability and mandate review for extended subordinated exposure.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Issuer skips call | Position remains open and projected redemption is reversed. |
+| Coupon resets higher | Future accrual uses reset coupon from effective date. |
+| Client expected call liquidity | Liquidity forecast removes expected redemption and flags extension risk. |
+| Report is generated | Non-call, reset coupon and extension risk are visible. |
+
 ## Implementation-backed capability lens
 
 When reviewing whether a platform truly supports bonds, use these evidence questions:
