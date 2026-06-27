@@ -1295,3 +1295,208 @@ A fund platform migrates holdings from one transfer-agent account structure to a
 | Order is submitted during freeze | Order is blocked, queued or routed according to cutover rule. |
 | Performance report crosses migration date | Return continuity is preserved. |
 | Transfer-agent balance differs post-cutover | Migration reconciliation break remains open with owner and aging. |
+
+## Example 38. Fund liquidity stress waterfall
+
+### Scenario
+
+A discretionary portfolio needs SGD 500,000 cash within 10 business days. It holds several fund positions with different liquidity terms and estimated execution reliability.
+
+| Holding | Market value | Liquidity term | Stress haircut | Stress-usable amount |
+|---|---:|---|---:|---:|
+| Daily UCITS fund | 220,000 | T+3 dealing | 2% | 215,600 |
+| Weekly bond fund | 180,000 | next weekly dealing | 5% | 171,000 |
+| Quarterly alternatives fund | 300,000 | 60-day notice | 20% | 0 for 10-day need |
+| Money market fund | 160,000 | T+1 dealing | 0% | 160,000 |
+
+### Stress liquidity
+
+```text
+ten_day_stress_liquidity = 215,600 + 171,000 + 160,000 = 546,600
+surplus = 546,600 - 500,000 = 46,600
+```
+
+### Correct treatment
+
+- use horizon-specific liquidity, not total market value;
+- apply gates, notice periods, dealing frequency, settlement lag and stress haircuts;
+- preserve whether liquidity depends on estimated sale, confirmed redemption or already settled cash;
+- exclude client-specific restricted or side-letter-limited holdings unless permitted.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Liquidity need is 10 business days | Quarterly fund is excluded from immediate funding. |
+| Weekly dealing date has passed | Weekly fund moves to next eligible window. |
+| Fund is gated | Stress-usable amount is capped by confirmed gate. |
+| Report is generated | Liquidity waterfall shows horizon, haircut and source state. |
+
+## Example 39. Private fund recallable distribution
+
+### Scenario
+
+A private fund distributes cash but designates part of it as recallable. The client receives cash now, but unfunded commitment can increase again.
+
+| Attribute | Value |
+|---|---:|
+| Opening commitment | 1,000,000 |
+| Paid-in before distribution | 700,000 |
+| Distribution received | 120,000 |
+| Recallable portion | 80,000 |
+| Non-recallable portion | 40,000 |
+
+### Commitment impact
+
+```text
+cash_received = 120,000
+paid_in_after_distribution = 700,000 - 120,000 = 580,000
+recallable_commitment_increase = 80,000
+effective_unfunded_commitment = 300,000 + 80,000 = 380,000
+```
+
+### Correct treatment
+
+- separate cash received from recallable commitment exposure;
+- do not treat recallable distribution as permanent liquidity surplus;
+- update capital-call forecasting, commitment reporting and suitability/liquidity analytics;
+- preserve administrator notice, recallable amount and expiry or conditions where provided.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Distribution is marked recallable | Unfunded commitment or recallable exposure increases. |
+| Recallable split is missing | Distribution classification is incomplete. |
+| Future capital call uses recallable amount | Call is matched to prior recallable distribution where sourced. |
+| Client report shows cash only | QA fails because contingent recall exposure is hidden. |
+
+## Example 40. ETF market-maker withdrawal
+
+### Scenario
+
+An ETF's primary market maker withdraws during volatile markets. Exchange trading continues, but spreads widen and creation/redemption liquidity becomes uncertain.
+
+| Attribute | Before | Stress state |
+|---|---:|---:|
+| ETF NAV | 100.00 | 100.00 |
+| Market bid | 99.90 | 96.80 |
+| Market ask | 100.10 | 101.90 |
+| Primary market maker | Active | Withdrawn |
+
+### Liquidity analytics
+
+```text
+bid_discount_to_nav = (96.80 - 100.00) / 100.00 = -3.20%
+bid_ask_spread = 101.90 - 96.80 = 5.10
+```
+
+### Correct treatment
+
+- keep ETF position valued according to policy, but surface liquidity stress separately;
+- distinguish NAV, exchange bid/ask and creation/redemption basket liquidity;
+- block or escalate large orders if execution quality cannot be supported;
+- preserve market-maker status source and timestamp.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Market maker withdraws | ETF liquidity state degrades. |
+| Bid trades at large discount | Premium/discount analytics show stress. |
+| Client tries large sell | Order is routed for liquidity review or staged execution. |
+| NAV remains stable | Report still explains market-price liquidity stress. |
+
+## Example 41. Cross-border share-class conversion restriction
+
+### Scenario
+
+A client wants to convert from a distributing share class to an accumulating share class, but the accumulating class is not eligible in the client's booking centre.
+
+| Attribute | Current class | Target class |
+|---|---|---|
+| Distribution policy | Distributing | Accumulating |
+| Currency | USD | USD |
+| Booking-centre eligibility | Eligible | Not eligible |
+| Conversion fee | 0.25% | 0.25% |
+
+### Correct treatment
+
+- treat conversion as blocked until target share-class eligibility is source-confirmed;
+- do not simulate conversion as redemption/subscription unless tax, cost-basis and dealing policy allow it;
+- preserve eligibility source, booking-centre rule and advisor/client decision;
+- keep current share class and income treatment until conversion is accepted.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Target class is ineligible | Conversion is blocked before order release. |
+| Advisor requests workaround | Alternative share class or redemption/subscription path requires suitability and tax review. |
+| Eligibility changes later | Conversion becomes available only from effective date. |
+| Report shows projected income | Current distributing class remains basis until accepted conversion. |
+
+## Example 42. Administrator fee restatement
+
+### Scenario
+
+A fund administrator restates prior NAV because management fee accrual was understated for five dealing days.
+
+| Attribute | Original | Restated |
+|---|---:|---:|
+| Client units | 15,000 | 15,000 |
+| Original NAV | 20.0000 | - |
+| Restated NAV | - | 19.9600 |
+| NAV delta | - | -0.0400 |
+
+### Valuation impact
+
+```text
+original_value = 15,000 x 20.0000 = 300,000
+restated_value = 15,000 x 19.9600 = 299,400
+valuation_delta = -600
+```
+
+### Correct treatment
+
+- preserve original and restated NAV with administrator notice and reason;
+- restate valuation, performance and reporting only for affected dates and holdings;
+- do not book a cash fee unless administrator confirms a cash movement;
+- label client reports or corrections according to publication policy.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Restated NAV arrives | Historical valuation is versioned with reason. |
+| Report was already published | Correction workflow opens if materiality threshold is breached. |
+| Fee accrual changed but no cash moved | No standalone cash fee is posted. |
+| Performance is recalculated | Original and restated return are reconcilable. |
+
+## Example 43. Tax-lot continuity through fund-platform migration
+
+### Scenario
+
+A fund holding migrates to a new platform account. Units are unchanged, but tax-lot history must remain available for future redemption reporting.
+
+| Lot | Units | Cost per unit | Acquisition date | Migration state |
+|---|---:|---:|---|---|
+| Lot A | 6,000 | 9.50 | 2024-02-15 | Migrated |
+| Lot B | 4,000 | 10.20 | 2025-06-10 | Migrated |
+| Total | 10,000 | - | - | Reconciled |
+
+### Correct treatment
+
+- migrate units and lot history without creating a redemption/subscription;
+- preserve acquisition dates, cost basis, source account and target account;
+- reconcile total units, lot units and transfer-agent balance;
+- block future tax-lot disposal reporting if lot migration is incomplete.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Total units migrate but lots do not | Position is usable for valuation but tax-lot reporting is degraded. |
+| Future redemption occurs | Lot selection uses migrated acquisition/cost data. |
+| Target account id changes | Lineage maps old and new platform identifiers. |
+| Migration creates cashflow | QA fails because beneficial ownership did not change. |
