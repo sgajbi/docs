@@ -9,7 +9,7 @@ This repo is organized so new document sets can be added without turning the roo
 | Area | Purpose |
 |---|---|
 | [`docs/products/`](docs/products/README.md) | Product and domain knowledge packs. |
-| [`docs/technical/`](docs/technical/README.md) | Technical knowledge base for enterprise architecture, technology choices, backend structure, API governance, data products, CI/CD, infrastructure, deployment, observability, SRE, security, testing, resilience, Git hygiene and engineering knowledge management. |
+| [`docs/technical/`](docs/technical/README.md) | Technical knowledge base for enterprise architecture, technology choices, backend structure, frontend supportability, API governance, data products, CI/CD, infrastructure, deployment, observability, SRE, security, testing, resilience, Git hygiene and engineering knowledge management. |
 | [`docs/prompts/`](docs/prompts/README.md) | Prompt libraries, AI workflows, reusable instructions, and evaluation notes. |
 | [`docs/reference/`](docs/reference/README.md) | External references, glossaries, citations, and source lists. |
 | [`docs/operations/`](docs/operations/documentation-governance.md) | How to add, classify, and maintain docs in this repo. |
@@ -54,7 +54,7 @@ This repo is organized so new document sets can be added without turning the roo
 | [`docs/products/source-ownership-calculation-reporting-matrix.md`](docs/products/source-ownership-calculation-reporting-matrix.md) | Cross-product source-ownership, calculation dependency, reporting, QA, and implementation-boundary matrix. |
 | [`docs/products/tax-regulatory-and-reporting.md`](docs/products/tax-regulatory-and-reporting.md) | Tax-aware and regulatory-reporting map for tax classification, withholding, tax lots, cross-border documentation, report outputs, controls, and QA. |
 | [`docs/products/wealth-structuring-trusts-and-family-office.md`](docs/products/wealth-structuring-trusts-and-family-office.md) | Wealth-structuring map for trusts, estates, family offices, holding vehicles, beneficial ownership, authority, access control, reporting groups, and QA. |
-| [`docs/technical/`](docs/technical/README.md) | Practical technical learning path for architecture boundaries, technology stack, backend structure, API governance, data products, CI/CD, containers, deployment, observability, SRE, security, testing, performance, resilience, Git hygiene and engineering review. |
+| [`docs/technical/`](docs/technical/README.md) | Practical technical learning path for architecture boundaries, technology stack, backend structure, frontend and experience-API supportability, API governance, data products, CI/CD, containers, deployment, observability, SRE, security, testing, performance, resilience, Git hygiene and engineering review. |
 | [`docs/reference/private-banking-platform-knowledge-map.md`](docs/reference/private-banking-platform-knowledge-map.md) | Reusable checklist for applying product knowledge to APIs, UI, docs, QA, and source-ownership decisions. |
 | [`docs/reference/private-banking-operating-model/`](docs/reference/private-banking-operating-model/README.md) | Migrated and consolidated private-banking operating-model wiki material for performance, advisory, DPM, suitability, execution, custody, lending, controls, and QA. |
 | [`docs/reference/ai-decision-intelligence-wealth-platform/`](docs/reference/ai-decision-intelligence-wealth-platform/README.md) | AI, RAG, advisor-copilot, decision-intelligence, governance, security, evaluation, and agentic-workflow reference for wealth platforms. |

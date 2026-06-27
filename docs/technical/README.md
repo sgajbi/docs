@@ -20,6 +20,7 @@ It translates patterns observed across a mature multi-application platform into 
 | [`10-infrastructure-containers-and-deployment.md`](10-infrastructure-containers-and-deployment.md) | Learn container design, local compose, orchestration, deployment strategy, environment configuration, migrations and runtime evidence. |
 | [`11-git-release-and-knowledge-management.md`](11-git-release-and-knowledge-management.md) | Apply Git hygiene, PR evidence, release discipline, documentation truth and engineering knowledge-management practices. |
 | [`12-technology-stack-and-engineering-patterns.md`](12-technology-stack-and-engineering-patterns.md) | Understand common technology choices, toolchain patterns, tradeoffs and how to read a new repository. |
+| [`13-frontend-experience-api-and-ui-supportability.md`](13-frontend-experience-api-and-ui-supportability.md) | Learn gateway-first UI delivery, state handling, view models, browser validation, accessibility and frontend supportability. |
 
 ## Mental Model
 
@@ -41,12 +42,13 @@ The strongest engineering systems make the correct path easy: one local command 
 
 | Role | Useful starting point |
 |---|---|
-| Backend engineer | Files 02, 03, 05, 08 and 09. |
-| Architect | Files 01, 03, 04, 06, 09 and 12. |
+| Backend engineer | Files 02, 03, 05, 08, 09 and 13. |
+| Architect | Files 01, 03, 04, 06, 09, 12 and 13. |
 | DevOps / platform engineer | Files 05, 06, 07, 08, 10, 11 and 12. |
-| QA engineer | Files 03, 05, 08 and 09. |
-| Engineering lead | Files 01, 04, 05, 06, 09, 10, 11 and 12. |
-| New joiner | Read files 01 through 12 in order. |
+| QA engineer | Files 03, 05, 08, 09 and 13. |
+| Frontend engineer | Files 03, 06, 08, 09, 12 and 13. |
+| Engineering lead | Files 01, 04, 05, 06, 09, 10, 11, 12 and 13. |
+| New joiner | Read files 01 through 13 in order. |
 
 ## Relationship To Reference Packs
 
