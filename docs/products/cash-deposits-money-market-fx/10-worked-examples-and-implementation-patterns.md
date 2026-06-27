@@ -1780,3 +1780,256 @@ remaining_shortfall = 650,000 - 500,000 = 150,000
 | Emergency line is smaller than obligation | Remaining shortfall is visible and escalated. |
 | Emergency line is not approved for client/legal owner | Funding cannot be used. |
 | Holiday is lifted | Cash availability updates from effective rail reopening time with source evidence. |
+
+## Example 44. Client cash haircut policy for liquidity and buying power
+
+### Scenario
+
+A client has cash across currencies and operational states. The relationship summary shows total cash, but order funding and liquidity analytics must apply policy haircuts for currency convertibility, transfer timing and restrictions.
+
+| Cash bucket | Reporting currency equivalent | Policy haircut | Usable amount |
+|---|---:|---:|---:|
+| USD settled cash | 600,000 | 0.00% | 600,000 |
+| HKD same-day convertible cash | 300,000 | 5.00% | 285,000 |
+| Restricted event proceeds | 100,000 | 100.00% | 0 |
+| Total | 1,000,000 | | 885,000 |
+
+### Haircut treatment
+
+```text
+usable_cash = 600,000 x (1 - 0%)
+            + 300,000 x (1 - 5%)
+            + 100,000 x (1 - 100%)
+            = 885,000
+
+liquidity_haircut = 1,000,000 - 885,000 = 115,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Client reporting | Show total cash separately from policy-usable cash when the difference is material. |
+| Buying power | Use haircut-adjusted cash for pre-trade funding, not headline cash. |
+| Advisory | Explain whether haircut comes from FX, settlement, documentation, restriction or policy buffer. |
+| DPM | Apply mandate liquidity tests to the approved liquidity definition. |
+| Operations | Preserve haircut policy version, effective date, currency, booking centre and restriction reason. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Restricted proceeds are present | Restricted cash remains valued but contributes zero usable buying power. |
+| Currency haircut changes | Usable cash recalculates from policy effective date. |
+| Advisor uses total cash for order funding | Pre-trade check blocks or warns when usable cash is insufficient. |
+| Client report is generated | Report labels cash, usable liquidity and restrictions without merging them into one number. |
+
+## Example 45. Liquidity transfer pricing for treasury cash usage
+
+### Scenario
+
+Treasury uses client overnight cash as part of an approved liquidity placement process. Client crediting, internal liquidity transfer pricing and treasury spread must be separated so performance and client reporting do not confuse internal economics with client yield.
+
+| Attribute | Value |
+|---|---:|
+| Average eligible balance | 2,500,000 |
+| Client credited rate | 3.60% |
+| Internal liquidity transfer price | 4.10% |
+| Placement yield | 4.35% |
+| Days | 30 |
+| Day-count basis | 360 |
+
+### Economics
+
+```text
+client_interest = 2,500,000 x 3.60% x 30 / 360 = 7,500.00
+internal_transfer_value = 2,500,000 x 4.10% x 30 / 360 = 8,541.67
+treasury_placement_income = 2,500,000 x 4.35% x 30 / 360 = 9,062.50
+treasury_spread = 9,062.50 - 8,541.67 = 520.83
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Client accounting | Post client credited interest according to account terms and disclosure. |
+| Internal management | Track liquidity transfer price and placement spread as treasury economics. |
+| Reporting | Do not show internal transfer price as client yield. |
+| Controls | Require approved eligible-balance policy and treasury placement authority. |
+| QA | Reconcile client credited interest, internal transfer value and placement income separately. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Client statement is generated | Statement shows client credited interest only. |
+| Treasury profitability report is generated | Report includes transfer price and spread without changing client interest. |
+| Eligible-balance policy is missing | Transfer-pricing calculation is exceptioned. |
+| Rate changes mid-period | Interest and transfer value split by effective dates. |
+
+## Example 46. Multi-entity treasury sweep without cross-subsidy
+
+### Scenario
+
+A family office has multiple legal entities. Treasury wants to sweep surplus cash into an overnight instrument, but cash cannot be pooled across entities unless legal authority and product eligibility are present.
+
+| Entity | Cash | Minimum reserve | Product eligible | Cross-entity authority | Sweepable amount |
+|---|---:|---:|---|---|---:|
+| Holding company | 850,000 | 250,000 | Yes | Yes | 600,000 |
+| Trust account | 400,000 | 300,000 | Yes | No | 100,000 |
+| Foundation | 220,000 | 250,000 | Yes | No | 0 |
+| Operating company | 500,000 | 150,000 | No | Yes | 0 |
+
+### Sweep calculation
+
+```text
+entity_sweepable = max(0, cash - minimum_reserve) where product_eligible = true
+total_sweepable = 600,000 + 100,000 + 0 + 0 = 700,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Legal ownership | Calculate sweepability by legal entity before any family-office consolidation. |
+| Product eligibility | Exclude entities not eligible for the sweep product even when cash is available. |
+| Cross-subsidy | Do not fund one entity reserve shortfall from another entity without explicit authority. |
+| Reporting | Show consolidated cash and entity-level sweep decisions separately. |
+| Controls | Preserve authority evidence, reserve policy, product eligibility and approval state. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Entity has cash but no product eligibility | Sweepable amount is zero. |
+| Entity has reserve shortfall | Other entities are not automatically used to cover it. |
+| Family-office report is generated | Consolidated view reconciles to entity-level sweep decisions. |
+| Cross-entity authority changes | Sweep logic updates only from effective-dated authority evidence. |
+
+## Example 47. Intraday payment prioritization under limited liquidity
+
+### Scenario
+
+A client has several same-day payment instructions and limited intraday liquidity. The platform must prioritize obligations according to policy instead of processing instructions in arrival order.
+
+| Payment | Amount | Priority | Cut-off | Status |
+|---|---:|---:|---|---|
+| Securities settlement funding | 800,000 | 1 | 11:00 | Ready |
+| Tax authority payment | 250,000 | 2 | 13:00 | Ready |
+| Property deposit | 150,000 | 3 | 15:00 | Ready |
+| Discretionary investment transfer | 300,000 | 4 | 16:00 | Ready |
+
+Opening same-day usable cash is 1,100,000 and policy buffer is 100,000.
+
+### Prioritization
+
+```text
+payable_capacity = 1,100,000 - 100,000 = 1,000,000
+priority_1_paid = 800,000
+remaining_capacity = 200,000
+priority_2_partial_shortfall = 250,000 - 200,000 = 50,000
+lower_priority_blocked = 150,000 + 300,000 = 450,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Payment execution | Fund highest-priority obligations first within cut-off and approval constraints. |
+| Partial funding | Do not partially pay an instruction unless rail and business policy permit it. |
+| Advisor workflow | Surface blocked or delayed lower-priority payments before client commitment. |
+| Reporting | Explain failed or deferred payments by capacity, priority and cut-off reason. |
+| Operations | Preserve queue order, priority policy, cut-off clocks and manual override approvals. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Capacity is insufficient | Lower-priority payments are blocked or queued, not silently released. |
+| Partial payment is not allowed | Tax payment remains pending with shortfall instead of partial execution. |
+| Manual override is entered | Override requires authority, reason and audit evidence. |
+| New intraday inflow arrives | Queue recalculates from effective availability timestamp. |
+
+## Example 48. Client money segregation breach detection
+
+### Scenario
+
+A pooled client-money account must hold segregated cash equal to eligible client balances. Reconciliation identifies a shortfall caused by a late internal transfer.
+
+| Attribute | Value |
+|---|---:|
+| Required segregated client money | 4,250,000 |
+| External segregated account balance | 4,180,000 |
+| Shortfall | 70,000 |
+| Root cause | Late internal transfer |
+| Remediation transfer approved | 70,000 |
+
+### Breach amount
+
+```text
+segregation_shortfall = required_client_money - external_segregated_balance
+segregation_shortfall = 4,250,000 - 4,180,000 = 70,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Control state | Mark as breach or potential breach according to policy and jurisdiction. |
+| Availability | Do not treat the missing 70,000 as freely available house cash. |
+| Remediation | Top up segregated account and preserve approval, timestamp and source account. |
+| Reporting | Produce control evidence for compliance, operations and management review. |
+| Root cause | Track late transfer cause and corrective action to prevent recurrence. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Segregated account is short | Breach amount is calculated and escalated. |
+| Top-up transfer is approved | Remediation closes shortfall from effective settlement timestamp. |
+| Required balance source changes | Control recalculates from authoritative client-money balance source. |
+| Report is generated | Report shows breach amount, duration, remediation and root cause. |
+
+## Example 49. Cross-border payment repair analytics
+
+### Scenario
+
+Operations reviews a monthly population of cross-border payments to identify repair drivers. The goal is to reduce repeat defects in payment instructions and improve first-pass release.
+
+| Repair reason | Count | Average delay |
+|---|---:|---:|
+| Missing beneficiary address | 8 | 1.5 days |
+| Invalid BIC or clearing code | 5 | 1.0 days |
+| Missing purpose code | 3 | 2.0 days |
+| Sanctions review false positive | 2 | 0.5 days |
+| Total repaired payments | 18 | |
+
+Total cross-border payments for the month are 120.
+
+### Repair rate
+
+```text
+payment_repair_rate = repaired_payments / total_payments
+payment_repair_rate = 18 / 120 = 15.00%
+
+beneficiary_address_share = 8 / 18 = 44.44%
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Operations | Track repair reason, owner, elapsed time, client impact and final release state. |
+| Client experience | Prioritize recurring defects that delay urgent client payments. |
+| Data quality | Feed repeated missing fields into standing-instruction and onboarding remediation. |
+| Controls | Separate sanctions review from formatting repair and payment-data defects. |
+| Reporting | Show repair trend, top defect drivers and aging, not only open repair count. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Monthly repair dashboard is generated | Repair rate, reason mix and aging are visible. |
+| Payment has multiple repair reasons | Primary and contributing reasons are captured without double counting total repaired payments. |
+| Standing instruction is corrected | Future payments use updated instruction and repair rate should improve. |
+| Sanctions false positive occurs | Case is classified separately from data-quality repair. |
