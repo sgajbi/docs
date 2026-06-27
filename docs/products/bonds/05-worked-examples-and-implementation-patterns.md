@@ -3406,6 +3406,241 @@ green_exposure_reduction = 1,100,000 - 0 = 1,100,000
 | Price changes after downgrade | Market performance and taxonomy status are reported separately. |
 | Client report is generated | Green exposure excludes or labels downgraded bond exposure. |
 
+## Example 88. Callable sinking-fund schedule conflict
+
+### Scenario
+
+A callable corporate bond has both scheduled sinking-fund reductions and an issuer call notice. The call notice appears to redeem more nominal than remains after the sinking-fund reduction.
+
+| Attribute | Value |
+|---|---:|
+| Current nominal | 1,000,000 |
+| Scheduled sinking-fund redemption | 150,000 |
+| Issuer call notice nominal | 900,000 |
+| Nominal available after sinking fund | 850,000 |
+| Call price | 101.00 |
+
+### Conflict check
+
+```text
+nominal_after_sinking_fund = current_nominal - sinking_fund_redemption
+nominal_after_sinking_fund = 1,000,000 - 150,000 = 850,000
+call_overage = issuer_call_notice_nominal - nominal_after_sinking_fund
+call_overage = 900,000 - 850,000 = 50,000
+```
+
+### Correct treatment
+
+- preserve sinking-fund schedule, issuer call notice, custodian confirmation, effective dates and nominal hierarchy;
+- do not redeem more nominal than remains after confirmed prior lifecycle events;
+- route conflict to asset-servicing repair before posting principal cash;
+- keep projected cashflows source-limited while notice and schedule conflict;
+- explain projected call proceeds separately from confirmed sinking-fund cash.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Call notice exceeds available nominal | Conflict exception opens. |
+| Custodian confirms revised call amount | Call proceeds use revised source-backed nominal. |
+| Sinking-fund event is cancelled | Available nominal recalculates before call proceeds. |
+| Report is generated before repair | Projected call cash is labelled source-limited. |
+
+## Example 89. Accrued-interest tax withholding mismatch
+
+### Scenario
+
+A bond sale includes accrued interest paid by the buyer. The custodian withholds tax on the full accrued amount, but tax rules require withholding only on the taxable portion.
+
+| Attribute | Value |
+|---|---:|
+| Accrued interest received | 18,000 |
+| Taxable accrued portion | 12,000 |
+| Withholding rate | 15.00% |
+| Custodian withholding | 2,700 |
+
+### Expected withholding
+
+```text
+expected_withholding = taxable_accrued_interest x withholding_rate
+expected_withholding = 12,000 x 15.00% = 1,800
+withholding_mismatch = custodian_withholding - expected_withholding
+withholding_mismatch = 2,700 - 1,800 = 900
+```
+
+### Correct treatment
+
+- preserve sale proceeds, accrued interest, tax classification, withholding file, tax rule and custodian cash posting;
+- separate accrued-interest economics from price gain/loss and from withholding cash;
+- open tax/custody claim for excess withholding rather than silently adjusting income;
+- keep statement labels clear: accrued interest received, withholding applied, reclaim or dispute state;
+- route jurisdiction-specific tax handling through source-backed tax configuration.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Custodian withholding exceeds expected amount | Withholding mismatch is calculated and routed. |
+| Taxable accrued portion is missing | Withholding expectation remains source-limited. |
+| Reclaim is approved | Receivable or cash recovery links to original sale. |
+| Client tax report is generated | Accrued interest and withholding remain separate. |
+
+## Example 90. Sovereign payment moratorium
+
+### Scenario
+
+A sovereign announces a temporary payment moratorium. Coupon payment is deferred, not cancelled, and market prices decline because settlement timing and recovery assumptions changed.
+
+| Attribute | Before moratorium | After moratorium |
+|---|---:|---:|
+| Expected coupon | 35,000 | Deferred |
+| Market value | 960,000 | 810,000 |
+| Payment status | Due | Moratorium |
+| Moratorium period | n/a | 180 days |
+
+### Deferred cash and price impact
+
+```text
+deferred_coupon_receivable = expected_coupon if moratorium_terms_preserve_claim else 0
+market_value_change = 810,000 - 960,000 = -150,000
+```
+
+### Correct treatment
+
+- preserve sovereign notice, moratorium terms, affected securities, payment dates, deferral period and legal status;
+- distinguish deferred receivable, missed payment, default event and cancelled claim;
+- update valuation, liquidity, credit watch and advisory restrictions from source-backed status;
+- avoid posting coupon cash until paying-agent cash is received;
+- explain market price loss separately from deferred income claim.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Moratorium preserves claim | Deferred coupon receivable is tracked, not settled cash. |
+| Paying agent cash is absent | No coupon cash is posted. |
+| Moratorium triggers credit policy | Restriction or review workflow opens. |
+| Client report is generated | Deferred income and market-value loss are distinct. |
+
+## Example 91. Bond quote stale-price challenge
+
+### Scenario
+
+A thinly traded bond is valued from a dealer quote that is five business days old. A newer executable quote is lower, but the pricing policy requires challenge evidence before overriding official price.
+
+| Attribute | Official price | Challenge quote |
+|---|---:|---:|
+| Price | 96.40 | 94.75 |
+| Quote age | 5 business days | Same day |
+| Nominal | 1,000,000 | 1,000,000 |
+| Price difference | n/a | -1.65 points |
+
+### Valuation difference
+
+```text
+official_value = nominal x official_price / 100 = 964,000
+challenge_value = nominal x challenge_price / 100 = 947,500
+valuation_difference = challenge_value - official_value = -16,500
+```
+
+### Correct treatment
+
+- preserve official price, quote timestamp, quote source, executable quote, challenge owner and pricing policy;
+- label stale official price according to freshness policy while challenge is unresolved;
+- do not overwrite official valuation until price challenge is approved;
+- show advisory/reporting degraded state when stale price materially affects valuation, risk or suitability;
+- keep price challenge outcome auditable for future valuation review.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Official quote breaches freshness threshold | Stale-price flag or price challenge workflow opens. |
+| Executable quote is lower | Valuation difference is calculated but not automatically posted. |
+| Pricing committee approves challenge | Official price updates with approval evidence. |
+| Client report is generated before approval | Valuation is labelled stale or source-limited. |
+
+## Example 92. Convertible call-forcing notice
+
+### Scenario
+
+An issuer calls a convertible bond to force conversion because the share price has traded above the call-forcing threshold. The investor must decide between conversion and call redemption before the deadline.
+
+| Attribute | Value |
+|---|---:|
+| Bond nominal | 500,000 |
+| Call redemption price | 102.00 |
+| Conversion shares | 18,000 |
+| Current share price | 31.00 |
+| Conversion value | 558,000 |
+
+### Conversion versus redemption
+
+```text
+call_redemption_cash = nominal x call_price / 100
+call_redemption_cash = 500,000 x 102.00 / 100 = 510,000
+conversion_value = conversion_shares x share_price = 18,000 x 31.00 = 558,000
+conversion_advantage = 558,000 - 510,000 = 48,000
+```
+
+### Correct treatment
+
+- preserve issuer notice, call-forcing threshold, observation evidence, conversion ratio, deadline and election options;
+- separate economic comparison from client election authority and operational feasibility;
+- block automatic conversion unless mandate, consent and custodian instructions permit it;
+- update exposure, concentration, corporate-action and tax reporting after confirmed conversion or redemption;
+- explain missed election, cash redemption and share delivery outcomes distinctly.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Call-forcing condition is source-backed | Election workflow opens with deadline and options. |
+| Client authority is missing | Conversion instruction is blocked or escalated. |
+| Conversion is elected | Bond closes and equity position opens only after confirmation. |
+| Client report is generated | Redemption cash comparison and conversion outcome are traceable. |
+
+## Example 93. Amortizing ABS cleanup call
+
+### Scenario
+
+An amortizing ABS reaches the cleanup call threshold. The sponsor may redeem remaining principal, but confirmation is required before projected principal is treated as payable.
+
+| Attribute | Value |
+|---|---:|
+| Original pool balance | 50,000,000 |
+| Current pool balance | 4,200,000 |
+| Cleanup call threshold | 10.00% |
+| Investor current face | 84,000 |
+| Cleanup call price | 100.25 |
+
+### Threshold and projected proceeds
+
+```text
+current_pool_percentage = current_pool_balance / original_pool_balance
+current_pool_percentage = 4,200,000 / 50,000,000 = 8.40%
+cleanup_call_eligible = current_pool_percentage <= 10.00%
+projected_cleanup_cash = investor_current_face x cleanup_call_price / 100
+projected_cleanup_cash = 84,000 x 100.25 / 100 = 84,210
+```
+
+### Correct treatment
+
+- preserve ABS factor file, pool balance, cleanup threshold, sponsor notice, call price and effective date;
+- treat threshold eligibility as a trigger condition, not confirmed redemption;
+- keep current face, projected call cash and received principal cash separate;
+- update prepayment, duration, yield and cashflow projections only with source-backed assumptions;
+- label projected cleanup call cash as pending until sponsor/paying-agent confirmation arrives.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Pool falls below threshold | Cleanup call eligibility is flagged. |
+| Sponsor notice is missing | Redemption cash remains projected, not confirmed. |
+| Cleanup call is confirmed | Current face closes and principal cash posts on pay date. |
+| Report is generated before confirmation | Cleanup call projection is labelled pending. |
+
 ## Implementation-backed capability lens
 
 When reviewing whether a platform truly supports bonds, use these evidence questions:
