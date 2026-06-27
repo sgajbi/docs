@@ -3641,6 +3641,247 @@ projected_cleanup_cash = 84,000 x 100.25 / 100 = 84,210
 | Cleanup call is confirmed | Current face closes and principal cash posts on pay date. |
 | Report is generated before confirmation | Cleanup call projection is labelled pending. |
 
+## Example 94. Bond extension-option notice
+
+### Scenario
+
+An issuer sends notice that an extendible bond will be extended for two years. The platform must update maturity, projected coupon cashflows, duration and liquidity treatment without treating the event as a new purchase.
+
+| Attribute | Before notice | After notice |
+|---|---:|---:|
+| Nominal | 1,000,000 | 1,000,000 |
+| Original maturity | Year 3 | Year 5 |
+| Coupon rate | 4.20% | 4.80% |
+| Market price | 99.20 | 97.85 |
+| Modified duration | 2.7 | 4.4 |
+
+### Extension impact
+
+```text
+maturity_extension_years = extended_maturity_year - original_maturity_year
+maturity_extension_years = 5 - 3 = 2
+annual_coupon_increase = nominal x (new_coupon_rate - old_coupon_rate)
+annual_coupon_increase = 1,000,000 x (4.80% - 4.20%) = 6,000
+duration_extension = extended_duration - original_duration
+duration_extension = 4.4 - 2.7 = 1.7
+```
+
+### Correct treatment
+
+- preserve issuer extension notice, old and new maturity, coupon terms, election rights and effective date;
+- update projected cashflows, maturity ladder, duration and liquidity horizon from source-backed terms;
+- do not book a sale, purchase or realized gain/loss merely because maturity was extended;
+- review mandate, concentration and DPM ladder breaches caused by longer tenor;
+- explain coupon uplift separately from price and duration impact.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Extension notice is source-backed | Maturity, coupon schedule and duration projections update. |
+| Election right is available | Workflow opens before terms are locked. |
+| Mandate tenor limit is breached | Advisory or DPM exception is raised. |
+| Client report is generated | Original maturity, extended maturity and income impact are traceable. |
+
+## Example 95. Callable replacement reinvestment risk
+
+### Scenario
+
+A high-coupon bond is called in a lower-rate market. Principal cash is returned at call price, but replacement securities offer lower yield.
+
+| Attribute | Called bond | Replacement option |
+|---|---:|---:|
+| Nominal / reinvestable cash | 1,000,000 | 1,020,000 |
+| Coupon / available yield | 6.00% | 4.10% |
+| Call price | 102.00 | n/a |
+| Annual income | 60,000 | 41,820 |
+
+### Reinvestment shortfall
+
+```text
+call_proceeds = nominal x call_price / 100
+call_proceeds = 1,000,000 x 102.00 / 100 = 1,020,000
+replacement_income = call_proceeds x replacement_yield
+replacement_income = 1,020,000 x 4.10% = 41,820
+annual_income_shortfall = old_coupon_income - replacement_income
+annual_income_shortfall = 60,000 - 41,820 = 18,180
+```
+
+### Correct treatment
+
+- preserve call notice, call price, accrued interest, proceeds, replacement yield assumptions and recommendation evidence;
+- report call proceeds and reinvestment analytics separately from realized clean-price result;
+- avoid implying the call premium fully offsets lower future income;
+- evaluate replacement suitability, liquidity, credit quality, duration and concentration;
+- update DPM income targets and maturity ladders when call proceeds are reinvested.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Bond is called | Principal proceeds post by call terms and current position closes. |
+| Replacement yield is lower | Income shortfall is calculated as advisory analytics, not contractual cash. |
+| No replacement is selected | Cash remains available with reinvestment-risk explanation. |
+| Client report is generated | Call proceeds, call premium and future-income impact are distinct. |
+
+## Example 96. Distressed interest capitalization
+
+### Scenario
+
+A distressed restructuring capitalizes missed coupon interest into new principal. The client receives no cash coupon, but the restructured note principal increases.
+
+| Attribute | Value |
+|---|---:|
+| Old nominal | 800,000 |
+| Missed coupon interest | 36,000 |
+| Capitalization percentage | 100.00% |
+| New nominal after capitalization | 836,000 |
+| Market price after restructuring | 72.50 |
+
+### Capitalized amount
+
+```text
+capitalized_interest = missed_coupon_interest x capitalization_percentage
+capitalized_interest = 36,000 x 100.00% = 36,000
+new_nominal = old_nominal + capitalized_interest
+new_nominal = 800,000 + 36,000 = 836,000
+post_restructuring_market_value = new_nominal x price / 100
+post_restructuring_market_value = 836,000 x 72.50 / 100 = 606,100
+```
+
+### Correct treatment
+
+- preserve restructuring terms, missed coupon, capitalization rate, new identifier and effective date;
+- do not book capitalized interest as received cash;
+- update nominal, accrual basis, cost basis and income classification according to source terms and tax policy;
+- keep default, forbearance, capitalized interest and price impairment separate in reporting;
+- review suitability and mandate impact for distressed/restructured exposure.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Coupon is capitalized | Principal increases and no cash coupon is posted. |
+| Capitalization is partial | Residual missed interest remains separately tracked. |
+| New identifier is issued | Position migration preserves lineage from old bond. |
+| Report is generated | Capitalized interest is not presented as cash income. |
+
+## Example 97. Sinkable tranche factor dispute
+
+### Scenario
+
+A sinkable asset-backed tranche receives two conflicting factor files from different sources. One factor would reduce current face more than the other.
+
+| Attribute | Source A | Source B |
+|---|---:|---:|
+| Original face | 1,000,000 | 1,000,000 |
+| Reported factor | 0.842500 | 0.836000 |
+| Current face | 842,500 | 836,000 |
+| Difference | n/a | -6,500 |
+
+### Dispute amount
+
+```text
+current_face_a = original_face x factor_a = 1,000,000 x 0.842500 = 842,500
+current_face_b = original_face x factor_b = 1,000,000 x 0.836000 = 836,000
+current_face_dispute = current_face_b - current_face_a = -6,500
+```
+
+### Correct treatment
+
+- preserve both factor files, timestamps, source hierarchy, trustee notice and current-face calculations;
+- use approved source hierarchy or exception workflow before updating official current face;
+- avoid booking duplicate principal reduction while factor dispute is unresolved;
+- label projected principal, market value and yield as source-limited when current face is disputed;
+- keep restatement capability for reports generated from superseded factors.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Two factor files conflict | Current-face dispute workflow opens. |
+| Approved source hierarchy selects one factor | Official current face updates with evidence. |
+| Factor is later restated | Affected valuation and report outputs are traceable. |
+| Client report is generated during dispute | Current face and analytics are labelled source-limited. |
+
+## Example 98. Sovereign sanctions coupon block
+
+### Scenario
+
+A sovereign bond coupon is due, but sanctions restrictions block payment routing through the paying agent. The entitlement exists, but cash cannot be received or distributed.
+
+| Attribute | Value |
+|---|---:|
+| Coupon entitlement | 28,000 |
+| Cash received | 0 |
+| Blocked amount | 28,000 |
+| Payment status | Sanctions blocked |
+| Market value change | -90,000 |
+
+### Blocked entitlement
+
+```text
+blocked_coupon_receivable = coupon_entitlement - cash_received
+blocked_coupon_receivable = 28,000 - 0 = 28,000
+```
+
+### Correct treatment
+
+- preserve sanctions source, paying-agent notice, entitlement amount, blocked-routing reason and legal status;
+- distinguish blocked receivable, default, moratorium, cancelled claim and received cash;
+- do not accrue unrestricted cash income when payment is blocked;
+- update advisory restrictions, liquidity view and reporting labels from source-backed sanctions state;
+- keep market-value loss separate from blocked coupon entitlement.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Coupon entitlement exists but cash is blocked | Receivable or blocked entitlement is tracked, not cash. |
+| Sanctions status changes | Payment state recalculates from source-backed release or continued block. |
+| Trading is restricted | Advisory and mandate controls reflect restricted status. |
+| Client report is generated | Blocked coupon and price loss are distinct. |
+
+## Example 99. Bond benchmark transition spread lock
+
+### Scenario
+
+A floating-rate note transitions from a discontinued benchmark to a replacement benchmark. The fallback spread is locked from the transition notice and affects future coupons.
+
+| Attribute | Old benchmark | Replacement benchmark |
+|---|---:|---:|
+| Benchmark fixing | 5.20% | 5.05% |
+| Original contractual spread | 1.10% | 1.10% |
+| Fallback adjustment spread | n/a | 0.26% |
+| Resulting coupon rate | 6.30% | 6.41% |
+
+### Coupon comparison
+
+```text
+old_coupon_rate = old_benchmark + contractual_spread
+old_coupon_rate = 5.20% + 1.10% = 6.30%
+new_coupon_rate = replacement_benchmark + contractual_spread + fallback_adjustment_spread
+new_coupon_rate = 5.05% + 1.10% + 0.26% = 6.41%
+coupon_rate_change = 6.41% - 6.30% = 0.11%
+```
+
+### Correct treatment
+
+- preserve fallback notice, old benchmark, replacement benchmark, contractual spread, adjustment spread and lock date;
+- apply fallback spread only from the effective reset date;
+- keep benchmark transition mechanics separate from discretionary coupon override;
+- update accrual, yield, forecast cashflows, reporting labels and benchmark lineage;
+- test historical coupons remain on original benchmark while future coupons use replacement terms.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Fallback spread is locked | Future reset coupon uses replacement benchmark plus contractual and adjustment spreads. |
+| Effective date has not arrived | Historical accruals remain on old benchmark terms. |
+| Replacement fixing is missing | Coupon projection is source-limited. |
+| Client report is generated | Benchmark transition and spread adjustment are explainable. |
+
 ## Implementation-backed capability lens
 
 When reviewing whether a platform truly supports bonds, use these evidence questions:
