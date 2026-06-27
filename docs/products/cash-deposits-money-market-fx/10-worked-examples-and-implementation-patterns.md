@@ -3230,3 +3230,246 @@ standing_instruction_drift = old_rule_conversion - current_policy_conversion = 7
 | Instruction is recertified | New threshold and effective date are stored. |
 | Conversion already executed | Impact assessment identifies FX trade, cash and report outputs. |
 | Client report is generated | Policy-driven non-execution is distinct from operational failure. |
+
+## Example 80. Dormant cash reactivation control
+
+### Scenario
+
+A dormant cash account receives a reactivation request before a large outgoing payment. The ledger balance is positive, but payment release depends on dormant-account review, identity checks and approval evidence.
+
+| Attribute | Value |
+|---|---:|
+| Ledger cash | 750,000 |
+| Available cash before reactivation | 0 |
+| Requested payment | 500,000 |
+| Dormant account flag | Active |
+| Reactivation approval | Pending |
+
+### Controlled availability
+
+```text
+available_cash = 0 while dormant_flag_active and reactivation_approval_pending
+post_reactivation_available_cash = ledger_cash - reserved_fees - blocked_amounts
+payment_release_allowed = reactivation_approved and payment_screening_clear
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Dormancy | Preserve dormant status, last activity date, reactivation request, approval owner and evidence. |
+| Availability | Do not treat ledger cash as payment-available before reactivation approval. |
+| Payment control | Run payment screening, callback and authority checks after account reactivation. |
+| Reporting | Explain cash as held or restricted, not missing. |
+| Audit | Keep reactivation, payment approval and release evidence linked. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Dormant flag is active | Available cash for payment remains zero or restricted. |
+| Reactivation approval is granted | Availability recalculates with fees, holds and screening state. |
+| Payment is requested before approval | Payment is blocked or routed to exception workflow. |
+| Client report is generated | Ledger cash and restricted availability are shown separately. |
+
+## Example 81. Same-currency cash pooling dispute
+
+### Scenario
+
+Two accounts participate in a same-currency cash pool. A debit account uses pooled liquidity, but one account owner disputes the pooling authorization after an overdraft charge is allocated.
+
+| Attribute | Account A | Account B |
+|---|---:|---:|
+| Closing cash before pooling | 300,000 | -120,000 |
+| Pooling authorization | Valid | Disputed |
+| Same currency | USD | USD |
+| Overdraft fee allocated | 0 | 180 |
+
+### Pool netting view
+
+```text
+pooled_cash = 300,000 + (-120,000) = 180,000
+standalone_account_b_shortfall = max(0, 120,000)
+disputed_fee = 180 if pooling_authorization_disputed else 0
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Pooling authority | Preserve account-level pooling consent, effective date, revocation state and dispute evidence. |
+| Cash view | Show standalone balances and pooled liquidity separately. |
+| Fee allocation | Keep overdraft or compensation charges pending while authorization is disputed. |
+| Reporting | Explain whether cash availability used pool support or standalone balance. |
+| Controls | Re-certify pooling authorization after dispute resolution. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Pooling consent is valid | Pool-level liquidity can support availability by policy. |
+| Consent is disputed | Pool benefit, fee allocation or payment release is exceptioned. |
+| Dispute is upheld | Fees and availability are corrected with audit trail. |
+| Report is generated | Standalone cash and pooled cash are not conflated. |
+
+## Example 82. Negative available cash from pending fees
+
+### Scenario
+
+An account has positive ledger cash, but pending custody, advisory and tax fees reserve more cash than the ledger balance. The account appears funded, yet available cash is negative.
+
+| Attribute | Value |
+|---|---:|
+| Ledger cash | 45,000 |
+| Pending custody fee | 12,000 |
+| Pending advisory fee | 18,000 |
+| Pending tax debit | 20,000 |
+| Requested withdrawal | 5,000 |
+
+### Available cash
+
+```text
+pending_fee_reserve = 12,000 + 18,000 + 20,000 = 50,000
+available_cash = ledger_cash - pending_fee_reserve
+available_cash = 45,000 - 50,000 = -5,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Cash state | Separate ledger cash, reserved fees, tax debits and available cash. |
+| Payment control | Block discretionary withdrawals when available cash is negative. |
+| Advisory | Avoid recommending purchases from cash that is already reserved. |
+| Reporting | Explain pending fee reserve and projected cash shortfall. |
+| Operations | Recalculate availability when fee estimates settle, expire or are waived. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Pending fees exceed ledger cash | Available cash becomes negative. |
+| Withdrawal is requested | Payment is blocked or requires approved override. |
+| Fee is waived | Available cash recalculates with waiver evidence. |
+| Client report is generated | Positive ledger cash and negative availability are both explainable. |
+
+## Example 83. Payment purpose-code remediation
+
+### Scenario
+
+A cross-border payment is held because the purpose code is invalid for the destination country. Cash is reserved, but settlement cannot proceed until the purpose code is remediated.
+
+| Attribute | Value |
+|---|---|
+| Payment amount | 220,000 |
+| Currency | USD |
+| Destination country | IN |
+| Submitted purpose code | General transfer |
+| Required purpose-code status | Missing or invalid |
+
+### Release rule
+
+```text
+payment_release_allowed = purpose_code_valid and screening_clear and funding_available
+reserved_cash = payment_amount while remediation_pending
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Payment state | Preserve original instruction, invalid purpose code, remediation request and revised code. |
+| Cash | Reserve payment cash while remediation remains within policy window. |
+| Compliance | Do not release payment using a generic substitute code without approval. |
+| Client communication | Explain held payment as data remediation, not insufficient funds. |
+| Controls | Track repeated purpose-code issues by advisor, client segment and destination country. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Purpose code is invalid | Payment is held with reserved cash and remediation reason. |
+| Valid code is provided | Payment release resumes if screening and funding are clear. |
+| Remediation window expires | Payment is cancelled, returned or escalated by policy. |
+| Report is generated | Held payment is distinct from failed or settled payment. |
+
+## Example 84. FX holiday mismatch repair
+
+### Scenario
+
+A client books an FX conversion where the sell currency settles on a local holiday but the buy currency settlement calendar is open. The system must repair value dates without creating a false funding shortfall.
+
+| Attribute | Sell leg | Buy leg |
+|---|---|---|
+| Currency | JPY | USD |
+| Original value date | 15 Jan | 15 Jan |
+| Calendar status | Holiday | Open |
+| Repaired value date | 16 Jan | 16 Jan |
+
+### Settlement repair
+
+```text
+value_date_valid = sell_currency_business_day and buy_currency_business_day
+if not value_date_valid:
+    repaired_value_date = next_common_business_day(sell_currency, buy_currency)
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Calendar | Use source-backed currency calendars and next-common-business-day logic. |
+| Cash projection | Move both legs to repaired value date unless contract terms allow split settlement. |
+| Funding | Avoid treating unmatched one-day leg movement as failed funding. |
+| Reporting | Explain repair as calendar adjustment, not trade cancellation. |
+| Controls | Keep original value date, repaired value date and approval evidence. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| One currency is on holiday | FX settlement is repaired to common valid value date. |
+| Split settlement is not allowed | Both legs move together. |
+| Payment projection runs | No false funding shortfall is created on original date. |
+| Client report is generated | Original and repaired value dates are traceable. |
+
+## Example 85. Treasury settlement prefunding exception
+
+### Scenario
+
+Treasury requires prefunding before a large same-day placement settles. Cash is expected from an incoming credit, but the credit is not confirmed by the prefunding cut-off.
+
+| Attribute | Value |
+|---|---:|
+| Placement settlement amount | 2,000,000 |
+| Confirmed cash before cut-off | 1,650,000 |
+| Expected incoming credit | 500,000 |
+| Required prefunding | 2,000,000 |
+| Prefunding shortfall | 350,000 |
+
+### Prefunding check
+
+```text
+prefunding_shortfall = required_prefunding - confirmed_cash_before_cutoff
+prefunding_shortfall = 2,000,000 - 1,650,000 = 350,000
+settlement_release_allowed = prefunding_shortfall <= 0 or approved_prefunding_exception
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Funding evidence | Use confirmed cash before cut-off, not expected unconfirmed inflows. |
+| Settlement control | Block, resize or escalate placement when prefunding is short. |
+| Exception | Preserve temporary approval, approver, amount, expiry and post-settlement attestation. |
+| Liquidity | Separate settlement prefunding from general portfolio buying power. |
+| Reporting | Explain delayed placement or resized settlement as prefunding control outcome. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Confirmed cash is short | Settlement release is blocked or exceptioned. |
+| Incoming credit arrives after cut-off | It does not retroactively certify prefunding. |
+| Exception is approved | Release proceeds with scoped approval and expiry. |
+| Post-event review runs | Exception usage and actual settlement are attested. |
