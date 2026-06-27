@@ -2046,6 +2046,233 @@ override_valuation_delta = -130,000
 | Executable quote appears | Valuation hierarchy re-evaluates whether override remains appropriate. |
 | Restructuring event later occurs | Accounting lifecycle event is processed separately from valuation override. |
 
+## Example 52. Floating-rate fallback transition
+
+### Scenario
+
+A floating-rate note references a discontinued benchmark. The fallback waterfall moves the coupon index from the old benchmark to a replacement overnight rate plus a contractual spread adjustment.
+
+| Attribute | Old basis | Fallback basis |
+|---|---:|---:|
+| Nominal | 1,000,000 | 1,000,000 |
+| Old benchmark fixing | 4.80% | n/a |
+| Replacement rate | n/a | 4.55% |
+| Spread adjustment | n/a | 0.26% |
+| Bond margin | 1.20% | 1.20% |
+| Coupon period fraction | 0.25 | 0.25 |
+
+### Coupon comparison
+
+```text
+old_coupon_rate = 4.80% + 1.20% = 6.00%
+fallback_coupon_rate = 4.55% + 0.26% + 1.20% = 6.01%
+fallback_coupon_amount = 1,000,000 x 6.01% x 0.25 = 15,025
+```
+
+### Correct treatment
+
+- preserve the old benchmark, fallback trigger, replacement rate, spread adjustment and effective date;
+- recalculate future coupons from the fallback basis without rewriting historical coupon events;
+- keep client reporting explicit about benchmark transition and source evidence;
+- do not apply fallback automatically when the instrument has bespoke fallback terms requiring issuer/custodian confirmation.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Benchmark discontinuation trigger is effective | Future coupon projections use fallback basis. |
+| Spread adjustment is missing | Coupon projection is blocked or labelled incomplete. |
+| Historical coupon period is before transition | Historical coupon remains on original fixing. |
+| Custodian coupon differs from internal projection | Difference enters coupon reconciliation, not silent overwrite. |
+
+## Example 53. Callable tender reoffer after issuer liability-management exercise
+
+### Scenario
+
+An issuer launches a tender offer for an existing callable bond and reoffers a new bond. The client tenders part of the position and retains the rest.
+
+| Attribute | Value |
+|---|---:|
+| Existing nominal held | 1,500,000 |
+| Tendered nominal | 1,000,000 |
+| Accepted tender percentage | 65% |
+| Tender price | 102.25 |
+| New reoffer nominal subscribed | 500,000 |
+| Reoffer price | 99.75 |
+
+### Tender and reoffer cash
+
+```text
+accepted_tender_nominal = 1,000,000 x 65% = 650,000
+tender_cash = 650,000 x 102.25 / 100 = 664,625
+remaining_old_nominal = 1,500,000 - 650,000 = 850,000
+new_bond_settlement = 500,000 x 99.75 / 100 = 498,750
+net_cash_after_reoffer = 664,625 - 498,750 = 165,875
+```
+
+### Correct treatment
+
+- process accepted tender, residual old bond and new reoffer bond as separate lifecycle events;
+- preserve tender instruction, acceptance ratio, old identifier, new identifier and settlement dates;
+- do not assume all tendered nominal is accepted;
+- evaluate suitability and mandate controls for the new reoffer bond, not only the old holding.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Tender is partially accepted | Old position reduces only by accepted nominal. |
+| Reoffer bond has a new identifier | New holding is created separately with its own terms. |
+| Acceptance file arrives late | Tender result remains pending/source-limited. |
+| Reoffer suitability differs | New subscription requires product and mandate checks. |
+
+## Example 54. Cross-currency bond hedge effectiveness
+
+### Scenario
+
+A reporting-currency portfolio holds a EUR bond and uses an FX forward to hedge currency exposure. Portfolio reporting needs to separate local bond return, FX translation and hedge offset.
+
+| Component | Amount |
+|---|---:|
+| Opening EUR bond value | 1,000,000 |
+| Closing EUR bond value | 1,012,000 |
+| Opening EUR/USD | 1.0800 |
+| Closing EUR/USD | 1.0500 |
+| FX forward hedge P&L in USD | 27,500 |
+
+### Attribution
+
+```text
+opening_usd_value = 1,000,000 x 1.0800 = 1,080,000
+closing_usd_unhedged_value = 1,012,000 x 1.0500 = 1,062,600
+unhedged_usd_result = 1,062,600 - 1,080,000 = -17,400
+hedged_usd_result = -17,400 + 27,500 = 10,100
+```
+
+### Correct treatment
+
+- keep the legal bond holding and FX forward as separate positions;
+- show local bond performance, FX translation and hedge P&L as explainable components;
+- require source-backed hedge link before presenting a combined hedged result;
+- preserve hedge ratio, hedge designation, notional, maturity and rollover assumptions.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Hedge link is source-backed | Hedged result can be shown with bond and forward components. |
+| Hedge link is missing | Bond and FX forward P&L remain separate. |
+| Forward notional differs from bond value | Residual unhedged FX exposure is visible. |
+| Hedge rolls mid-period | Attribution splits by old and new forward periods. |
+
+## Example 55. Collateral eligibility downgrade for pledged bonds
+
+### Scenario
+
+A Lombard facility accepts investment-grade bonds as collateral. A pledged bond is downgraded, reducing its collateral eligibility and triggering a facility headroom shortfall.
+
+| Attribute | Before downgrade | After downgrade |
+|---|---:|---:|
+| Bond market value | 900,000 | 875,000 |
+| Collateral haircut | 20% | 45% |
+| Facility exposure | 600,000 | 600,000 |
+
+### Headroom impact
+
+```text
+eligible_value_before = 900,000 x (1 - 20%) = 720,000
+eligible_value_after = 875,000 x (1 - 45%) = 481,250
+collateral_shortfall = 600,000 - 481,250 = 118,750
+```
+
+### Correct treatment
+
+- update collateral eligibility from rating, product, issuer and facility policy evidence;
+- separate bond valuation movement from collateral-policy haircut change;
+- trigger margin call or cure workflow when facility exposure exceeds eligible collateral value;
+- preserve rating source, effective date, haircut policy and client notification state.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Rating downgrade changes haircut | Eligible collateral value recalculates from effective date. |
+| Market value also changes | Valuation and haircut effects are separately explainable. |
+| Facility exposure exceeds eligible value | Margin call or cure workflow opens. |
+| Rating source is stale | Collateral eligibility is labelled stale or blocked by policy. |
+
+## Example 56. Bond option-adjusted spread model change
+
+### Scenario
+
+Risk analytics upgrades the callable-bond option-adjusted spread model. The market price is unchanged, but OAS, duration and scenario analytics shift because the model assumptions changed.
+
+| Attribute | Old model | New model |
+|---|---:|---:|
+| Market price | 101.40 | 101.40 |
+| OAS | 165 bps | 142 bps |
+| Effective duration | 4.8 years | 4.3 years |
+| Model version | v1 | v2 |
+
+### Analytics change
+
+```text
+oas_delta = 142 - 165 = -23 bps
+duration_delta = 4.3 - 4.8 = -0.5 years
+```
+
+### Correct treatment
+
+- keep market valuation stable when price source is unchanged;
+- version OAS, effective duration and scenario outputs by analytics model;
+- explain model-driven analytics changes separately from market-price movement;
+- require model approval, effective date and backtesting evidence for production reporting.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Model version changes but price does not | Valuation remains unchanged while analytics are versioned. |
+| Client report includes OAS | Report carries model version or methodology date. |
+| Old and new analytics are compared | OAS and duration deltas are explainable as model-driven. |
+| Model approval is missing | Analytics remain draft or excluded from final reporting. |
+
+## Example 57. Tax-lot portability after custody transfer
+
+### Scenario
+
+A bond position transfers from one custodian to another. The receiving platform has nominal and market value, but tax lots and accrued-interest history arrive later.
+
+| Lot | Nominal | Clean cost | Accrued paid | Status |
+|---|---:|---:|---:|---|
+| Lot A | 400,000 | 98.50 | 4,200 | Received |
+| Lot B | 600,000 | 101.20 | 6,100 | Pending |
+
+### Portable cost basis
+
+```text
+received_clean_cost = 400,000 x 98.50 / 100 = 394,000
+pending_lot_nominal = 600,000
+known_accrued_paid = 4,200
+pending_accrued_paid = 6,100
+```
+
+### Correct treatment
+
+- transfer the accounting position only when custody position is confirmed;
+- label tax-lot, accrued-interest and realized-gain reporting as incomplete until lot history is received;
+- preserve old custodian lot ids, acquisition dates, cost basis, accrued paid and transfer date;
+- do not collapse multiple lots into a single average-cost lot unless policy and jurisdiction permit.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Position transfer arrives before lots | Holding is visible but tax-lot reporting is incomplete. |
+| Partial lot history is received | Known lots are versioned and pending lots remain exceptioned. |
+| Bond is sold before lot history is complete | Realized gain/loss is provisional or blocked according to policy. |
+| Final lot file arrives | Tax lots reconcile to transferred nominal and prior custodian evidence. |
+
 ## Implementation-backed capability lens
 
 When reviewing whether a platform truly supports bonds, use these evidence questions:
