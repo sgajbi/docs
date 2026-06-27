@@ -3550,3 +3550,237 @@ mandate_breach = controversial_issuer_exposure > mandate_exclusion_threshold
 | ESG data is stale | Reclassification remains source-limited. |
 | Client mandate allows exception | Exception captures approval, expiry and rationale. |
 | Advisory proposal is generated | Fund is blocked or warning-labelled for affected mandate. |
+
+## Example 98. Swing-pricing threshold dispute
+
+### Scenario
+
+A fund applies swing pricing because net redemptions allegedly exceeded the threshold. A distributor disputes the threshold calculation because one large redemption was cancelled before the dealing cut-off.
+
+| Attribute | Value |
+|---|---:|
+| Fund NAV before swing | 100,000,000 |
+| Swing threshold | 5.00% |
+| Gross redemption orders | 6,200,000 |
+| Cancelled before cut-off | 1,500,000 |
+| Net eligible redemptions | 4,700,000 |
+
+### Threshold test
+
+```text
+threshold_amount = fund_nav x swing_threshold
+threshold_amount = 100,000,000 x 5.00% = 5,000,000
+net_eligible_redemption_ratio = 4,700,000 / 100,000,000 = 4.70%
+swing_threshold_breached = net_eligible_redemptions > threshold_amount
+```
+
+### Correct treatment
+
+- preserve order book, cancellation timestamp, fund swing policy, administrator threshold calculation and final NAV notice;
+- calculate threshold using eligible orders after valid cut-off cancellations;
+- keep published NAV, disputed swung NAV and final confirmed NAV separately visible;
+- block final redemption proceeds or label them provisional while the swing-pricing dispute is unresolved;
+- retain swing decision lineage for client reporting, performance, fees and dilution analytics.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Valid cancellation reduces net redemptions below threshold | Swing application is disputed or reversed with evidence. |
+| Administrator confirms swing | Redemption proceeds use confirmed swung NAV and dispute state closes. |
+| Threshold calculation source is missing | NAV and proceeds remain source-limited. |
+| Client report is generated | Swing basis and dispute state are explainable. |
+
+## Example 99. Fund-of-funds stale underlying NAV
+
+### Scenario
+
+A fund-of-funds publishes a NAV while one underlying private fund has not delivered a current NAV. The administrator uses the prior NAV with a stale-source label.
+
+| Attribute | Value |
+|---|---:|
+| Fund-of-funds NAV | 25,000,000 |
+| Underlying stale NAV | 3,000,000 |
+| Stale NAV age | 95 days |
+| Stale-age policy threshold | 60 days |
+| Stale coverage | 12.00% |
+
+### Stale exposure
+
+```text
+stale_coverage = stale_underlying_nav / fund_of_funds_nav
+stale_coverage = 3,000,000 / 25,000,000 = 12.00%
+stale_age_breach = stale_nav_age > stale_age_policy_threshold
+```
+
+### Correct treatment
+
+- preserve administrator NAV pack, underlying manager statement, stale age, override approval and valuation policy;
+- label fund-of-funds NAV with stale underlying coverage and source date;
+- avoid treating stale underlying NAV as a current confirmed valuation;
+- route material stale exposure to valuation committee, reporting disclaimer or dealing control according to policy;
+- update look-through, risk and performance analytics when current underlying NAV arrives.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Underlying NAV breaches stale-age policy | Fund-of-funds NAV is labelled or escalated. |
+| Override is approved | Override records approver, expiry and coverage. |
+| Current NAV arrives later | Fund-of-funds NAV and performance restate or update with lineage. |
+| Look-through report is generated | Stale coverage and source date are visible. |
+
+## Example 100. ETF Authorized-Participant Failed Settlement
+
+### Scenario
+
+An ETF creation order is accepted, but the authorized participant fails to deliver part of the basket on settlement date. The ETF shares cannot be treated as fully issued until settlement is repaired.
+
+| Attribute | Value |
+|---|---:|
+| Creation units expected | 50,000 |
+| Basket value expected | 1,250,000 |
+| Failed basket component | 180,000 |
+| Cash collateral posted | 160,000 |
+| Uncovered exposure | 20,000 |
+
+### Settlement shortfall
+
+```text
+uncovered_exposure = failed_basket_component - cash_collateral_posted
+uncovered_exposure = 180,000 - 160,000 = 20,000
+```
+
+### Correct treatment
+
+- preserve ETF creation order, AP identity, basket file, failed component, collateral, fail notice and repair state;
+- keep ETF units pending or restricted until basket settlement or sponsor-approved collateral substitution is complete;
+- separate failed asset delivery, collateral posted, uncovered exposure and final issuance;
+- update ETF liquidity, AP concentration and operational-risk metrics;
+- avoid creating client-ready ETF units without settlement evidence.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| AP fails to deliver basket component | Creation remains pending, restricted or exceptioned. |
+| Collateral is insufficient | Uncovered exposure is calculated and escalated. |
+| Sponsor accepts cash substitute | Units issue according to approved substitution terms. |
+| Report is generated | Basket fail, collateral and issued units are distinct. |
+
+## Example 101. Private-Fund Side-Letter Fee Cap Expiry
+
+### Scenario
+
+A private-fund investor has a side-letter fee cap that expires mid-year. Fees after expiry should use the standard schedule unless a renewal is approved.
+
+| Attribute | Value |
+|---|---:|
+| Capital account value | 4,000,000 |
+| Side-letter fee cap | 0.75% |
+| Standard fee rate | 1.25% |
+| Days after cap expiry | 90 |
+| Day-count basis | 365 |
+
+### Incremental fee after expiry
+
+```text
+incremental_fee_rate = standard_fee_rate - side_letter_fee_cap
+incremental_fee = capital_account_value x incremental_fee_rate x days_after_expiry / 365
+incremental_fee = 4,000,000 x (1.25% - 0.75%) x 90 / 365 = 4,931.51
+```
+
+### Correct treatment
+
+- preserve side letter, expiry date, renewal state, standard fee schedule, administrator fee calculation and investor notice;
+- apply capped fees only through the valid side-letter period;
+- separate expired cap uplift from performance fees, management fees and expense allocations;
+- block or label fee reporting when side-letter renewal evidence is pending;
+- keep investor-specific fee terms private and scoped to authorized recipients.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Fee cap expires | Post-expiry fees use standard schedule unless renewal is approved. |
+| Renewal is pending | Fee output is provisional or exception-labelled. |
+| Fee cap is investor-specific | Other investors are not affected. |
+| Statement is generated | Cap period, standard period and incremental fee are explainable. |
+
+## Example 102. Semi-Liquid Redemption Queue Proration
+
+### Scenario
+
+A semi-liquid fund has a quarterly redemption gate. Accepted redemptions exceed available gate capacity and must be prorated across queued investors.
+
+| Attribute | Value |
+|---|---:|
+| Total valid redemption requests | 12,000,000 |
+| Quarterly gate capacity | 7,500,000 |
+| Client redemption request | 1,200,000 |
+| Proration factor | 62.50% |
+
+### Client accepted redemption
+
+```text
+proration_factor = gate_capacity / total_valid_redemption_requests
+proration_factor = 7,500,000 / 12,000,000 = 62.50%
+client_accepted_redemption = client_request x proration_factor
+client_accepted_redemption = 1,200,000 x 62.50% = 750,000
+client_deferred_redemption = 1,200,000 - 750,000 = 450,000
+```
+
+### Correct treatment
+
+- preserve redemption request, queue timestamp, valid request population, gate capacity, proration file and settlement statement;
+- separate accepted redemption, deferred redemption, cancelled redemption and future queue priority;
+- use administrator proration evidence before posting units and cash;
+- update liquidity projections, client communication and DPM funding assumptions;
+- avoid treating the full requested amount as settled or available cash.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Requests exceed gate capacity | Accepted redemption is prorated from source-backed factor. |
+| Client request is partially accepted | Accepted and deferred amounts remain separate. |
+| Queue priority changes | Deferred redemption carries queue lineage. |
+| Funding plan is generated | Only accepted settlement cash is usable by settlement date. |
+
+## Example 103. Fund Benchmark Reclassification Event
+
+### Scenario
+
+A fund changes benchmark from a broad equity index to a sustainable equity index. Historical performance remains unchanged, but relative performance, tracking error and mandate classification must be versioned.
+
+| Attribute | Prior | New |
+|---|---|---|
+| Benchmark | Broad Equity Index |
+| New benchmark | - | Sustainable Equity Index |
+| Effective date | - | 2026-07-01 |
+| Portfolio value | 8,000,000 | 8,000,000 |
+| Active return since effective date | n/a | 0.45% |
+
+### Active return amount
+
+```text
+active_return_amount = portfolio_value x active_return
+active_return_amount = 8,000,000 x 0.45% = 36,000
+```
+
+### Correct treatment
+
+- preserve fund notice, benchmark change rationale, effective date, benchmark identifiers, historical benchmark lineage and mandate mapping;
+- version benchmark-relative analytics from the effective date without rewriting prior reporting periods;
+- separate fund benchmark reclassification from ESG eligibility, product taxonomy and client suitability decisions;
+- update performance, tracking error, attribution and model-portfolio comparison basis;
+- disclose benchmark transition in client reporting where required by policy.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Benchmark changes from effective date | Relative analytics version forward from effective date. |
+| Historical report is regenerated | Prior benchmark remains applied to prior periods. |
+| Mandate relies on benchmark type | Suitability or model classification review opens. |
+| Performance report is generated | Benchmark lineage and active-return basis are visible. |
