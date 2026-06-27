@@ -43,6 +43,8 @@ Use this lens when improving any product document or designing a product feature
 
 ## Generic Platform Capability Baseline
 
+For a stricter support-boundary view, use [`product-capability-boundary-matrix.md`](product-capability-boundary-matrix.md) before claiming that a product-specific feature is supported.
+
 Many wealth platforms can support these capabilities generically across product families:
 
 1. instrument and product master,

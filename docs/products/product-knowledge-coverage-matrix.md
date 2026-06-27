@@ -24,6 +24,7 @@ This matrix tracks the current product-library coverage and where enrichment sho
 | Reference | Use |
 |---|---|
 | [`cross-product-worked-examples.md`](cross-product-worked-examples.md) | Practical examples for lifecycle, transactions, cashflows, calculations, reporting, QA, and implementation boundaries across product families. |
+| [`product-capability-boundary-matrix.md`](product-capability-boundary-matrix.md) | Cross-product boundary matrix for generic support, source-backed product-specific capabilities, support-limited states, future candidates, reporting claims, and QA evidence. |
 | [`practical-product-implementation-review.md`](practical-product-implementation-review.md) | Cross-product checklist for examples, payoff behavior, cashflows, valuation, analytics, advisory, mandate, reporting, QA, implementation boundaries, and candidate extensions. |
 | [`source-ownership-calculation-reporting-matrix.md`](source-ownership-calculation-reporting-matrix.md) | Cross-product source ownership, data-quality states, calculation dependencies, reporting requirements, QA scenarios, and implementation-boundary checklist. |
 | [`../reference/private-banking-platform-knowledge-map.md`](../reference/private-banking-platform-knowledge-map.md) | General project checklist for source ownership, API design, UI design, and documentation design. |
