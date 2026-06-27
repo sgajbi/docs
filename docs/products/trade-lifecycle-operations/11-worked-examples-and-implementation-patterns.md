@@ -711,3 +711,227 @@ claim amount = 4,000
 | Claim is disputed | Claim remains pending with ageing and escalation. |
 | Tax differs from original dividend | Gross, tax and net claim components are stored separately. |
 | Report was already issued | Restatement or next-period correction decision is recorded. |
+
+## Example 22. Intraday Settlement Cut-Off Miss
+
+### Scenario
+
+A same-day securities settlement instruction is ready internally, but the custodian cut-off is missed because affirmation completed late. The trade remains economically valid, but settlement risk and client cash availability must reflect the missed cut-off.
+
+| Attribute | Value |
+|---|---|
+| Trade value | 750,000 |
+| Market settlement date | T+0 |
+| Custodian cut-off | 14:00 |
+| Affirmation completed | 14:18 |
+| Revised settlement expectation | T+1 or manual exception |
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Detect cut-off miss | Compare market, custodian, currency and instruction cut-offs with actual affirmation timestamp. |
+| Update settlement state | Mark instruction as missed cut-off or pending exception, not settled. |
+| Cash availability | Keep settlement cash reserved or projected according to policy. |
+| Escalation | Notify operations, advisor and liquidity owner when client impact is material. |
+| Evidence | Preserve affirmation timestamp, custodian status, cut-off calendar and repair instruction. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Affirmation completes after cut-off | Settlement instruction is not marked settled. |
+| Cash is requested for other use | Reserved settlement cash remains restricted until settlement state resolves. |
+| Manual exception is approved | Exception includes authority, timestamp and custodian reference. |
+| Report is generated | Trade shows pending or delayed settlement state with reason. |
+
+## Example 23. Partial Custody Transfer
+
+### Scenario
+
+A client transfers a multi-asset custody portfolio to a new custodian. Equities transfer on time, but bonds and funds remain pending. Reporting must show transferred, pending and failed legs without treating the transfer as trading activity.
+
+| Asset class | Quantity/value | Transfer status |
+|---|---:|---|
+| Equities | 1,200,000 | Completed |
+| Bonds | 850,000 | Pending lot detail |
+| Funds | 400,000 | Rejected by transfer agent |
+
+### Transfer progress
+
+```text
+total_transfer_value = 1,200,000 + 850,000 + 400,000 = 2,450,000
+completed_transfer_ratio = 1,200,000 / 2,450,000 = 48.98%
+pending_or_failed_value = 1,250,000
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Position transfer | Move only completed custody legs into confirmed target account positions. |
+| Pending legs | Keep pending assets in in-transfer or source-custody state. |
+| Rejected legs | Route fund transfer-agent rejection to repair workflow. |
+| Tax lots | Preserve lot portability state separately by asset class and custodian file. |
+| Reporting | Show transfer progress and exceptions without booking sells or buys. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Only equity leg completes | Equity moves while bonds/funds remain pending or rejected. |
+| Fund transfer is rejected | No target fund position is created without transfer-agent confirmation. |
+| Bond lot file is pending | Position may be visible but tax-lot reporting is incomplete. |
+| Performance report is generated | Internal transfer does not create external cashflow or realized P&L. |
+
+## Example 24. Buy-In Exposure After Settlement Fail
+
+### Scenario
+
+A short-delivered equity sale fails to settle. The market may initiate buy-in after the fail window. Operations must measure buy-in exposure and client impact without prematurely booking final loss.
+
+| Attribute | Value |
+|---|---:|
+| Failed delivery quantity | 8,000 |
+| Original sale price | 42.00 |
+| Current market buy-in price | 44.25 |
+| Potential buy-in fee | 1,500 |
+
+### Exposure estimate
+
+```text
+price_exposure = 8,000 x (44.25 - 42.00) = 18,000
+estimated_buy_in_exposure = 18,000 + 1,500 = 19,500
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Fail monitoring | Track failed quantity, age, market, broker and buy-in eligibility date. |
+| Exposure estimate | Estimate potential buy-in cost separately from realized cash settlement. |
+| Client impact | Escalate when buy-in risk affects cash, performance or client commitments. |
+| Resolution | Close exposure only when delivery, buy-in, cancellation or compensation is source-confirmed. |
+| Reporting | Label buy-in amount as estimate until final market notice is received. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Fail reaches buy-in window | Buy-in exposure workflow opens. |
+| Market price changes | Estimated exposure recalculates without booking realized loss. |
+| Buy-in executes | Final cost posts with market notice and settlement evidence. |
+| Delivery completes before buy-in | Exposure closes without buy-in loss. |
+
+## Example 25. Tax-Lot Transfer Portability
+
+### Scenario
+
+A custodian transfer includes position quantity immediately, but acquisition dates and cost basis arrive in a later tax-lot file. The platform must support position continuity while keeping tax reporting incomplete until lots reconcile.
+
+| Lot state | Quantity | Cost basis status |
+|---|---:|---|
+| Position transferred | 5,000 | n/a |
+| Lots received | 3,500 | Complete |
+| Lots pending | 1,500 | Missing |
+
+### Reconciliation
+
+```text
+lot_quantity_break = transferred_quantity - received_lot_quantity
+lot_quantity_break = 5,000 - 3,500 = 1,500
+lot_coverage = 3,500 / 5,000 = 70.00%
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Position continuity | Show transferred position from custody confirmation. |
+| Tax status | Mark tax-lot basis as partial until lots reconcile to full quantity. |
+| Sale before completion | Block or label realized gain/loss according to jurisdiction and policy. |
+| Evidence | Preserve old custodian lot ids, acquisition dates, cost basis and transfer date. |
+| Reconciliation | Close portability exception when lot quantity and position quantity match. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Position arrives before lots | Holding is visible but tax-lot reporting is partial. |
+| Sale occurs with missing lots | Realized tax result is provisional or blocked by policy. |
+| Final lot file arrives | Lot coverage reaches 100% and exception closes. |
+| Lot quantity exceeds position | Reconciliation break opens rather than silently trimming lots. |
+
+## Example 26. Cross-Custodian SSI Migration
+
+### Scenario
+
+A client migrates settlement instructions from Custodian A to Custodian B. Trades booked during the transition must use the correct standing settlement instruction by market, currency and effective date.
+
+| Attribute | Value |
+|---|---|
+| Old SSI effective until | 2026-06-30 |
+| New SSI effective from | 2026-07-01 |
+| Trade date | 2026-06-28 |
+| Settlement date | 2026-07-02 |
+| Market rule | Settlement-date SSI applies |
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Effective dating | Resolve SSI by market rule, account, currency and settlement date. |
+| Instruction generation | Use new SSI when settlement-date rule applies after migration date. |
+| Repair | Detect mismatched SSI before settlement fail when possible. |
+| Evidence | Preserve old SSI, new SSI, approval, market rule and instruction version. |
+| Reporting | Show SSI migration as operational state, not a change in product exposure. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Settlement date falls after migration | New SSI is used where settlement-date rule applies. |
+| Trade-date rule applies in a market | Old SSI remains valid for trades before effective date. |
+| SSI approval is missing | Instruction generation is blocked or routed to repair. |
+| Custodian rejects instruction | Repair workflow preserves rejected and corrected SSI versions. |
+
+## Example 27. Operational Incident Communication
+
+### Scenario
+
+A settlement processing incident delays confirmations for multiple clients. Operations must communicate status, impact and remediation without exposing unrelated client data or making unsupported completion claims.
+
+| Attribute | Value |
+|---|---:|
+| Impacted trades | 42 |
+| Impacted clients | 18 |
+| Confirmed settled | 31 |
+| Pending confirmation | 11 |
+| Material client cash impact | 3 clients |
+
+### Incident metrics
+
+```text
+settled_confirmation_ratio = 31 / 42 = 73.81%
+pending_confirmation_ratio = 11 / 42 = 26.19%
+material_cash_impact_rate = 3 / 18 = 16.67%
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Incident scope | Track impacted trades, clients, markets, custodians and status. |
+| Communication | Send role-appropriate updates to advisors, operations and affected clients where required. |
+| Confidentiality | Do not include other client names, holdings or trade details in client communication. |
+| Evidence | Preserve incident id, timeline, status snapshots, approvals and remediation actions. |
+| Closure | Close only after settlement confirmations, reconciliation and client-impact review complete. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Incident update is generated | Message includes status, impact and next update time without unsupported finality. |
+| Client-specific notice is needed | Notice includes only authorized client-specific information. |
+| Pending confirmations remain | Incident cannot be closed as fully resolved. |
+| Post-incident review completes | Root cause, corrective actions and evidence are linked to affected trades. |
