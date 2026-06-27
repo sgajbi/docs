@@ -14,6 +14,8 @@ This repo should stay easy to extend as more product docs, prompt docs, and refe
 
 For product source files, statements, extracts, spreadsheets, PDFs, or migration samples, also use [`../products/product-source-intake-and-migration-guide.md`](../products/product-source-intake-and-migration-guide.md).
 
+When a source pack is reviewed but not imported because the curated repository already covers the useful content, record the decision in [`source-material-intake-log.md`](source-material-intake-log.md). The log should describe the placement decision without retaining local paths, package filenames, generated-source headers, or duplicate source material.
+
 ## Classification
 
 | Category | Destination | Examples |

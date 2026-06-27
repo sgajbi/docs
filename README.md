@@ -12,7 +12,7 @@ This repo is organized so new document sets can be added without turning the roo
 | [`docs/technical/`](docs/technical/README.md) | Technical knowledge base for enterprise architecture, technology choices, backend structure, frontend supportability, API governance, data products, CI/CD, infrastructure, deployment, observability, SRE, security, testing, resilience, Git hygiene and engineering knowledge management. |
 | [`docs/prompts/`](docs/prompts/README.md) | Prompt libraries, AI workflows, reusable instructions, and evaluation notes. |
 | [`docs/reference/`](docs/reference/README.md) | External references, glossaries, citations, and source lists. |
-| [`docs/operations/`](docs/operations/documentation-governance.md) | How to add, classify, and maintain docs in this repo. |
+| [`docs/operations/`](docs/operations/README.md) | How to add, classify, review and maintain docs in this repo. |
 | [`templates/`](templates/README.md) | Reusable templates for future document packs. |
 
 ## Reusable Knowledge Maps
