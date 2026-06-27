@@ -12,6 +12,7 @@ Each product family should have its own folder with a local `README.md`, a clear
 | Derivatives | [`derivatives/`](derivatives/README.md) | Wealth-management reference for options, futures, forwards, swaps, CDS, OTC derivatives, lifecycle events, valuation, Greeks, exposure, margin, collateral, advisory, mandate controls, implementation, and QA. |
 | Equities | [`equities/`](equities/README.md) | Wealth-management reference for direct equities, trade lifecycle, settlement, corporate actions, dividends, cost basis, valuation, P&L, performance, risk, advisory, DPM, reporting, implementation, and QA. |
 | Funds | [`funds/`](funds/README.md) | Wealth-management reference for funds, ETFs, share classes, lifecycle, subscriptions/redemptions, NAV, fees, look-through, performance, advisory, implementation, and QA. |
+| Structured products | [`structured-products/`](structured-products/README.md) | Wealth-management reference for structured wrappers, payoff building blocks, underlyings, lifecycle events, valuation, scenario analytics, advisory controls, implementation, reconciliation, and QA. |
 | Structured notes | [`structured-notes/`](structured-notes/README.md) | Wealth-management reference for notes, structured notes, lifecycle, data model, valuation, risk, advisory, implementation, and QA. |
 
 ## Product Area Maps

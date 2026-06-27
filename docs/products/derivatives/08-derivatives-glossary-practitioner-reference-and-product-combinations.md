@@ -33,7 +33,7 @@
 | ISDA | Standard OTC derivative legal framework |
 | CSA | Collateral support annex/agreement |
 
-## 2. Product cheat sheet
+## 2. Product reference table
 
 | Product | Client position | Upfront cash | Main lifecycle | Main risk |
 |---|---|---|---|---|
@@ -125,7 +125,7 @@ A hedge reduces an existing portfolio risk. Speculation adds risk to profit from
 
 Because market value alone is insufficient. Reports need exposure, sensitivity, margin, purpose, P&L contribution, underlying look-through and next lifecycle event.
 
-## 8. Platform design cheat sheet
+## 8. Platform design reference table
 
 | Requirement | Good design |
 |---|---|

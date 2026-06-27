@@ -22,6 +22,7 @@ This repo is organized so new document sets can be added without turning the roo
 | Derivatives reference pack | [`docs/products/derivatives/`](docs/products/derivatives/README.md) | Imported from `C:\Users\Sandeep\Downloads\derivatives_reference_pack.zip\derivatives_reference_pack` on 2026-06-27. |
 | Equities reference pack | [`docs/products/equities/`](docs/products/equities/README.md) | Imported from `C:\Users\Sandeep\Downloads\equities_and_product_kb_expansion.zip\equities_reference_pack` on 2026-06-27. |
 | Funds reference pack | [`docs/products/funds/`](docs/products/funds/README.md) | Imported from `C:\Users\Sandeep\Downloads\funds_reference_pack.zip\funds_reference_pack` on 2026-06-27. |
+| Structured products reference pack | [`docs/products/structured-products/`](docs/products/structured-products/README.md) | Imported from `C:\Users\Sandeep\Downloads\structured_products_reference_pack.zip\structured_products_reference_pack` on 2026-06-27. |
 | Structured notes reference pack | [`docs/products/structured-notes/`](docs/products/structured-notes/README.md) | Imported from `C:\Users\Sandeep\Downloads\notes_reference_pack` on 2026-06-27. |
 
 ## Reusable Knowledge Maps

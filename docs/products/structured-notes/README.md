@@ -64,6 +64,10 @@ This pack covers:
 - Platform implementation controls
 - QA and regression test scenarios
 
+## Relationship To Structured Products
+
+Use this pack as the note-wrapper deep dive. For broader structured products across notes, deposits, certificates, warrants, structured funds, accumulators, decumulators, participation products, buffers, leverage, and OTC wrappers, use [`../structured-products/`](../structured-products/README.md).
+
 ---
 
 ## Design Principle for Wealth Platforms

@@ -7,7 +7,14 @@ This page connects product reference packs that are often used together in priva
 | Product Area | Pack | Main Use |
 |---|---|---|
 | Bonds | [`bonds/`](bonds/README.md) | Fixed-income product modelling, coupon/accrual treatment, yield, duration, credit risk, valuation, lifecycle, and advisory controls. |
+| Structured products | [`structured-products/`](structured-products/README.md) | Broad wrapper-plus-payoff modelling for notes, deposits, certificates, warrants, structured funds, accumulators, decumulators, autocallables, participation products, buffers, and leveraged structures. |
 | Structured notes | [`structured-notes/`](structured-notes/README.md) | Structured payoff modelling, embedded derivative terms, lifecycle events, barrier/autocall/physical settlement handling, valuation, risk, and suitability controls. |
+
+## Structured Products Versus Structured Notes
+
+Use `structured-products/` as the broad product-family pack. It covers the wrapper-plus-payoff architecture across note, deposit, certificate, warrant, fund, OTC, accumulator, decumulator, participation, buffer, and leveraged forms.
+
+Use `structured-notes/` when the work is specifically about issuer-note wrappers, medium-term note treatment, note lifecycle processing, note valuation, note reporting, or physical settlement from a note.
 
 ## Platform Design Distinctions
 

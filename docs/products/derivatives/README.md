@@ -34,7 +34,7 @@ This pack is written from the perspective of a wealth-management / private-banki
 | `05-derivatives-data-model-valuation-greeks-margin-collateral-risk.md` | Covers canonical data model, valuation, Greeks, DV01, CS01, margin, collateral, notional exposure, delta-equivalent exposure, VaR, stress and counterparty risk. |
 | `06-derivatives-advisory-mandate-analytics-reporting-deep-dive.md` | Dedicated advisory, mandate, DPM, suitability, concentration, reporting, portfolio-review and client-communication deep dive. |
 | `07-derivatives-platform-implementation-controls-reconciliation-test-scenarios.md` | Platform implementation guide: architecture, event model, transaction model, valuation controls, reconciliation, QA and production triage. |
-| `08-derivatives-glossary-practitioner-reference-and-product-combinations.md` | Glossary, practitioner explanations, product-combination map and cheat sheets. |
+| `08-derivatives-glossary-practitioner-reference-and-product-combinations.md` | Glossary, practitioner explanations, product-combination map, and reusable reference tables. |
 
 ## Recommended Learning and Project Sequence
 
