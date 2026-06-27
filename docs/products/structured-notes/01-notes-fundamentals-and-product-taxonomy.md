@@ -402,6 +402,6 @@ Suitability is not only about expected return. It is about whether the risk, com
 
 ---
 
-## 9. Interview-Ready Explanation
+## 9. Practitioner Explanation
 
 > Notes are debt instruments issued by banks, companies, or financial institutions. In private banking, the term often refers to structured notes, where coupon or principal repayment depends on an underlying such as equities, indices, FX, rates, credit, or commodities. A structured note combines a debt component with embedded derivatives. The client is exposed to both issuer credit risk and the risk of the underlying payoff formula. Notes are often used for enhanced yield or market-view expression, but higher coupon usually means the client is accepting risks such as barrier risk, equity downside, FX conversion, credit event risk, liquidity risk, or worst-of basket risk. From a platform perspective, the client should hold one note position, while the embedded derivative features should be modelled as product terms, lifecycle rules, valuation inputs, and look-through risk exposures.

@@ -1,4 +1,4 @@
-# 04 — Platform Implementation, Advisory, and Interview Reference
+# 04 — Platform Implementation, Advisory, and Practitioner Reference
 
 ## 1. Platform Architecture View
 
@@ -317,7 +317,7 @@ Do not directly mutate positions from observation logic without producing audita
 
 ---
 
-## 11. Interview-Ready Answers
+## 11. Practitioner Questions and Answers
 
 ### What is a note?
 

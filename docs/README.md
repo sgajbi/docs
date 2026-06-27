@@ -8,3 +8,10 @@ This folder contains authored documentation grouped by use.
 | [`prompts/`](prompts/README.md) | Prompt packs, AI workflow notes, prompt evaluation notes, and reusable operating instructions. |
 | [`reference/`](reference/README.md) | Source lists, citations, glossary material, and reusable background references. |
 | [`operations/`](operations/documentation-governance.md) | Repository maintenance rules and documentation intake workflow. |
+
+## Cross-Cutting Knowledge Maps
+
+| Map | Use |
+|---|---|
+| [`products/fixed-income-and-structured-products.md`](products/fixed-income-and-structured-products.md) | Compare bonds and structured notes for product modelling, valuation, risk, lifecycle, and platform design. |
+| [`reference/private-banking-platform-knowledge-map.md`](reference/private-banking-platform-knowledge-map.md) | Reusable project checklist for instrument, transaction, position, valuation, risk, advisory, reporting, API, UI, and documentation work. |
