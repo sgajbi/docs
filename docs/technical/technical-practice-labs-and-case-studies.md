@@ -2,6 +2,8 @@
 
 Use these labs to turn the technical knowledge base into practical engineering skill. Each lab is intentionally product-neutral and can be applied to any enterprise banking, wealth-management or regulated platform repository.
 
+For examples of the expected output quality, use [`technical-practice-lab-sample-answers.md`](technical-practice-lab-sample-answers.md).
+
 The purpose is not to memorize guidance. The purpose is to inspect a real or representative system, produce evidence, make a defensible engineering judgement and identify a small improvement.
 
 ## How To Use These Labs

@@ -37,7 +37,7 @@ Use this checklist after reading any guide so the learning produces durable engi
 
 ## Practice Lab Execution Checklist
 
-Use this checklist with [`../technical-practice-labs-and-case-studies.md`](../technical-practice-labs-and-case-studies.md) so each lab becomes evidence-backed practice rather than passive reading.
+Use this checklist with [`../technical-practice-labs-and-case-studies.md`](../technical-practice-labs-and-case-studies.md) and [`../technical-practice-lab-sample-answers.md`](../technical-practice-lab-sample-answers.md) so each lab becomes evidence-backed practice rather than passive reading.
 
 - [ ] Choose one lab that matches a current project, weak area or KT need.
 - [ ] Read the linked guides before inspecting the target system or artifact.
@@ -45,6 +45,7 @@ Use this checklist with [`../technical-practice-labs-and-case-studies.md`](../te
 - [ ] Capture only source-safe evidence: commands, paths, public contracts, synthetic examples, screenshots without restricted data or summarized observations.
 - [ ] Produce the lab artifacts listed in the lab table.
 - [ ] Answer the review questions in plain language.
+- [ ] Compare the output against a sample answer when one exists.
 - [ ] Identify the smallest improvement that would raise confidence.
 - [ ] Define expected validation evidence before proposing the improvement.
 - [ ] Update a guide, checklist or coverage matrix only when the lab reveals a reusable pattern.
