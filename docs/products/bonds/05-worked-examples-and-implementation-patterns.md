@@ -2492,6 +2492,236 @@ implementation_shortfall = 2,000,000 - 1,980,000 = 20,000
 | Basket contains restricted bonds | Advisory, mandate and reporting restrictions are evaluated after settlement. |
 | Performance report is generated | Fund redemption, received bonds, residual cash and costs are explainable separately. |
 
+## Example 64. Fallen-angel index migration
+
+### Scenario
+
+A corporate bond is downgraded from investment grade to high yield. The client still holds the bond, but the benchmark provider removes it from the investment-grade index after a transition window. Portfolio analytics must separate holding risk from benchmark migration.
+
+| Attribute | Before migration | After migration |
+|---|---:|---:|
+| Portfolio market value | 1,000,000 | 960,000 |
+| Portfolio weight | 2.00% | 1.92% |
+| Benchmark weight | 1.50% | 0.00% |
+| Active weight | 0.50% | 1.92% |
+
+### Active weight impact
+
+```text
+active_weight_before = 2.00% - 1.50% = 0.50%
+active_weight_after = 1.92% - 0.00% = 1.92%
+active_weight_change = 1.92% - 0.50% = 1.42%
+```
+
+### Correct treatment
+
+- retain the bond holding and tax lots until sold, matured, exchanged or otherwise processed;
+- update benchmark-relative analytics from the benchmark provider effective date;
+- route advisory and mandate checks when the bond becomes high-yield or outside approved universe;
+- separate price loss, credit migration, benchmark removal and realized sale decision;
+- preserve rating notice, index file, effective date and product-governance action.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Rating downgrade occurs | Credit classification and mandate controls update from effective source date. |
+| Benchmark removes the bond | Benchmark weight becomes zero while client holding remains. |
+| Portfolio report is generated | Active weight explains index migration separately from market value change. |
+| Bond is sold after removal | Sale is processed as client transaction, not automatic index event. |
+
+## Example 65. Callable notice timing dispute
+
+### Scenario
+
+An issuer call notice is received by the custodian after the platform's income projection cut-off. The issuer states the call is effective, while the custodian confirmation arrives late. The platform must avoid prematurely closing the position while still flagging the likely call.
+
+| Attribute | Value |
+|---|---|
+| Held nominal | 750,000 |
+| Call price | 100.75 |
+| Issuer notice timestamp | 2026-05-02 17:20 |
+| Custodian confirmation timestamp | 2026-05-03 09:15 |
+| Projection cut-off | 2026-05-02 16:00 |
+
+### Expected call cash
+
+```text
+expected_principal_cash = 750,000 x 100.75 / 100 = 755,625
+```
+
+### Correct treatment
+
+- create a pending call event from issuer notice when policy allows, but do not close the position before required confirmation;
+- label cashflow projection as pending, estimated or source-limited until confirmation arrives;
+- preserve issuer notice, custodian confirmation, notice timestamp, cut-off and source priority;
+- update maturity ladder, yield and income projection when the event becomes confirmed;
+- track any client communication sent before final confirmation.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Issuer notice arrives after projection cut-off | Projection is flagged pending or updated in next cycle according to policy. |
+| Custodian confirmation is missing | Position remains open and call cash is not booked as settled. |
+| Custodian confirms next day | Lifecycle event is confirmed with source lineage. |
+| Client report is generated during dispute | Report distinguishes expected call from confirmed redemption. |
+
+## Example 66. Bond tender proration dispute
+
+### Scenario
+
+A client tenders 1,000,000 nominal into a liability-management offer. The issuer accepts only 62% because the offer is oversubscribed. The client disputes the accepted amount because an initial broker estimate showed 75%.
+
+| Attribute | Value |
+|---|---:|
+| Tendered nominal | 1,000,000 |
+| Broker estimated acceptance | 75.00% |
+| Final accepted percentage | 62.00% |
+| Tender price | 102.25 |
+| Accrued interest on accepted amount | 8,500 |
+
+### Accepted proceeds
+
+```text
+accepted_nominal = 1,000,000 x 62.00% = 620,000
+principal_cash = 620,000 x 102.25 / 100 = 633,950
+total_cash = 633,950 + 8,500 = 642,450
+residual_nominal = 1,000,000 - 620,000 = 380,000
+```
+
+### Correct treatment
+
+- reduce the position only by final accepted nominal, not tendered nominal or preliminary broker estimate;
+- preserve tender instruction, preliminary estimate, final acceptance file and dispute state;
+- keep residual nominal in the portfolio with unchanged terms unless the offer changes them;
+- separate principal consideration, tender premium and accrued interest;
+- reflect dispute as operations/client-service workflow, not as a price correction.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Final acceptance is lower than estimate | Position reduces by final accepted nominal only. |
+| Estimate and final file conflict | Final issuer/custodian source wins according to source hierarchy. |
+| Client disputes proration | Dispute workflow opens without changing accepted amount. |
+| Report is generated | Accepted, residual and disputed quantities are explainable. |
+
+## Example 67. Inflation-linked deflation floor
+
+### Scenario
+
+An inflation-linked bond has a principal floor at par. The index ratio falls below 1.00 during a deflation period. Valuation and projected redemption must apply the floor only if the bond terms support it.
+
+| Attribute | Value |
+|---|---:|
+| Original nominal | 1,000,000 |
+| Current index ratio | 0.9820 |
+| Unfloored indexed principal | 982,000 |
+| Principal floor | 1,000,000 |
+
+### Floor calculation
+
+```text
+unfloored_principal = 1,000,000 x 0.9820 = 982,000
+floor_protected_principal = max(982,000, 1,000,000) = 1,000,000
+floor_benefit = 1,000,000 - 982,000 = 18,000
+```
+
+### Correct treatment
+
+- apply the floor only when confirmed in bond terms and applicable to the relevant cashflow;
+- keep market valuation, accrued inflation uplift and redemption projection separately explainable;
+- source index ratios, base index, floor terms and publication timestamp;
+- label analytics stale when index source is missing or restated;
+- avoid applying a generic inflation-linked floor to instruments where terms allow negative indexation.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Index ratio falls below 1.00 and floor exists | Redemption projection uses floored principal. |
+| Floor term is missing | Final projection is blocked or labelled source-limited. |
+| Index is restated | Floor benefit and attribution are versioned from restated source. |
+| Market price changes | Price performance remains separate from floor calculation. |
+
+## Example 68. ESG covenant step-up
+
+### Scenario
+
+A sustainability-linked bond pays a coupon step-up if the issuer misses a verified ESG target. The target failure is confirmed after the coupon projection cycle, requiring future accruals and report labels to update.
+
+| Attribute | Value |
+|---|---:|
+| Nominal | 2,000,000 |
+| Base coupon | 3.10% |
+| ESG step-up | 0.25% |
+| Revised coupon | 3.35% |
+| Annual coupon increase | 5,000 |
+
+### Step-up impact
+
+```text
+revised_coupon = 3.10% + 0.25% = 3.35%
+annual_coupon_increase = 2,000,000 x 0.25% = 5,000
+```
+
+### Correct treatment
+
+- update coupon schedule only after source-confirmed target assessment and effective date;
+- preserve verifier report, issuer notice, covenant terms and step-up calculation;
+- label the bond as sustainability-linked only when source terms support the classification;
+- separate coupon income change from credit spread or price movement;
+- update advisory and product-governance views when ESG characteristics change or targets fail.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| ESG target failure is confirmed | Future coupon accrual uses stepped-up coupon from effective date. |
+| Verifier report is missing | Step-up is pending or source-limited. |
+| Coupon projection was already published | Correction or next-cycle update is recorded with lineage. |
+| Client report is generated | Report explains coupon step-up and ESG target failure separately from market return. |
+
+## Example 69. Bond option exercise error
+
+### Scenario
+
+A putable bond allows holders to exercise a put at 100.00 on a specified exercise date. An operations user accidentally submits exercise for the full position even though the client approved only half. The platform must prevent or repair over-exercise before settlement.
+
+| Attribute | Value |
+|---|---:|
+| Held nominal | 600,000 |
+| Client-approved exercise nominal | 300,000 |
+| Erroneous submitted nominal | 600,000 |
+| Put price | 100.00 |
+| Over-exercised nominal | 300,000 |
+
+### Error amount
+
+```text
+over_exercised_nominal = submitted_nominal - approved_nominal
+over_exercised_nominal = 600,000 - 300,000 = 300,000
+overstated_put_cash = 300,000 x 100.00 / 100 = 300,000
+```
+
+### Correct treatment
+
+- validate exercise instruction against client approval, eligible nominal, deadline and product terms;
+- block or repair submitted nominal that exceeds approved nominal;
+- keep approved exercise, erroneous instruction, cancellation/repair and final settlement linked;
+- reduce position only by confirmed exercised nominal;
+- preserve client approval, option notice, submission timestamp and custodian response.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Submitted exercise exceeds approval | Workflow blocks or routes to repair before settlement. |
+| Deadline passes before repair | Exception state records missed correction and residual risk. |
+| Custodian accepts corrected instruction | Position reduces only by corrected exercised nominal. |
+| Client report is generated | Approved exercise, repair and final position are traceable. |
+
 ## Implementation-backed capability lens
 
 When reviewing whether a platform truly supports bonds, use these evidence questions:
