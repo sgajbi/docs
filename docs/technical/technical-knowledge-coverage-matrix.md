@@ -21,6 +21,7 @@ Use it to decide:
 | Data mesh and data products | [`04-data-mesh-and-data-product-engineering.md`](04-data-mesh-and-data-product-engineering.md) | Strong coverage of data products, certification, trust telemetry, access policy, evidence policy, producer workflow and consumer workflow. | Add deeper examples for data-product SLOs, dependency graphs, consumer impact analysis and source outage playbooks. |
 | Data-product engineering deep dive | [`data-product-engineering/`](data-product-engineering/README.md) | Strong deep-dive coverage of data-product mindset, domain ownership, producer and consumer contracts, canonical vocabulary, lineage, freshness, trust metadata, quality states, API/event/batch contracts, catalog publication, SLO/access/evidence policies, runtime telemetry, certification, security, observability, testing, onboarding and maturity. | Add implementation-backed case studies for legacy-feed migration, consumer-impact analysis, certification expiry, source outage fallback and AI/RAG consumer trust boundaries. |
 | CI/CD and quality gates | [`05-ci-cd-quality-gates-and-release-governance.md`](05-ci-cd-quality-gates-and-release-governance.md) | Strong coverage of repo-native commands, lane model, good gate design, release evidence, branch hygiene, merge governance and CI anti-patterns. | Add deeper examples for gate promotion intake, flaky-check demotion, quality scorecards and release artifact review. |
+| CI/CD, DevSecOps and release evidence deep dive | [`cicd-devsecops-release-evidence/`](cicd-devsecops-release-evidence/README.md) | Strong deep-dive coverage of CI/CD as evidence production, validation lanes, local checks, PR merge gates, main releasability, quality gates, test gates, contract governance, DevSecOps, workflow security, container/runtime gates, release evidence, branch hygiene, gate promotion and operating playbooks. | Add examples for flaky-check triage, report-only gate ownership, release-evidence manifests, workflow-permission hardening and incident-driven gate improvements. |
 | Observability and SRE | [`06-observability-sre-and-operational-support.md`](06-observability-sre-and-operational-support.md) | Strong coverage of structured logs, metrics, traces, health checks, SLO thinking, incident workflow, runbooks and supportability states. | Add deeper examples for alert design, dashboard review, incident severity classification and error-budget operation. |
 | Security and sensitive data | [`07-security-configuration-and-sensitive-data.md`](07-security-configuration-and-sensitive-data.md) | Strong coverage of secure configuration, secrets, authorization, sensitive observability, CI security controls, workflow security and evidence filtering. | Add deeper examples for threat modelling, key rotation, privileged access, secure evidence packs and AI/tool-call security. |
 | Testing, performance and resilience | [`08-testing-performance-and-resilience.md`](08-testing-performance-and-resilience.md) | Strong coverage of test pyramid, meaningful coverage, contract tests, integration tests, E2E tests, performance hygiene, resilience patterns and migration smoke. | Add deeper examples for load-test design, resilience drills, benchmark baselines and test-data design. |
@@ -61,16 +62,17 @@ The technical knowledge base now has strong coverage for:
 6. data products and data mesh,
 7. data-product engineering depth,
 8. CI/CD lane model and quality gates,
-9. observability and SRE supportability,
-10. security and sensitive-data handling,
-11. testing, performance and resilience,
-12. infrastructure, containers and deployment,
-13. Git, release and documentation truth,
-14. technology stack reasoning,
-15. frontend and experience-API supportability,
-16. performance, resilience and async execution depth,
-17. practical engineering review checklists,
-18. implementation evidence reading.
+9. CI/CD, DevSecOps and release-evidence depth,
+10. observability and SRE supportability,
+11. security and sensitive-data handling,
+12. testing, performance and resilience,
+13. infrastructure, containers and deployment,
+14. Git, release and documentation truth,
+15. technology stack reasoning,
+16. frontend and experience-API supportability,
+17. performance, resilience and async execution depth,
+18. practical engineering review checklists,
+19. implementation evidence reading.
 
 ## Next High-Value Slices
 

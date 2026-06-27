@@ -2,6 +2,8 @@
 
 High-quality CI is an engineering control system. It should catch real regressions early, produce useful evidence, and make it hard to ship undocumented or unsupported behavior.
 
+For deeper CI/CD, DevSecOps, quality-gate and release-evidence guidance, use [`cicd-devsecops-release-evidence/`](cicd-devsecops-release-evidence/README.md).
+
 ## Repository-Native Command Policy
 
 Every service should expose local commands for:

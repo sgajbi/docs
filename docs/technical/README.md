@@ -16,6 +16,7 @@ It translates patterns observed across a mature multi-application platform into 
 | [`04-data-mesh-and-data-product-engineering.md`](04-data-mesh-and-data-product-engineering.md) | Learn domain-owned data products, trust telemetry, source ownership, access policy, evidence policy and data-product certification. |
 | [`data-product-engineering/`](data-product-engineering/README.md) | Deep-dive into data-product mindset, data mesh operating model, producer/consumer contracts, canonical vocabulary, lineage, freshness, quality, catalog publication, SLO/access/evidence policy, trust telemetry, certification, security, observability, testing and maturity. |
 | [`05-ci-cd-quality-gates-and-release-governance.md`](05-ci-cd-quality-gates-and-release-governance.md) | Understand repository-native commands, lane-based CI, quality gates, release evidence, branch hygiene and merge discipline. |
+| [`cicd-devsecops-release-evidence/`](cicd-devsecops-release-evidence/README.md) | Deep-dive into CI/CD as evidence production, validation lanes, local checks, PR and main gates, quality gates, test gates, contract governance, DevSecOps, workflow security, container parity, release evidence, branch hygiene and gate maturity. |
 | [`06-observability-sre-and-operational-support.md`](06-observability-sre-and-operational-support.md) | Learn logging, metrics, tracing, health checks, SLOs, incident response, runbooks, supportability and operational evidence. |
 | [`07-security-configuration-and-sensitive-data.md`](07-security-configuration-and-sensitive-data.md) | Apply secure configuration, secrets handling, least privilege, sensitive-data controls, workflow security and evidence filtering. |
 | [`08-testing-performance-and-resilience.md`](08-testing-performance-and-resilience.md) | Understand test pyramid, meaningful coverage, contract tests, integration tests, E2E tests, performance hygiene and resilience patterns. |
@@ -55,7 +56,7 @@ The strongest engineering systems make the correct path easy: one local command 
 | DevOps / platform engineer | Files 05, 06, 07, 08, 10, 11 and 12. |
 | QA engineer | Files 03, 05, 08, 09 and 13. |
 | Frontend engineer | Files 03, 06, 08, 09, 12 and 13. |
-| Engineering lead | Files 01, 04, 05, 06, 09, 10, 11, 12, 13, 14, 16, 17, the backend/API/data-product deep-dive packs and the coverage matrix. |
+| Engineering lead | Files 01, 04, 05, 06, 09, 10, 11, 12, 13, 14, 16, 17, the backend/API/data-product/CI-CD deep-dive packs and the coverage matrix. |
 | New joiner | Read files 01 through 14 in order, then use files 15 through 17 and the coverage matrix to choose deeper slices. |
 
 ## Relationship To Reference Packs
