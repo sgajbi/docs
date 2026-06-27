@@ -2268,3 +2268,239 @@ gross_liquidity_need_if_excluded_pay_fails = 200,000
 | SSI changes after cut-off | Exception reason is captured and gross settlement is monitored. |
 | Netted settlement completes | Eligible net amount is closed without closing excluded trade. |
 | Operations dashboard is generated | Netting set, excluded trade and liquidity reserve are visible. |
+
+## Example 56. FX swap rollover failure
+
+### Scenario
+
+A short-dated FX swap is used to roll a USD funding need against EUR liquidity. The near leg settles, but the far-leg rollover instruction fails because the counterparty rejects the settlement instruction after cut-off. Treasury must distinguish settled cash, open forward exposure, and replacement funding need.
+
+| Attribute | Value |
+|---|---:|
+| Near-leg USD received | 1,000,000 |
+| Far-leg USD payable | 1,003,500 |
+| Replacement USD funding quote | 1,006,200 |
+| Rollover failure cost | 2,700 |
+
+### Failure cost
+
+```text
+rollover_failure_cost = replacement_usd_funding_quote - original_far_leg_usd_payable
+rollover_failure_cost = 1,006,200 - 1,003,500 = 2,700
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Cash state | Keep near-leg settlement separate from failed far-leg rollover. |
+| FX exposure | Keep the open forward/funding exposure visible until replacement trade settles. |
+| Treasury workflow | Route rejected instruction to repair, replacement funding, or manual escalation. |
+| Reporting | Label cost as rollover failure or operational funding cost, not FX investment return. |
+| Evidence | Preserve original swap, far-leg instruction, rejection reason, cut-off and replacement quote. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Far leg is rejected after cut-off | Rollover failure state opens and replacement funding is required. |
+| Replacement trade is booked | Original failure and replacement trade remain linked. |
+| Client liquidity view is generated | Available USD reflects actual settlement state, not expected rollover. |
+| Failure cost is reported | Cost is labelled separately from market FX P&L. |
+
+## Example 57. Deposit early-break approval dispute
+
+### Scenario
+
+A relationship manager requests an early break of a term deposit to fund a client payment. Treasury approves only if the break penalty and authorization are accepted before the payment cut-off. The client later disputes the approval timestamp.
+
+| Attribute | Value |
+|---|---:|
+| Deposit principal | 750,000 |
+| Accrued interest to date | 6,300 |
+| Early-break penalty | 4,800 |
+| Net maturity-equivalent proceeds | 751,500 |
+
+### Net break proceeds
+
+```text
+net_break_proceeds = principal + accrued_interest - early_break_penalty
+net_break_proceeds = 750,000 + 6,300 - 4,800 = 751,500
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Authority | Require valid approval source, timestamp and role before breaking the deposit. |
+| Cash projection | Project net break proceeds only after approval and product-break workflow state. |
+| Client explanation | Show accrued interest, penalty and net proceeds separately. |
+| Dispute handling | Preserve approval evidence, quote timestamp, penalty terms and payment cut-off. |
+| Reporting | Do not restate the deposit as matured normally when it was broken early. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Approval is missing | Deposit break is blocked or held in exception state. |
+| Approval is after cut-off | Same-day payment funding is not assumed. |
+| Penalty quote changes | Net proceeds recalculate from effective quote. |
+| Dispute is opened | Original approval evidence remains immutable and linked. |
+
+## Example 58. Virtual-account cash allocation
+
+### Scenario
+
+A pooled operating account receives one bank credit that must be allocated to several virtual accounts. The external bank statement has one cash movement, while internal client reporting needs account-level allocations.
+
+| Virtual account | Expected allocation |
+|---|---:|
+| VA-001 | 120,000 |
+| VA-002 | 85,000 |
+| VA-003 | 45,000 |
+| Total bank credit | 250,000 |
+
+### Allocation control
+
+```text
+allocation_break = bank_credit - sum(virtual_account_allocations)
+allocation_break = 250,000 - (120,000 + 85,000 + 45,000) = 0
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Bank reconciliation | Reconcile external cash to the pooled physical account. |
+| Internal allocation | Allocate to virtual accounts using remittance, account mapping, or approved manual allocation. |
+| Reporting | Show each virtual account its allocated cash only. |
+| Controls | Block client-ready reporting when allocation does not reconcile to bank credit. |
+| Evidence | Preserve remittance advice, allocation rule, manual override and approval lineage. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Allocation sums to bank credit | Physical and virtual-account ledgers reconcile. |
+| Allocation is incomplete | Unallocated residual remains in suspense or exception state. |
+| Mapping is stale | Allocation is blocked until mapping is refreshed or approved. |
+| Consolidated report is generated | No double counting between pooled account and virtual accounts. |
+
+## Example 59. Payment rail outage rerouting
+
+### Scenario
+
+A priority payment cannot be sent through the preferred rail because the rail is unavailable before cut-off. Operations must reroute through an alternate rail with different fee, cut-off and settlement timing.
+
+| Attribute | Preferred rail | Alternate rail |
+|---|---:|---:|
+| Payment amount | 500,000 | 500,000 |
+| Fee | 15 | 45 |
+| Cut-off status | Closed | Open |
+| Expected settlement | Same day | Next day |
+
+### Incremental cost
+
+```text
+incremental_reroute_fee = alternate_rail_fee - preferred_rail_fee
+incremental_reroute_fee = 45 - 15 = 30
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Payment state | Preserve original rail failure and new routed instruction. |
+| Liquidity | Keep cash reserved until alternate rail settlement is confirmed. |
+| Client impact | Surface changed fee, settlement expectation and any approval requirement. |
+| Operations | Track rail outage id, reroute decision, cut-off and repair evidence. |
+| Reporting | Distinguish reroute cost from ordinary payment fee when material. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Preferred rail is closed | Payment cannot be released through unavailable rail. |
+| Alternate rail is approved | New instruction is generated with its own fee and settlement state. |
+| Same-day settlement is no longer possible | Client/payment workflow shows revised value date. |
+| Outage report is generated | Original failure, reroute and final settlement are linked. |
+
+## Example 60. Treasury concentration-limit breach
+
+### Scenario
+
+Treasury places cash with multiple banks. A planned deposit would breach the approved concentration limit for one bank after a rating downgrade reduces its limit.
+
+| Attribute | Value |
+|---|---:|
+| Revised bank limit | 5,000,000 |
+| Existing exposure | 4,650,000 |
+| Planned placement | 750,000 |
+| Excess after placement | 400,000 |
+
+### Limit breach
+
+```text
+post_placement_exposure = existing_exposure + planned_placement
+post_placement_exposure = 4,650,000 + 750,000 = 5,400,000
+excess = 5,400,000 - 5,000,000 = 400,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Limit check | Evaluate concentration against effective-dated treasury limit before placement. |
+| Routing | Resize, split, reroute or escalate the placement when post-trade exposure exceeds limit. |
+| Risk | Preserve rating source, limit version, approval and exception reason. |
+| Reporting | Show existing exposure, planned exposure, headroom and breach amount. |
+| Operations | Do not rely on previous limit after downgrade effective date. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Placement breaches revised limit | Placement is blocked, resized or escalated. |
+| Limit source is stale | Placement workflow fails closed or requires approval. |
+| Placement is split across banks | Each bank exposure is checked separately. |
+| Treasury dashboard is generated | Headroom and breach amount are visible by counterparty. |
+
+## Example 61. Stale bank-balance certification
+
+### Scenario
+
+A bank balance used for liquidity reporting has not been certified by operations after the daily cut-off. The statement balance exists, but it should not be treated as fully certified liquidity until source freshness and reconciliation checks pass.
+
+| Attribute | Value |
+|---|---|
+| Bank statement balance | 2,750,000 |
+| Last statement timestamp | 08:15 |
+| Certification cut-off | 10:00 |
+| Current time | 11:30 |
+| Certification state | Stale |
+
+### Stale amount
+
+```text
+certified_liquidity = 0 until balance is certified or approved as usable under fallback policy
+stale_reported_balance = 2,750,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Liquidity reporting | Show balance as reported but stale or uncertified. |
+| Buying power | Exclude stale uncertified balance from available cash unless fallback policy approves it. |
+| Operations | Route to certification, reconciliation, source refresh or exception approval. |
+| Evidence | Preserve source timestamp, certification owner, cut-off and fallback decision. |
+| Client reporting | Avoid client-ready liquidity claims based on uncertified bank data. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Balance is after certification cut-off and uncertified | Liquidity state is stale or source-limited. |
+| Fallback approval exists | Usability is labelled fallback-approved with evidence. |
+| Balance refresh arrives | Certification state updates from new source timestamp. |
+| Advisor attempts payment funding | Funding check blocks or warns on uncertified cash according to policy. |
