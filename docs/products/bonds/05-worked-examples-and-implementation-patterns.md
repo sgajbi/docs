@@ -4588,6 +4588,246 @@ gross_transfer_consideration = 1,200,000 x 98.40 / 100 = 1,180,800
 | Waiver expires before settlement | Transfer is blocked or re-approved. |
 | Client report is generated | Restriction, waiver, transfer price and settlement state are visible. |
 
+## Example 118. Callable Call-Price Amendment Dispute
+
+### Scenario
+
+An issuer amends a callable bond notice and changes the call price after the custodian has already projected redemption proceeds. The desk disputes whether the amended price applies to the client position because the amendment arrived close to the notice deadline.
+
+| Attribute | Value |
+|---|---:|
+| Called nominal | 2,000,000 |
+| Original call price | 102.00 |
+| Amended call price | 101.50 |
+| Price dispute impact | 10,000 |
+
+### Dispute amount
+
+```text
+call_price_dispute_amount = called_nominal x (original_call_price - amended_call_price) / 100
+call_price_dispute_amount = 2,000,000 x (102.00 - 101.50) / 100 = 10,000
+```
+
+### Correct treatment
+
+- preserve original call notice, amended notice, receipt timestamp, custodian projection, paying-agent confirmation and dispute owner;
+- keep projected redemption cash provisional until the valid call price is source-confirmed;
+- separate call premium, accrued interest and disputed price delta;
+- avoid closing the position at the amended price until notice validity and effective terms are resolved;
+- report the event as a lifecycle dispute, not as ordinary market price movement.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Amended price arrives after projection | Projected cash is versioned and dispute state opens. |
+| Amendment is validated | Redemption proceeds update from source-backed amended terms. |
+| Amendment is rejected | Original projection remains with dispute closure evidence. |
+| Client report is generated | Original price, amended price and disputed delta are explainable. |
+
+## Example 119. Municipal Escrow Defeasance Release
+
+### Scenario
+
+A municipal bond was defeased through an escrow portfolio. After final defeased liabilities are covered, excess escrow assets are released. The release must be distinguished from coupon income, call premium and principal redemption.
+
+| Attribute | Value |
+|---|---:|
+| Escrow asset value | 5,000,000 |
+| Remaining defeased liabilities | 4,850,000 |
+| Releaseable escrow excess | 150,000 |
+| Investor participation | 2.00% |
+
+### Investor release amount
+
+```text
+releaseable_escrow_excess = escrow_asset_value - remaining_defeased_liabilities
+releaseable_escrow_excess = 5,000,000 - 4,850,000 = 150,000
+
+investor_release = releaseable_escrow_excess x investor_participation
+investor_release = 150,000 x 2.00% = 3,000
+```
+
+### Correct treatment
+
+- preserve defeasance notice, escrow report, liability schedule, trustee release notice, investor share and payment evidence;
+- classify escrow release according to source terms and tax treatment rather than assuming ordinary coupon income;
+- keep defeased bond status, escrow asset coverage and released excess separately visible;
+- update yield, maturity and cashflow projections without changing historical coupon receipts;
+- retain statement correction lineage if prior reporting treated escrow coverage differently.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Escrow excess is released | Investor release is calculated from participation share. |
+| Release classification is unknown | Cash is source-limited until trustee or tax classification is confirmed. |
+| Defeased liabilities remain | Only excess after liabilities is releaseable. |
+| Report is generated | Defeasance, liability coverage and released excess are labelled separately. |
+
+## Example 120. ABS Trustee Reporting Restatement
+
+### Scenario
+
+An ABS trustee restates the monthly report after discovering a prior factor error. The restatement changes current principal, prepayment attribution and yield assumptions but does not create a new trade.
+
+| Attribute | Original | Restated |
+|---|---:|---:|
+| Original client nominal | 4,000,000 | 4,000,000 |
+| Reported factor | 0.8420 | 0.8300 |
+| Current principal | 3,368,000 | 3,320,000 |
+| Principal delta | - | -48,000 |
+
+### Principal restatement
+
+```text
+original_current_principal = original_nominal x original_factor
+original_current_principal = 4,000,000 x 0.8420 = 3,368,000
+
+restated_current_principal = original_nominal x restated_factor
+restated_current_principal = 4,000,000 x 0.8300 = 3,320,000
+
+principal_restatement_delta = restated_current_principal - original_current_principal
+principal_restatement_delta = 3,320,000 - 3,368,000 = -48,000
+```
+
+### Correct treatment
+
+- preserve original trustee report, restated report, factor version, remittance date, restatement reason and impacted cashflows;
+- update current principal, factor history, WAL/yield assumptions and prepayment attribution from the restated report;
+- avoid booking a sale, redemption or realized loss solely because the trustee restated a factor;
+- keep prior client statements and revised statement evidence linked;
+- recalculate downstream risk and performance using effective restatement policy.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Trustee factor is restated | Current principal and factor history update with version lineage. |
+| Prior statement was delivered | Correction or restatement workflow preserves prior values. |
+| Cash receipt is unchanged | No duplicate cash transaction is created. |
+| Analytics are recalculated | Yield, WAL and attribution use the restated factor from effective date. |
+
+## Example 121. Sovereign Warrant Trigger Dispute
+
+### Scenario
+
+A sovereign GDP-linked warrant may pay out when reported GDP growth exceeds a threshold. The issuer and investors dispute the official statistic used for the trigger determination.
+
+| Attribute | Value |
+|---|---:|
+| Warrant units held | 2,400 |
+| Trigger payout per warrant | 14.00 |
+| Issuer accepted payout | 8.50 |
+| Disputed payout delta | 13,200 |
+
+### Disputed payout
+
+```text
+investor_expected_payout = warrant_units x trigger_payout_per_warrant
+investor_expected_payout = 2,400 x 14.00 = 33,600
+
+issuer_accepted_payout = warrant_units x issuer_accepted_payout_per_warrant
+issuer_accepted_payout = 2,400 x 8.50 = 20,400
+
+disputed_payout_delta = investor_expected_payout - issuer_accepted_payout
+disputed_payout_delta = 33,600 - 20,400 = 13,200
+```
+
+### Correct treatment
+
+- preserve warrant terms, trigger statistic, calculation-agent notice, issuer position, investor claim and dispute status;
+- keep expected payout, accepted payout and disputed delta separately visible;
+- avoid recognizing disputed payout as received cash until settlement is confirmed;
+- update valuation, recovery and reporting labels as provisional where trigger validity is unresolved;
+- link the warrant dispute to the restructuring package without changing the new bond position.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Trigger statistic is disputed | Payout state becomes provisional or disputed. |
+| Issuer pays lower amount | Accepted cash and disputed receivable remain separate. |
+| Dispute is settled | Payout and receivable clear with source evidence. |
+| Client report is generated | Trigger basis, accepted amount and disputed amount are explainable. |
+
+## Example 122. Covered-Bond Reserve Replenishment Cure
+
+### Scenario
+
+A covered-bond program previously breached its liquidity-reserve requirement. The issuer replenishes part of the reserve, but the cure is incomplete until the reserve reaches the required level.
+
+| Attribute | Value |
+|---|---:|
+| Required reserve level | 15,000,000 |
+| Reserve before replenishment | 13,500,000 |
+| Replenishment received | 1,100,000 |
+| Reserve after replenishment | 14,600,000 |
+
+### Remaining shortfall
+
+```text
+reserve_after_replenishment = reserve_before_replenishment + replenishment_received
+reserve_after_replenishment = 13,500,000 + 1,100,000 = 14,600,000
+
+remaining_reserve_shortfall = required_reserve_level - reserve_after_replenishment
+remaining_reserve_shortfall = 15,000,000 - 14,600,000 = 400,000
+```
+
+### Correct treatment
+
+- preserve cover-pool monitor report, replenishment notice, cash evidence, required reserve level, cure deadline and rating/watch state;
+- mark the breach as partially cured until the remaining shortfall is zero or formally waived;
+- update collateral eligibility, rating-watch labels and concentration analytics from source-backed cure status;
+- avoid clearing a breach only because a replenishment payment was received;
+- keep reserve drawdown, replenishment and remaining shortfall as separate support metrics.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Partial replenishment arrives | Remaining shortfall is calculated and breach remains open. |
+| Full replenishment arrives | Cure state clears only with source-backed reserve level. |
+| Cure deadline passes | Escalation or rating-watch workflow remains active. |
+| Risk report is generated | Reserve before, replenishment and remaining shortfall are visible. |
+
+## Example 123. Private-Placement Buyer Qualification Failure
+
+### Scenario
+
+A private-placement bond transfer waiver is granted subject to buyer qualification. Settlement must be blocked when the buyer fails qualified-investor or jurisdiction eligibility checks before transfer date.
+
+| Attribute | Value |
+|---|---:|
+| Proposed transfer nominal | 1,500,000 |
+| Transfer price | 97.25 |
+| Gross transfer consideration | 1,458,750 |
+| Buyer qualification status | Failed |
+
+### Blocked transfer value
+
+```text
+blocked_transfer_value = proposed_transfer_nominal x transfer_price / 100
+blocked_transfer_value = 1,500,000 x 97.25 / 100 = 1,458,750
+```
+
+### Correct treatment
+
+- preserve private-placement memorandum, transfer waiver, buyer qualification evidence, failed eligibility reason, settlement instruction and cancellation evidence;
+- block settlement and retain the holding when buyer qualification fails;
+- release or reclassify any reserved settlement cash according to cancellation policy;
+- keep restriction waiver and buyer qualification as separate controls;
+- avoid treating failed transfer as redemption, default or completed sale.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Buyer qualification fails | Transfer settlement is blocked before position movement. |
+| Waiver exists but buyer fails | Waiver alone is insufficient to complete transfer. |
+| Cash was reserved | Reservation is released or held according to cancellation evidence. |
+| Client report is generated | Failed qualification, blocked transfer and continuing holding are visible. |
+
 ## Implementation-backed capability lens
 
 When reviewing whether a platform truly supports bonds, use these evidence questions:
