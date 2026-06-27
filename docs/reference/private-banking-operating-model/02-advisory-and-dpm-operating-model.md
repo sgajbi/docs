@@ -139,10 +139,11 @@ Client review packs should connect:
 Use this standard together with:
 
 1. [`../../products/advisory-mandate-reporting-decision-guide.md`](../../products/advisory-mandate-reporting-decision-guide.md)
-2. [`../../products/portfolio-exposure-modelling-guide.md`](../../products/portfolio-exposure-modelling-guide.md)
-3. [`../../products/client-reporting-and-portfolio-review-guide.md`](../../products/client-reporting-and-portfolio-review-guide.md)
-4. [`../../products/product-payoff-scenario-and-stress-guide.md`](../../products/product-payoff-scenario-and-stress-guide.md)
-5. [`../../products/product-qa-regression-matrix.md`](../../products/product-qa-regression-matrix.md)
+2. [`../../products/portfolio-construction-and-rebalancing-guide.md`](../../products/portfolio-construction-and-rebalancing-guide.md)
+3. [`../../products/portfolio-exposure-modelling-guide.md`](../../products/portfolio-exposure-modelling-guide.md)
+4. [`../../products/client-reporting-and-portfolio-review-guide.md`](../../products/client-reporting-and-portfolio-review-guide.md)
+5. [`../../products/product-payoff-scenario-and-stress-guide.md`](../../products/product-payoff-scenario-and-stress-guide.md)
+6. [`../../products/product-qa-regression-matrix.md`](../../products/product-qa-regression-matrix.md)
 
 ## Disclaimer
 
