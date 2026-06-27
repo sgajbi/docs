@@ -228,4 +228,3 @@ Use this sequence:
 5. Can the service run in a clean environment?
 6. Are tool versions and runtime assumptions documented?
 7. Is there a clear path from code change to release evidence?
-
