@@ -1364,6 +1364,248 @@ Rounded hedge size and liquidity constraints should be reviewed before execution
 | Mandate disallows derivatives | Hedge order is blocked even if analytics suggest benefit. |
 | Benchmark changes | Target duration and hedge gap recalculate with effective-dated benchmark. |
 
+## Example 34. Repo-funded bond position and financing carry
+
+### Scenario
+
+A client buys a liquid government bond and funds it with a short-term repo. The economic position is a bond holding plus secured financing, not a free cash purchase.
+
+| Attribute | Value |
+|---|---:|
+| Bond nominal | 1,000,000 |
+| Bond clean price | 99.20 |
+| Accrued interest | 0.80 per 100 |
+| Repo haircut | 3.00% |
+| Repo rate | 4.80% |
+| Repo tenor | 30 days |
+| Day-count basis | 360 |
+
+### Funding and carry calculation
+
+```text
+dirty bond value = nominal x (clean price + accrued interest) / 100
+dirty bond value = 1,000,000 x (99.20 + 0.80) / 100
+dirty bond value = 1,000,000
+
+repo cash advanced = dirty bond value x (1 - haircut)
+repo cash advanced = 1,000,000 x 97.00%
+repo cash advanced = 970,000
+
+client equity funding = dirty bond value - repo cash advanced
+client equity funding = 30,000
+
+repo interest = repo cash advanced x repo rate x tenor / day-count basis
+repo interest = 970,000 x 4.80% x 30 / 360
+repo interest = 3,880
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Position | Show bond nominal and market value separately from repo liability. |
+| Cash | Repo cash advance is financing, not investment income. |
+| Performance | Separate bond return, accrued interest, repo financing cost and any margin calls. |
+| Risk | Include issuer risk, rate risk, repo counterparty risk, haircut and rollover risk. |
+| Mandate | Check leverage, repo eligibility, collateral use and liquidity policy. |
+| Reporting | Label funded exposure, net equity, financing cost and maturity/roll date. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Repo-funded purchase is booked | Bond holding and repo liability are both created. |
+| Repo haircut increases | Additional collateral or cash margin call is raised. |
+| Repo matures before bond sale | Rollover, repayment or unwind workflow is required. |
+| Mandate disallows leverage | Repo-funded purchase is blocked even if bond is eligible. |
+| Report shows bond value only | QA fails because financing liability and net exposure are hidden. |
+
+## Example 35. Covered-bond resolution event and cover-pool substitution
+
+### Scenario
+
+A covered-bond issuer enters resolution. The bond remains supported by the cover pool, but the administrator substitutes part of the pool and changes expected payment timing.
+
+| Attribute | Before event | After event |
+|---|---:|---:|
+| Bond nominal | 750,000 | 750,000 |
+| Clean price | 98.80 | 91.50 |
+| Overcollateralization | 12% | 8% |
+| Expected next coupon date | Original schedule | Delayed pending administrator notice |
+| Rating | A | BBB watch |
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Lifecycle event | Store resolution notice, administrator, effective date and source. |
+| Valuation | Use stressed price or independent valuation source; label source state. |
+| Income | Review coupon receivable timing and impairment policy. |
+| Risk | Track issuer resolution status, cover-pool metrics and rating watch separately. |
+| Advisory | Explain that cover-pool support may preserve recoveries but does not remove timing and market risk. |
+| Reporting | Show resolution state, delayed cashflow and valuation basis without implying default recovery certainty. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Resolution notice arrives | Bond lifecycle status changes without deleting the position. |
+| Coupon timing becomes uncertain | Projected coupon is labelled delayed or source-limited. |
+| Cover-pool data is missing | Pool metrics are unavailable, not carried forward silently. |
+| Rating watch affects mandate | Mandate breach or review workflow opens. |
+| Historical report predates resolution | Prior schedule and rating remain reproducible. |
+
+## Example 36. Sukuk asset-sale event and profit-distribution adjustment
+
+### Scenario
+
+A sukuk structure sells an underlying asset earlier than expected. Holders receive a partial principal repayment and a final adjusted profit distribution.
+
+| Attribute | Value |
+|---|---:|
+| Opening face amount | 500,000 |
+| Asset-sale principal repayment | 200,000 |
+| Remaining face amount | 300,000 |
+| Final profit distribution on sold portion | 4,200 |
+| Source notice | Trustee asset-sale notice |
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Taxonomy | Preserve sukuk classification and client-facing terminology. |
+| Position | Reduce face amount by confirmed principal repayment. |
+| Cashflow | Split principal repayment from profit distribution. |
+| Accrual | Stop accrual on repaid face from effective asset-sale date. |
+| Advisory | Explain structural event, remaining exposure and liquidity implication. |
+| Reporting | Show asset-sale event, principal returned, profit distribution and remaining face. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Asset-sale notice arrives | Position face reduces only by confirmed repayment amount. |
+| Profit distribution is received | Distribution is not treated as principal. |
+| Source notice is missing effective date | Accrual and position update are source-limited. |
+| Sukuk label is replaced by generic bond text | Reporting QA fails where terminology matters. |
+| Remaining face is valued | Valuation uses remaining face and current price source. |
+
+## Example 37. Callable step-up non-call campaign
+
+### Scenario
+
+An issuer signals that it may not call a step-up bond at the first call date. Advisors must review client expectations because the coupon steps up but principal remains invested for longer.
+
+| Attribute | Value |
+|---|---:|
+| Nominal | 400,000 |
+| Current coupon | 3.25% |
+| Step-up coupon if not called | 5.00% |
+| First call date | 2027-06-30 |
+| Legal maturity | 2032-06-30 |
+| Price before campaign | 101.40 |
+| Price after non-call signal | 96.80 |
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Lifecycle | Non-call signal is advisory/risk information until issuer confirms call or non-call. |
+| Valuation | Market price reflects extension risk and rate/spread repricing. |
+| Income | Projected coupon after call date uses step-up terms only when terms and non-call state are confirmed or clearly projected. |
+| Advisory | Explain extension risk, reinvestment assumptions, liquidity and issuer incentive. |
+| DPM | Review duration, concentration and maturity-bucket drift after extension. |
+| Reporting | Show legal maturity, next call date, expected scenario and source confidence separately. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Issuer only signals possible non-call | No redemption event is booked. |
+| Issuer confirms non-call | Position remains open and coupon schedule updates from effective date. |
+| Report treats call date as maturity | QA fails because legal maturity remains later. |
+| Price falls after non-call signal | Performance explains price effect separately from coupon income. |
+| Mandate duration limit is breached | DPM or advisory review opens. |
+
+## Example 38. Green-bond label remediation workflow
+
+### Scenario
+
+A green-bond issuer misses its use-of-proceeds reporting deadline. The sustainable mandate marks the bond under review, then the issuer later publishes a remediation report accepted by product governance.
+
+| Attribute | Value |
+|---|---|
+| Bond type | Green bond |
+| Financial status | Performing |
+| Initial ESG label state | Under review |
+| Remediation report | Published and accepted |
+| Sustainable mandate | Label-eligible instruments required |
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Position | Bond remains a financial holding throughout the label review. |
+| ESG label | Move from eligible to under review, then restored or rejected based on source and governance decision. |
+| Mandate | Sustainable mandate breach/review state opens while label is under review. |
+| Advisory | Explain distinction between credit performance and sustainability-label eligibility. |
+| Reporting | Preserve timeline of label issue, remediation, acceptance and effective dates. |
+| Product governance | Store reviewer, evidence, decision and next review date. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Use-of-proceeds report is overdue | Label state moves to under review without closing position. |
+| Remediation is accepted | Mandate review can close with source evidence and effective date. |
+| Remediation is rejected | Label remains ineligible and mandate action remains open. |
+| Historical report is rerun during under-review period | Under-review state remains visible for that date. |
+| Credit status is unchanged | Credit risk is not incorrectly downgraded because ESG label changed. |
+
+## Example 39. Duration-hedge roll management
+
+### Scenario
+
+A portfolio uses bond futures to hedge duration. The current futures contract approaches expiry and must be rolled into the next contract without creating a gap or doubling exposure.
+
+| Attribute | Current contract | Next contract |
+|---|---:|---:|
+| Contracts | -140 | 0 |
+| Contract DV01 | 85 | 88 |
+| Target portfolio DV01 hedge | -11,900 | -11,900 |
+| Days to expiry | 5 | 95 |
+
+### Roll sizing
+
+```text
+next contracts needed = target hedge DV01 / next contract DV01
+next contracts needed = -11,900 / 88
+next contracts needed = -135.23
+```
+
+Rounded contract count, execution timing and residual DV01 should be recorded.
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Exposure | Close expiring contract and open next contract with controlled overlap window. |
+| Performance | Separate old-contract close P&L, new-contract entry price and roll cost. |
+| Risk | Monitor residual DV01 and temporary over/under-hedge during roll. |
+| Operations | Confirm exchange, broker, margin and settlement events for both contracts. |
+| DPM | Keep hedge within mandate derivative and leverage limits throughout roll. |
+| Reporting | Show hedge roll state, residual duration gap and roll-date evidence. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| New contract opens before old contract closes | Temporary overlap is measured and within allowed tolerance. |
+| Old contract expires without roll | Duration hedge drops and alert opens. |
+| Next contract DV01 differs | Contract count recalculates from new DV01. |
+| Margin increases during roll | Collateral and cash availability are updated. |
+| Benchmark duration changes during roll | Target hedge amount recalculates before final execution. |
+
 ## Implementation-backed capability lens
 
 When reviewing whether a platform truly supports bonds, use these evidence questions:
