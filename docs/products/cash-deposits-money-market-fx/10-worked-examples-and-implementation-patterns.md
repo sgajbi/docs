@@ -2992,3 +2992,241 @@ within_policy = 22.43 <= 35
 | Mid-rate source is stale | Best-execution check is blocked or exception-labelled. |
 | Manual dealer override is used | Approval and reason are required. |
 | Client asks for execution explanation | Report can show timestamp, reference basis and spread evidence without exposing restricted dealer data. |
+
+## Example 74. Client cash yield tier change
+
+### Scenario
+
+A client cash account moves into a higher yield tier during the month after a large deposit settles. Interest accrual must apply the correct tier by effective date, not the month-end balance for the entire period.
+
+| Period | Balance | Annual rate | Days |
+|---|---:|---:|---:|
+| Before tier change | 450,000 | 1.20% | 12 |
+| After tier change | 1,250,000 | 2.05% | 18 |
+
+### Accrual calculation
+
+```text
+pre_change_interest = 450,000 x 1.20% x 12 / 360 = 180.00
+post_change_interest = 1,250,000 x 2.05% x 18 / 360 = 1,281.25
+monthly_interest = 180.00 + 1,281.25 = 1,461.25
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Tiering | Apply rate tiers by effective-dated balance band, product, currency and booking centre. |
+| Accrual | Split accrual periods when the qualifying balance or tier changes. |
+| Reporting | Show rate basis, period, balance band and accrued interest separately from investment return. |
+| Controls | Preserve rate table version, source approval and any discretionary pricing override. |
+| QA | Test boundary balances exactly at tier thresholds and across month-end transitions. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Balance crosses tier threshold mid-period | Accrual splits by effective date. |
+| Rate table changes retrospectively | Prior accrual is restated only through approved correction workflow. |
+| Client has discretionary rate override | Override source, approval and expiry are retained. |
+| Statement is generated | Yield tier and period basis are visible or explainable according to reporting policy. |
+
+## Example 75. Payment cut-off extension approval
+
+### Scenario
+
+A high-priority payment misses the standard market cut-off, but operations obtains a one-off cut-off extension from the payment operations manager and correspondent bank.
+
+| Attribute | Value |
+|---|---|
+| Standard cut-off | 16:00 |
+| Payment request time | 16:18 |
+| Approved extension | 16:30 |
+| Payment amount | 850,000 |
+| Correspondent acknowledgement | Received |
+
+### Cut-off decision
+
+```text
+standard_cutoff_missed = payment_request_time > standard_cutoff
+extension_window_open = payment_request_time <= approved_extension_time
+release_allowed = extension_window_open and correspondent_acknowledgement_received
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Approval | Preserve approver, extension reason, expiry time, payment id and correspondent acknowledgement. |
+| Liquidity | Reserve cash when payment is accepted into the extended window. |
+| Controls | Prevent reuse of one-off extension for unrelated payments. |
+| Client communication | Show revised value date or pending state when extension is not confirmed. |
+| Audit | Link final release to the extension approval and screening evidence. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Payment arrives after standard cut-off | Payment is blocked unless extension is approved. |
+| Extension is approved for one payment | Only scoped payment can use the extension. |
+| Correspondent acknowledgement is missing | Payment remains pending or moves to next value date. |
+| Extension expires | Standard cut-off rule applies again automatically. |
+
+## Example 76. Intraday liquidity stress-test backtesting
+
+### Scenario
+
+Treasury compares a prior intraday stress forecast with actual cash movements. The forecast underestimated peak liquidity need, so the stress model needs review.
+
+| Component | Forecast | Actual |
+|---|---:|---:|
+| Opening liquidity | 4,000,000 | 4,000,000 |
+| Peak outgoing payments | 2,700,000 | 3,350,000 |
+| Expected incoming credits | 1,200,000 | 850,000 |
+| Required buffer | 500,000 | 500,000 |
+
+### Backtest variance
+
+```text
+forecast_min_liquidity = 4,000,000 - 2,700,000 + 1,200,000 - 500,000 = 2,000,000
+actual_min_liquidity = 4,000,000 - 3,350,000 + 850,000 - 500,000 = 1,000,000
+stress_forecast_error = forecast_min_liquidity - actual_min_liquidity = 1,000,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Backtesting | Preserve forecast version, assumptions, actual movements, cut-off misses and variance reason. |
+| Model governance | Trigger review when variance breaches materiality or repeated underestimation threshold. |
+| Payment policy | Feed backtesting into payment prioritization, buffer policy and escalation rules. |
+| Reporting | Explain variance as liquidity model performance, not portfolio performance. |
+| Controls | Avoid automatically changing buffers without approved effective-dated policy. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Actual liquidity need exceeds forecast | Backtest variance is calculated and reviewed. |
+| Variance breaches threshold | Model review or policy exception opens. |
+| Forecast assumptions are missing | Backtest is incomplete and cannot certify model performance. |
+| New buffer is approved | Future forecasts use effective-dated model version. |
+
+## Example 77. Cross-currency liquidity buffer translation
+
+### Scenario
+
+A portfolio holds liquidity buffers in USD, EUR and CHF, but the mandate reports required liquidity in USD. FX rates and haircuts must be applied before declaring the buffer sufficient.
+
+| Currency | Cash | FX to USD | Haircut |
+|---|---:|---:|---:|
+| USD | 500,000 | 1.0000 | 0% |
+| EUR | 300,000 | 1.0800 | 5% |
+| CHF | 250,000 | 1.1200 | 8% |
+
+### Translated buffer
+
+```text
+usd_buffer = 500,000 x 1.0000 x (1 - 0%) = 500,000
+eur_buffer = 300,000 x 1.0800 x (1 - 5%) = 307,800
+chf_buffer = 250,000 x 1.1200 x (1 - 8%) = 257,600
+translated_liquidity_buffer = 1,065,400
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| FX translation | Use source-backed FX rates, timestamp, reporting currency and haircut policy. |
+| Liquidity | Distinguish nominal cash from haircut-adjusted liquidity buffer. |
+| Mandate | Compare translated buffer to mandate liquidity floor and near-term obligations. |
+| Stress | Apply stronger haircuts for restricted, volatile or non-core currencies when policy requires. |
+| Reporting | Label translation rate, haircut and supportability state. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| FX rate is stale | Buffer is marked stale or excluded by policy. |
+| Currency has restriction | Additional haircut or exclusion applies. |
+| Mandate floor is tested | Floor uses haircut-adjusted translated amount. |
+| Report is generated | Nominal cash and translated liquidity buffer are not confused. |
+
+## Example 78. Returned-payment fee remediation
+
+### Scenario
+
+A cross-border payment is returned due to beneficiary-bank data mismatch. The correspondent deducts a fee, and the client asks whether the fee should be refunded.
+
+| Attribute | Value |
+|---|---:|
+| Original payment | 125,000 |
+| Correspondent return fee | 85 |
+| Internal repair fee | 25 |
+| Client-caused data error | False |
+
+### Fee remediation
+
+```text
+total_return_cost = correspondent_return_fee + internal_repair_fee
+total_return_cost = 85 + 25 = 110
+client_refund_amount = total_return_cost if bank_or_provider_error else 0
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Return reason | Preserve return message, beneficiary-bank reason, original instruction and repair state. |
+| Fee decision | Classify fee as client-caused, bank-caused, provider-caused or shared according to evidence. |
+| Cash | Separate returned principal, deducted fees, remediation credit and reissued payment. |
+| Reporting | Show returned payment lifecycle without duplicating payment outflow. |
+| Controls | Feed repeated return reasons into standing-instruction and beneficiary-data quality monitoring. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Payment is returned | Principal, fee and return reason are recorded separately. |
+| Bank/provider error is confirmed | Fee refund or compensation workflow opens. |
+| Client data caused return | Fee is not automatically waived unless policy allows. |
+| Payment is resent | Resent instruction links to original return and repair evidence. |
+
+## Example 79. FX standing-instruction drift
+
+### Scenario
+
+A client has a standing instruction to convert excess EUR cash to USD weekly. The instruction was created under an old target-cash policy and now conflicts with a revised mandate cash buffer.
+
+| Attribute | Old instruction | Current policy |
+|---|---:|---:|
+| EUR excess threshold | 50,000 | 150,000 |
+| Weekly EUR balance | 120,000 | 120,000 |
+| Conversion amount under old rule | 70,000 | 0 |
+
+### Drift amount
+
+```text
+old_rule_conversion = max(0, eur_balance - old_threshold) = 70,000
+current_policy_conversion = max(0, eur_balance - current_threshold) = 0
+standing_instruction_drift = old_rule_conversion - current_policy_conversion = 70,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Instruction governance | Preserve original instruction, mandate policy version, threshold, consent and expiry/review date. |
+| Drift detection | Compare active standing instructions to current mandate cash and FX policy. |
+| Execution | Block, warn or route conversion for review when instruction conflicts with current policy. |
+| Reporting | Explain cancelled or reduced conversion as instruction-policy drift, not failed FX execution. |
+| Controls | Require periodic recertification of standing FX instructions. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Standing instruction conflicts with current policy | Conversion is blocked, warning-labelled or routed for approval. |
+| Instruction is recertified | New threshold and effective date are stored. |
+| Conversion already executed | Impact assessment identifies FX trade, cash and report outputs. |
+| Client report is generated | Policy-driven non-execution is distinct from operational failure. |
