@@ -1,4 +1,4 @@
-# 06 — Valuation, Income, Performance, Risk, Liquidity and Buying Power
+# 06 - Valuation, Income, Performance, Risk, Liquidity and Buying Power
 
 ## 1. Valuation overview
 
@@ -8,7 +8,7 @@
 | Deposit | Principal + accrued interest, or fair value if required |
 | T-bill / CP / CD | Market/evaluated price, amortised cost or discounted cashflow depending on policy |
 | Repo | Principal plus accrued repo interest, adjusted for collateral/margin if required |
-| Money market fund | Units × NAV |
+| Money market fund | Units x NAV |
 | FX spot | Cash legs at agreed rate and base-currency translation |
 | FX forward | Mark-to-market versus current forward curve |
 | FX swap | Combined near/far leg valuation |
@@ -20,7 +20,7 @@ Cash is valued at par in its own currency.
 
 ```text
 Local Currency Value = Cash Amount
-Base Currency Value = Cash Amount × FX Rate to Base Currency
+Base Currency Value = Cash Amount x FX Rate to Base Currency
 ```
 
 Example:
@@ -38,7 +38,7 @@ Total base-currency cash = SGD 287,500.
 For simple fixed-rate deposit:
 
 ```text
-Accrued Interest = Principal × Annual Rate × Accrued Days / Day Count Basis
+Accrued Interest = Principal x Annual Rate x Accrued Days / Day Count Basis
 ```
 
 Example:
@@ -69,7 +69,7 @@ For client reporting, disclose valuation policy clearly. A fixed deposit held to
 A T-bill bought at discount and redeemed at par:
 
 ```text
-Market Value = Face Value × Price %
+Market Value = Face Value x Price %
 ```
 
 or using discount yield/discount factor depending on market convention.
@@ -89,7 +89,7 @@ Amortised cost can be appropriate for very short-term high-quality instruments u
 ## 6. Money market fund valuation
 
 ```text
-Market Value = Units × NAV
+Market Value = Units x NAV
 ```
 
 For distributing share classes:
@@ -179,7 +179,7 @@ Cash drag measures the impact of holding cash instead of target/risk asset alloc
 Simple estimate:
 
 ```text
-Cash Drag ≈ Cash Weight × (Benchmark/Target Return - Cash Return)
+Cash Drag approx. Cash Weight x (Benchmark/Target Return - Cash Return)
 ```
 
 Example:
@@ -189,7 +189,7 @@ Example:
 | Portfolio cash weight | 20% |
 | Target portfolio return | 8% |
 | Cash return | 2% |
-| Estimated cash drag | 20% × 6% = 1.2% |
+| Estimated cash drag | 20% x 6% = 1.2% |
 
 Use with care: cash may be intentional for liquidity, risk reduction or upcoming capital calls.
 

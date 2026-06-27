@@ -1,4 +1,4 @@
-# 07 — Advisory, Mandate, Analytics and Client Reporting Deep Dive
+# 07 - Advisory, Mandate, Analytics and Client Reporting Deep Dive
 
 ## 1. Advisory relevance
 
@@ -36,7 +36,7 @@ Advisors should understand:
 
 | Question | Why it matters |
 |---|---|
-| What is the client’s base currency? | Determines FX risk and reporting return |
+| What is the client's base currency? | Determines FX risk and reporting return |
 | What currencies does the client spend in? | Foreign cash may be natural hedge or speculation |
 | When is cash needed? | Determines tenor and liquidity product suitability |
 | Can client tolerate early-break penalty? | Fixed deposits may not be suitable for uncertain needs |

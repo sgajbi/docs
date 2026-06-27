@@ -1,4 +1,4 @@
-# 01 — Cash, Deposits, Money Market and FX Fundamentals and Taxonomy
+# 01 - Cash, Deposits, Money Market and FX Fundamentals and Taxonomy
 
 ## 1. Why this product family matters
 

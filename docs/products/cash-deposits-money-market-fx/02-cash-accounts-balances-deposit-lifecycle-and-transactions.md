@@ -1,4 +1,4 @@
-# 02 — Cash Accounts, Balances, Deposit Lifecycle and Transactions
+# 02 - Cash Accounts, Balances, Deposit Lifecycle and Transactions
 
 ## 1. Cash account hierarchy
 
@@ -6,10 +6,10 @@ A wealth platform should not model cash as a single portfolio-level number. Cash
 
 ```text
 Client / CIF / relationship
-  └── Account / portfolio
-        └── Cash account / custody account
-              └── Currency balance
-                    └── Ledger entries and value-date projections
+  +-- Account / portfolio
+        +-- Cash account / custody account
+              +-- Currency balance
+                    +-- Ledger entries and value-date projections
 ```
 
 Example:
@@ -185,8 +185,8 @@ A fixed deposit is not just cash. It is a term contract with interest and maturi
 Client places SGD 100,000 for 6 months at 3.00% p.a., ACT/365, interest at maturity.
 
 ```text
-Interest = Principal × Rate × Days / Day Count Basis
-Interest = 100,000 × 3.00% × 182 / 365 = SGD 1,495.89
+Interest = Principal x Rate x Days / Day Count Basis
+Interest = 100,000 x 3.00% x 182 / 365 = SGD 1,495.89
 ```
 
 Transactions:
@@ -219,7 +219,7 @@ A rollover is best modelled as a grouped lifecycle event:
 | DEPOSIT_INTEREST_PAYMENT | Pay interest, unless compounded |
 | DEPOSIT_ROLLOVER_IN / DEPOSIT_PLACEMENT | Open new deposit with new terms |
 
-Do not silently extend the maturity date of the old deposit unless the bank’s source system legally represents it as the same contract. Most platforms should create a new deposit instance for auditability.
+Do not silently extend the maturity date of the old deposit unless the bank's source system legally represents it as the same contract. Most platforms should create a new deposit instance for auditability.
 
 ## 12. Foreign currency fixed deposits
 

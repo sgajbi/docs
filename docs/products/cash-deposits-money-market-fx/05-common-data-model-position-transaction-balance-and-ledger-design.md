@@ -1,4 +1,4 @@
-# 05 — Common Data Model, Position, Transaction, Balance and Ledger Design
+# 05 - Common Data Model, Position, Transaction, Balance and Ledger Design
 
 ## 1. Design goals
 
@@ -28,20 +28,20 @@ The model should be:
 
 ```text
 Party / Client / CIF
-  └── Portfolio / Account
-        ├── CashAccount
-        │     └── CashBalance by currency/date/balance-type
-        ├── DepositContract
-        ├── InstrumentPosition
-        │     ├── MoneyMarketInstrument
-        │     └── MoneyMarketFund
-        ├── FXContract
-        ├── TransactionGroup
-        │     └── TransactionLeg[]
-        ├── LedgerEntry[]
-        ├── BalanceProjection[]
-        ├── Valuation[]
-        └── AnalyticsSnapshot[]
+  +-- Portfolio / Account
+        +-- CashAccount
+        |     +-- CashBalance by currency/date/balance-type
+        +-- DepositContract
+        +-- InstrumentPosition
+        |     +-- MoneyMarketInstrument
+        |     +-- MoneyMarketFund
+        +-- FXContract
+        +-- TransactionGroup
+        |     +-- TransactionLeg[]
+        +-- LedgerEntry[]
+        +-- BalanceProjection[]
+        +-- Valuation[]
+        +-- AnalyticsSnapshot[]
 ```
 
 ## 3. Instrument master model

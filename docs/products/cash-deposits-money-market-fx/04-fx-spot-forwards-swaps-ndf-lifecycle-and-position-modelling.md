@@ -1,4 +1,4 @@
-# 04 — FX Spot, Forwards, Swaps, NDFs, Lifecycle and Position Modelling
+# 04 - FX Spot, Forwards, Swaps, NDFs, Lifecycle and Position Modelling
 
 ## 1. Why FX matters in wealth platforms
 
@@ -149,7 +149,7 @@ A simple forward MTM compares the contracted forward rate with the current marke
 Conceptually:
 
 ```text
-Forward MTM ≈ Present Value of difference between contracted cashflows and current market forward cashflows
+Forward MTM approx. Present Value of difference between contracted cashflows and current market forward cashflows
 ```
 
 For platform purposes, MTM can come from:
@@ -177,8 +177,8 @@ Represent the swap as a linked transaction group:
 
 ```text
 FX_SWAP
-  ├── Near leg: FX_SPOT-style cash legs
-  └── Far leg: FX_FORWARD-style future cash legs
+  +-- Near leg: FX_SPOT-style cash legs
+  +-- Far leg: FX_FORWARD-style future cash legs
 ```
 
 ## 11. Non-deliverable forward, NDF
@@ -254,7 +254,7 @@ FX P&L can arise from several sources:
 A useful decomposition for foreign assets:
 
 ```text
-Base-currency return ≈ Local asset return + Currency return + Cross term
+Base-currency return approx. Local asset return + Currency return + Cross term
 ```
 
 Example:

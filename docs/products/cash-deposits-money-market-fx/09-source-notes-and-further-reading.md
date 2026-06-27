@@ -1,4 +1,4 @@
-# 09 — Source Notes and Further Reading
+# 09 - Source Notes and Further Reading
 
 This knowledge pack is written for wealth-management learning, advisory, portfolio analytics and platform design. It is not legal, tax, accounting or investment advice. Always align implementation with local regulation, bank policy, product termsheets, accounting policy and source-system contracts.
 
@@ -6,33 +6,33 @@ This knowledge pack is written for wealth-management learning, advisory, portfol
 
 ### Deposit insurance and Singapore cash/deposit treatment
 
-- MoneySense Singapore — Understanding Deposit Insurance: https://www.moneysense.gov.sg/understanding-deposit-insurance/
+- MoneySense Singapore - Understanding Deposit Insurance: https://www.moneysense.gov.sg/understanding-deposit-insurance/
 
-- Singapore Deposit Insurance Corporation — Deposit Insurance Scheme FAQs: https://www.sdic.org.sg/di_faq/
+- Singapore Deposit Insurance Corporation - Deposit Insurance Scheme FAQs: https://www.sdic.org.sg/di_faq/
 
 ### Money market funds and liquidity products
 
-- Investor.gov / SEC — Money Market Funds Investor Bulletin: https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/investor-bulletins/updated-12
+- Investor.gov / SEC - Money Market Funds Investor Bulletin: https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/investor-bulletins/updated-12
 
-- SEC — Money Market Fund Reforms: https://www.sec.gov/rules-regulations/2023/07/s7-22-21
+- SEC - Money Market Fund Reforms: https://www.sec.gov/rules-regulations/2023/07/s7-22-21
 
-- MAS — Code on Collective Investment Schemes: https://www.mas.gov.sg/regulation/codes/code-on-collective-investment-schemes
+- MAS - Code on Collective Investment Schemes: https://www.mas.gov.sg/regulation/codes/code-on-collective-investment-schemes
 
 ### FX market structure and settlement risk
 
-- BIS — 2025 Triennial Central Bank Survey of foreign exchange and OTC derivatives markets: https://www.bis.org/statistics/rpfx25.htm
+- BIS - 2025 Triennial Central Bank Survey of foreign exchange and OTC derivatives markets: https://www.bis.org/statistics/rpfx25.htm
 
-- MAS — Foreign Exchange & Derivatives market information: https://www.mas.gov.sg/development/foreign-exchange
+- MAS - Foreign Exchange & Derivatives market information: https://www.mas.gov.sg/development/foreign-exchange
 
-- CLS — CLSSettlement and payment-versus-payment settlement: https://www.cls-group.com/products/settlement/clssettlement/
+- CLS - CLSSettlement and payment-versus-payment settlement: https://www.cls-group.com/products/settlement/clssettlement/
 
-- Bundesbank — Continuous Linked Settlement overview: https://www.bundesbank.de/en/tasks/payment-systems/oversight/continuous-linked-settlement-626502
+- Bundesbank - Continuous Linked Settlement overview: https://www.bundesbank.de/en/tasks/payment-systems/oversight/continuous-linked-settlement-626502
 
 ### Investor protection and FX risk
 
-- FINRA — Retail foreign exchange risk / regulatory notice: https://www.finra.org/rules-guidance/notices/08-66
+- FINRA - Retail foreign exchange risk / regulatory notice: https://www.finra.org/rules-guidance/notices/08-66
 
-- MAS — Investor Alert List: https://www.mas.gov.sg/investor-alert-list
+- MAS - Investor Alert List: https://www.mas.gov.sg/investor-alert-list
 
 ## Further study topics
 

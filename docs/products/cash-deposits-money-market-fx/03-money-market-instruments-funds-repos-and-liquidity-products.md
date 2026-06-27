@@ -1,6 +1,6 @@
-# 03 — Money Market Instruments, Funds, Repos and Liquidity Products
+# 03 - Money Market Instruments, Funds, Repos and Liquidity Products
 
-## 1. What “money market” means
+## 1. What "money market" means
 
 The money market is the short-term funding and liquidity market. Instruments are typically short-dated, high-quality and used for cash management, liquidity reserves, collateral management and short-term yield.
 
@@ -8,11 +8,11 @@ In wealth management, money market products sit between cash and longer-term fix
 
 ```text
 Cash / call account
-  → term deposit
-  → treasury bill / commercial paper / certificate of deposit
-  → money market fund
-  → short-duration bond fund
-  → longer-duration bonds/funds
+  -> term deposit
+  -> treasury bill / commercial paper / certificate of deposit
+  -> money market fund
+  -> short-duration bond fund
+  -> longer-duration bonds/funds
 ```
 
 ## 2. Product taxonomy
@@ -153,7 +153,7 @@ Do not assume a money market fund is the same as cash. A fund can impose rules, 
 | units | Units/shares held |
 | nav | Latest NAV |
 | nav_date | NAV valuation date |
-| market_value | Units × NAV |
+| market_value | Units x NAV |
 | dealing_frequency | Daily/weekly/etc. |
 | settlement_cycle | T+0/T+1/T+2 depending on product |
 | cutoff_time | Subscription/redemption cutoff |
@@ -168,7 +168,7 @@ Money market funds are often used as cash equivalents, but in a platform they sh
 | Topic | Cash balance | Money market fund |
 |---|---|---|
 | Legal form | Cash/deposit with bank/custodian | Fund units/shares |
-| Valuation | Par in currency | NAV × units |
+| Valuation | Par in currency | NAV x units |
 | Income | Interest | Distribution or NAV accretion |
 | Settlement | Immediate/settled cash | Fund dealing cycle |
 | Liquidity | Subject to cash restrictions | Subject to fund liquidity and redemption terms |
@@ -226,7 +226,7 @@ Advisory and mandate systems often classify liquidity into buckets:
 
 ## 15. Reporting treatment
 
-Client reports should avoid simply labelling all liquidity products as “cash”. A better approach is:
+Client reports should avoid simply labelling all liquidity products as "cash". A better approach is:
 
 | Reporting category | Includes |
 |---|---|

@@ -1,4 +1,4 @@
-# 08 — Platform Implementation, Controls, Reconciliation, Test Scenarios and Glossary
+# 08 - Platform Implementation, Controls, Reconciliation, Test Scenarios and Glossary
 
 ## 1. Implementation architecture
 
@@ -81,7 +81,7 @@ A robust wealth platform should implement this product family across several ser
 | Market data | Spot/forward valuation inputs |
 | NDF fixing source | Fixing event and cash settlement |
 
-## 4. Test scenarios — cash balances
+## 4. Test scenarios - cash balances
 
 | Scenario | Expected result |
 |---|---|
@@ -92,7 +92,7 @@ A robust wealth platform should implement this product family across several ser
 | Withdrawal reserved | Available cash reduced; ledger updated only on payment |
 | Same-day reversal | Original and reversal both visible; net effect zero |
 
-## 5. Test scenarios — deposits
+## 5. Test scenarios - deposits
 
 | Scenario | Expected result |
 |---|---|
@@ -105,7 +105,7 @@ A robust wealth platform should implement this product family across several ser
 | Rollover principal + interest | New deposit amount includes interest |
 | Foreign deposit revaluation | Base-currency value changes with FX |
 
-## 6. Test scenarios — money market instruments/funds
+## 6. Test scenarios - money market instruments/funds
 
 | Scenario | Expected result |
 |---|---|
@@ -118,7 +118,7 @@ A robust wealth platform should implement this product family across several ser
 | Liquidity gate | Redemption order held; no cash until settlement |
 | MMF classified as cash equivalent | Report bucket shows classification but underlying remains fund |
 
-## 7. Test scenarios — FX
+## 7. Test scenarios - FX
 
 | Scenario | Expected result |
 |---|---|
@@ -132,7 +132,7 @@ A robust wealth platform should implement this product family across several ser
 | NDF fixing occurs | Lifecycle fixing event recorded |
 | NDF settles | Net cash settlement booked in settlement currency |
 
-## 8. Test scenarios — analytics and reporting
+## 8. Test scenarios - analytics and reporting
 
 | Scenario | Expected result |
 |---|---|

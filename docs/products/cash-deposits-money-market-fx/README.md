@@ -51,6 +51,9 @@ These products look simple, but they drive many difficult platform, advisory and
 9. `09-source-notes-and-further-reading.md`
    Source notes and suggested further reading.
 
+10. `10-worked-examples-and-implementation-patterns.md`
+    Practical examples for available cash, deposit breakage, money market fund gates, FX spot settlement, FX forwards, NDFs and liquidity ladders.
+
 ## Core mental model
 
 Cash is not a single number. A proper wealth platform should treat cash as a set of **currency-specific balances and projections**:
