@@ -35,7 +35,7 @@ Every product area should be reviewed across these dimensions:
 
 | Product area | Current review posture | Strongest coverage | Next polish slice |
 |---|---|---|---|
-| Bonds | Strong | Taxonomy, lifecycle, accrued interest, yield, duration, credit risk, valuation, QA, clean/dirty settlement, callable yield-to-worst, downgrades, default/recovery, inflation-linked uplift, amortising schedules, convertibles, asset-backed prepayments and multi-currency performance. | Sinkable bonds, make-whole calls, distressed exchanges, tax-lot reporting, accrued-interest corrections and hedged bond attribution. |
+| Bonds | Strong | Taxonomy, lifecycle, accrued interest, yield, duration, credit risk, valuation, QA, clean/dirty settlement, callable yield-to-worst, downgrades, default/recovery, inflation-linked uplift, amortising schedules, convertibles, asset-backed prepayments, multi-currency performance, sinkable schedules, make-whole calls, distressed exchanges, tax-lot sales, accrued-interest corrections and hedged bond attribution. | Source-restated ABS factors, make-whole calculation inputs, tender offers, consent solicitations, contingent convertibles, perpetual reset spreads and hedged bond benchmark attribution. |
 | Cash, deposits, money market and FX | Strong | Ledger cash, available cash, deposits, money market instruments, repos, FX spot, forwards, swaps, liquidity, multi-currency buying power, failed FX settlement, cash sweeps, approved overdraft funding, negative interest, cross-currency settlement holidays, sweep unwind during stress and credit-line-funded purchases. | Overdraft pricing tiers, intraday liquidity restrictions, payment cut-off failures, stress escalation, cash pooling and nostro reconciliation. |
 | Client, account, portfolio and relationship master data | Strong | Client hierarchy, accounts, portfolios, households, beneficial ownership, mandates, booking centres, access control, joint accounts, EAM relationships, trust/company structures, closed-account reporting, account transfers, privacy masking and advisor coverage changes. | Dormant accounts, power-of-attorney expiry, minor-to-adult transition, collateral-only portfolios, omnibus client mapping and client data rectification. |
 | Commodities, precious metals and real assets | Strong | Physical metals, metal accounts, commodity ETPs, derivatives, structured exposure, collateral, unit controls, storage fees, paid-in-kind fees, option exercise, warehouse receipts, index roll yield and delivery-risk workflows. | Assay disputes, vault transfers, provider fee disputes, commodity ETP tax events, source-of-metal restrictions, inventory financing and natural-resource royalty streams. |
@@ -81,7 +81,7 @@ The library now has strong cross-product support for:
 The next useful enrichment work should prioritize:
 
 1. overdraft pricing tiers, intraday liquidity restrictions, payment cut-off failures, stress escalation and nostro reconciliation,
-2. sinkable bond, make-whole call, distressed exchange and hedged bond attribution examples,
+2. source-restated ABS factor, tender offer, consent solicitation, contingent convertible and perpetual reset-spread examples,
 3. fund fee equalization after partial redemption, performance-fee crystallization, in-specie transfers and suspension reopenings,
 4. variance swaps, barrier options, cross-currency swaps, collateral disputes and strategy-level attribution,
 5. real estate development projects, construction drawdowns, capex reserves and property sale completion,

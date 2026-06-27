@@ -566,6 +566,271 @@ The bond performed positively in EUR, but the USD statement shows a small loss b
 | FX hedge exists | Hedged and unhedged performance views are separated. |
 | Client asks why value fell | Explanation shows local bond return versus currency effect. |
 
+## Example 14. Sinkable Bond Principal Reduction
+
+### Scenario
+
+A client holds a sinkable corporate bond with scheduled partial redemptions before final maturity. Unlike an ordinary bullet bond, the issuer repays part of the nominal amount each year.
+
+| Attribute | Value |
+|---|---:|
+| Opening nominal | 1,000,000 |
+| Annual sink amount | 100,000 |
+| Coupon rate | 4.50% |
+| Clean price before sink | 101.20 |
+| Sink redemption price | 100.00 |
+
+### Year-one event
+
+```text
+
+principal redeemed = 100,000 x 100.00 / 100 = 100,000
+remaining nominal = 1,000,000 - 100,000 = 900,000
+annual coupon after sink = 900,000 x 4.50% = 40,500
+
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Position | Reduce current face or nominal by the redeemed amount. |
+| Cash | Book redemption cash separately from coupon income. |
+| Accrual | Future coupon accrual uses remaining nominal. |
+| Yield | Yield and weighted-average life update after the sink event. |
+| Reporting | Maturity ladder shows scheduled principal return, not only final maturity. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Sink schedule is present | Projected cashflows include partial redemptions. |
+| Sink event posts | Position nominal falls and cash increases by principal amount. |
+| Coupon accrues after sink | Accrual uses reduced nominal from the effective date. |
+| Schedule is missing | Bond is flagged as schedule-incomplete rather than treated as a simple bullet bond. |
+
+## Example 15. Make-Whole Call Premium
+
+### Scenario
+
+An issuer calls a corporate bond using a make-whole provision. The call price is determined from the present value of remaining cashflows using a benchmark rate plus a contractual spread.
+
+| Attribute | Value |
+|---|---:|
+| Nominal | 500,000 |
+| Par value | 100.00 |
+| Make-whole call price | 103.75 |
+| Accrued interest per 100 nominal | 1.20 |
+
+### Settlement cash
+
+```text
+
+principal call proceeds = 500,000 x 103.75 / 100 = 518,750
+accrued interest paid = 500,000 x 1.20 / 100 = 6,000
+total redemption cash = 518,750 + 6,000 = 524,750
+
+```
+
+### Correct treatment
+
+| Component | Treatment |
+|---|---|
+| Make-whole premium | Principal/redemption economics, not ordinary coupon income. |
+| Accrued interest | Income accrual settlement through call date. |
+| Position | Bond position closes or reduces according to called amount. |
+| Performance | Redemption gain/loss compares proceeds with carrying value under policy. |
+| Source | Call notice and calculation agent terms must support the price. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Call notice includes make-whole price | Redemption uses sourced call price and accrued interest separately. |
+| Call price is missing | Event remains pending or source-limited, not defaulted to par. |
+| Partial call occurs | Position reduces only by called nominal. |
+| Report classifies premium as coupon | Reporting QA fails because call premium and income are different components. |
+
+## Example 16. Distressed Exchange Into New Notes
+
+### Scenario
+
+A distressed issuer offers to exchange old bonds for a package of new notes and cash.
+
+| Attribute | Value |
+|---|---:|
+| Old bond nominal | 400,000 |
+| Old bond carrying value | 220,000 |
+| New note exchange ratio | 60% of old nominal |
+| Cash consideration | 5% of old nominal |
+| New note fair value | 72.00 |
+
+### Exchange outcome
+
+```text
+
+new note nominal = 400,000 x 60% = 240,000
+cash received = 400,000 x 5% = 20,000
+new note fair value = 240,000 x 72.00 / 100 = 172,800
+total package value = 172,800 + 20,000 = 192,800
+economic change versus carrying value = 192,800 - 220,000 = -27,200
+
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Lifecycle | Old bond is closed or reduced through exchange event. |
+| New holding | New note is created only after source-confirmed terms. |
+| Cash | Cash consideration is linked to the exchange, not external contribution. |
+| Performance | Economic loss or gain is traceable to the restructuring event. |
+| Advisory | Distressed exchange status, liquidity and issuer risk remain visible. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Exchange ratio is sourced | New nominal uses the confirmed ratio. |
+| Cash component arrives late | Receivable remains linked to the exchange event. |
+| New note identifier is missing | New position creation is blocked or support-limited. |
+| Historical report is rerun | Old and new instruments retain event lineage and effective dates. |
+
+## Example 17. Bond Tax-Lot Sale And Realized Result
+
+### Scenario
+
+A client sells part of a bond position accumulated through two purchases. The reporting policy uses FIFO lots.
+
+| Lot | Nominal | Clean cost price |
+|---|---:|---:|
+| Lot A | 100,000 | 98.00 |
+| Lot B | 150,000 | 101.00 |
+
+Sale:
+
+| Attribute | Value |
+|---|---:|
+| Nominal sold | 180,000 |
+| Clean sale price | 102.00 |
+| Commission | 120 |
+
+### FIFO allocation
+
+```text
+
+sale proceeds before commission = 180,000 x 102.00 / 100 = 183,600
+net sale proceeds = 183,600 - 120 = 183,480
+
+cost from Lot A = 100,000 x 98.00 / 100 = 98,000
+cost from Lot B = 80,000 x 101.00 / 100 = 80,800
+allocated cost = 178,800
+
+realized result = 183,480 - 178,800 = 4,680
+remaining Lot B nominal = 150,000 - 80,000 = 70,000
+
+```
+
+### Correct treatment
+
+The sale should reduce tax lots and position nominal independently from accrued interest settlement. Lot selection must be deterministic and auditable because realized gain, tax reporting, performance and remaining cost basis all depend on it.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| FIFO policy applies | Sale consumes Lot A before Lot B. |
+| Specific-lot election applies | Sale follows elected lots with approval evidence. |
+| Accrued interest is present | Accrued interest settlement is reported separately from clean-price realized result. |
+| Lot history is incomplete | Realized result is labelled partial or blocked according to reporting policy. |
+
+## Example 18. Accrued-Interest Correction After Custodian Restatement
+
+### Scenario
+
+A custodian restates accrued interest for a settled bond trade because the original day-count convention was wrong.
+
+| Attribute | Original | Corrected |
+|---|---:|---:|
+| Nominal | 300,000 | 300,000 |
+| Accrued interest per 100 nominal | 0.90 | 1.05 |
+
+### Correction
+
+```text
+
+original accrued interest = 300,000 x 0.90 / 100 = 2,700
+corrected accrued interest = 300,000 x 1.05 / 100 = 3,150
+cash and accrual correction = 3,150 - 2,700 = 450
+
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Trade record | Preserve original and corrected accrued-interest values. |
+| Cash | Post correction cash or receivable/payable according to settlement state. |
+| Income | Adjust accrued-income history without treating the correction as market price movement. |
+| Reports | Restated statements carry correction lineage and reason code. |
+| QA | Day-count convention and coupon schedule are revalidated. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Restatement arrives | Adjustment is linked to original trade and source correction. |
+| Correction changes cash | Cash ledger and accrued-income report reconcile. |
+| Report was already published | Correction workflow records impacted report versions. |
+| Day-count source remains missing | Future accrual remains support-limited until source terms are fixed. |
+
+## Example 19. Cross-Currency Hedged Bond Attribution
+
+### Scenario
+
+A USD-reporting portfolio holds a EUR bond and an FX forward hedge. The bond gains locally, EUR weakens, and the hedge partly offsets the currency loss.
+
+| Attribute | Value |
+|---|---:|
+| Starting EUR bond value | 1,000,000 |
+| Local bond return | 2.00% |
+| Starting EUR/USD | 1.1000 |
+| Ending EUR/USD | 1.0700 |
+| FX forward hedge P&L | 24,000 USD |
+
+### Attribution
+
+```text
+
+starting USD value = 1,000,000 x 1.1000 = 1,100,000
+ending EUR bond value = 1,000,000 x (1 + 2.00%) = 1,020,000
+ending unhedged USD value = 1,020,000 x 1.0700 = 1,091,400
+
+unhedged USD result = 1,091,400 - 1,100,000 = -8,600
+local bond gain in USD at starting FX = 1,000,000 x 2.00% x 1.1000 = 22,000
+currency effect approximation = -8,600 - 22,000 = -30,600
+hedged result = -8,600 + 24,000 = 15,400
+
+```
+
+### Reporting interpretation
+
+| Component | Meaning |
+|---|---|
+| Local bond return | Security return before reporting-currency translation. |
+| Currency effect | Impact of EUR/USD movement on unhedged bond value. |
+| Hedge P&L | FX forward contribution linked to the bond exposure or overlay strategy. |
+| Residual | Basis difference, hedge ratio mismatch, timing and fees. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Hedge link is present | Report can show hedged and unhedged views. |
+| Hedge link is missing | FX forward remains separate derivative P&L, not forced into bond attribution. |
+| FX rates are stale | Attribution is stale or blocked. |
+| Hedge ratio is below 100% | Residual currency exposure remains visible. |
+
 ## Implementation-backed capability lens
 
 When reviewing whether a platform truly supports bonds, use these evidence questions:
@@ -575,8 +840,8 @@ When reviewing whether a platform truly supports bonds, use these evidence quest
 | Nominal-based position model | Positions store nominal/current face, not only market value. |
 | Clean/dirty price separation | Trades and valuations separate clean price, accrued interest and dirty value. |
 | Coupon schedule support | Coupon accrual, payment, withholding and reset behavior are testable. |
-| Lifecycle event support | Maturity, call, amortisation, default, recovery and conversion have explicit workflows. |
+| Lifecycle event support | Maturity, call, sinkable schedules, amortisation, default, recovery, exchange and conversion have explicit workflows. |
 | Risk analytics | Yield, duration, spread, rating and concentration can be sourced and degraded safely. |
-| Advisory and mandate controls | High-yield, subordinated, perpetual, callable and FX bonds can be governed differently. |
-| Reporting explainability | Client reports can explain income, price movement, yield, maturity, credit and liquidity. |
+| Advisory and mandate controls | High-yield, subordinated, perpetual, callable, distressed and FX bonds can be governed differently. |
+| Reporting explainability | Client reports can explain income, price movement, yield, maturity, credit, liquidity, tax lots and hedge effects. |
 | QA regression | Tests cover normal, degraded, corrected, restated and source-limited states. |
