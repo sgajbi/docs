@@ -4012,3 +4012,252 @@ unfunded_redemption_demand = 10,000,000 - 7,000,000 = 3,000,000
 | Requests exceed capacity | Unfunded demand, queue and client communication workflow open. |
 | Bridge support is approved | Capacity includes support only with source-backed terms. |
 | Liquidity report is generated | Feeder promise, master liquidity and unfunded demand are distinct. |
+
+## Example 110. Fund Proxy-Voting Split Ballot
+
+### Scenario
+
+A fund holds shares in an issuer and receives a proxy ballot. The fund manager votes part of the eligible exposure for the proposal, part against, and abstains the remainder because different sleeves are managed under different policies.
+
+| Attribute | Value |
+|---|---:|
+| Fund market value | 80,000,000 |
+| Look-through issuer exposure | 2.50% |
+| Vote-for allocation | 55.00% |
+| Vote-against allocation | 35.00% |
+| Abstain allocation | 10.00% |
+
+### Split vote exposure
+
+```text
+issuer_exposure_value = fund_market_value x look_through_issuer_exposure
+issuer_exposure_value = 80,000,000 x 2.50% = 2,000,000
+
+vote_for_exposure = issuer_exposure_value x vote_for_allocation
+vote_for_exposure = 2,000,000 x 55.00% = 1,100,000
+
+vote_against_exposure = issuer_exposure_value x vote_against_allocation
+vote_against_exposure = 2,000,000 x 35.00% = 700,000
+
+abstain_exposure = issuer_exposure_value x abstain_allocation
+abstain_exposure = 2,000,000 x 10.00% = 200,000
+```
+
+### Correct treatment
+
+- retain ballot notice, record date, eligible position, vote-policy source, split instruction and custodian submission evidence;
+- model vote allocations separately from the fund accounting position;
+- ensure allocation percentages reconcile to the eligible look-through issuer exposure;
+- keep abstentions visible rather than blending them into missing votes;
+- avoid treating voting preference as a trade, exposure reduction or suitability override.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Split ballot is submitted | For, against and abstain exposures are calculated separately. |
+| Allocations do not total 100% | Validation blocks or flags the ballot before submission. |
+| Record-date holding differs from current holding | Eligible exposure uses record-date source evidence. |
+| Governance report is generated | Vote policy, instruction split and submission evidence are visible. |
+
+## Example 111. ETF Stale Intraday Indicative Value Publication
+
+### Scenario
+
+An ETF publishes intraday indicative value throughout the trading day, but the publication feed stalls while the exchange price continues trading. The platform must flag stale indicative value and avoid presenting the stale value as current fair value.
+
+| Attribute | Value |
+|---|---:|
+| ETF units held | 40,000 |
+| Last indicative value | 24.80 |
+| Current exchange price | 25.15 |
+| Staleness threshold | 15 minutes |
+| Feed age | 47 minutes |
+
+### Stale indicative value gap
+
+```text
+indicative_value_gap = units_held x (current_exchange_price - last_indicative_value)
+indicative_value_gap = 40,000 x (25.15 - 24.80) = 14,000
+```
+
+### Correct treatment
+
+- retain indicative value timestamp, market price, exchange status, sponsor feed status and stale threshold policy;
+- flag the indicative value as stale when feed age exceeds policy;
+- use the approved valuation hierarchy for reporting instead of silently using the stale indicative value;
+- keep indicative value gap available for monitoring ETF market quality and advisor explanation;
+- avoid overwriting exchange price, NAV, indicative value and fair-value override fields into one price.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Feed age exceeds threshold | Indicative value is stale-labelled. |
+| Exchange price remains live | Price hierarchy uses approved live or fair-value source. |
+| Gap exceeds tolerance | ETF monitoring exception opens. |
+| Client view is generated | Stale indicative value is not shown as current fair value. |
+
+## Example 112. Private-Fund Fee Letter Amendment Dispute
+
+### Scenario
+
+A private fund issues an amended fee letter that changes the management-fee rate for a subset of investors. The investor disputes whether the amendment applies to their side-letter class and effective date.
+
+| Attribute | Value |
+|---|---:|
+| Capital account value | 6,500,000 |
+| Prior annual fee rate | 1.00% |
+| Amended annual fee rate | 1.20% |
+| Disputed period | 90 days |
+
+### Disputed fee uplift
+
+```text
+annual_fee_delta = capital_account_value x (amended_fee_rate - prior_fee_rate)
+annual_fee_delta = 6,500,000 x (1.20% - 1.00%) = 13,000
+
+disputed_fee_uplift = annual_fee_delta x disputed_days / 365
+disputed_fee_uplift = 13,000 x 90 / 365 = 3,205.48
+```
+
+### Correct treatment
+
+- retain prior fee letter, amended fee letter, side-letter class, effective-date evidence, administrator calculation and dispute owner;
+- book or accrue the amended fee only under the approved dispute and accounting policy;
+- keep disputed uplift separate from standard management fee accrual;
+- show side-letter applicability in investor reporting and operations review;
+- avoid applying amended fees across all investors when the source applies only to a subset.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Fee amendment is disputed | Uplift is calculated and marked disputed. |
+| Side-letter class does not match | Amendment is blocked or routed for exception approval. |
+| Administrator confirms applicability | Fee accrual uses confirmed effective date and rate. |
+| Investor report is generated | Standard fee and disputed uplift are separately explainable. |
+
+## Example 113. Expense Reimbursement Clawback
+
+### Scenario
+
+A fund previously reimbursed expenses under an expense-cap arrangement. Later fund documents allow the manager to claw back part of the reimbursement after performance and expense conditions are met.
+
+| Attribute | Value |
+|---|---:|
+| Prior reimbursement | 320,000 |
+| Clawback percentage | 30.00% |
+| Units outstanding | 4,000,000 |
+| Clawback approval status | Approved |
+
+### Clawback amount and NAV impact
+
+```text
+expense_reimbursement_clawback = prior_reimbursement x clawback_percentage
+expense_reimbursement_clawback = 320,000 x 30.00% = 96,000
+
+nav_impact_per_unit = expense_reimbursement_clawback / units_outstanding
+nav_impact_per_unit = 96,000 / 4,000,000 = 0.0240
+```
+
+### Correct treatment
+
+- retain original reimbursement, expense-cap terms, clawback eligibility test, board or administrator approval and NAV impact file;
+- separate clawback from new operating expenses and ordinary management fees;
+- reflect NAV impact and investor communication according to fund document requirements;
+- preserve performance-period linkage so the clawback is not double-counted;
+- avoid treating clawback as advisor fee, distribution or redemption charge.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Clawback criteria are met | Clawback amount and NAV impact per unit are calculated. |
+| Approval is missing | Booking is blocked or held as pending. |
+| Prior reimbursement was already used | System prevents double clawback of the same reimbursement. |
+| Statement is generated | Clawback is labelled separately from current-period expense. |
+
+## Example 114. UCITS Passive Breach From Market Movement
+
+### Scenario
+
+A UCITS fund breaches an issuer concentration limit because market movement increases the value of one holding relative to fund NAV. The breach is passive and must be monitored for remediation without treating it as a deliberate purchase breach.
+
+| Attribute | Value |
+|---|---:|
+| Fund NAV | 125,000,000 |
+| Issuer exposure after market move | 13,375,000 |
+| Concentration limit | 10.00% |
+| Breach cause | Market movement |
+
+### Passive breach excess
+
+```text
+issuer_exposure_ratio = issuer_exposure_after_market_move / fund_nav
+issuer_exposure_ratio = 13,375,000 / 125,000,000 = 10.70%
+
+passive_breach_excess = issuer_exposure_after_market_move - (fund_nav x concentration_limit)
+passive_breach_excess = 13,375,000 - (125,000,000 x 10.00%) = 875,000
+```
+
+### Correct treatment
+
+- retain compliance limit, market movement evidence, exposure calculation, breach classification and remediation plan;
+- classify breach cause separately from breach amount and cure status;
+- avoid blocking all fund activity unless policy requires it;
+- monitor remediation timing, investor communication and product-governance impact;
+- avoid treating passive breach as an intentional eligibility breach without trade evidence.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Market move causes limit breach | Breach is classified as passive with excess amount. |
+| New purchase would worsen breach | Trade control blocks or escalates according to policy. |
+| Market movement reverses | Breach clears only with source-backed exposure calculation. |
+| Compliance report is generated | Cause, ratio, excess and remediation state are visible. |
+
+## Example 115. Feeder Emergency Liquidity Facility Drawdown
+
+### Scenario
+
+A feeder fund faces redemption requests before the master fund can provide liquidity. An emergency facility is approved to bridge part of the funding gap. The facility draw must be separated from master fund liquidity, investor redemptions and fund expenses.
+
+| Attribute | Value |
+|---|---:|
+| Redemption cash required | 9,000,000 |
+| Master liquidity available | 5,500,000 |
+| Approved facility limit | 2,000,000 |
+| Facility interest rate | 6.00% |
+| Draw period | 45 days |
+
+### Facility drawdown and cost
+
+```text
+redemption_shortfall_before_facility = redemption_cash_required - master_liquidity_available
+redemption_shortfall_before_facility = 9,000,000 - 5,500,000 = 3,500,000
+
+facility_drawdown = min(redemption_shortfall_before_facility, approved_facility_limit)
+facility_drawdown = min(3,500,000, 2,000,000) = 2,000,000
+
+facility_interest_cost = facility_drawdown x facility_interest_rate x draw_days / 360
+facility_interest_cost = 2,000,000 x 6.00% x 45 / 360 = 15,000
+```
+
+### Correct treatment
+
+- retain facility agreement, approval, draw notice, master liquidity notice, redemption queue and repayment plan;
+- separate emergency facility proceeds from ordinary subscription cash, distribution cash and master fund redemption proceeds;
+- calculate residual funding gap after facility use;
+- allocate facility cost according to fund documents and investor communication requirements;
+- avoid using facility availability as permanent liquidity capacity.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Facility is approved | Drawdown is capped by approved limit. |
+| Shortfall exceeds facility | Residual funding gap remains visible. |
+| Interest accrues | Facility cost is calculated from draw amount, rate and days. |
+| Liquidity report is generated | Master liquidity, facility draw, residual gap and repayment plan are distinct. |
