@@ -131,6 +131,7 @@ Use this pack when working on:
 | [`funds/`](funds/README.md) | Money market funds follow fund order/NAV/liquidity patterns. |
 | [`bonds/`](bonds/README.md) | T-bills, commercial paper, certificates of deposit, and repos reuse fixed-income yield, maturity, and credit concepts. |
 | [`derivatives/`](derivatives/README.md) | FX forwards, swaps, NDFs, margin, collateral, and hedging share derivative concepts. |
+| [`loans-lombard-margin-collateral/`](loans-lombard-margin-collateral/README.md) | Credit lines, pledged cash, collateral cash, overdrafts, availability, and buying-power rules. |
 | [`private-markets/`](private-markets/README.md) | Capital calls, distributions, and liquidity planning depend on cash projection and available liquidity. |
 | [`structured-products/`](structured-products/README.md) | Dual-currency investments, structured deposits, and FX-linked notes reuse structured payoff concepts. |
 

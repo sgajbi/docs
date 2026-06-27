@@ -41,16 +41,28 @@ Each product pack should cover:
 - practitioner explanations;
 - worked examples.
 
-## 4. Suggested next product packs
+## 4. Product Pack Roadmap
 
-After notes, bonds, funds and equities:
+Covered product packs now include:
 
-1. Derivatives: options, futures, forwards, swaps, CDS.
-2. FX and cash products: deposits, FX spot/forward/swap, money market/cash.
-3. Structured products broad pack: accumulators, decumulators, certificates, structured deposits.
-4. Alternatives/private markets: private equity, private credit, real estate, infrastructure, hedge funds.
-5. Lombard/collateral/margin products from buying-power perspective.
-6. Insurance-linked and annuity products if relevant.
+1. notes and structured notes,
+2. bonds and fixed income,
+3. funds and pooled investment products,
+4. equities and market operations,
+5. derivatives and overlay products,
+6. cash, deposits, money market and FX,
+7. structured products,
+8. alternatives and private markets,
+9. loans, Lombard lending, margin, collateral and buying power.
+
+Potential future packs:
+
+1. commodities and precious metals,
+2. insurance-linked and annuity products,
+3. mandates and advisory workflows,
+4. client reporting and portfolio review methodology,
+5. performance, attribution, risk and concentration methodology,
+6. source-data and market-data governance.
 
 ## 5. Knowledge base design principle
 
