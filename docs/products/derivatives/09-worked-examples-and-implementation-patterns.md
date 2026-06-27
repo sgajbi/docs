@@ -1632,7 +1632,212 @@ QA assertions:
 | Netting-set scope changes | XVA is recalculated or labelled not comparable. |
 | Client report is produced | XVA explain pack separates valuation components and methodology version. |
 
-## 53. Advisory And Mandate Checklist
+## 53. Structured-Product Greek Restatement
+
+Scenario:
+
+- A structured-product desk restates Greeks for a note with embedded derivative exposure.
+- Previous delta was 320,000 delta-equivalent notional.
+- Restated delta is 410,000 delta-equivalent notional.
+- Vega changes from 18,500 to 22,000 per volatility point.
+- The market value is unchanged because the official valuation file is not restated.
+
+Restatement impact:
+
+```text
+delta_change = 410,000 - 320,000 = 90,000
+vega_change = 22,000 - 18,500 = 3,500
+```
+
+Correct treatment:
+
+- preserve original and restated Greek files, methodology version, effective date and correction reason;
+- update exposure, mandate, hedge and risk analytics from the restated Greeks;
+- do not change accounting valuation unless the official price or valuation file is also restated;
+- label historical risk reports as restated when prior exposure was materially wrong.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Greek file is restated | Risk analytics version the old and new sensitivities. |
+| Valuation file is unchanged | Market value remains unchanged while exposure changes. |
+| Mandate exposure limit is breached by restatement | Breach workflow opens with restatement lineage. |
+| Client report spans restatement date | Report labels exposure correction without inventing trading activity. |
+
+## 54. Intraday Futures Margin Spike
+
+Scenario:
+
+- A futures position has a sharp intraday price move.
+- Opening initial margin is USD 650,000.
+- Intraday margin add-on is USD 280,000.
+- Available cash is USD 810,000.
+- The clearing broker requires same-day funding by 14:00.
+
+Liquidity impact:
+
+```text
+total_margin_need = 650,000 + 280,000 = 930,000
+cash_shortfall = 930,000 - 810,000 = 120,000
+```
+
+Correct treatment:
+
+- separate initial margin, intraday add-on, variation margin and settled cash movement;
+- trigger liquidity escalation when same-day margin exceeds available cash;
+- preserve clearing-broker call, timestamp, deadline, covered contracts and funding resolution;
+- do not classify margin funding as realized investment loss unless variation margin settlement confirms P&L.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Intraday margin add-on arrives | Same-day funding need recalculates from broker call. |
+| Cash is insufficient | Margin shortfall workflow opens before deadline. |
+| Variation margin also posts | Funding and P&L movements remain separately labelled. |
+| Broker call is later revised | Margin workflow versions original and revised calls. |
+
+## 55. Uncleared Margin Threshold Reset
+
+Scenario:
+
+- A bilateral CSA has a threshold that resets after a ratings downgrade.
+- Previous threshold is USD 1,000,000.
+- Revised threshold is USD 250,000.
+- Current exposure is USD 1,350,000.
+- Posted collateral is USD 400,000.
+
+Collateral requirement:
+
+```text
+required_collateral_before = max(0, 1,350,000 - 1,000,000) = 350,000
+required_collateral_after = max(0, 1,350,000 - 250,000) = 1,100,000
+additional_collateral_needed = 1,100,000 - 400,000 = 700,000
+```
+
+Correct treatment:
+
+- preserve rating trigger, CSA threshold schedule, effective date, exposure source and posted collateral;
+- recalculate collateral calls from the revised threshold only from the source-backed effective date;
+- separate threshold-driven collateral increase from market MTM movement;
+- keep agreed, disputed and pending collateral amounts visible.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Rating trigger is effective | Threshold updates and collateral requirement recalculates. |
+| Trigger evidence is missing | Margin call remains source-limited or uses prior threshold by policy. |
+| Exposure changes same day | Threshold and exposure impacts are separately explainable. |
+| Counterparty disputes threshold | Dispute state tracks agreed and disputed call amounts. |
+
+## 56. Swap Rate-Fixing Dispute
+
+Scenario:
+
+- A floating-rate swap coupon uses a published fixing.
+- Internal source captured 4.72%.
+- Dealer confirmation uses 4.68%.
+- Notional is USD 20,000,000.
+- Accrual factor is 0.25.
+
+Disputed cashflow delta:
+
+```text
+cashflow_internal = 20,000,000 x 4.72% x 0.25 = 236,000
+cashflow_dealer = 20,000,000 x 4.68% x 0.25 = 234,000
+cashflow_dispute = 2,000
+```
+
+Correct treatment:
+
+- preserve internal fixing source, dealer fixing, publication timestamp, convention and dispute owner;
+- keep cashflow provisional or disputed until governing source is resolved;
+- do not silently overwrite the fixing when source hierarchy is explicit;
+- post adjustment cashflow if dispute resolves after settlement.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Dealer fixing differs from internal fixing | Dispute workflow opens with calculated delta. |
+| Governing source confirms internal fixing | Dealer amount is challenged or adjusted. |
+| Payment already settled | Adjustment cashflow posts instead of overwriting history. |
+| Report is generated during dispute | Cashflow is labelled disputed or provisional. |
+
+## 57. Portfolio Compression Rejection
+
+Scenario:
+
+- A portfolio compression cycle proposes to tear up 24 offsetting swap trades.
+- 20 trades are accepted by all counterparties.
+- 4 trades are rejected because legal consent is missing.
+- Proposed notional reduction is USD 180,000,000.
+- Accepted notional reduction is USD 145,000,000.
+
+Compression result:
+
+```text
+acceptance_ratio = 20 / 24 = 83.33%
+rejected_trades = 4
+rejected_notional = 180,000,000 - 145,000,000 = 35,000,000
+```
+
+Correct treatment:
+
+- tear up only accepted trades with source-backed consent and effective date;
+- keep rejected trades live with original lifecycle, valuation and counterparty exposure;
+- preserve compression run id, candidate trades, acceptance status, residual notional and P&L allocation;
+- avoid applying proposed notional reduction before final accepted population is confirmed.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Some trades are rejected | Accepted and rejected populations remain separate. |
+| Compression proposal is not final | No notional is reduced from proposal-only file. |
+| Accepted trades tear up | Live portfolio and exposure reduce only by accepted notional. |
+| P&L allocation is incomplete | Compression cannot finalize until allocation evidence is complete. |
+
+## 58. Derivative Tax-Lot Close-Out Reporting
+
+Scenario:
+
+- A client closes part of an option position held in multiple tax lots.
+- Lot A has 40 contracts with premium cost USD 120,000.
+- Lot B has 60 contracts with premium cost USD 210,000.
+- The client closes 50 contracts for proceeds of USD 190,000.
+- Tax policy uses FIFO.
+
+FIFO close-out:
+
+```text
+closed_lot_a_contracts = 40
+closed_lot_b_contracts = 10
+lot_b_cost_per_contract = 210,000 / 60 = 3,500
+closed_cost = 120,000 + 10 x 3,500 = 155,000
+realized_gain = 190,000 - 155,000 = 35,000
+remaining_lot_b_contracts = 50
+```
+
+Correct treatment:
+
+- preserve derivative lots, acquisition dates, premium costs, close-out quantity, proceeds and tax method;
+- calculate realized gain/loss by configured lot-selection policy;
+- keep remaining lots open with residual quantity and cost basis;
+- separate tax-lot reporting from risk exposure reduction and trade lifecycle state.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Partial close-out occurs | Closed and remaining derivative lots reconcile to original contracts. |
+| FIFO policy applies | Realized gain uses oldest lots first. |
+| Lot history is missing | Realized tax result is provisional or blocked by policy. |
+| Client report is generated | Trade P&L, realized tax result and remaining exposure are separately visible. |
+
+## 59. Advisory And Mandate Checklist
 
 Before using derivatives in advisory or DPM workflows, check:
 
@@ -1647,7 +1852,7 @@ Before using derivatives in advisory or DPM workflows, check:
 | Authority | Who may approve trade, exercise, close-out, collateral movement, or unwind? |
 | Reporting | Which client/advisor labels and warnings are required? |
 
-## 54. Current Support Boundary And Candidate Extensions
+## 60. Current Support Boundary And Candidate Extensions
 
 | Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
 |---|---|---|
@@ -1658,7 +1863,7 @@ Before using derivatives in advisory or DPM workflows, check:
 | Lifecycle events | expiry, exercise, assignment, reset, fixing, settlement, novation, compression, clearing, porting, barrier events and notional exchanges when sourced | automated OTC confirmation matching, lifecycle replay engine and event generation |
 | Reporting | market value, exposure, source date, stale/unsupported labels, hedge overlay split, strategy grouping and clearing state where sourced | advanced hedge-effectiveness reporting and multi-factor attribution |
 
-## 55. Regression Test Pack
+## 61. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -1718,3 +1923,9 @@ Minimum release-gate scenarios:
 54. Swap portfolio novation wave separates accepted and rejected contracts and prevents false close/open P&L.
 55. Collateral substitution dispute applies CSA eligibility and haircut rules before releasing existing collateral.
 56. XVA sensitivity explain pack reconciles clean value, CVA, DVA, FVA and stressed adjustment movement.
+57. Structured-product Greek restatement versions sensitivities without changing valuation when the price file is unchanged.
+58. Intraday futures margin spike separates initial margin, intraday add-on, variation margin and liquidity escalation.
+59. Uncleared margin threshold reset recalculates collateral calls from source-backed CSA trigger evidence.
+60. Swap rate-fixing dispute preserves internal fixing, dealer fixing, governing source and adjustment cashflow lineage.
+61. Portfolio compression rejection reduces notional only for accepted trades with final consent evidence.
+62. Derivative tax-lot close-out reporting reconciles closed lots, remaining lots, proceeds and realized tax result.
