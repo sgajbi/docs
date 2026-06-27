@@ -2575,3 +2575,232 @@ Minimum release-gate scenarios:
 74. Infrastructure tariff reset appeal keeps approved revenue and appeal scenario separate until final regulator decision.
 75. Renewable PPA curtailment cap separates compensated curtailment, above-cap revenue at risk and disputed receivable.
 76. Data-centre liquid-cooling retrofit separates approved capex, holdback, commissioning status and scenario-labelled NOI uplift.
+
+## 79. Property Valuation Appeal Reversal
+
+Scenario:
+
+A direct property valuation was increased after a successful tax and valuation appeal. A later independent appraisal reverses part of the uplift because comparable sales evidence was not accepted.
+
+| Attribute | Value |
+|---|---:|
+| Appealed valuation | 12,500,000 |
+| Reversed uplift | 750,000 |
+| Revised valuation | 11,750,000 |
+| Client ownership share | 40% |
+
+Client valuation impact:
+
+```text
+client_valuation_reversal = reversed_uplift x client_ownership_share
+client_valuation_reversal = 750,000 x 40% = 300,000
+```
+
+Treatment:
+
+- preserve original appraisal, appeal evidence, revised appraisal, comparable-sales challenge, valuation committee decision and effective date;
+- separate valuation appeal, appraisal reversal, tax assessment impact and realized sale economics;
+- update portfolio value, performance contribution, collateral value and client reporting from the approved effective date;
+- keep prior valuation versions auditable rather than overwriting history;
+- route collateral or loan covenant impacts through lending controls where property value supports borrowing.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Appeal uplift is reversed | Valuation decreases with appraisal lineage. |
+| Prior client report was delivered | Corrected report preserves prior and revised valuation. |
+| Property is pledged | Collateral and LTV analytics recalculate from effective date. |
+
+## 80. REIT Index Inclusion Event
+
+Scenario:
+
+A listed REIT is added to a major property index. Index-tracking funds are expected to buy the REIT, but client portfolios should not treat expected flow as guaranteed performance.
+
+| Attribute | Value |
+|---|---:|
+| Units held | 75,000 |
+| Pre-inclusion price | 1.84 |
+| Post-announcement price | 1.93 |
+| Units held market-value uplift | 6,750 |
+
+Market-value movement:
+
+```text
+market_value_uplift = units_held x (post_announcement_price - pre_inclusion_price)
+market_value_uplift = 75,000 x (1.93 - 1.84) = 6,750
+```
+
+Treatment:
+
+- preserve index provider notice, effective date, index weight, market price source, trading-volume evidence and rebalancing assumptions;
+- separate realized price movement from expected index demand;
+- update benchmark-relative analytics, liquidity assumptions and tracking-error context from effective date;
+- avoid labelling expected passive buying as certain income or guaranteed return;
+- keep tax, distribution and corporate-action treatment unchanged unless separate source events exist.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Index inclusion is announced | Benchmark and liquidity metadata update from effective date. |
+| Price moves before effective date | Market-value uplift is performance movement, not confirmed index cashflow. |
+| Index inclusion is delayed | Pending state remains separate from active membership. |
+
+## 81. Infrastructure Concession Refinancing Waiver
+
+Scenario:
+
+An infrastructure concession has debt covenants restricting refinancing. Lenders grant a waiver to refinance early, with a one-off waiver fee and lower recurring margin.
+
+| Attribute | Value |
+|---|---:|
+| Outstanding debt | 220,000,000 |
+| Old margin | 2.10% |
+| New margin | 1.70% |
+| Waiver fee | 1,100,000 |
+
+Annual interest saving:
+
+```text
+annual_interest_saving = outstanding_debt x (old_margin - new_margin)
+annual_interest_saving = 220,000,000 x (2.10% - 1.70%) = 880,000
+
+simple_fee_payback_years = waiver_fee / annual_interest_saving
+simple_fee_payback_years = 1,100,000 / 880,000 = 1.25
+```
+
+Treatment:
+
+- preserve concession agreement, lender waiver, refinancing term sheet, fee invoice, covenant package and execution date;
+- separate one-off waiver fee from recurring interest saving;
+- update debt maturity ladder, covenant state, valuation assumptions and distribution capacity after execution evidence;
+- keep waiver-pending economics scenario-labelled until refinancing closes;
+- disclose material leverage and covenant changes in portfolio reviews where policy requires it.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Waiver approved but refinancing not closed | Economics remain pending or scenario-labelled. |
+| Refinancing closes | Interest cost, maturity ladder and fee cashflow update with source evidence. |
+| Waiver expires unused | Scenario benefit is removed without reversing realized cash. |
+
+## 82. Renewable Merchant-Price Floor Reset
+
+Scenario:
+
+A renewable project has merchant-price downside protection that resets annually. The new floor is lower than the prior floor, increasing revenue-at-risk under merchant exposure.
+
+| Attribute | Prior | New |
+|---|---:|---:|
+| Merchant volume | 40,000 MWh | 40,000 MWh |
+| Price floor | 48 | 42 |
+| Forward merchant price | 39 | 39 |
+| Incremental exposed price gap | n/a | 6 |
+
+Incremental revenue at risk:
+
+```text
+prior_floor_gap = max(prior_floor - forward_price, 0)
+prior_floor_gap = max(48 - 39, 0) = 9
+new_floor_gap = max(new_floor - forward_price, 0)
+new_floor_gap = max(42 - 39, 0) = 3
+protection_reduction = (prior_floor_gap - new_floor_gap) x merchant_volume
+protection_reduction = (9 - 3) x 40,000 = 240,000
+```
+
+Treatment:
+
+- preserve PPA/hedge floor terms, reset notice, market price source, merchant volume forecast and effective date;
+- separate contracted revenue, merchant revenue, floor protection and exposed revenue-at-risk;
+- update valuation, income stability and downside stress assumptions from the reset date;
+- avoid treating reduced protection as realized loss until market prices and production are known;
+- label forward-looking revenue sensitivity as scenario output.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Floor resets lower | Revenue-at-risk and downside stress update from effective date. |
+| Forward price remains below floor | Protection calculation uses new floor only after reset date. |
+| Production volume changes | Revenue-at-risk recalculates from sourced generation forecast. |
+
+## 83. Data-Centre Power-Density Covenant Breach
+
+Scenario:
+
+A data-centre tenant lease requires a minimum deliverable power density. Grid constraints prevent delivery, creating a rent abatement and covenant breach.
+
+| Attribute | Value |
+|---|---:|
+| Contracted power density | 18 kW/rack |
+| Delivered power density | 14 kW/rack |
+| Affected racks | 300 |
+| Monthly abatement per affected rack | 250 |
+
+Monthly abatement:
+
+```text
+power_density_shortfall = contracted_power_density - delivered_power_density
+power_density_shortfall = 18 - 14 = 4
+
+monthly_abatement = affected_racks x abatement_per_rack
+monthly_abatement = 300 x 250 = 75,000
+```
+
+Treatment:
+
+- preserve lease covenant, power-delivery report, grid constraint evidence, tenant notice, abatement formula and cure plan;
+- separate physical occupancy from deliverable power capacity and rent collection;
+- update rent-at-risk, covenant breach state, valuation assumptions and remediation capex forecast;
+- avoid treating built space as fully income-producing when power density is below covenant;
+- disclose recurring breach risk where it affects income quality or tenant concentration.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Delivered power breaches covenant | Rent abatement and breach workflow open. |
+| Tenant still occupies space | Occupancy and income-producing capacity remain separate. |
+| Grid upgrade completes | Breach clears only after source-backed power evidence. |
+
+## 84. Real-Estate Fund Recallable Distribution Funding
+
+Scenario:
+
+A real-estate fund distributes proceeds from an asset sale but designates part of the distribution as recallable for future follow-on investment. Liquidity planning must not treat the recallable amount as permanently returned capital.
+
+| Attribute | Value |
+|---|---:|
+| Distribution received | 600,000 |
+| Recallable percentage | 35% |
+| Recallable amount | 210,000 |
+| Non-recallable cash | 390,000 |
+
+Recallable distribution:
+
+```text
+recallable_amount = distribution_received x recallable_percentage
+recallable_amount = 600,000 x 35% = 210,000
+
+non_recallable_cash = distribution_received - recallable_amount
+non_recallable_cash = 600,000 - 210,000 = 390,000
+```
+
+Treatment:
+
+- preserve distribution notice, recallable designation, partnership terms, remaining commitment, future call conditions and cash receipt;
+- separate cash received, recallable capital, non-recallable return and remaining commitment;
+- update liquidity planning and future capital-call exposure for recallable amount;
+- avoid treating recallable distribution as final realized profit without commitment context;
+- explain recallability in client reporting and DPM funding assumptions.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Distribution is recallable | Cash receipt posts while future call exposure remains. |
+| Future call uses recalled capital | Commitment and cashflow lineage link back to distribution. |
+| Client report is generated | Recallable and non-recallable cash are distinct. |
