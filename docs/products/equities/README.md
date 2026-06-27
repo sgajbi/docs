@@ -27,7 +27,7 @@ The pack treats equities as more than a simple buy/sell product. In real wealth-
 | `06-equity-glossary-control-checklists-and-test-scenarios.md` | Provides a quick reference glossary, transaction mapping, corporate-action mapping, controls and QA test scenarios for implementation. |
 | `07-equity-advisory-mandate-analytics-reporting-deep-dive.md` | Dedicated advisory, DPM/mandate, model portfolio, health-check, attribution and reporting deep dive. |
 | `08-equity-advanced-edge-cases-and-market-operations.md` | Advanced market-operations edge cases: ADR/GDR, odd lots, fractional shares, halts, IPOs, buybacks, securities lending, shorts, margin/collateral, restricted lists, migration and production triage. |
-| `09-worked-examples-and-implementation-patterns.md` | Practical examples for trade settlement, dividends, splits, rights, ADRs, multi-currency P&L, contribution, delisting, corporate-action reconciliation and QA. |
+| `09-worked-examples-and-implementation-patterns.md` | Practical examples for trade settlement, dividends, splits, rights, ADRs, multi-currency P&L, contribution, delisting, corporate-action reconciliation, spin-offs, mergers, manufactured dividends, shorting, restricted lists, IPO allocation and QA. |
 
 ## Recommended Learning and Project Sequence
 

@@ -314,6 +314,196 @@ The platform expects a split ratio of 2-for-1, but custodian confirms 3-for-2.
 | Duplicate event message arrives | Idempotency prevents duplicate quantity change. |
 | Price series is not adjusted | Price outlier control links to unresolved corporate action. |
 
+## Example 10. Spin-Off Cost Allocation
+
+### Scenario
+
+A client holds 1,000 shares of ParentCo with total cost basis of USD 80,000. ParentCo spins off SpinCo at a ratio of 1 SpinCo share for every 5 ParentCo shares. On the first post-event valuation date:
+
+| Attribute | Value |
+|---|---:|
+| ParentCo post-spin price | 70.00 USD |
+| SpinCo price | 50.00 USD |
+| SpinCo shares received | 200 |
+
+### Calculation
+
+```text
+
+parent fair value = 1,000 x 70 = 70,000
+spinco fair value = 200 x 50 = 10,000
+total fair value = 80,000
+
+parent allocation percentage = 70,000 / 80,000 = 87.50%
+spinco allocation percentage = 10,000 / 80,000 = 12.50%
+
+parent allocated cost = 80,000 x 87.50% = 70,000
+spinco allocated cost = 80,000 x 12.50% = 10,000
+spinco cost per share = 10,000 / 200 = 50
+
+```
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| SpinCo ratio is missing | New position is not finalized. |
+| Fair-value source is stale | Cost allocation is blocked or labelled provisional. |
+| Parent and SpinCo cost totals do not reconcile | Corporate-action posting fails. |
+| Client report is regenerated | Holdings show both securities with event lineage and allocated cost. |
+
+## Example 11. Merger Consideration With Cash, Shares And Fractional Cash
+
+### Scenario
+
+A client holds 500 TargetCo shares. The merger terms provide USD 20 cash plus 0.35 AcquirerCo shares for each TargetCo share. Fractional shares are paid in cash at USD 80 per AcquirerCo share.
+
+### Calculation
+
+```text
+
+cash_component = 500 x 20 = 10,000
+raw_acquirer_shares = 500 x 0.35 = 175
+whole_acquirer_shares = 175
+fractional_cash = 0 x 80 = 0
+
+```
+
+If the client held 503 TargetCo shares:
+
+```text
+
+raw_acquirer_shares = 503 x 0.35 = 176.05
+whole_acquirer_shares = 176
+fractional_cash = 0.05 x 80 = 4
+
+```
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Merger terms are preliminary | Position remains pending corporate-action finalization. |
+| Fractional shares are not supported | Cash-in-lieu transaction is booked with source rate. |
+| Consideration is partly taxable | Tax/reporting classification separates cash, shares and cash-in-lieu. |
+| TargetCo position remains open after completion | Residual holding is flagged for reconciliation. |
+
+## Example 12. Manufactured Dividend On Lent Equity
+
+### Scenario
+
+A client lends 2,000 shares through a securities lending program. During the loan, the issuer pays a USD 0.80 dividend per share. The borrower owes a manufactured dividend payment.
+
+### Calculation
+
+```text
+
+manufactured_payment = lent_shares x dividend_per_share
+manufactured_payment = 2,000 x 0.80 = 1,600
+
+```
+
+### Reporting treatment
+
+Manufactured payments should not be blindly labelled as ordinary issuer dividends. Tax treatment, withholding treatment, income classification and statement wording can differ by jurisdiction, lending agreement and source reporting.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Shares are on loan over record date | Entitlement routes through manufactured payment workflow. |
+| Shares are recalled before record date | Normal dividend entitlement can apply if settlement confirms recall. |
+| Manufactured payment is missing | Income exception remains open. |
+| Report labels payment as ordinary dividend | Classification review fails unless source policy supports it. |
+
+## Example 13. Short-Sale Margin And Borrow Cost
+
+### Scenario
+
+A client shorts 1,000 shares at USD 50. The current price rises to USD 55. Borrow cost is 3% annualized and the position is open for 30 days.
+
+### Calculation
+
+```text
+
+short_sale_proceeds = 1,000 x 50 = 50,000
+current_liability = 1,000 x 55 = 55,000
+unrealized_loss = 50,000 - 55,000 = -5,000
+borrow_cost = 55,000 x 3% x 30 / 360 = 137.50
+
+```
+
+### Correct treatment
+
+- show the short position as a liability or negative holding according to reporting policy;
+- include borrow cost separately from market P&L;
+- apply margin, concentration and hard-to-borrow controls;
+- block unsupported shorting for advisory, discretionary or jurisdictional restrictions.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Current price rises | Short liability increases and unrealized P&L is negative. |
+| Borrow rate changes | Accrual updates from effective date. |
+| Security becomes hard-to-borrow | Control alert or close-out workflow opens. |
+| Mandate disallows shorting | Order is blocked before execution. |
+
+## Example 14. Restricted-List Enforcement
+
+### Scenario
+
+An issuer is added to a restricted list because of corporate finance activity. The restriction starts at 09:00 and blocks new purchases for advisory and discretionary accounts.
+
+### Correct workflow
+
+| Step | Action |
+|---|---|
+| Source | Import restricted-list event with issuer, instruments, scope, start time, reason code and expiry/review date. |
+| Pre-trade | Block buy orders and recommendations within scope. |
+| Portfolio | Flag existing holdings for review without forcing unauthorized sale. |
+| Reporting | Preserve restriction status for compliance review, not as investment advice. |
+| Expiry | Remove or renew restriction only from authorized compliance source. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Advisor creates a buy recommendation | Recommendation is blocked with restricted-list reason. |
+| Client already holds the security | Existing holding remains visible with restriction flag. |
+| Restriction expires | Trading control changes only after source-backed expiry or removal. |
+| Instrument has ADR and local line | Restriction applies to mapped instruments according to scope. |
+
+## Example 15. IPO Allocation And Cash Release
+
+### Scenario
+
+A client requests 1,000 IPO shares at USD 25 per share. Final allocation is 200 shares.
+
+### Calculation
+
+```text
+
+reserved_cash = requested_shares x offer_price
+reserved_cash = 1,000 x 25 = 25,000
+
+final_subscription_cash = allocated_shares x offer_price
+final_subscription_cash = 200 x 25 = 5,000
+
+cash_to_release = reserved_cash - final_subscription_cash
+cash_to_release = 25,000 - 5,000 = 20,000
+
+```
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Allocation is pending | Cash remains reserved and no final holding is booked. |
+| Final allocation is lower than request | Only allocated shares settle and excess cash is released. |
+| IPO has lock-up or selling restriction | Holding carries restriction metadata. |
+| Allocation source changes | Position and cash are adjusted with event lineage. |
+
 ## Implementation-backed capability lens
 
 When reviewing equity support, look for evidence across these capabilities:
@@ -327,4 +517,6 @@ When reviewing equity support, look for evidence across these capabilities:
 | Performance | Price, dividend, fee, tax and FX effects separated where methodology supports it. |
 | Attribution | Security, sector, country, currency and benchmark mappings are effective-dated. |
 | Advisory and mandate | Concentration, restricted list, market access, liquidity and corporate-action risk controls. |
+| Securities lending and shorting | Lending status, recall, manufactured income, borrow cost, margin, hard-to-borrow controls and mandate restrictions. |
+| Primary-market workflow | IPO request, cash reservation, final allocation, lock-up metadata, refunds and allocation-source lineage. |
 | Reporting | Holdings, transactions, income, P&L, corporate actions, risk flags and data-quality labels. |
