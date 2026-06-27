@@ -43,12 +43,15 @@ Use these standards when designing or reviewing:
 This pack should be used with:
 
 1. [`../../products/product-performance-attribution-risk-guide.md`](../../products/product-performance-attribution-risk-guide.md)
-2. [`../../products/portfolio-exposure-modelling-guide.md`](../../products/portfolio-exposure-modelling-guide.md)
-3. [`../../products/product-lifecycle-cashflow-and-event-guide.md`](../../products/product-lifecycle-cashflow-and-event-guide.md)
-4. [`../../products/advisory-mandate-reporting-decision-guide.md`](../../products/advisory-mandate-reporting-decision-guide.md)
-5. [`../../products/lending-collateral-and-buying-power.md`](../../products/lending-collateral-and-buying-power.md)
-6. [`../../products/direct-equities-and-market-operations.md`](../../products/direct-equities-and-market-operations.md)
-7. [`../private-banking-platform-knowledge-map.md`](../private-banking-platform-knowledge-map.md)
+2. [`../../products/portfolio-performance-attribution-risk-benchmark/`](../../products/portfolio-performance-attribution-risk-benchmark/README.md)
+3. [`../../products/portfolio-construction-and-rebalancing-guide.md`](../../products/portfolio-construction-and-rebalancing-guide.md)
+4. [`../../products/model-portfolios-rebalancing-advisory-suitability/`](../../products/model-portfolios-rebalancing-advisory-suitability/README.md)
+5. [`../../products/portfolio-exposure-modelling-guide.md`](../../products/portfolio-exposure-modelling-guide.md)
+6. [`../../products/product-lifecycle-cashflow-and-event-guide.md`](../../products/product-lifecycle-cashflow-and-event-guide.md)
+7. [`../../products/advisory-mandate-reporting-decision-guide.md`](../../products/advisory-mandate-reporting-decision-guide.md)
+8. [`../../products/lending-collateral-and-buying-power.md`](../../products/lending-collateral-and-buying-power.md)
+9. [`../../products/direct-equities-and-market-operations.md`](../../products/direct-equities-and-market-operations.md)
+10. [`../private-banking-platform-knowledge-map.md`](../private-banking-platform-knowledge-map.md)
 
 ## Migration Standard
 

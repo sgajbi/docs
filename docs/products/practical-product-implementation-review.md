@@ -6,7 +6,7 @@ It is intentionally vendor-neutral. Use it to decide what a platform should repr
 
 ## Cross-Product Review Lens
 
-Use this lens when improving any product document or designing a product feature. For advisory, mandate, reporting, and QA decisions, use [`advisory-mandate-reporting-decision-guide.md`](advisory-mandate-reporting-decision-guide.md). For concrete lifecycle examples, use [`cross-product-worked-examples.md`](cross-product-worked-examples.md). For compact formulas, reporting labels, degraded states, and QA assertions, use [`product-calculation-example-catalog.md`](product-calculation-example-catalog.md).
+Use this lens when improving any product document or designing a product feature. For the full product-documentation polishing standard, use [`product-documentation-review-rubric.md`](product-documentation-review-rubric.md). For advisory, mandate, reporting, and QA decisions, use [`advisory-mandate-reporting-decision-guide.md`](advisory-mandate-reporting-decision-guide.md). For concrete lifecycle examples, use [`cross-product-worked-examples.md`](cross-product-worked-examples.md). For compact formulas, reporting labels, degraded states, and QA assertions, use [`product-calculation-example-catalog.md`](product-calculation-example-catalog.md).
 
 | Lens | Questions To Answer |
 |---|---|
@@ -23,6 +23,8 @@ Use this lens when improving any product document or designing a product feature
 | Calculation requirements | Which formulas, schedules, dates, source fields, FX treatments, and rounding rules need deterministic implementation? |
 | Edge cases | What breaks simple models: stale data, partial data, lifecycle events, restatements, physical delivery, gates, missing classifications, or negative balances? |
 | Implementation boundary | What should the platform support directly, what should be imported from source systems, and what should remain explicitly unsupported until evidence exists? |
+| Implementation-backed capability | Which capabilities are actually backed by source ownership, methodology, API/UI behavior, controls, lineage, and QA evidence? |
+| Future candidate capability | Which useful capabilities are not yet supported and need source contracts, calculations, controls, and acceptance tests before promotion? |
 
 ## Product Family Matrix
 
@@ -61,6 +63,21 @@ Many wealth platforms can support these capabilities generically across product 
 12. data-quality posture such as missing, stale, estimated, unsupported, partial, or manually overridden.
 
 Do not assume a platform supports product-specific behavior merely because it supports the generic layer. Product-specific behavior needs explicit data, methodology, source ownership, validation, and user-facing degraded-state handling.
+
+## Implementation-Backed Capability Review
+
+When using app documentation or implementation evidence to enrich product knowledge, translate it into neutral product-capability language. Avoid branded claims in product docs and focus on what the capability means for source ownership, calculations, reporting, controls, and QA.
+
+| Observed Capability Area | Product Knowledge Implication | Boundary To Preserve |
+|---|---|---|
+| Portfolio, account, holding, transaction, cashflow, valuation, and analytics-input source products | Product docs can assume a professional platform needs authoritative source-data contracts before downstream analytics or reporting can be trusted. | Source-data ownership does not imply downstream performance, risk, suitability, or report-composition authority. |
+| TWR, MWR, benchmark, contribution, attribution, composite performance, returns series, and lineage | Performance sections should cover input quality, external-flow classification, benchmark context, supportability, reproducibility, and report labels. | Do not claim all product-specific attribution is supported when look-through, benchmark mapping, or cashflow history is partial. |
+| Risk metrics, scenario/stress context, concentration, mandate risk health, and historical attribution | Risk sections should specify denominator, exposure lens, source data, scenario definition, and partial-state behavior. | Do not treat market value as the only risk denominator for derivatives, structured products, commitments, collateral, or insurance. |
+| Advisory proposal simulation, policy evidence, suitability posture, alternatives, and consent workflow | Advisory sections should explain recommendation evidence, client approval, policy checks, disclosure, alternatives, and workflow status. | Advisory workflow support does not equal DPM authority, order execution, product approval, or client-ready communication. |
+| DPM mandate health, construction alternatives, rebalance simulation, waves, proof packs, outcome review, and monitoring exceptions | DPM sections should cover model targets, drift, restrictions, funding, source analytics, proof evidence, approval boundaries, and post-trade review. | DPM workflow evidence is not OMS execution, fill confirmation, settlement truth, client communication, or suitability approval unless separately sourced. |
+| Portfolio review, report composition, report jobs, render/archive handoff, section readiness, and upstream evidence | Reporting sections should show what is sourced, partial, missing, restricted, advisor-only, client-ready, rendered, archived, and auditable. | Report composition should not invent portfolio, performance, risk, tax, suitability, or legal truth. |
+| Front-office UI and gateway composition | UI/API sections should describe downstream realization, route ownership, degraded states, and user-facing labels. | UI presence does not prove domain-methodology support. |
+| Grounded narrative and support-only AI assistance | Narrative sections should specify allowed evidence, forbidden-use controls, source refs, and review posture. | Narrative support should not generate advice, approval, client messages, execution decisions, or missing facts. |
 
 ## Candidate Product-Specific Extensions
 

@@ -398,6 +398,150 @@ Data centre exposure = 21,000 x 40% = SGD 8,400
 | QA | Validate market value, distribution entitlement, withholding/tax treatment if relevant, sector look-through, stale source date, and corporate-action handling. |
 | Boundary | Do not infer full property-sector exposure when the manager/index/source file does not provide reliable look-through data. |
 
+## Example 14: Daily TWR With External Cashflow
+
+| Dimension | Example |
+|---|---|
+| Product families | Portfolio performance; cash; equities; funds |
+| Client objective | Measure manager performance while excluding the timing effect of a client deposit. |
+| Product terms | Portfolio starts at USD 1,000,000, receives external cashflow USD 100,000 at midday, and ends at USD 1,125,000. Valuation immediately before the cashflow is USD 1,020,000. |
+| Key distinction | External client cashflow should not be treated as investment return. |
+
+### Calculations
+
+```text
+Sub-period 1 return = 1,020,000 / 1,000,000 - 1 = 2.00%
+Capital after external flow = 1,020,000 + 100,000 = 1,120,000
+Sub-period 2 return = 1,125,000 / 1,120,000 - 1 = 0.4464%
+Daily TWR = (1 + 2.00%) x (1 + 0.4464%) - 1 = 2.4553%
+```
+
+### Reporting And QA
+
+| Area | Expected treatment |
+|---|---|
+| Advisory | Explain that the deposit increased portfolio value but is not manager return. |
+| DPM/mandate | Use TWR for manager/model comparison and keep MWR for client experience where required. |
+| Reporting | Show beginning value, external flow, ending value, TWR, and supportability state. |
+| QA | Validate cashflow classification, intraday valuation availability, compounding, rounding, and missing-valuation fallback. |
+| Boundary | Do not calculate TWR from beginning value, ending value, and net flow alone when required sub-period valuations are missing. |
+
+## Example 15: Brinson Attribution With Sector Overweight
+
+| Dimension | Example |
+|---|---|
+| Product families | Portfolio performance; equities; funds; model portfolios |
+| Client objective | Explain why a portfolio outperformed its equity benchmark. |
+| Product terms | Portfolio holds 30 percent technology versus benchmark 20 percent. Technology returns 8 percent; benchmark total return is 4 percent. |
+| Key distinction | Outperformance can come from allocation, selection, interaction, currency, and residual effects. |
+
+### Treatment
+
+| Component | Meaning |
+|---|---|
+| Allocation effect | Did overweight or underweight sectors help relative return? |
+| Selection effect | Did selected securities/funds outperform their benchmark segment? |
+| Currency effect | Did reporting-currency translation help or hurt? |
+| Residual | Should be explained or labelled partial, not buried silently. |
+
+### Reporting And QA
+
+| Area | Expected treatment |
+|---|---|
+| Advisory | Explain allocation versus selection in language suitable for portfolio review. |
+| DPM/mandate | Compare actual portfolio exposures to model/benchmark targets and tolerance bands. |
+| Reporting | Show attribution dimension, benchmark, coverage percentage, residual, and source date. |
+| QA | Validate benchmark mapping, sector classification, weight timing, local/reporting currency basis, and residual threshold. |
+| Boundary | Do not publish sector attribution when benchmark or portfolio classifications are missing for a material portion of the portfolio. |
+
+## Example 16: Model Portfolio Version Rollout
+
+| Dimension | Example |
+|---|---|
+| Product families | Model portfolios; funds; equities; bonds; DPM |
+| Client objective | Roll a balanced model from version 12 to version 13 after an investment committee update. |
+| Product terms | New target reduces equities from 55 percent to 50 percent, increases short-duration bonds from 25 percent to 30 percent, keeps alternatives at 10 percent, and cash at 10 percent. |
+| Key distinction | A model change is not automatically an executable trade list. |
+
+### Workflow
+
+| Step | Expected treatment |
+|---|---|
+| Model approval | Store model version, approval date, effective date, and rationale. |
+| Portfolio eligibility | Identify mandates, restrictions, exclusions, stale data, and client-specific overlays. |
+| Drift calculation | Compare current exposure to new target using declared exposure lens. |
+| Trade generation | Create candidate sells/buys subject to funding, tax, cost, liquidity, and product constraints. |
+| Approval and execution | Separate review, approval, order handoff, execution acknowledgement, fills, and settlement. |
+| Post-trade review | Measure residual drift and blocked or deferred actions. |
+
+### Reporting And QA
+
+| Area | Expected treatment |
+|---|---|
+| Advisory | Explain model change, rationale, expected impact, risks, costs, and client approval path where required. |
+| DPM/mandate | Enforce mandate eligibility, model version, tolerance bands, override policy, and audit evidence. |
+| Reporting | Show old target, new target, current exposure, proposed changes, blocked items, expected residual drift, and source state. |
+| QA | Validate versioning, affected portfolio selection, restriction blocking, funding checks, and post-trade drift. |
+| Boundary | Do not claim execution or settlement from a model-rollout artifact unless external order and settlement evidence is sourced. |
+
+## Example 17: Advisory Proposal Expiry And Consent
+
+| Dimension | Example |
+|---|---|
+| Product families | Advisory proposals; structured products; funds; equities |
+| Client objective | Review and approve a recommendation before market conditions or suitability evidence becomes stale. |
+| Product terms | Proposal recommends selling an overweight equity and buying a balanced fund. The proposal expires after seven calendar days or if risk profile changes. |
+| Key distinction | A proposal is not an order until valid consent and pre-trade checks are complete. |
+
+### Workflow
+
+| Event | Treatment |
+|---|---|
+| Draft | Store recommendation, rationale, alternatives, assumptions, and source snapshot. |
+| Review | Run suitability, concentration, liquidity, cost, product eligibility, and restriction checks. |
+| Consent captured | Record authorized party, timestamp, consent scope, and proposal version. |
+| Proposal expired | Block order creation and require refresh or new approval. |
+| Market/source change | Re-run checks if price, risk profile, product eligibility, or portfolio state materially changed. |
+
+### Reporting And QA
+
+| Area | Expected treatment |
+|---|---|
+| Advisory | Explain recommendation rationale, alternatives, risks, cost, suitability posture, and approval validity. |
+| DPM/mandate | Do not mix advisory consent workflow with DPM discretionary authority. |
+| Reporting | Show proposal status, consent status, expiry, assumptions, and blocked reasons. |
+| QA | Validate expiry, stale-source trigger, risk-profile change, partial approval, and order-block behavior. |
+| Boundary | Do not treat expired or partially approved proposal actions as executable. |
+
+## Example 18: Outcome Review After Rebalance
+
+| Dimension | Example |
+|---|---|
+| Product families | DPM; portfolio performance; risk; reporting |
+| Client objective | Review whether a rebalance achieved the intended portfolio outcome. |
+| Product terms | Portfolio had equity overweight and insufficient cash buffer. Rebalance sold equities, bought short-duration bonds, and reserved cash for upcoming withdrawals. |
+| Key distinction | Outcome review needs source-backed pre-trade, trade, post-trade, performance, risk, and report evidence. |
+
+### Review Evidence
+
+| Evidence | Expected use |
+|---|---|
+| Pre-trade state | Target, current exposure, drift, restrictions, cash, risk, and source quality. |
+| Proposed actions | Candidate trades, alternatives, cost, tax, liquidity, and blocked reasons. |
+| Execution evidence | Order handoff, acknowledgement, fills, settlement, and reconciliation when available. |
+| Post-trade state | Holdings, cash, residual drift, mandate health, risk, and performance. |
+| Report evidence | Advisor/PM notes, client-report sections, source dates, supportability, and archive status where relevant. |
+
+### Reporting And QA
+
+| Area | Expected treatment |
+|---|---|
+| Advisory | Explain outcome versus intent without claiming unavailable execution or suitability evidence. |
+| DPM/mandate | Track residual drift, exceptions, deferred actions, breached limits, and follow-up review. |
+| Reporting | Show pre/post allocation, executed versus proposed actions, cash buffer, risk movement, and supportability notes. |
+| QA | Validate lineage from model target to proposal/trade/post-trade state and confirm blocked evidence remains visible. |
+| Boundary | Do not reconstruct missing fills, settlement, client communication, or external execution status from internal rebalance evidence. |
+
 ## Example Template
 
 Use this structure when adding deeper examples to product packs:

@@ -99,6 +99,24 @@ Before committing a product-pack update, check:
 13. Does the practical product implementation review need a new example, capability boundary, or candidate extension?
 14. Does the source-ownership/calculation/reporting matrix need a new source truth, calculation dependency, data-quality state, or QA scenario?
 
+## Professional Review Rubric
+
+For deeper review, use the product documentation rubric at
+[`../products/product-documentation-review-rubric.md`](../products/product-documentation-review-rubric.md).
+It defines the required review dimensions for:
+
+1. product understanding and taxonomy,
+2. payoff and cashflow behavior,
+3. valuation, pricing, and stale-state treatment,
+4. performance, contribution, attribution, and risk analytics,
+5. portfolio modelling and exposure treatment,
+6. advisory, suitability, DPM, and mandate relevance,
+7. reporting, calculation, QA, and implementation boundaries,
+8. implementation-backed capabilities and future candidates.
+
+Use the rubric to turn imported content into a stronger long-term knowledge base without turning
+the product docs into branded product marketing.
+
 ## Ongoing Improvement Principle
 
 Every new product pack should make the repository more useful than a folder of imported notes.
