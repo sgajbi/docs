@@ -1,4 +1,4 @@
-# 08 — Platform Implementation, Controls, Reconciliation, Test Scenarios and Glossary
+# 08 - Platform Implementation, Controls, Reconciliation, Test Scenarios and Glossary
 
 ## 1. Platform capability map
 
@@ -182,7 +182,7 @@ Expected availability = 200,000.
 
 Expected availability after reservation = 120,000.
 
-### Scenario 5: A → B own surplus first
+### Scenario 5: A -> B own surplus first
 
 | Input | Value |
 |---|---:|
@@ -196,11 +196,11 @@ Expected support consumed from A = 60,000.
 Pledge graph:
 
 ```text
-A → B
-B → C
+A -> B
+B -> C
 ```
 
-Expected: C cannot consume A collateral unless explicit A → C pledge exists.
+Expected: C cannot consume A collateral unless explicit A -> C pledge exists.
 
 ### Scenario 7: Margin call due to price fall
 
@@ -229,7 +229,7 @@ Margin call triggered if threshold exceeded
 | LTV | 60% |
 | FX haircut | 10% |
 
-Expected lending value = 1,100,000 × 60% × 90% = 594,000.
+Expected lending value = 1,100,000 x 60% x 90% = 594,000.
 
 ### Scenario 9: Loan interest accrual
 

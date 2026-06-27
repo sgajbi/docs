@@ -52,6 +52,7 @@ This pack covers the lending and collateral side of wealth management:
 7. `07-advisory-mandate-suitability-reporting-and-client-experience.md`
 8. `08-platform-implementation-controls-reconciliation-test-scenarios-and-glossary.md`
 9. `09-source-notes-and-further-reading.md`
+10. `10-worked-examples-and-implementation-patterns.md`
 
 ## Core mental model
 

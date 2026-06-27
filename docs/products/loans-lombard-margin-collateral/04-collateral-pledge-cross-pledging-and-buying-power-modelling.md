@@ -1,4 +1,4 @@
-# 04 — Collateral, Pledge, Cross-Pledging and Buying-Power Modelling
+# 04 - Collateral, Pledge, Cross-Pledging and Buying-Power Modelling
 
 ## 1. Why pledge modelling is hard
 
@@ -26,7 +26,7 @@ Common errors in platforms:
 | Pledged portfolio | Account/portfolio whose assets are pledged |
 | Pledged instrument | Specific security/cash asset pledged |
 | Collateral pool | Group of pledged assets supporting one or more credit lines |
-| Pledge direction | A → B means A supports B |
+| Pledge direction | A -> B means A supports B |
 | Shared collateral | Same asset supports more than one exposure |
 | Encumbrance | Restriction because asset is pledged/blocked/reserved |
 
@@ -59,12 +59,12 @@ Pledge Relationship
 | Amount-level | Up to USD 500k support | Cap support amount |
 | Product-specific | Supports loans but not derivatives | Exposure eligibility needed |
 
-## 5. One-way pledge A → B
+## 5. One-way pledge A -> B
 
-A one-way pledge means A’s collateral can support B’s credit line. It does not automatically mean B supports A.
+A one-way pledge means A's collateral can support B's credit line. It does not automatically mean B supports A.
 
 ```text
-A → B
+A -> B
 ```
 
 Interpretation:
@@ -77,7 +77,7 @@ Interpretation:
 Important principle:
 
 ```text
-A → B is directional, not symmetric.
+A -> B is directional, not symmetric.
 ```
 
 ## 6. No transitive support by default
@@ -85,24 +85,24 @@ A → B is directional, not symmetric.
 If:
 
 ```text
-A → B
-B → C
+A -> B
+B -> C
 ```
 
 Do not assume:
 
 ```text
-A → C
+A -> C
 ```
 
 Transitive support should be explicitly modelled and approved if the bank allows it. Most systems should default to **no transitive support** because collateral rights, legal enforceability, credit approvals and client consent are relationship-specific.
 
-## 7. Circular pledge A → B → C → A
+## 7. Circular pledge A -> B -> C -> A
 
 A circular structure can be represented in a graph:
 
 ```text
-A → B → C → A
+A -> B -> C -> A
 ```
 
 This creates serious modelling and risk issues:
@@ -127,9 +127,9 @@ Recommended platform treatment:
 
 ## 8. Own surplus first rule
 
-For one-way pledge A → B, if B has its own collateral surplus, B should consume its own surplus first before consuming shared support from A.
+For one-way pledge A -> B, if B has its own collateral surplus, B should consume its own surplus first before consuming shared support from A.
 
-This avoids reducing A’s buying power unnecessarily when B still has enough own collateral.
+This avoids reducing A's buying power unnecessarily when B still has enough own collateral.
 
 Formula:
 
@@ -170,11 +170,11 @@ Scenario:
 - Shared asset source is A-10.
 
 ```text
-A-10 → B
-A-10 + A-20 → A
+A-10 -> B
+A-10 + A-20 -> A
 ```
 
-This is not simply BR A → B. It is portfolio-level sharing.
+This is not simply BR A -> B. It is portfolio-level sharing.
 
 ## 10. Correct handling of shared portfolio A-10
 
@@ -184,9 +184,9 @@ Recommended calculation:
 
 1. calculate lending value of A-10;
 2. calculate lending value of A-20;
-3. calculate A’s own exposure and B’s own exposure;
+3. calculate A's own exposure and B's own exposure;
 4. allocate A-20 to A first because it only supports A;
-5. allocate B’s own collateral to B first, if any;
+5. allocate B's own collateral to B first, if any;
 6. use A-10 as shared collateral only for remaining shortfall according to pledge priority;
 7. reserve A-10 lending value for in-flight orders that consume it;
 8. prevent both A and B from using the same A-10 surplus simultaneously.
@@ -246,11 +246,11 @@ Order reservation lifecycle:
 
 ```text
 Order created
-  → pre-trade buying power check
-  → reserve required collateral/credit
-  → order partially/fully executed
-  → reservation converted to exposure or released
-  → settlement confirms final exposure/cash
+  -> pre-trade buying power check
+  -> reserve required collateral/credit
+  -> order partially/fully executed
+  -> reservation converted to exposure or released
+  -> settlement confirms final exposure/cash
 ```
 
 ## 14. Reservation types

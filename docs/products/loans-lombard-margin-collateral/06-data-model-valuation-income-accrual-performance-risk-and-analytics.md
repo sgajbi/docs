@@ -1,4 +1,4 @@
-# 06 — Data Model, Valuation, Income Accrual, Performance, Risk and Analytics
+# 06 - Data Model, Valuation, Income Accrual, Performance, Risk and Analytics
 
 ## 1. Domain model overview
 
@@ -94,7 +94,7 @@ Reports
 | eligibility_status | Eligible/ineligible/restricted |
 | base_ltv | Policy LTV |
 | adjusted_ltv | After overlays |
-| lending_value | Market value × adjusted LTV |
+| lending_value | Market value x adjusted LTV |
 | encumbrance_status | Pledged/blocked/reserved |
 | price_quality | Official/stale/manual/missing |
 
@@ -164,11 +164,11 @@ Collateral is valued according to asset type:
 
 | Collateral | Valuation basis |
 |---|---|
-| Cash | Balance × FX |
-| Equity | Market close or real-time price × quantity |
-| Bond | Clean/dirty price × nominal, plus accrued if applicable |
-| Fund | Latest NAV × units |
-| Structured note | Issuer/evaluated/model price × nominal |
+| Cash | Balance x FX |
+| Equity | Market close or real-time price x quantity |
+| Bond | Clean/dirty price x nominal, plus accrued if applicable |
+| Fund | Latest NAV x units |
+| Structured note | Issuer/evaluated/model price x nominal |
 | Private market fund | Latest reported NAV, often lagged |
 | Property | Appraisal value, periodic refresh |
 
@@ -191,7 +191,7 @@ Inputs:
 Formula:
 
 ```text
-Interest = Principal × Rate × Days / DayCountBasis
+Interest = Principal x Rate x Days / DayCountBasis
 ```
 
 Floating-rate formula:

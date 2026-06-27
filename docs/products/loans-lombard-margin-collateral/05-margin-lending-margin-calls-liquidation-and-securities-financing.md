@@ -1,4 +1,4 @@
-# 05 — Margin Lending, Margin Calls, Liquidation and Securities Financing
+# 05 - Margin Lending, Margin Calls, Liquidation and Securities Financing
 
 ## 1. Margin lending overview
 
@@ -61,14 +61,14 @@ If maintenance requirement is 30%, this triggers a margin shortfall.
 One simple method:
 
 ```text
-Required Equity = Maintenance Margin % × Securities Market Value
+Required Equity = Maintenance Margin % x Securities Market Value
 Margin Shortfall = Required Equity - Actual Equity
 ```
 
 Using the example:
 
 ```text
-Required Equity = 30% × 110,000 = 33,000
+Required Equity = 30% x 110,000 = 33,000
 Actual Equity = 30,000
 Shortfall = 3,000
 ```
@@ -79,13 +79,13 @@ The actual deposit required may be higher depending on house rules, concentratio
 
 ```text
 Market value falls / requirement rises
-  → margin engine detects shortfall
-  → margin call event generated
-  → client/advisor notified
-  → cure period begins if allowed
-  → client cures by cash deposit, securities pledge, repayment or sale
-  → if not cured, liquidation may occur
-  → account returns to compliant state or escalates
+  -> margin engine detects shortfall
+  -> margin call event generated
+  -> client/advisor notified
+  -> cure period begins if allowed
+  -> client cures by cash deposit, securities pledge, repayment or sale
+  -> if not cured, liquidation may occur
+  -> account returns to compliant state or escalates
 ```
 
 ## 6. Margin call event model
@@ -215,11 +215,11 @@ Lifecycle:
 
 ```text
 Security lent
-  → collateral received
-  → lending fee accrues
-  → corporate action/dividend manufactured payment handled
-  → security recalled/returned
-  → collateral returned
+  -> collateral received
+  -> lending fee accrues
+  -> corporate action/dividend manufactured payment handled
+  -> security recalled/returned
+  -> collateral returned
 ```
 
 Position modelling should distinguish:

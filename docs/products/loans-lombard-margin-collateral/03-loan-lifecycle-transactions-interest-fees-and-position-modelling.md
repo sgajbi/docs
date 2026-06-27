@@ -1,4 +1,4 @@
-# 03 — Loan Lifecycle, Transactions, Interest, Fees and Position Modelling
+# 03 - Loan Lifecycle, Transactions, Interest, Fees and Position Modelling
 
 ## 1. Loan lifecycle overview
 
@@ -6,17 +6,17 @@ A lending product lifecycle typically flows as follows:
 
 ```text
 Origination
-  → Credit approval
-  → Facility setup
-  → Collateral pledge setup
-  → Drawdown / utilization
-  → Interest accrual
-  → Interest payment / capitalization
-  → Principal repayment / redraw
-  → Collateral monitoring
-  → Margin call / shortfall management if needed
-  → Renewal / repricing / restructuring
-  → Facility closure and collateral release
+  -> Credit approval
+  -> Facility setup
+  -> Collateral pledge setup
+  -> Drawdown / utilization
+  -> Interest accrual
+  -> Interest payment / capitalization
+  -> Principal repayment / redraw
+  -> Collateral monitoring
+  -> Margin call / shortfall management if needed
+  -> Renewal / repricing / restructuring
+  -> Facility closure and collateral release
 ```
 
 Each stage should be represented either as product master data, facility state, lifecycle event or accounting transaction.
@@ -155,7 +155,7 @@ Transaction type: `LOAN_PRINCIPAL_REPAYMENT`.
 Daily accrual example:
 
 ```text
-Daily Interest = Principal Outstanding × Annual Rate × Accrual Days / Day Count Basis
+Daily Interest = Principal Outstanding x Annual Rate x Accrual Days / Day Count Basis
 ```
 
 Example:
@@ -166,7 +166,7 @@ Example:
 | Annual rate | 6.00% |
 | Day count | ACT/360 |
 | Days | 1 |
-| Daily interest | 500,000 × 6% × 1 / 360 = 83.33 |
+| Daily interest | 500,000 x 6% x 1 / 360 = 83.33 |
 
 ## 9. Interest payment versus capitalization
 
@@ -256,7 +256,7 @@ Clients may borrow in a currency different from portfolio base currency.
 For each loan:
 
 ```text
-Loan Value in Portfolio Base = Loan Principal × FX Rate
+Loan Value in Portfolio Base = Loan Principal x FX Rate
 ```
 
 FX P&L on the liability matters. If the client borrows USD and portfolio base is SGD, a stronger USD increases SGD liability.

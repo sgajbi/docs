@@ -1,4 +1,4 @@
-# 01 — Loans, Lombard Lending, Margin, Collateral and Credit Lines: Fundamentals and Taxonomy
+# 01 - Loans, Lombard Lending, Margin, Collateral and Credit Lines: Fundamentals and Taxonomy
 
 ## 1. What is a loan in wealth management?
 
@@ -118,7 +118,7 @@ Exposure is broader than outstanding loan principal.
 | FX forward exposure | Potential settlement/mark-to-market exposure |
 | OTC derivative exposure | Positive exposure to bank after netting/collateral |
 | Securities purchase exposure | Pending settlement or in-flight order exposure |
-| Guarantee exposure | Bank’s contingent exposure |
+| Guarantee exposure | Bank's contingent exposure |
 | Credit card / facility exposure | If linked to same collateral pool |
 | Reserved exposure | Exposure reserved for approved but pending transactions |
 
@@ -143,13 +143,13 @@ A buying-power engine must decide which exposure types reduce availability immed
 Two equivalent ways to express lending value:
 
 ```text
-Lending value = Market value × LTV
+Lending value = Market value x LTV
 ```
 
 or
 
 ```text
-Lending value = Market value × (1 - Haircut)
+Lending value = Market value x (1 - Haircut)
 ```
 
 Example:

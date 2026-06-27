@@ -1,8 +1,8 @@
-# 07 — Advisory, Mandate, Suitability, Reporting and Client Experience
+# 07 - Advisory, Mandate, Suitability, Reporting and Client Experience
 
 ## 1. Advisory positioning
 
-Borrowing against a portfolio can be useful, but it changes the client’s risk profile. Advisory should not present Lombard/margin lending only as “extra liquidity” or “higher buying power.” It is leverage secured by assets that may fall in value.
+Borrowing against a portfolio can be useful, but it changes the client's risk profile. Advisory should not present Lombard/margin lending only as "extra liquidity" or "higher buying power." It is leverage secured by assets that may fall in value.
 
 A good advisor explains:
 
@@ -44,7 +44,7 @@ A good advisor explains:
 | Concentration | Are pledged assets diversified? |
 | Product complexity | Is borrowing used to buy complex products? |
 | Net worth | Is leverage proportionate? |
-| Stress tolerance | What happens under 20–30% market fall? |
+| Stress tolerance | What happens under 20-30% market fall? |
 | Mandate | Does DPM/advisory mandate permit leverage? |
 
 ## 4. Client explanation template
@@ -81,7 +81,7 @@ DPM and advisory mandates need explicit rules.
 | Leverage allowed? | No leverage / max 20% / allowed for liquidity only |
 | Borrowing purpose | Investment only / liquidity only / prohibited |
 | Max LTV | Max loan exposure 30% of portfolio value |
-| Max leverage ratio | Gross exposure / NAV ≤ 1.2x |
+| Max leverage ratio | Gross exposure / NAV <= 1.2x |
 | Eligible collateral | IG bonds and cash only |
 | Product exclusions | No structured notes as collateral |
 | Currency mismatch | Loan currency must match collateral or base currency |
@@ -230,7 +230,7 @@ A strong RM/advisor dashboard should show:
 
 ## 16. Client experience principles
 
-Clients should not see only one number called “available to invest” without explanation.
+Clients should not see only one number called "available to invest" without explanation.
 
 Show:
 
@@ -250,4 +250,4 @@ This reduces misunderstanding and supports responsible advisory.
 
 Key message:
 
-> Lending is not just a cash product. It changes the portfolio’s risk structure. A wealth platform must connect facility terms, collateral eligibility, pledge relationships, exposure, buying power, suitability, mandate rules, performance, risk and reporting into one consistent model.
+> Lending is not just a cash product. It changes the portfolio's risk structure. A wealth platform must connect facility terms, collateral eligibility, pledge relationships, exposure, buying power, suitability, mandate rules, performance, risk and reporting into one consistent model.

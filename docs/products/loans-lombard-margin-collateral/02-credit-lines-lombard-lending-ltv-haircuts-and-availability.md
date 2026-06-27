@@ -1,4 +1,4 @@
-# 02 — Credit Lines, Lombard Lending, LTV, Haircuts and Availability
+# 02 - Credit Lines, Lombard Lending, LTV, Haircuts and Availability
 
 ## 1. Credit facility structure
 
@@ -6,15 +6,15 @@ A private-bank lending setup normally has these layers:
 
 ```text
 Client / Borrower
-  └── Credit Facility / Line
-        ├── Approved Limit
-        ├── Currency
-        ├── Purpose Rules
-        ├── Pricing Terms
-        ├── Collateral Pool
-        ├── Drawdowns / Loans
-        ├── Exposure Calculation
-        └── Availability / Buying Power
+  `-- Credit Facility / Line
+        |-- Approved Limit
+        |-- Currency
+        |-- Purpose Rules
+        |-- Pricing Terms
+        |-- Collateral Pool
+        |-- Drawdowns / Loans
+        |-- Exposure Calculation
+        `-- Availability / Buying Power
 ```
 
 The facility is the contractual container. Drawdowns are actual utilization. Collateral determines secured availability.
@@ -92,16 +92,16 @@ A simplified LTV grid:
 
 | Asset type | Example LTV |
 |---|---:|
-| Major currency cash | 90–100% |
-| Developed-market government bonds | 70–95% |
-| Investment-grade corporate bonds | 50–85% |
-| High-yield bonds | 20–60% |
-| Large-cap listed equities | 40–70% |
-| ETFs | 40–80% |
-| Mutual funds | 30–75% |
-| Structured notes | 0–60% depending on type |
-| Private equity funds | 0–30% |
-| Hedge funds | 0–50% depending liquidity |
+| Major currency cash | 90-100% |
+| Developed-market government bonds | 70-95% |
+| Investment-grade corporate bonds | 50-85% |
+| High-yield bonds | 20-60% |
+| Large-cap listed equities | 40-70% |
+| ETFs | 40-80% |
+| Mutual funds | 30-75% |
+| Structured notes | 0-60% depending on type |
+| Private equity funds | 0-30% |
+| Hedge funds | 0-50% depending liquidity |
 | Concentrated single stock | Lower than standard equity LTV |
 
 Actual values are policy-driven and bank-specific. The key design point is that LTV is not a static field only on asset class; it can be overridden by instrument, issuer, account, jurisdiction, concentration, liquidity, rating and risk events.
@@ -138,8 +138,8 @@ Example:
 Position-level lending value:
 
 ```text
-Collateral Market Value = Quantity × Price × FX Rate
-Base Lending Value = Collateral Market Value × LTV
+Collateral Market Value = Quantity x Price x FX Rate
+Base Lending Value = Collateral Market Value x LTV
 Adjusted Lending Value = Base Lending Value - Encumbrances - Reservations
 ```
 
@@ -176,8 +176,8 @@ Common caps:
 If the loan is in USD and collateral is in EUR, SGD, JPY or another currency, the bank needs an FX haircut or stress.
 
 ```text
-Collateral Value in Loan CCY = Collateral Market Value × FX Rate
-FX-Adjusted Lending Value = Collateral Value × LTV × FX Haircut Factor
+Collateral Value in Loan CCY = Collateral Market Value x FX Rate
+FX-Adjusted Lending Value = Collateral Value x LTV x FX Haircut Factor
 ```
 
 Example:
@@ -189,7 +189,7 @@ Example:
 | USD collateral value | USD 740,741 |
 | Base LTV | 70% |
 | FX haircut | 8% |
-| Lending value | 740,741 × 70% × 92% = USD 477,037 |
+| Lending value | 740,741 x 70% x 92% = USD 477,037 |
 
 ## 10. Current exposure
 
@@ -305,7 +305,7 @@ Example:
 A platform should calculate stressed availability.
 
 ```text
-Stressed Lending Value = Sum(Position MV × Stress Price Factor × FX Stress Factor × LTV)
+Stressed Lending Value = Sum(Position MV x Stress Price Factor x FX Stress Factor x LTV)
 Stressed Shortfall = Exposure - Stressed Lending Value
 ```
 
@@ -322,7 +322,7 @@ Example stresses:
 
 ## 16. Advisory lens
 
-A client may ask: “How much can I borrow?”
+A client may ask: "How much can I borrow?"
 
 A better advisor answer is:
 
@@ -332,7 +332,7 @@ A better advisor answer is:
 - what assets are pledged?
 - what assets could be sold in a margin event?
 - what is the interest cost?
-- is borrowing aligned with the client’s risk profile and mandate?
+- is borrowing aligned with the client's risk profile and mandate?
 - can the client meet a margin call without forced selling?
 
 A platform should help advisors show this clearly.
