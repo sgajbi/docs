@@ -3345,7 +3345,235 @@ QA assertions:
 | Delivery fails again | Standard failed-delivery workflow restarts. |
 | Closure report is generated | Expired waiver, denial and new delivery attempt are traceable. |
 
-## 98. Regression Test Pack
+## 98. Protector Mediated-Release Payment Failure
+
+Scenario:
+
+- A mediated reserve release is accepted by the trustee.
+- Payment instruction fails due to beneficiary account validation failure.
+- The mediated amount remains payable but not distributed until payment repair succeeds.
+
+| Attribute | Value |
+|---|---:|
+| Mediated release approved | 18,000 |
+| Release payment settled | 0 |
+| Release payment pending repair | 18,000 |
+
+Payment failure:
+
+```text
+release_payment_pending_repair = mediated_release_approved - release_payment_settled
+release_payment_pending_repair = 18,000 - 0 = 18,000
+```
+
+Correct workflow:
+
+- preserve mediation approval, trustee acceptance, payment instruction, payment failure reason, beneficiary account remediation and repaired settlement evidence;
+- keep mediated amount in payable or pending-settlement state rather than returning it to unrestricted cash;
+- block closure until payment settles, is redirected with approval or is re-reserved;
+- report payment failure separately from reserve dispute status;
+- avoid treating payment instruction creation as completed distribution.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Payment instruction fails | Mediated release remains pending repair. |
+| Beneficiary account is corrected | Payment can be reissued with evidence. |
+| Payment is redirected | Trustee or authorized approval is required. |
+| Closure report is generated | Approved, instructed, failed and settled states are visible. |
+
+## 99. Replacement Participant Funding Shortfall
+
+Scenario:
+
+- A replacement participant accepts a cancelled co-investment allocation.
+- The participant funds only part of the required commitment by the funding deadline.
+- Unfunded replacement amount must be reallocated, cancelled or escalated.
+
+| Attribute | Value |
+|---|---:|
+| Replacement allocation approved | 300,000 |
+| Replacement funding received | 210,000 |
+| Replacement funding shortfall | 90,000 |
+
+Funding shortfall:
+
+```text
+replacement_funding_shortfall = replacement_allocation_approved - replacement_funding_received
+replacement_funding_shortfall = 300,000 - 210,000 = 90,000
+```
+
+Correct workflow:
+
+- preserve replacement approval, funding deadline, cash receipt, shortfall notice, committee decision and revised allocation ledger;
+- keep funded and unfunded replacement amounts separate;
+- prevent the unfunded amount from entering committed exposure until cure or reallocation is approved;
+- decide whether the shortfall creates cancellation fees, replacement search or sponsor escalation;
+- avoid showing full replacement allocation as funded commitment before cash is received.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Replacement funding is partial | Shortfall is calculated and escalated. |
+| Funding deadline is extended | Extension approval and revised deadline are recorded. |
+| Shortfall is reallocated | New recipient authority and headroom are checked. |
+| Capital-call forecast is produced | Forecast uses funded and approved commitment state. |
+
+## 100. Substitute Asset Title-Defect Cure
+
+Scenario:
+
+- An estate substitute asset has a title defect that prevents custody transfer.
+- The executor provides cure documents and title review accepts part of the asset value.
+- Equalization credit is applied only to the cured transferable value.
+
+| Attribute | Value |
+|---|---:|
+| Original substitute asset value | 110,000 |
+| Value accepted after title cure | 85,000 |
+| Value still blocked by title defect | 25,000 |
+
+Title cure:
+
+```text
+value_still_blocked_by_title_defect = original_substitute_asset_value - value_accepted_after_title_cure
+value_still_blocked_by_title_defect = 110,000 - 85,000 = 25,000
+```
+
+Correct workflow:
+
+- preserve title defect notice, cure documents, legal/title review, accepted transferable value, rejected value and revised equalization schedule;
+- apply equalization credit only to value accepted after cure;
+- keep blocked value in unresolved status until further cure, cash replacement or waiver;
+- maintain custody-transfer evidence separately from valuation evidence;
+- avoid treating title cure submission as accepted transferability before review is complete.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Title defect remains partly uncured | Only accepted value reduces shortfall. |
+| Cure documents are incomplete | Substitute credit remains provisional. |
+| Full title cure is accepted | Full accepted value can be credited. |
+| Estate report is generated | Original value, cured value and blocked value are separated. |
+
+## 101. Foundation Sampling Waiver Expiry
+
+Scenario:
+
+- A council waiver temporarily reduced evidence sampling requirements during conditional restart.
+- The waiver expires before the next monitoring cycle.
+- Full sampling requirements return unless a new waiver is approved.
+
+| Attribute | Value |
+|---|---:|
+| Samples required after waiver expiry | 5 |
+| Samples covered by renewed waiver | 0 |
+| Samples requiring evidence | 5 |
+
+Waiver expiry:
+
+```text
+samples_requiring_evidence = samples_required_after_waiver_expiry - samples_covered_by_renewed_waiver
+samples_requiring_evidence = 5 - 0 = 5
+```
+
+Correct workflow:
+
+- preserve sampling waiver, waiver scope, expiry date, monitoring cycle, renewed waiver status and evidence plan;
+- restore full sampling requirements after expiry;
+- block grant release if required post-expiry samples are missing;
+- retain expired waiver evidence for audit without applying it to new cycles;
+- avoid carrying forward reduced sampling requirements without current council approval.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Sampling waiver expires | Full evidence requirement returns. |
+| Renewal is approved | Renewed scope and expiry control the next cycle. |
+| Samples are missing after expiry | Release is blocked or escalated. |
+| Monitoring report is generated | Expired waiver and current sample requirement are visible. |
+
+## 102. Client-Notice Exception Audit Challenge
+
+Scenario:
+
+- A client-notice exception was approved for a ratification correction.
+- Audit challenges whether the exception scope was too broad.
+- The team must separate approved exception scope from notices that still require delivery.
+
+| Attribute | Value |
+|---|---:|
+| Notices suppressed under exception | 3 |
+| Notices confirmed in approved scope | 2 |
+| Notices requiring remediation | 1 |
+
+Audit challenge:
+
+```text
+notices_requiring_remediation = notices_suppressed_under_exception - notices_confirmed_in_approved_scope
+notices_requiring_remediation = 3 - 2 = 1
+```
+
+Correct workflow:
+
+- preserve exception approval, suppressed notice population, audit challenge, scope review, remediation decision and notice delivery evidence;
+- confirm whether each suppressed notice is inside approved exception scope;
+- deliver or remediate notices outside approved scope;
+- keep restricted rationale visible only to authorized audit/governance users;
+- avoid defending all suppressed notices when only part of the exception scope is supported.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Audit challenge finds out-of-scope notice | Remediation notice is required. |
+| Notice is within exception scope | Suppression remains valid. |
+| Restricted rationale is requested by unauthorized user | Rationale remains hidden. |
+| Audit report is generated | Suppressed, supported and remediated notices are traceable. |
+
+## 103. Correction-Waiver Denial Appeal Reversal
+
+Scenario:
+
+- A correction-waiver renewal was denied and delivery attempts resumed.
+- The beneficiary appeals the denial and trustee reverses it for a limited period.
+- Delivery requirements are paused only for the approved appeal-reversal period.
+
+| Attribute | Value |
+|---|---:|
+| Delivery attempts required after denial | 1 |
+| Delivery attempts paused by appeal reversal | 1 |
+| Delivery attempts still required now | 0 |
+
+Appeal reversal:
+
+```text
+delivery_attempts_still_required_now = delivery_attempts_required_after_denial - delivery_attempts_paused_by_appeal_reversal
+delivery_attempts_still_required_now = 1 - 1 = 0
+```
+
+Correct workflow:
+
+- preserve waiver denial, appeal request, trustee reversal, reversal scope, reversal expiry and delivery status;
+- pause delivery only for the approved period and recipient scope;
+- resume delivery when reversal expires unless renewed;
+- keep denial, appeal and reversal evidence distinct;
+- avoid treating appeal reversal as permanent waiver renewal.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Appeal reversal is approved | Delivery pauses only for approved scope. |
+| Reversal expires | Delivery-required state resumes. |
+| Appeal reversal is partial | Non-covered packages still require delivery. |
+| Closure report is generated | Denial, appeal, reversal and expiry are traceable. |
+
+## 104. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -3446,3 +3674,9 @@ Minimum release-gate scenarios:
 95. Foundation restart evidence sampling blocks next release when mandatory samples fail.
 96. Ratification correction client-notice exceptions suppress only approved notice scope while preserving audit rationale.
 97. Correction-waiver renewal denials return recipients to delivery-required state.
+98. Protector mediated-release payment failures keep approved release amounts pending until settlement repair succeeds.
+99. Replacement participant funding shortfalls separate funded commitments from unfunded replacement exposure.
+100. Substitute asset title-defect cures credit only accepted transferable value.
+101. Foundation sampling waiver expiries restore full evidence requirements unless renewed.
+102. Client-notice exception audit challenges remediate suppressed notices outside approved scope.
+103. Correction-waiver denial appeal reversals pause delivery only for approved period and scope.
