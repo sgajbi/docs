@@ -6431,3 +6431,255 @@ revalidated_uncovered_drift = 25,000 + 50,000 - 40,000 = 35,000
 | Some inflow evidence remains valid | Revalidation applies only the still-valid inflow. |
 | New order relies on expired override | Order is blocked or routed for fresh approval. |
 | Liquidity report is generated | Expiry, revalidation and residual drift are visible. |
+
+## Example 158. Sweep residual duplicate suppression
+
+### Scenario
+
+A sweep provider sends two residual write-off files for the same outage appeal. The platform must suppress duplicate residual processing, keep the appeal evidence and avoid a second operational write-off.
+
+| Attribute | Value |
+|---|---:|
+| Original sweep recovery claim | 22,000 |
+| Provider appeal settlement | 19,500 |
+| Residual write-off already booked | 2,500 |
+| Duplicate residual file amount | 2,500 |
+
+### Duplicate residual suppression
+
+```text
+expected_residual = original_sweep_recovery_claim - provider_appeal_settlement
+expected_residual = 22,000 - 19,500 = 2,500
+
+additional_write_off_required = max(0, expected_residual - residual_write_off_already_booked)
+additional_write_off_required = max(0, 2,500 - 2,500) = 0
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve outage id, appeal id, settlement file, prior residual posting and duplicate file id. |
+| Cash | Do not post a second residual write-off when the expected residual has already been booked. |
+| Operations | Mark the second file as duplicate-suppressed with reviewer evidence. |
+| Reporting | Show one residual write-off linked to the appeal, not two operational losses. |
+| Controls | Suppression key should use provider, appeal id, outage id, residual amount and effective date. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Duplicate residual file arrives | Additional write-off is zero and duplicate file is suppressed. |
+| Residual already booked is below expected residual | Only the remaining delta is routed for review. |
+| Duplicate file has different appeal id | Suppression does not occur automatically. |
+| Client statement is generated | Only one residual write-off appears with duplicate evidence retained. |
+
+## Example 159. Deposit recertification amended notice
+
+### Scenario
+
+A deposit protection hierarchy recertification was reversed and later corrected with a valid evidence package. The platform must issue an amended notice that restores protected classification without changing actual deposit cash.
+
+| Attribute | Value |
+|---|---:|
+| Prior protected balance after reversal | 190,000 |
+| Validated restored balance | 45,000 |
+| Scheme coverage limit | 250,000 |
+| Prior disputed balance | 60,000 |
+
+### Amended protection balance
+
+```text
+amended_protected_balance = min(prior_protected_balance_after_reversal + validated_restored_balance, scheme_coverage_limit)
+amended_protected_balance = min(190,000 + 45,000, 250,000) = 235,000
+
+remaining_disputed_balance = prior_disputed_balance - validated_restored_balance
+remaining_disputed_balance = 60,000 - 45,000 = 15,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve original recertification, reversal, corrected evidence package and amended notice version. |
+| Cash | Deposit principal and accrued interest remain unchanged; only protection classification changes. |
+| Advisory | Update liquidity protection concentration and deposit ladder risk labels. |
+| Reporting | Issue amended notice showing restored protected balance and remaining disputed balance. |
+| Controls | Require evidence versioning so the amended notice does not overwrite the reversal event. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Corrected evidence is approved | Protected balance increases by validated restored amount. |
+| Coverage limit would be exceeded | Amended protected balance is capped by scheme limit. |
+| Cash report is generated | Deposit cash remains unchanged. |
+| Amended notice is delivered | Original, reversal and amended versions remain traceable. |
+
+## Example 160. Hedge tax reclassification delivery failure
+
+### Scenario
+
+An FX hedge remediation reversal requires an amended tax classification notice, but the delivery package fails for a subset of clients. The platform must keep tax reclassification pending for failed deliveries and preserve the market hedge P&L unchanged.
+
+| Attribute | Value |
+|---|---:|
+| Clients requiring amended tax notice | 24 |
+| Notices successfully delivered | 19 |
+| Approved advisor-only exceptions | 2 |
+| Reclassified compensation amount | 1,100 |
+
+### Delivery failure population
+
+```text
+unresolved_delivery_failures = clients_requiring_amended_tax_notice - notices_successfully_delivered - approved_advisor_only_exceptions
+unresolved_delivery_failures = 24 - 19 - 2 = 3
+
+client_level_reclassified_compensation_at_risk = unresolved_delivery_failures x reclassified_compensation_amount
+client_level_reclassified_compensation_at_risk = 3 x 1,100 = 3,300
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Link tax reclassification, amended notice batch, delivery status, bounceback reason and exception approvals. |
+| Tax | Keep affected client tax-pack status pending until amended notice is delivered or exception-approved. |
+| Performance | Do not change FX hedge P&L or hedge effectiveness due to delivery failure. |
+| Reporting | Show delivery failure separately from reclassification amount and tax status. |
+| Controls | Escalate unresolved delivery failures before final tax-pack publication. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Some notices fail delivery | Failed clients remain pending and are not marked complete. |
+| Advisor-only exception is approved | Exception reduces unresolved client population. |
+| FX performance is recalculated | Hedge P&L remains unchanged. |
+| Tax-pack generation runs | Failed delivery clients are excluded or warning-labelled by policy. |
+
+## Example 161. PSP ageing settlement reversal
+
+### Scenario
+
+A PSP clawback reserve aged past the threshold, then the provider confirms settlement reversal for part of the reserved amount. The platform must reduce aged reserve exposure only by source-confirmed reversal settlement.
+
+| Attribute | Value |
+|---|---:|
+| Aged PSP clawback reserve | 1,250 |
+| Provider settlement reversal confirmed | 800 |
+| Provider fees withheld | 35 |
+| Ageing threshold days | 30 |
+
+### Revised aged reserve
+
+```text
+net_confirmed_reversal = provider_settlement_reversal_confirmed - provider_fees_withheld
+net_confirmed_reversal = 800 - 35 = 765
+
+remaining_aged_reserve = aged_psp_clawback_reserve - net_confirmed_reversal
+remaining_aged_reserve = 1,250 - 765 = 485
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve reserve case, ageing breach, provider reversal notice, fee schedule and settlement evidence. |
+| Cash | Release only net confirmed reversal from reserve; keep residual reserve aged until resolved. |
+| Operations | Close or reduce escalation according to remaining aged reserve. |
+| Reporting | Separate reserve release, provider fees and remaining aged exposure. |
+| Controls | Do not close aged reserve while residual exposure remains. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Partial reversal settlement arrives | Reserve decreases by net confirmed reversal. |
+| Provider fee is withheld | Fee is separately labelled and not hidden inside reserve release. |
+| Residual reserve remains | Ageing escalation remains open for the residual. |
+| Settlement evidence is missing | Reserve release is blocked. |
+
+## Example 162. Waiver notice bounceback remediation
+
+### Scenario
+
+A projected-cash waiver breach notice is delivered to clients, but some notices bounce back. The platform must remediate delivery without issuing duplicate notices to clients who already received the notice.
+
+| Attribute | Value |
+|---|---:|
+| New client notices required | 9 |
+| Successful deliveries | 6 |
+| Bouncebacks | 3 |
+| Remediated re-deliveries | 2 |
+
+### Open notice exceptions
+
+```text
+open_notice_delivery_exceptions = bouncebacks - remediated_re_deliveries
+open_notice_delivery_exceptions = 3 - 2 = 1
+
+total_completed_notices = successful_deliveries + remediated_re_deliveries
+total_completed_notices = 6 + 2 = 8
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve notice version, original delivery batch, bounceback code, remediation action and re-delivery evidence. |
+| Advisory | Advisor tasks stay open only for accounts with unresolved delivery exceptions. |
+| Reporting | Show delivery completion and open exceptions separately from waiver breach remediation. |
+| Operations | Use the same notice version for re-delivery unless an amended notice is approved. |
+| Controls | Suppress duplicate successful notices while allowing targeted remediation. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Notice bounceback occurs | Delivery exception is opened for affected account only. |
+| Re-delivery succeeds | Exception count decreases and completed notice count increases. |
+| Already delivered account is in remediation batch | Duplicate delivery is suppressed. |
+| Breach report is generated | Breach state and notice delivery state are separate. |
+
+## Example 163. Liquidity revalidation override renewal denial
+
+### Scenario
+
+A liquidity-floor override expires and the advisor requests renewal. The renewal is denied because updated projected inflow evidence is insufficient. The platform must keep the order blocked and preserve the denial reason.
+
+| Attribute | Value |
+|---|---:|
+| Revalidated uncovered drift | 35,000 |
+| Updated confirmed inflow | 20,000 |
+| Minimum liquidity floor | 100,000 |
+| Post-order liquidity before override | 75,000 |
+
+### Renewal denial impact
+
+```text
+post_order_liquidity_after_confirmed_inflow = post_order_liquidity_before_override + updated_confirmed_inflow
+post_order_liquidity_after_confirmed_inflow = 75,000 + 20,000 = 95,000
+
+remaining_floor_shortfall = minimum_liquidity_floor - post_order_liquidity_after_confirmed_inflow
+remaining_floor_shortfall = 100,000 - 95,000 = 5,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve expired override, renewal request, updated inflow evidence, reviewer denial and impacted orders. |
+| Portfolio construction | Keep the order blocked while remaining floor shortfall is positive. |
+| Advisory and DPM | Require revised order sizing, new funding evidence or mandate exception approval. |
+| Reporting | Show renewal denial and remaining floor shortfall as control outcomes. |
+| Controls | Prevent denied renewal evidence from being reused for later order approval. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Renewal is denied | Order remains blocked and denial reason is retained. |
+| Updated inflow is insufficient | Remaining floor shortfall is calculated and reported. |
+| New funding evidence arrives | Revalidation can rerun with a new evidence id. |
+| Advisor tries to reuse denial evidence | Approval is blocked. |
