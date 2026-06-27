@@ -4,7 +4,7 @@ This map summarizes tax-aware investment reporting, regulatory reporting, client
 
 Use it with the detailed pack in [`tax-regulatory-reporting/`](tax-regulatory-reporting/README.md).
 
-For practical examples, use [`tax-regulatory-reporting/10-worked-examples-and-implementation-patterns.md`](tax-regulatory-reporting/10-worked-examples-and-implementation-patterns.md).
+For practical examples, use [`tax-regulatory-reporting/10-worked-examples-and-implementation-patterns.md`](tax-regulatory-reporting/10-worked-examples-and-implementation-patterns.md). It covers dividend withholding, accrued interest, tax lots, corporate-action basis, fund distribution classification, structured-note delivery, documentation expiry, report corrections, jurisdiction-specific rule configuration, report outputs, amended filings, withholding reclaims, and multi-entity beneficial-owner reporting.
 
 ## Core Principle
 
@@ -79,6 +79,17 @@ Any tax-aware or regulatory reporting output should define:
 16. archive and evidence requirements,
 17. unsupported or partial states.
 
+## Report Output And Workflow Patterns
+
+| Pattern | Required Treatment |
+|---|---|
+| Jurisdiction-specific configuration | Rules should be effective-dated by jurisdiction, client classification, account wrapper, product type, source country, income type and documentation status. |
+| Report-output template | Output should include header, period, account/entity scope, income, withholding, realized gain/loss, documentation state, exceptions, lineage, version and sign-off. |
+| Amended filing | Preserve original output and submission evidence, store corrected source, assess materiality, regenerate output, record approval and archive both versions. |
+| Withholding reclaim | Track expected reclaim, filed date, authority status, fees, approved amount, rejected amount, received cash and write-off state separately from original withholding. |
+| Multi-entity beneficial-owner reporting | Keep legal owner, beneficial owner, controlling person, reporting recipient, visibility rules and duplication controls explicit. |
+| Client correction notice | Explain corrected fields, source reason, impacted period and whether output supersedes or supplements prior report. |
+
 ## Implementation Guidance
 
 | Requirement | Good Implementation Pattern |
@@ -102,6 +113,8 @@ Any tax-aware or regulatory reporting output should define:
 | Private-market distribution split into return of capital, gain, income, and recallable amount. | Private markets, cashflow analytics. |
 | Forced liquidation of pledged collateral and realized gain/loss. | Lending, collateral, risk reporting. |
 | Trust account report where legal owner and beneficial owner differ. | Wealth structuring, client access, reporting scope. |
+| Amended report after corrected classification. | Tax operations, report versioning, client notice workflow. |
+| Withholding reclaim lifecycle. | Income reporting, operations tracking, cash availability. |
 
 The detailed worked-example file expands these patterns into calculations, controls, support boundaries and regression scenarios.
 
@@ -117,6 +130,9 @@ The detailed worked-example file expands these patterns into calculations, contr
 8. Report output excludes restricted beneficiary or trust data for unauthorized users.
 9. Regulatory report total reconciles to source transaction counts and account scope.
 10. Unsupported tax treatment is labelled or blocked rather than inferred.
+11. Amended filing preserves prior output and corrected output with approval lineage.
+12. Withholding reclaim is tracked as expected/approved/received rather than available cash.
+13. Multi-entity beneficial-owner reporting avoids duplicate income across legal and beneficial owner scopes.
 
 ## Related Guides
 

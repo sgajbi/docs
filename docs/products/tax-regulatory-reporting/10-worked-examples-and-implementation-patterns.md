@@ -189,7 +189,138 @@ Required workflow:
 
 Do not overwrite published report data without versioning.
 
-## 10. Advisory And Reporting Boundary
+## 10. Jurisdiction-Specific Rule Configuration
+
+Scenario:
+
+The same USD dividend is reportable differently for two client accounts because the clients have different tax residence, documentation and booking centre context.
+
+| Attribute | Client A | Client B |
+|---|---|---|
+| Tax residence | Country X | Country Y |
+| Documentation status | Valid treaty form | Missing self-certification |
+| Gross dividend | 2,000 | 2,000 |
+| Applicable withholding rate | 15% | 30% |
+
+Calculation:
+
+```text
+Client A withholding = 2,000 x 15% = 300
+Client B withholding = 2,000 x 30% = 600
+```
+
+Correct treatment:
+
+- rule configuration should be effective-dated and source-controlled;
+- client, account, product, income type, source country and documentation status are required inputs;
+- missing documentation should fail closed to default treatment or exception state according to policy;
+- reports should show basis, source date and supportability state without presenting personalized tax advice.
+
+## 11. Tax Report Output Template
+
+Scenario:
+
+A client tax pack needs to summarize income, withholding and realized gains for a reporting period.
+
+| Section | Required content |
+|---|---|
+| Header | client/account identifier, reporting period, currency, generation date, version. |
+| Income summary | gross income, income category, source country, withholding, net income. |
+| Realized gains/losses | proceeds, cost basis, fees, taxes, lot method, realized gain/loss. |
+| Documentation | residency/document status, expiry, remediation state, missing items. |
+| Exceptions | unsupported events, missing classifications, estimated figures, corrected items. |
+| Lineage | source files, calculation version, report version, approval/sign-off status. |
+
+Output control:
+
+The report should be reproducible from stored inputs and should be versioned. If any material item is missing, estimated, stale, corrected, or unsupported, the report should show a clear exception rather than silently omitting the item.
+
+## 12. Amended Filing Workflow
+
+Scenario:
+
+A regulatory file was submitted with income of 10,000. A corrected source classification later reclassifies 2,000 from income to return of capital.
+
+| Attribute | Original | Corrected |
+|---|---:|---:|
+| Reported income | 10,000 | 8,000 |
+| Return of capital | 0 | 2,000 |
+
+Required workflow:
+
+```text
+source correction -> impact assessment -> materiality and policy decision -> amended file or next-period disclosure -> approval -> archive
+```
+
+Controls:
+
+- keep original filing package and submission timestamp;
+- store corrected source record and reason code;
+- identify affected clients, accounts, products and periods;
+- document whether amended filing, client notice or next-period correction is required;
+- preserve maker/checker sign-off and final output hash where available.
+
+## 13. Withholding Reclaim Tracking
+
+Scenario:
+
+A client paid excess withholding and a reclaim is filed with the tax authority.
+
+| Attribute | Value |
+|---|---:|
+| Gross dividend | 10,000 |
+| Tax withheld at source | 3,000 |
+| Expected treaty withholding | 1,500 |
+| Potential reclaim | 1,500 |
+| Reclaim fee | 100 |
+
+Calculation:
+
+```text
+gross reclaim receivable = tax withheld - expected treaty withholding
+gross reclaim receivable = 3,000 - 1,500 = 1,500
+
+net expected reclaim = gross reclaim receivable - reclaim fee
+net expected reclaim = 1,500 - 100 = 1,400
+```
+
+Correct treatment:
+
+- reclaim receivable should be labelled expected, filed, approved, rejected, paid, expired or written off;
+- cash is not available until refund is received;
+- fees should be tracked separately;
+- client reporting should distinguish paid withholding, expected reclaim and received refund.
+
+## 14. Multi-Entity Beneficial-Owner Reporting
+
+Scenario:
+
+A trust owns an investment account through a holding company. Reporting requires separate legal owner, beneficial owner and reporting recipient views.
+
+| Role | Entity |
+|---|---|
+| Legal account owner | Holding Company A |
+| Beneficial owner | Family Trust B |
+| Controlling person | Settlor C |
+| Reporting recipient | Trustee D |
+
+Correct treatment:
+
+- legal ownership, beneficial ownership, controlling person and reporting recipient are separate fields;
+- visibility and report distribution follow entitlement and privacy rules;
+- tax residency and reportability may attach to different parties depending on regime and source policy;
+- do not duplicate income across legal and beneficial owner reports without consolidation rules.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Beneficial-owner data is missing | Reportability is exceptioned or fails closed according to policy. |
+| Trustee changes | Reporting recipient updates from effective date with audit trail. |
+| Holding company and trust both request report | Output scope and duplication controls are explicit. |
+| Privacy restriction applies | Sensitive party details are masked or omitted according to entitlement policy. |
+
+## 15. Advisory And Reporting Boundary
 
 | Activity | Platform can support | Platform should not imply |
 |---|---|---|
@@ -199,18 +330,20 @@ Do not overwrite published report data without versioning.
 | show reportable event | configured reporting regime | universal reporting obligation |
 | simulate rebalance tax impact | estimated gains/losses under assumptions | advice to execute for tax reasons |
 
-## 11. Current Support Boundary And Candidate Extensions
+## 16. Current Support Boundary And Candidate Extensions
 
 | Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
 |---|---|---|
 | Income and withholding | gross, tax, net, source country, rate, document status | treaty optimization workflow |
 | Tax lots | lot quantity, basis, method, sale depletion | multi-jurisdiction tax-lot engine |
 | Corporate actions | source event, entitlement, basis allocation when supplied | automated tax impact classification |
-| Cross-border documentation | residency, FATCA/CRS status, expiry, remediation state | jurisdiction-specific rule engine |
-| Report output | versioned statement/tax pack with lineage | configurable regulatory filing generator |
-| Corrections | restatement and amended-output workflow | automated client notice workflow |
+| Cross-border documentation | residency, FATCA/CRS status, expiry, remediation state, beneficial-owner role where sourced | deeper jurisdiction-specific rule engine |
+| Report output | versioned statement/tax pack with lineage, exception section and calculation version | configurable regulatory filing generator |
+| Corrections | restatement, amended-output workflow and sign-off evidence | automated client notice workflow |
+| Reclaims | expected reclaim, filed status, fees and refund receipt when source-backed | tax authority workflow integration |
+| Ownership reporting | legal owner, beneficial owner, controlling person and reporting recipient where sourced | cross-regime entity classification engine |
 
-## 12. Regression Test Pack
+## 17. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -224,3 +357,8 @@ Minimum release-gate scenarios:
 8. Corrected withholding source creates versioned report correction.
 9. Missing source classification blocks client-ready tax category.
 10. Tax estimate is labelled as estimate, not final liability.
+11. Jurisdiction-specific rule configuration applies different rates by documentation and effective date.
+12. Tax report output includes lineage, exceptions, report version and sign-off state.
+13. Amended filing preserves original submission and corrected output.
+14. Withholding reclaim is tracked separately from received cash.
+15. Multi-entity beneficial-owner reporting separates legal owner, beneficial owner, controlling person and report recipient.

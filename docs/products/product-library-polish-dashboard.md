@@ -56,7 +56,7 @@ Every product area should be reviewed across these dimensions:
 | Real estate, REITs and infrastructure | Strong | Listed REITs, private real estate, direct property, infrastructure funds, income, valuation, liquidity, leverage analytics, property-level debt maturity, tenant concentration, occupancy, lease expiry, concession renewal, renewable power-price exposure and direct ownership transfers. | Development projects, construction drawdowns, rent-free periods, capex reserves, property sale completion, valuation committee overrides and infrastructure revenue clawbacks. |
 | Structured products | Strong | Payoff building blocks, wrappers, underlyings, lifecycle events, valuation, scenario analytics, advisory controls and QA. | Structured funds, bespoke OTC trades, secondary-market unwind, corporate-action adjustments and scenario-model validation. |
 | Structured notes | Strong | Note wrappers, barriers, autocalls, coupon behavior, credit-linked notes, dual currency notes and physical settlement. | Range accrual notes, participation notes, issuer default after accrual, partial secondary sale and tax lots after delivery. |
-| Tax, regulatory reporting and cross-border reporting | Strong | Income classification, withholding, tax lots, cost basis, CRS/FATCA/QI concepts, client reporting and controls. | Jurisdiction-specific configuration, report outputs, amended filings, withholding reclaims and beneficial-owner reporting. |
+| Tax, regulatory reporting and cross-border reporting | Strong | Income classification, withholding, tax lots, cost basis, CRS/FATCA/QI concepts, client reporting, jurisdiction-specific configuration, report outputs, amended filings, withholding reclaims, beneficial-owner reporting and controls. | Wash-sale style controls, tax-lot transfer between custodians, multi-currency gain bases, withholding pool reconciliation and report delivery entitlements. |
 | Trade lifecycle, settlement, custody and operations | Strong | Advisory-to-order lifecycle, execution, confirmation, settlement, custody, asset servicing, reconciliation and exceptions. | Allocation corrections, FX settlement, income reversal, trade cancellation, fee/tax posting and break closure. |
 | Trusts, estate, family office and wealth structuring | Strong | Trusts, foundations, estates, family offices, holding vehicles, beneficial ownership, authority and reporting hierarchy. | Protector vetoes, directed trusts, investment committees, foundation council changes, beneficiary classes and VCC sub-funds. |
 
@@ -85,7 +85,7 @@ The next useful enrichment work should prioritize:
 3. fund fee equalization after partial redemption, performance-fee crystallization, in-specie transfers and suspension reopenings,
 4. variance swaps, barrier options, cross-currency swaps, collateral disputes and strategy-level attribution,
 5. real estate development projects, construction drawdowns, capex reserves and property sale completion,
-6. tax and regulatory report-output examples,
+6. tax-lot transfer, multi-currency gain basis, withholding pool reconciliation and report delivery entitlement examples,
 7. trade lifecycle corrections, income reversals and settlement break closure,
 8. wealth-structuring authority changes, protector vetoes and foundation council changes.
 
