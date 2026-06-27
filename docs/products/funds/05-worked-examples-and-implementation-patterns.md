@@ -2834,3 +2834,241 @@ annual_fee_delta_if_allowed = 4,000,000 x (1.50% - 1.25%) = 10,000
 | Administrator accepts election | Fee accrual changes from effective date with evidence. |
 | Election deadline is missed | Standard fee remains active unless waiver is approved. |
 | Client report is generated | Investor-level fee term is shown without leaking other investor terms. |
+
+## Example 80. Fund redemption fee waiver
+
+### Scenario
+
+A fund normally charges a short-hold redemption fee. A client redeems before the minimum holding period, but the fund sponsor grants a partial waiver because the redemption was triggered by a share-class closure.
+
+| Attribute | Value |
+|---|---:|
+| Gross redemption value | 1,000,000 |
+| Standard redemption fee | 2.00% |
+| Waiver percentage | 75.00% |
+| Holding period | 45 days |
+| Standard minimum holding period | 90 days |
+
+### Waived fee
+
+```text
+standard_fee = gross_redemption_value x redemption_fee_rate
+standard_fee = 1,000,000 x 2.00% = 20,000
+waived_fee = standard_fee x waiver_percentage = 20,000 x 75.00% = 15,000
+charged_fee = standard_fee - waived_fee = 5,000
+net_redemption_cash = 1,000,000 - 5,000 = 995,000
+```
+
+### Correct treatment
+
+- preserve redemption order, holding-period rule, standard fee, waiver approval, waiver reason and approving party;
+- show standard fee, waived amount and charged fee separately instead of overwriting the fee rule;
+- avoid applying the waiver to other redemptions, accounts or share classes without source evidence;
+- include the charged fee in proceeds, performance and cash reporting according to platform policy;
+- flag advisor-visible explanation when the waiver is client-relevant or suitability-relevant.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Waiver approval exists | Net cash reflects the reduced charged fee. |
+| Waiver approval is missing | Standard redemption fee applies or exception workflow opens. |
+| Same client redeems another class | Waiver is not reused unless explicitly eligible. |
+| Client report is generated | Standard fee, waived fee and charged fee are explainable. |
+
+## Example 81. Private-fund key-person event
+
+### Scenario
+
+A private fund declares a key-person event after a named portfolio manager leaves. Existing holdings remain valued, but new commitments and capital calls may be restricted until the advisory committee approves a remedy.
+
+| Attribute | Value |
+|---|---:|
+| Client commitment | 5,000,000 |
+| Funded capital | 3,200,000 |
+| Unfunded commitment | 1,800,000 |
+| Pending capital call | 400,000 |
+| Key-person event status | Active |
+
+### Callable exposure under event control
+
+```text
+unfunded_commitment = commitment - funded_capital
+unfunded_commitment = 5,000,000 - 3,200,000 = 1,800,000
+call_blocked_by_event = key_person_event_active and not advisory_committee_remedy_approved
+```
+
+### Correct treatment
+
+- preserve key-person notice, affected fund, effective date, remedy period, committee decision and call restrictions;
+- keep NAV/capital-account valuation visible while separating liquidity and commitment restrictions;
+- block or exception new commitments according to the fund documents and platform policy;
+- treat pending capital calls according to the notice rather than assuming all calls are cancelled;
+- surface governance status to advisory, risk, mandate and reporting users without implying a realized loss.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Key-person event is active | New subscription or commitment is blocked or exceptioned. |
+| Existing holding is reported | Funded value remains visible with governance flag. |
+| Pending call is reviewed | Call is paid, blocked or escalated according to source notice. |
+| Remedy approval arrives | Restrictions change only from the approved effective date. |
+
+## Example 82. ETF index methodology change
+
+### Scenario
+
+An ETF tracks an index that changes issuer concentration rules from a 10% cap to a 5% cap. The client still holds the ETF, but look-through exposure, tracking expectations and rebalance explanation change.
+
+| Attribute | Before change | After change |
+|---|---:|---:|
+| Client ETF market value | 250,000 | 250,000 |
+| Issuer look-through weight | 9.00% | 5.00% target cap |
+| Excess weight versus new cap | n/a | 4.00% |
+| Effective date | n/a | Next rebalance |
+
+### Look-through exposure change
+
+```text
+current_issuer_exposure = etf_market_value x current_weight
+current_issuer_exposure = 250,000 x 9.00% = 22,500
+target_issuer_exposure = etf_market_value x new_cap_weight
+target_issuer_exposure = 250,000 x 5.00% = 12,500
+expected_exposure_reduction = 22,500 - 12,500 = 10,000
+```
+
+### Correct treatment
+
+- preserve index methodology notice, ETF sponsor notice, effective date, rebalance date and look-through file version;
+- update target look-through and benchmark analytics from the effective date, not from the announcement date unless required;
+- do not book a client trade because the ETF provider rebalances the underlying basket;
+- explain tracking difference, sector/issuer exposure movement and benchmark changes separately from client order activity;
+- re-check concentration, mandate and advisory analytics that rely on ETF look-through data.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Methodology changes before rebalance | Future target exposure is visible while current holdings remain source-backed. |
+| New look-through file arrives | Issuer exposure updates with file lineage and effective date. |
+| Client performance is calculated | ETF price movement drives return, not a synthetic underlying trade. |
+| Mandate concentration check runs | Check uses the correct as-of look-through version. |
+
+## Example 83. Fund audit qualification impact
+
+### Scenario
+
+A fund issues an annual report with a qualified audit opinion because a private asset valuation could not be independently verified. The official NAV remains published, but valuation confidence and reporting commentary must be controlled.
+
+| Attribute | Value |
+|---|---:|
+| Client fund value | 600,000 |
+| Fund NAV | 120,000,000 |
+| Assets subject to qualification | 18,000,000 |
+| Client ownership share | 0.50% |
+
+### Qualified exposure estimate
+
+```text
+qualified_asset_percentage = qualified_assets / fund_nav
+qualified_asset_percentage = 18,000,000 / 120,000,000 = 15.00%
+client_qualified_exposure_estimate = client_fund_value x qualified_asset_percentage
+client_qualified_exposure_estimate = 600,000 x 15.00% = 90,000
+```
+
+### Correct treatment
+
+- preserve audit opinion, qualification reason, affected assets, reporting period, auditor date and administrator response;
+- keep official NAV as the valuation source unless the administrator restates NAV or policy requires override;
+- add valuation-quality, due-diligence or reporting flags without inventing a new price;
+- route advisory, risk and reporting commentary through approved language;
+- monitor subsequent NAV restatements, side-pocket actions or valuation committee decisions.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Qualified audit opinion is recorded | Fund retains official NAV with valuation-quality flag. |
+| No NAV restatement exists | System does not adjust price or units automatically. |
+| Client report is generated | Qualification note is included according to reporting policy. |
+| Later restatement arrives | Restatement workflow links back to the qualification. |
+
+## Example 84. Side-pocket secondary transfer
+
+### Scenario
+
+A client transfers restricted side-pocket units in a secondary transaction approved by the fund administrator. The side pocket does not become redeemable; ownership changes at an agreed transfer price.
+
+| Attribute | Value |
+|---|---:|
+| Side-pocket units | 10,000 |
+| Administrator NAV per unit | 50.00 |
+| Secondary transfer price per unit | 17.50 |
+| Transfer discount to NAV | 65.00% |
+
+### Transfer economics
+
+```text
+administrator_nav_value = side_pocket_units x nav_per_unit
+administrator_nav_value = 10,000 x 50.00 = 500,000
+transfer_cash_value = side_pocket_units x transfer_price_per_unit
+transfer_cash_value = 10,000 x 17.50 = 175,000
+discount_to_nav = administrator_nav_value - transfer_cash_value = 325,000
+```
+
+### Correct treatment
+
+- preserve transfer agreement, administrator consent, transfer price, settlement date, buyer/seller accounts and restriction state;
+- book the transaction as a transfer or sale according to platform policy, not as a fund redemption;
+- retain side-pocket restriction metadata for the buyer after transfer;
+- separate administrator NAV value, transfer cash value, realized result and liquidity discount;
+- check suitability, tax, mandate, lock-up and reporting effects for both parties where applicable.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Administrator consent is missing | Transfer is blocked or exceptioned. |
+| Transfer settles | Seller units decrease and buyer restricted units increase. |
+| Reporting value is calculated | Official NAV and transfer-price economics remain explainable. |
+| Buyer later requests redemption | Restriction state still prevents normal redemption. |
+
+## Example 85. Subscription equalization true-up
+
+### Scenario
+
+A private fund accepts a late subscription after the fund has accrued performance since the initial closing. The investor pays an equalization amount so existing investors are not diluted by pre-admission performance.
+
+| Attribute | Value |
+|---|---:|
+| Late subscription amount | 1,000,000 |
+| Pre-admission performance accrual | 3.00% |
+| Equalization amount due | 30,000 |
+| Total cash required | 1,030,000 |
+
+### Equalization true-up
+
+```text
+equalization_amount = subscription_amount x pre_admission_performance_accrual
+equalization_amount = 1,000,000 x 3.00% = 30,000
+total_cash_required = subscription_amount + equalization_amount
+total_cash_required = 1,000,000 + 30,000 = 1,030,000
+```
+
+### Correct treatment
+
+- preserve admission date, subscription amount, equalization rate, administrator calculation and investor capital account;
+- keep subscription capital and equalization amount as separate economic components;
+- allocate equalization according to fund accounting policy rather than treating it as ordinary cash performance;
+- ensure units, capital account, fee base and performance reporting use the administrator-confirmed admission terms;
+- explain equalization in client reporting when it affects cash movement, capital account or performance.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Equalization calculation is confirmed | Total required cash includes subscription plus equalization. |
+| Investor sends only subscription amount | Order is underfunded, resized or exceptioned by policy. |
+| Capital account is created | Subscription and equalization components are traceable. |
+| Performance report is generated | Pre-admission performance is not attributed as client-earned return. |
