@@ -1820,7 +1820,224 @@ QA assertions:
 | Cure period is active | Lease termination and replacement assumptions remain provisional. |
 | Replacement tenant signs | Revenue forecast updates from executed contract and power availability. |
 
-## 58. Advisory And Mandate Checklist
+## 58. Property Title Defect Cure
+
+Scenario:
+
+A direct-property holding has a title defect discovered during refinancing diligence. The appraised value remains supported, but collateral eligibility and sale liquidity are restricted until the defect is cured.
+
+| Attribute | Value |
+|---|---:|
+| Appraised value | 18,000,000 |
+| Legal reserve estimate | 150,000 |
+| Liquidity discount while uncured | 7.50% |
+| Expected cure cost | 85,000 |
+
+Scenario value:
+
+```text
+liquidity_discount = 18,000,000 x 7.50% = 1,350,000
+scenario_value = 18,000,000 - 1,350,000 - 150,000 = 16,500,000
+```
+
+Treatment:
+
+- preserve title report, defect type, legal opinion, cure plan, reserve estimate, collateral restriction and effective date;
+- separate legal ownership value from liquidity-adjusted scenario value and lending collateral eligibility;
+- release title restriction only after source-backed cure evidence, registry update or counsel sign-off;
+- explain in reporting that appraisal value, sale liquidity and collateral value are different lenses.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Title defect is open | Property remains held, but collateral and sale-readiness labels are restricted. |
+| Cure evidence is received | Restriction, reserve and liquidity discount are effective-dated and removed by policy. |
+| Refinance report is generated | Appraisal, scenario value and collateral eligibility are shown separately. |
+
+## 59. REIT Scrip Dividend Election
+
+Scenario:
+
+A listed REIT offers a scrip dividend election. The client elects to receive units instead of cash for part of the distribution.
+
+| Attribute | Value |
+|---|---:|
+| Existing units | 12,000 |
+| Cash dividend per unit | 0.045 |
+| Scrip election percentage | 60.00% |
+| Scrip issue price | 2.40 |
+
+Scrip units:
+
+```text
+gross_distribution = 12,000 x 0.045 = 540
+scrip_value = 540 x 60.00% = 324
+scrip_units = floor(324 / 2.40) = 135
+residual_cash = 324 - 135 x 2.40 = 0
+cash_dividend = 540 x 40.00% = 216
+```
+
+Treatment:
+
+- preserve issuer terms, election deadline, accepted election, issue price, tax treatment and fractional-cash policy;
+- create new REIT units only after final corporate-action confirmation;
+- separate cash dividend, scrip units, fractional cash, withholding and cost-basis policy;
+- prevent double income where custodian sends both election and final distribution files.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Valid scrip election is accepted | Units and cash are created according to final terms. |
+| Election is late or rejected | Default cash or default scrip treatment applies from issuer terms. |
+| Tax reporting is generated | Cash, scrip value, withholding and cost basis reconcile to source files. |
+
+## 60. Infrastructure Availability-Payment Benchmarking
+
+Scenario:
+
+A social-infrastructure asset receives availability payments. Actual deduction is compared with a benchmark peer range to identify operating underperformance.
+
+| Attribute | Asset | Benchmark |
+|---|---:|---:|
+| Contracted quarterly payment | 6,000,000 | 6,000,000 |
+| Deduction percentage | 3.20% | 1.25% |
+| Remediation cost | 90,000 | 40,000 |
+
+Benchmark variance:
+
+```text
+asset_deduction = 6,000,000 x 3.20% = 192,000
+benchmark_deduction = 6,000,000 x 1.25% = 75,000
+excess_deduction = 192,000 - 75,000 = 117,000
+excess_operating_impact = 117,000 + (90,000 - 40,000) = 167,000
+```
+
+Treatment:
+
+- preserve contract availability formula, operator report, deduction reason, peer benchmark source and remediation plan;
+- separate contractual deduction, remediation cost, benchmark variance and disputed recovery;
+- avoid treating benchmark underperformance as a receivable unless the concession terms create a recoverable claim;
+- use benchmarking for operating review, valuation assumptions and manager challenge notes.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Deduction exceeds benchmark | Excess impact is flagged for operating review. |
+| Deduction is disputed | Receivable remains provisional until source-backed settlement. |
+| Benchmark source is stale | Benchmark comparison is labelled partial or blocked. |
+
+## 61. Lease Break-Option Exercise
+
+Scenario:
+
+A tenant exercises a lease break option two years before contractual expiry. The property must separate contracted rent loss, reletting assumptions and break-fee cash.
+
+| Attribute | Value |
+|---|---:|
+| Annual rent | 1,200,000 |
+| Remaining term before break | 2 years |
+| Contractual break fee | 300,000 |
+| Expected downtime before reletting | 6 months |
+
+Net rent-at-risk:
+
+```text
+gross_rent_lost = 1,200,000 x 2 = 2,400,000
+expected_downtime_loss = 1,200,000 x 6 / 12 = 600,000
+net_near_term_income_impact = expected_downtime_loss - 300,000 = 300,000
+```
+
+Treatment:
+
+- preserve lease clause, notice date, notice validity, break date, break-fee terms, dilapidation claims and reletting plan;
+- update WALE, occupancy, rent forecast and tenant concentration from the break effective date;
+- separate break fee, dilapidation receivable, downtime loss and new lease assumptions;
+- keep exercise provisional when notice validity or condition compliance is disputed.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Valid break notice is received | Lease expiry and WALE update from break date. |
+| Break conditions are disputed | Lease status remains provisional with dispute lineage. |
+| Break fee is paid | Cash receipt is separate from recurring rent and vacancy assumptions. |
+
+## 62. Renewable Warranty Claim
+
+Scenario:
+
+A solar asset suffers inverter failures covered by equipment warranty. The asset incurs repair cost before warranty recovery is approved.
+
+| Attribute | Value |
+|---|---:|
+| Repair cost incurred | 420,000 |
+| Deductible | 35,000 |
+| Expected warranty recovery | 300,000 |
+| Lost generation estimate | 180,000 |
+
+Net exposure:
+
+```text
+recoverable_repair_cost = min(420,000 - 35,000, 300,000) = 300,000
+unrecovered_repair_cost = 420,000 - 300,000 = 120,000
+total_near_term_impact = 120,000 + 180,000 = 300,000
+```
+
+Treatment:
+
+- preserve failure report, warranty terms, claim filing, deductible, repair invoice, recovery approval and generation-loss estimate;
+- separate repair expense, warranty receivable, denied amount and lost generation;
+- do not book expected warranty recovery as received cash until settlement confirmation;
+- update availability, offtake delivery, EBITDA and valuation assumptions from outage duration and claim status.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Warranty claim is filed | Receivable is provisional until approval evidence exists. |
+| Claim is partially denied | Denied portion remains expense or reserve according to policy. |
+| Generation loss is reported | Lost revenue is separate from repair recovery. |
+
+## 63. Data-Centre Grid-Connection Queue Delay
+
+Scenario:
+
+A data-centre development is complete, but full grid connection is delayed. The shell is built, yet contracted capacity cannot fully convert into income.
+
+| Attribute | Value |
+|---|---:|
+| Built capacity | 30 MW |
+| Temporary available power | 12 MW |
+| Pre-leased rent per MW per year | 1,050,000 |
+| Expected queue delay | 9 months |
+
+Deferred revenue:
+
+```text
+deferred_capacity_mw = 30 - 12 = 18
+annual_deferred_revenue = 18 x 1,050,000 = 18,900,000
+delay_period_deferred_revenue = 18,900,000 x 9 / 12 = 14,175,000
+```
+
+Treatment:
+
+- preserve grid-connection agreement, queue position, temporary-power approval, utility milestone and tenant contract conditions;
+- separate completed shell value, powered capacity, deferred capacity and pre-lease income assumptions;
+- avoid treating unpowered capacity as recurring rent until grid evidence supports service availability;
+- update liquidity, covenant, valuation and development-risk reporting from queue-delay status.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Grid connection is delayed | Powered capacity and deferred revenue are reported separately. |
+| Temporary power is approved | Only temporary available capacity supports income recognition. |
+| Utility milestone changes | Forecasts version prior and revised connection dates. |
+
+## 64. Advisory And Mandate Checklist
 
 | Dimension | Required question |
 |---|---|
@@ -1833,7 +2050,7 @@ QA assertions:
 | DPM mandate | allowed wrapper, illiquid allocation, income target, leverage limit, concentration cap? |
 | Reporting | legal holding, economic exposure, income classification, valuation date and liquidity label? |
 
-## 59. Current Support Boundary And Candidate Extensions
+## 65. Current Support Boundary And Candidate Extensions
 
 | Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
 |---|---|---|
@@ -1843,7 +2060,7 @@ QA assertions:
 | Infrastructure exposure | fund/security/private fund position, sector tags, concession, revenue model, clawback terms, availability deductions and regulated asset base reset terms where sourced | advanced concession, inflation-linkage, offtake, clawback and regulatory-risk analytics |
 | Reporting | wrapper, exposure, value, income, source date, liquidity label, operating metrics, development state and governance overrides where sourced | consolidated real-asset income and stress dashboard |
 
-## 60. Regression Test Pack
+## 66. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -1905,3 +2122,9 @@ Minimum release-gate scenarios:
 56. Property tax appeal settlement effective-dates NOI, valuation and refund/payable treatment.
 57. Renewable repowering capex separates approved capex, incurred cost, remaining spend and commissioned income uplift.
 58. Data-centre tenant power default updates rent-at-risk, concentration, recovery and replacement-tenant assumptions.
+59. Property title defect cure separates appraisal value, legal reserve, liquidity scenario value and collateral eligibility.
+60. REIT scrip dividend election creates source-backed units, cash and tax treatment without double-counted income.
+61. Infrastructure availability-payment benchmarking separates contractual deduction, remediation cost, peer variance and disputed recovery.
+62. Lease break-option exercise updates WALE, rent forecast, break-fee cash and dispute state from valid notice evidence.
+63. Renewable warranty claim separates repair expense, warranty receivable, denied amount and lost generation.
+64. Data-centre grid-connection queue delay separates built capacity, powered capacity, deferred capacity and forecast revenue.
