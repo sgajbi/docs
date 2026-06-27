@@ -2254,7 +2254,225 @@ QA assertions:
 | Seller partially accepts claim | Accepted receivable and disputed amount remain separate. |
 | Remediation is unresolved | Property report carries environmental restriction and valuation impact. |
 
-## 70. Advisory And Mandate Checklist
+## 70. Property Lease Renewal Inducement
+
+Scenario:
+
+A direct-property tenant renews for five years. The headline rent is higher than the expiring lease, but the renewal includes a rent-free period and a tenant-improvement allowance.
+
+| Attribute | Value |
+|---|---:|
+| Renewal annual headline rent | 1,260,000 |
+| Lease term | 5 years |
+| Rent-free period | 3 months |
+| Tenant-improvement allowance | 150,000 |
+
+Effective annual rent:
+
+```text
+rent_free_value = 1,260,000 x 3 / 12 = 315,000
+effective_annual_rent = (1,260,000 x 5 - 315,000 - 150,000) / 5
+effective_annual_rent = 1,167,000
+```
+
+Treatment:
+
+- preserve executed lease renewal, inducement approval, tenant-improvement budget, rent-free schedule and lease accounting basis;
+- separate headline rent, effective rent, cash-rent timing, allowance cashflow and valuation assumptions;
+- update WALE, rent forecast, capex reserve and tenant concentration from the renewal effective date;
+- avoid overstating recurring cash income during the rent-free period.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Rent-free terms exist | Effective rent is lower than headline rent and cash timing is explicit. |
+| Allowance is approved | Allowance is tracked separately from recurring rent. |
+| Lease renewal is executed | WALE and rent forecast update from the renewal effective date. |
+
+## 71. Real-Estate Fund Secondary Sale
+
+Scenario:
+
+A client sells a private real-estate fund interest in a secondary transaction at a discount to latest NAV. The buyer also assumes future unfunded commitments.
+
+| Attribute | Value |
+|---|---:|
+| Reported NAV sold | 2,000,000 |
+| Secondary price percentage | 92% |
+| Transfer fee | 20,000 |
+| Unfunded commitment assumed by buyer | 300,000 |
+
+Net cash and discount:
+
+```text
+gross_secondary_price = 2,000,000 x 92% = 1,840,000
+net_cash = 1,840,000 - 20,000 = 1,820,000
+gross_discount_to_nav = 2,000,000 - 1,840,000 = 160,000
+net_discount_after_fee = 2,000,000 - 1,820,000 = 180,000
+```
+
+Treatment:
+
+- preserve transfer agreement, manager consent, price letter, fee schedule, NAV statement and unfunded commitment transfer evidence;
+- process as a secondary transfer rather than a fund redemption;
+- separate NAV, sale price, transfer fee, realized discount, remaining commitment and consent status;
+- close exposure only when transfer completion and register update are sourced.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Transfer is pending consent | Holding remains open and sale cash is not final. |
+| Buyer assumes commitments | Unfunded commitment is reduced only after transfer completion. |
+| Sale price is below NAV | Realized discount is calculated separately from NAV restatement. |
+
+## 72. REIT Privatization Offer
+
+Scenario:
+
+A listed REIT receives a privatization offer. Client units are exchanged for cash after scheme approval and delisting.
+
+| Attribute | Value |
+|---|---:|
+| Units held | 100,000 |
+| Offer price per unit | 2.35 |
+| Last pre-offer market price | 2.20 |
+| Withholding or transaction tax | 0 |
+
+Offer cash and premium:
+
+```text
+gross_offer_cash = 100,000 x 2.35 = 235,000
+market_value_before_offer = 100,000 x 2.20 = 220,000
+offer_premium = 235,000 - 220,000 = 15,000
+```
+
+Treatment:
+
+- preserve scheme document, shareholder approval, court or regulator approval where applicable, effective date and delisting notice;
+- separate market price, offer consideration, election status, completion status, accrued distribution and tax handling;
+- stop listed-market pricing only after delisting or suspension source evidence;
+- avoid closing the holding before effective-date corporate-action confirmation.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Scheme approval is pending | Position remains listed or suspended according to market source. |
+| Scheme becomes effective | Units close and cash consideration posts from official terms. |
+| Distribution record date differs | Distribution entitlement remains separate from privatization cash. |
+
+## 73. Infrastructure Tariff Reset Appeal
+
+Scenario:
+
+A regulated infrastructure asset receives a lower allowed-return determination. The manager appeals and provides a valuation sensitivity for partial recovery.
+
+| Attribute | Value |
+|---|---:|
+| Regulated asset base | 500,000,000 |
+| Approved allowed return | 5.70% |
+| Appealed allowed return case | 6.00% |
+| Client economic share | 1.00% |
+
+Client annual sensitivity:
+
+```text
+appeal_return_delta = 6.00% - 5.70% = 0.30%
+asset_level_revenue_sensitivity = 500,000,000 x 0.30% = 1,500,000
+client_share_sensitivity = 1,500,000 x 1.00% = 15,000
+```
+
+Treatment:
+
+- preserve regulator determination, tariff model, appeal filing, manager sensitivity and final decision date;
+- separate approved tariff, appealed scenario, probability weighting and final allowed revenue;
+- report appeal upside as contingent valuation sensitivity, not booked income;
+- update cashflow forecast only when regulator decision or settlement evidence is final.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Appeal is open | Revenue uplift is scenario-labelled and not booked as cash. |
+| Appeal succeeds partially | Allowed revenue updates from final decision terms. |
+| Appeal fails | Prior scenario sensitivity is removed without reversing realized cash. |
+
+## 74. Renewable Power Purchase Agreement Curtailment Cap
+
+Scenario:
+
+A renewable project has a power purchase agreement that compensates curtailment up to a contractual cap. Actual curtailment exceeds the cap.
+
+| Attribute | Value |
+|---|---:|
+| Annual generation basis | 100,000 MWh |
+| Contractual curtailment compensation cap | 5% |
+| Actual curtailed generation | 8% |
+| PPA price | 60 per MWh |
+
+Uncompensated curtailment above cap:
+
+```text
+compensated_curtailment_mwh = 100,000 x 5% = 5,000
+actual_curtailment_mwh = 100,000 x 8% = 8,000
+uncompensated_curtailment_mwh = 8,000 - 5,000 = 3,000
+revenue_at_risk = 3,000 x 60 = 180,000
+```
+
+Treatment:
+
+- preserve grid notice, PPA clause, generation data, curtailment statement and compensation calculation;
+- separate generated output, compensated curtailment, uncompensated curtailment, disputed receivable and recurring grid-risk flag;
+- avoid treating above-cap curtailment as receivable unless contract recovery evidence exists;
+- feed persistent curtailment into valuation, operating-risk and covenant sensitivity.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Curtailment is within cap | Compensation can be accrued if source-backed. |
+| Curtailment exceeds cap | Above-cap revenue remains at-risk or disputed, not booked cash. |
+| Grid issue recurs | Recurring risk flag updates operating and valuation analytics. |
+
+## 75. Data-Centre Liquid-Cooling Retrofit Capex
+
+Scenario:
+
+A data-centre asset approves a liquid-cooling retrofit to support high-density tenants. The retrofit requires upfront capex and is expected to increase annual NOI after commissioning.
+
+| Attribute | Value |
+|---|---:|
+| Approved retrofit capex | 4,000,000 |
+| Expected annual NOI uplift | 550,000 |
+| Commissioning holdback | 400,000 |
+| Client economic share | 5% |
+
+Payback and client cash planning:
+
+```text
+simple_payback_years = 4,000,000 / 550,000 = 7.27
+client_gross_capex_share = 4,000,000 x 5% = 200,000
+client_holdback_share = 400,000 x 5% = 20,000
+```
+
+Treatment:
+
+- preserve capex approval, engineering scope, tenant power-density requirement, commissioning milestone, holdback terms and lease amendment;
+- separate approved capex, incurred capex, remaining commitment, holdback, commissioning evidence and income uplift;
+- treat expected NOI uplift as scenario until tenant acceptance and commissioning evidence are sourced;
+- update liquidity forecast, valuation assumptions, debt covenant model and operational-risk notes.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Capex is approved but not commissioned | Spend and commitment update; income uplift remains scenario-labelled. |
+| Commissioning completes | NOI uplift may activate from acceptance evidence and effective date. |
+| Holdback remains unresolved | Holdback cash and vendor obligation stay separate from recurring NOI. |
+
+## 76. Advisory And Mandate Checklist
 
 | Dimension | Required question |
 |---|---|
@@ -2267,17 +2485,17 @@ QA assertions:
 | DPM mandate | allowed wrapper, illiquid allocation, income target, leverage limit, concentration cap? |
 | Reporting | legal holding, economic exposure, income classification, valuation date and liquidity label? |
 
-## 71. Current Support Boundary And Candidate Extensions
+## 77. Current Support Boundary And Candidate Extensions
 
 | Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
 |---|---|---|
 | Listed REIT | security position, trades, price, distributions, corporate actions, gearing where sourced | property-sector look-through and detailed operating-metric analytics |
 | Private real estate fund | commitment, calls, NAV, distributions, valuation date, queues, holdbacks, development drawdowns, capex reserves and tenant/default indicators where sourced | advanced liquidity queue simulation, project-level cashflow and manager-level stress modelling |
 | Direct property | ownership record, appraisal value, source date, documents, ownership percentage, sale state, committee override, zoning, insurance, environmental and covenant status where sourced | document-backed ownership graph and property-level cashflow model |
-| Infrastructure exposure | fund/security/private fund position, sector tags, concession, revenue model, clawback terms, availability deductions and regulated asset base reset terms where sourced | advanced concession, inflation-linkage, offtake, clawback and regulatory-risk analytics |
+| Infrastructure exposure | fund/security/private fund position, sector tags, concession, revenue model, clawback terms, availability deductions, regulated asset base reset terms, tariff appeals, PPA curtailment caps and data-centre retrofit capex where sourced | advanced concession, inflation-linkage, offtake, clawback and regulatory-risk analytics |
 | Reporting | wrapper, exposure, value, income, source date, liquidity label, operating metrics, development state and governance overrides where sourced | consolidated real-asset income and stress dashboard |
 
-## 72. Regression Test Pack
+## 78. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -2351,3 +2569,9 @@ Minimum release-gate scenarios:
 68. Infrastructure step-in-right event changes operational-control state without closing ownership unless legal title changes.
 69. Direct-property foreign-ownership restriction keeps signed, conditional and completed ownership states separate.
 70. Brownfield contamination indemnity claim separates reserve shortfall, accepted recovery, disputed recovery and valuation impact.
+71. Lease renewal inducement separates headline rent, effective rent, rent-free cash timing and tenant-improvement allowance.
+72. Real-estate fund secondary sale separates NAV, sale price, transfer fee, realized discount, consent state and transferred commitments.
+73. REIT privatization offer separates market value, offer cash, distribution entitlement, delisting state and completion evidence.
+74. Infrastructure tariff reset appeal keeps approved revenue and appeal scenario separate until final regulator decision.
+75. Renewable PPA curtailment cap separates compensated curtailment, above-cap revenue at risk and disputed receivable.
+76. Data-centre liquid-cooling retrofit separates approved capex, holdback, commissioning status and scenario-labelled NOI uplift.
