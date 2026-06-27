@@ -585,7 +585,236 @@ Controls:
 - approval evidence should include eligible voters, abstentions, conflicts and rationale;
 - advisory suitability and DPM mandate checks remain separate from governance approval.
 
-## 26. Regression Test Pack
+## 26. Protector Succession
+
+Scenario:
+
+- A trust protector resigns and a successor protector is appointed.
+- The protector has veto rights over capital distributions and trustee replacement.
+- A distribution request is pending during the succession window.
+
+| Authority state | Effective date | Status |
+|---|---|---|
+| Outgoing protector | Until 30 Jun | Resigned |
+| Successor protector | From 1 Jul | Appointment pending acceptance |
+| Pending distribution request | 28 Jun | Awaiting protector review |
+
+Control treatment:
+
+```text
+active_protector = protector where effective_from <= action_date < effective_to and acceptance_status = accepted
+succession_gap = appointment_effective_date reached and acceptance_status != accepted
+```
+
+Correct workflow:
+
+- preserve outgoing appointment, resignation notice, successor appointment, acceptance state and effective dates;
+- block or route actions requiring protector consent when no accepted protector is active;
+- distinguish trustee authority from protector veto authority;
+- keep beneficiary-facing reporting limited to action status and permitted governance context.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Distribution requires protector consent during succession gap | Workflow blocks or routes to legal/trustee exception handling. |
+| Successor accepts appointment | Active protector resolves from effective date with audit lineage. |
+| Outgoing protector tries to veto after resignation | Action is rejected unless governing document preserves transitional power. |
+| Beneficiary report is generated | Report shows pending governance status without exposing restricted documents. |
+
+## 27. Delegated Investment-Manager Replacement
+
+Scenario:
+
+- Trustees delegate portfolio management to an external investment manager.
+- The manager is replaced after an investment-policy breach.
+- Pending orders, model links and DPM permissions must move only after new authority is effective.
+
+| Item | Existing manager | Replacement manager |
+|---|---|---|
+| Mandated portfolio value | 18,000,000 | 18,000,000 |
+| Pending orders | 4 | 0 until effective |
+| Authority effective date | Until 15 Aug | From 16 Aug |
+| Due-diligence status | Breach review | Approved |
+
+Transition control:
+
+```text
+orders_requiring_reapproval = pending_orders_before_manager_change
+active_manager = manager where effective_from <= order_action_date < effective_to
+```
+
+Correct workflow:
+
+- preserve manager appointment, termination reason, due-diligence approval and effective dates;
+- freeze or reapprove pending orders when manager authority changes;
+- update model links, discretionary permissions and contact ownership from the effective date;
+- keep investment performance continuous while governance responsibility changes.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Old manager submits order after effective termination | Order is blocked. |
+| Pending order exists before replacement | Order requires cancellation, reapproval or explicit transition evidence. |
+| New manager lacks due-diligence approval | Authority activation is blocked. |
+| Performance report spans transition date | Performance remains continuous while manager responsibility is effective-dated. |
+
+## 28. Beneficiary Loan
+
+Scenario:
+
+- A beneficiary requests a short-term loan from a family trust.
+- The governing document permits loans only with trustee approval, interest terms and exposure limit.
+- The beneficiary already has an outstanding loan.
+
+| Attribute | Value |
+|---|---:|
+| Existing beneficiary loan | 300,000 |
+| Proposed new loan | 250,000 |
+| Beneficiary loan limit | 500,000 |
+| Annual interest rate | 4.50% |
+
+Limit check:
+
+```text
+post_loan_exposure = 300,000 + 250,000 = 550,000
+limit_breach = 550,000 - 500,000 = 50,000
+annual_interest = 250,000 x 4.50% = 11,250
+```
+
+Correct workflow:
+
+- separate loan receivable from beneficiary distribution and entitlement;
+- validate governing-document permission, trustee approval, terms, maturity and interest basis;
+- block or exception-route loans that breach beneficiary loan limits;
+- report outstanding loans, accrued interest and repayments without exposing other beneficiary balances.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Proposed loan breaches limit | Workflow blocks or routes to approved exception. |
+| Trustee approval is missing | No loan receivable or cash payment is created. |
+| Loan is approved | Receivable, cash movement, interest accrual and maturity are tracked. |
+| Beneficiary report is generated | Report shows only authorized beneficiary loan information. |
+
+## 29. Family Charter Amendment
+
+Scenario:
+
+- A family charter changes the approval threshold for private-market commitments.
+- The amendment is approved by the family council but becomes effective after a notice period.
+- A commitment proposal is submitted during the transition.
+
+| Rule version | Threshold | Effective period |
+|---|---:|---|
+| Current charter | 5,000,000 | Until 31 Oct |
+| Amended charter | 3,000,000 | From 1 Nov |
+| Proposed commitment | 4,000,000 | Submitted 20 Oct |
+
+Threshold evaluation:
+
+```text
+approval_required_under_current_rule = 4,000,000 >= 5,000,000 = false
+approval_required_under_amended_rule = 4,000,000 >= 3,000,000 = true
+active_rule = rule where effective_from <= proposal_date < effective_to
+```
+
+Correct workflow:
+
+- version family charter provisions and effective dates;
+- evaluate proposals against the rule active on the relevant action date;
+- preserve council approval, notice period, dissenting notes where allowed and amendment evidence;
+- avoid retroactively invalidating actions approved under the prior active rule unless legal review requires it.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Proposal date is before amendment effective date | Current threshold applies. |
+| Investment is approved after amendment effective date | New threshold applies when policy says approval date governs. |
+| Charter evidence is missing | Governance rule change remains inactive. |
+| Report explains governance threshold | It shows rule version and effective date, not informal family intent. |
+
+## 30. Multi-Branch Reporting Restriction
+
+Scenario:
+
+- A family office has accounts across two booking centres and one external custodian.
+- A regional branch team can view local accounts but is restricted from viewing another branch's trust details.
+- The consolidated family report must preserve perimeter and masking rules.
+
+| Reporting component | Value | Branch visibility |
+|---|---:|---|
+| Branch A portfolios | 12,000,000 | Visible to Branch A |
+| Branch B trust assets | 8,500,000 | Restricted from Branch A |
+| External custodian assets | 4,000,000 | Visible only to family-office reporting team |
+
+Perimeter treatment:
+
+```text
+authorized_reportable_value_for_branch_a = 12,000,000
+full_family_office_value = 12,000,000 + 8,500,000 + 4,000,000 = 24,500,000
+masked_value_for_branch_a = 12,500,000
+```
+
+Correct workflow:
+
+- separate full consolidated report generation from branch-specific delivery entitlement;
+- apply booking-centre, trust-document, privacy and recipient-role restrictions;
+- show partial perimeter labels when restricted assets are excluded or masked;
+- avoid leaking existence, value or beneficiary details where the recipient is not authorized.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Branch A user requests family report | Report includes only authorized perimeter or masked summary. |
+| Family-office reporting team is authorized | Full consolidated report is available with source lineage. |
+| Restricted trust asset changes value | Branch A report does not reveal restricted change. |
+| Recipient role changes | Report entitlement recalculates from effective-dated authority. |
+
+## 31. Charitable Pledge Cancellation
+
+Scenario:
+
+- A family foundation approved a multi-year charitable pledge.
+- The recipient fails a due-diligence refresh before the second installment.
+- The remaining pledge must be cancelled or suspended with evidence, without rewriting the paid installment.
+
+| Pledge component | Amount | Status |
+|---|---:|---|
+| Total approved pledge | 600,000 | Approved |
+| Installment already paid | 200,000 | Completed |
+| Remaining pledge | 400,000 | Pending cancellation |
+| Due-diligence result | n/a | Failed refresh |
+
+Cancellation treatment:
+
+```text
+remaining_pledge = total_approved_pledge - paid_installments
+remaining_pledge = 600,000 - 200,000 = 400,000
+cancelled_commitment = 400,000
+```
+
+Correct workflow:
+
+- preserve original pledge approval, paid installment, due-diligence failure and cancellation decision;
+- stop future payments while retaining completed payment evidence;
+- release reserved liquidity only after cancellation or suspension is approved;
+- update philanthropic reporting to show paid grants, cancelled commitments and reason codes separately.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Recipient due diligence fails | Remaining pledge payment is blocked. |
+| First installment was already paid | Historical grant payment remains intact with evidence. |
+| Cancellation is approved | Reserved liquidity releases and commitment state updates. |
+| Report is generated | Paid grant and cancelled pledge are reported as separate lifecycle events. |
+
+## 32. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -614,3 +843,9 @@ Minimum release-gate scenarios:
 23. Trust termination reconciles liquidation proceeds, fees, reserves, final distributions and closure state.
 24. Beneficiary dispute restrictions block only the scoped activity and preserve confidentiality.
 25. Family governance conflict controls recalculate eligible voting members and quorum.
+26. Protector succession blocks consent-dependent actions when no accepted protector is active.
+27. Delegated investment-manager replacement freezes, cancels or reapproves pending orders across the effective date.
+28. Beneficiary loan workflow separates loan exposure from distributions and enforces limits.
+29. Family charter amendment applies the correct rule version and effective date.
+30. Multi-branch reporting restrictions preserve consolidated and recipient-specific reporting perimeters.
+31. Charitable pledge cancellation stops future installments while preserving paid-grant evidence.
