@@ -2,7 +2,7 @@
 
 This matrix turns the product knowledge base into reusable QA and regression scenarios.
 
-Use it when creating acceptance criteria, test cases, migration validation packs, support runbooks, data-quality checks, or release gates for product support. It is intentionally platform-neutral and should be adapted to the target product catalogue, data contracts, policy rules, and source systems.
+Use it when creating acceptance criteria, test cases, migration validation packs, support runbooks, data-quality checks, or release gates for product support. For source-file intake and migration setup, use [`product-source-intake-and-migration-guide.md`](product-source-intake-and-migration-guide.md). It is intentionally platform-neutral and should be adapted to the target product catalogue, data contracts, policy rules, and source systems.
 
 ## Regression Principles
 

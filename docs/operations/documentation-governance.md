@@ -12,6 +12,8 @@ This repo should stay easy to extend as more product docs, prompt docs, and refe
 6. Update the nearest index file.
 7. Run a quick link and tree review before committing.
 
+For product source files, statements, extracts, spreadsheets, PDFs, or migration samples, also use [`../products/product-source-intake-and-migration-guide.md`](../products/product-source-intake-and-migration-guide.md).
+
 ## Classification
 
 | Category | Destination | Examples |
