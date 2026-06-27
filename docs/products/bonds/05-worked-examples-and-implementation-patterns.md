@@ -1105,6 +1105,265 @@ The platform should not overwrite one value basis with another. Each report must
 | Tax lot sale occurs | Uses tax book lot basis, not fair value. |
 | One book is missing | Report labels unavailable basis instead of substituting another book silently. |
 
+## Example 27. Callable Step-Up Note Extension Risk
+
+### Scenario
+
+A client holds a callable step-up note. The coupon increases if the issuer does not call, but the client faces extension risk and reinvestment uncertainty.
+
+| Attribute | Value |
+|---|---:|
+| Nominal | 500,000 |
+| Initial coupon | 3.50% |
+| Coupon after first call date | 5.25% |
+| First call date | Year 2 |
+| Legal maturity | Year 7 |
+| Current clean price | 101.00 |
+
+### Call versus extension view
+
+| Scenario | Coupon path | Principal timing | Advisory interpretation |
+|---|---|---|---|
+| Called at Year 2 | 3.50% until call | Principal returned early | Reinvestment risk if rates are lower. |
+| Not called | 3.50%, then 5.25% | Principal remains until later call or maturity | Extension risk and longer issuer exposure. |
+
+### Correct treatment
+
+The next call date is not the legal maturity. Reporting should show legal maturity, next call date, call schedule, step-up coupon and yield basis separately. A yield-to-worst view should compare call and extension paths where source terms permit.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| System treats first call date as maturity | QA fails because legal maturity and call option are different. |
+| Step-up coupon is missing | Projected income after call date is source-limited. |
+| Issuer does not call | Position remains open and coupon resets according to confirmed terms. |
+| Advisor compares the note to a bullet bond | Extension risk, call risk and reinvestment risk are visible. |
+
+## Example 28. Covered-Bond Pool Deterioration
+
+### Scenario
+
+A covered bond remains issuer-recourse, but the cover pool quality deteriorates because property collateral values fall and arrears rise.
+
+| Attribute | Before | After |
+|---|---:|---:|
+| Bond nominal | 1,000,000 | 1,000,000 |
+| Clean price | 100.20 | 97.40 |
+| Cover pool overcollateralization | 18% | 9% |
+| Mortgage arrears ratio | 1.2% | 3.8% |
+| Rating outlook | Stable | Negative |
+
+### Platform impact
+
+| Area | Treatment |
+|---|---|
+| Valuation | Price and spread reflect changed cover-pool and issuer risk. |
+| Risk | Track issuer rating, cover-pool metrics and concentration separately where sourced. |
+| Advisory | Explain that covered bonds are not risk-free and depend on issuer and cover-pool quality. |
+| Collateral | Lending haircut may change based on rating, liquidity or eligible-asset policy. |
+| Reporting | Show rating outlook and risk note without overstating property-level analytics if unavailable. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Cover-pool data is stale | Pool-quality analytics are stale or unavailable, not silently reused. |
+| Rating outlook changes | Risk report and advisory watchlist update. |
+| Haircut policy depends on rating only | Cover-pool deterioration is visible as a note but haircut follows policy. |
+| Historical report predates deterioration | Old source values and rating outlook remain reproducible. |
+
+## Example 29. Sukuk Profit Distribution And Principal Treatment
+
+### Scenario
+
+A client holds a sukuk that pays periodic profit distributions rather than conventional interest. The economic reporting resembles fixed income, but product taxonomy, client wording and compliance labels differ.
+
+| Attribute | Value |
+|---|---:|
+| Face amount | 300,000 |
+| Annual profit rate | 4.20% |
+| Distribution frequency | Semi-annual |
+| Distribution amount | 6,300 |
+| Principal due at maturity | 300,000 |
+
+### Calculation
+
+```text
+semi-annual profit distribution = face amount x annual profit rate / 2
+semi-annual profit distribution = 300,000 x 4.20% / 2
+semi-annual profit distribution = 6,300
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Taxonomy | Classify as sukuk or Islamic fixed-income instrument, not generic coupon bond only. |
+| Cashflow | Book profit distribution using source terminology while preserving income analytics. |
+| Reporting | Use client-appropriate labels such as profit distribution where required. |
+| Advisory | Explain issuer/asset risk, structure, liquidity and suitability constraints. |
+| Operations | Reconcile distribution notices and maturity proceeds to source terms. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Report labels distribution as coupon where local policy disallows it | Reporting QA fails. |
+| Distribution is delayed | Receivable remains open with source status. |
+| Structure has asset-sale event | Lifecycle event is handled according to confirmed sukuk terms. |
+| Client filters Shariah-compliant holdings | Sukuk taxonomy supports filter and reporting label. |
+
+## Example 30. Municipal Tax-Equivalent Yield
+
+### Scenario
+
+A taxable investor compares a municipal bond with a corporate bond. The municipal bond has a lower stated yield, but tax treatment can make the after-tax comparison more attractive.
+
+| Attribute | Value |
+|---|---:|
+| Municipal bond yield | 3.20% |
+| Investor marginal tax rate | 35.00% |
+| Comparable corporate yield | 4.60% |
+
+### Calculation
+
+```text
+tax-equivalent yield = municipal yield / (1 - marginal tax rate)
+tax-equivalent yield = 3.20% / (1 - 35.00%)
+tax-equivalent yield = 4.92%
+```
+
+### Correct treatment
+
+Tax-equivalent yield is an advisory comparison metric, not a contractual yield. It depends on jurisdiction, investor tax status and tax assumptions. Reports should not show it as universal product truth.
+
+| Area | Treatment |
+|---|---|
+| Advisory | Explain assumptions and compare after-tax economics. |
+| Suitability | Confirm investor tax profile and product eligibility. |
+| Reporting | Label tax-equivalent yield as assumption-based. |
+| QA | Do not calculate when tax status or jurisdiction is missing. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Marginal tax rate is missing | Tax-equivalent yield is unavailable. |
+| Investor is not taxable in relevant jurisdiction | Metric is hidden or labelled not applicable. |
+| Tax assumptions change | Historical comparison preserves original assumptions. |
+| Corporate yield is compared pre-tax | Report labels municipal tax-equivalent basis clearly. |
+
+## Example 31. Green-Bond Use-Of-Proceeds Failure
+
+### Scenario
+
+A green bond issuer fails to allocate proceeds according to the stated framework within the expected reporting period. The financial bond remains outstanding, but ESG and advisory labels require review.
+
+| Attribute | Value |
+|---|---|
+| Bond type | Green bond |
+| Financial status | Performing |
+| Use-of-proceeds report | Missing or adverse |
+| ESG label status | Under review |
+| Client restriction | Sustainable mandate requires eligible labelled instruments |
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Position | Bond remains a financial holding unless default or redemption event occurs. |
+| ESG classification | Green label is suspended, degraded or under review according to source policy. |
+| Mandate | Sustainable mandate compliance may breach even when credit status is unchanged. |
+| Reporting | Explain ESG label review separately from price, income and credit performance. |
+| Product governance | Trigger watchlist, restriction or reassessment workflow. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Use-of-proceeds report is overdue | ESG status changes without closing the bond position. |
+| Sustainable mandate requires eligible label | Mandate breach or review flag appears. |
+| Credit rating is unchanged | Credit risk remains stable while ESG classification changes. |
+| Historical report predates label issue | Original green-bond status remains auditable for that date. |
+
+## Example 32. Bond Ladder Reinvestment Program
+
+### Scenario
+
+A client maintains a five-year bond ladder. One rung matures and proceeds should be reinvested into the longest target bucket while preserving credit quality, liquidity and concentration rules.
+
+| Attribute | Value |
+|---|---:|
+| Maturing bond proceeds | 250,000 |
+| Target ladder tenor | 5 years |
+| Minimum rating | A- |
+| Maximum issuer concentration | 10% |
+| Minimum residual cash buffer | 50,000 |
+
+### Reinvestment workflow
+
+| Step | Treatment |
+|---|---|
+| Maturity | Principal proceeds become cash only after settlement confirmation. |
+| Screening | Candidate bonds must pass rating, issuer, currency, liquidity and mandate filters. |
+| Allocation | Reinvest into target ladder bucket while keeping residual buffer. |
+| Execution | Trade order consumes confirmed maturity proceeds or approved bridge funding. |
+| Reporting | Show ladder before and after reinvestment, including remaining cash and maturity profile. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Maturity proceeds are pending | Reinvestment order is conditional or blocked until cash is available. |
+| Candidate bond breaches issuer cap | Candidate is excluded or escalated. |
+| No eligible five-year bond exists | Cash remains uninvested or shorter tenor is proposed with reason. |
+| Client has withdrawal instruction | Reinvestment amount is reduced to preserve cash need. |
+
+## Example 33. Benchmark-Duration Hedge With Futures
+
+### Scenario
+
+A discretionary portfolio is longer duration than its fixed-income benchmark. The portfolio manager uses bond futures to reduce duration exposure without selling cash bonds immediately.
+
+| Attribute | Value |
+|---|---:|
+| Portfolio market value | 10,000,000 |
+| Portfolio duration | 6.2 |
+| Benchmark duration | 5.0 |
+| Duration gap | 1.2 |
+| Futures contract DV01 | 85 |
+| Portfolio DV01 gap | 12,000 |
+
+### Hedge sizing
+
+```text
+contracts needed = portfolio DV01 gap / futures contract DV01
+contracts needed = 12,000 / 85
+contracts needed = 141.18
+```
+
+Rounded hedge size and liquidity constraints should be reviewed before execution.
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Exposure | Futures reduce interest-rate duration exposure but create derivative exposure. |
+| Performance | Hedge P&L should be attributed separately from cash bond return. |
+| Mandate | Derivatives permission, leverage limits and collateral/margin rules apply. |
+| Reporting | Show cash bond duration, hedge duration impact and residual duration gap. |
+| QA | Futures DV01, contract multiplier and sign convention must be sourced and tested. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Hedge direction is wrong | Duration gap increases and QA catches sign convention error. |
+| Futures DV01 is stale | Hedge sizing is source-limited. |
+| Mandate disallows derivatives | Hedge order is blocked even if analytics suggest benefit. |
+| Benchmark changes | Target duration and hedge gap recalculate with effective-dated benchmark. |
+
 ## Implementation-backed capability lens
 
 When reviewing whether a platform truly supports bonds, use these evidence questions:
