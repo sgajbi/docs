@@ -19,6 +19,7 @@ Use it to decide:
 | API contract governance | [`03-api-contract-governance.md`](03-api-contract-governance.md) | Strong coverage of endpoint design, request/response governance, supportability, error semantics, pagination, vocabulary, OpenAPI and aliases. | Add deeper examples for backward-compatible API change, consumer-driven contract testing and deprecation plans. |
 | API contract engineering deep dive | [`api-contract-engineering/`](api-contract-engineering/README.md) | Strong deep-dive coverage of API-as-contract thinking, REST route design, BFF composition, OpenAPI quality gates, DTO/domain boundaries, problem details, pagination, idempotency, caller context, versioning, security, observability, contract testing, event integration and API governance playbooks. | Add worked examples for API lifecycle migration, deprecation windows, generated-client compatibility, BFF degraded response certification and AsyncAPI event contracts. |
 | Data mesh and data products | [`04-data-mesh-and-data-product-engineering.md`](04-data-mesh-and-data-product-engineering.md) | Strong coverage of data products, certification, trust telemetry, access policy, evidence policy, producer workflow and consumer workflow. | Add deeper examples for data-product SLOs, dependency graphs, consumer impact analysis and source outage playbooks. |
+| Data-product engineering deep dive | [`data-product-engineering/`](data-product-engineering/README.md) | Strong deep-dive coverage of data-product mindset, domain ownership, producer and consumer contracts, canonical vocabulary, lineage, freshness, trust metadata, quality states, API/event/batch contracts, catalog publication, SLO/access/evidence policies, runtime telemetry, certification, security, observability, testing, onboarding and maturity. | Add implementation-backed case studies for legacy-feed migration, consumer-impact analysis, certification expiry, source outage fallback and AI/RAG consumer trust boundaries. |
 | CI/CD and quality gates | [`05-ci-cd-quality-gates-and-release-governance.md`](05-ci-cd-quality-gates-and-release-governance.md) | Strong coverage of repo-native commands, lane model, good gate design, release evidence, branch hygiene, merge governance and CI anti-patterns. | Add deeper examples for gate promotion intake, flaky-check demotion, quality scorecards and release artifact review. |
 | Observability and SRE | [`06-observability-sre-and-operational-support.md`](06-observability-sre-and-operational-support.md) | Strong coverage of structured logs, metrics, traces, health checks, SLO thinking, incident workflow, runbooks and supportability states. | Add deeper examples for alert design, dashboard review, incident severity classification and error-budget operation. |
 | Security and sensitive data | [`07-security-configuration-and-sensitive-data.md`](07-security-configuration-and-sensitive-data.md) | Strong coverage of secure configuration, secrets, authorization, sensitive observability, CI security controls, workflow security and evidence filtering. | Add deeper examples for threat modelling, key rotation, privileged access, secure evidence packs and AI/tool-call security. |
@@ -58,17 +59,18 @@ The technical knowledge base now has strong coverage for:
 4. API contract governance,
 5. API contract-engineering depth,
 6. data products and data mesh,
-7. CI/CD lane model and quality gates,
-8. observability and SRE supportability,
-9. security and sensitive-data handling,
-10. testing, performance and resilience,
-11. infrastructure, containers and deployment,
-12. Git, release and documentation truth,
-13. technology stack reasoning,
-14. frontend and experience-API supportability,
-15. performance, resilience and async execution depth,
-16. practical engineering review checklists,
-17. implementation evidence reading.
+7. data-product engineering depth,
+8. CI/CD lane model and quality gates,
+9. observability and SRE supportability,
+10. security and sensitive-data handling,
+11. testing, performance and resilience,
+12. infrastructure, containers and deployment,
+13. Git, release and documentation truth,
+14. technology stack reasoning,
+15. frontend and experience-API supportability,
+16. performance, resilience and async execution depth,
+17. practical engineering review checklists,
+18. implementation evidence reading.
 
 ## Next High-Value Slices
 

@@ -2,6 +2,8 @@
 
 A data mesh is an operating model for trustworthy domain-owned data products. It is not just a catalog, dashboard, data lake or replication pattern.
 
+For deeper data-product and data mesh engineering guidance, use [`data-product-engineering/`](data-product-engineering/README.md).
+
 ## Core Principle
 
 ```text

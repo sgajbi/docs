@@ -45,7 +45,7 @@ Focus: review and improve real slices with evidence.
 
 | Week | Read | Practice |
 |---|---|---|
-| 5 | [`04-data-mesh-and-data-product-engineering.md`](04-data-mesh-and-data-product-engineering.md) | Review one data product or source contract and identify owner, schema, trust posture and consumers. |
+| 5 | [`04-data-mesh-and-data-product-engineering.md`](04-data-mesh-and-data-product-engineering.md) and [`data-product-engineering/`](data-product-engineering/README.md) | Review one data product or source contract and identify owner, schema, trust posture and consumers. |
 | 6 | [`09-worked-examples-and-engineering-review-checklists.md`](09-worked-examples-and-engineering-review-checklists.md) | Use the PR review checklist on a recent change or draft change. |
 | 7 | [`10-infrastructure-containers-and-deployment.md`](10-infrastructure-containers-and-deployment.md) | Review one Dockerfile or compose file for runtime, health, ports, secrets and startup posture. |
 | 8 | [`13-frontend-experience-api-and-ui-supportability.md`](13-frontend-experience-api-and-ui-supportability.md) | Review one UI screen or panel for backing API, loading, empty, partial, degraded, blocked and error states. |
