@@ -71,6 +71,7 @@ This repo is organized so new document sets can be added without turning the roo
 | [`docs/products/product-lifecycle-cashflow-and-event-guide.md`](docs/products/product-lifecycle-cashflow-and-event-guide.md) | Cross-product lifecycle, cashflow, event, transaction, accrual, entitlement, obligation, reporting, implementation, and QA guide. |
 | [`docs/products/product-payoff-scenario-and-stress-guide.md`](docs/products/product-payoff-scenario-and-stress-guide.md) | Cross-product payoff, scenario, stress, downside, income reliability, liquidity, advisory, reporting, and QA guide. |
 | [`docs/products/product-performance-attribution-risk-guide.md`](docs/products/product-performance-attribution-risk-guide.md) | Cross-product guide for return components, contribution, attribution, risk denominators, degraded analytics states, and analytics QA. |
+| [`docs/products/product-worked-example-index.md`](docs/products/product-worked-example-index.md) | Central navigation index for worked examples by product family and by implementation workflow. |
 | [`docs/products/practical-product-implementation-review.md`](docs/products/practical-product-implementation-review.md) | Cross-product review layer for examples, cashflows, valuation, analytics, advisory, mandate, reporting, QA, and implementation boundaries. |
 | [`docs/products/product-qa-regression-matrix.md`](docs/products/product-qa-regression-matrix.md) | Cross-product QA and regression matrix for normal, degraded, reporting, reconciliation, migration, and release-gate evidence. |
 | [`docs/products/product-source-ownership-deep-dive.md`](docs/products/product-source-ownership-deep-dive.md) | Product-family source-ownership deep dive covering issuer credit events, corporate actions, fund liquidity, derivatives margin, structured-product observations, private-market notices, insurance values, collateral pledges, and wealth-structuring authority. |
@@ -94,8 +95,9 @@ This repo is organized so new document sets can be added without turning the roo
 2. Create a folder with a stable lowercase slug, for example `docs/products/private-markets/`.
 3. Add a local `README.md` that explains purpose, audience, reading order, and source provenance.
 4. Add enrichment where useful: modelling distinctions, source ownership, API/UI implications, QA scenarios, controls, and stakeholder explanations.
-5. Update the closest index file, the product coverage matrix, and this root README.
-6. Keep draft, temporary, and personal scratch files out of versioned content.
+5. Add or update the local worked-example file when the material introduces new lifecycle, cashflow, valuation, reporting, suitability, or implementation behavior.
+6. Update the closest index file, the product worked-example index, the product coverage matrix, and this root README.
+7. Keep draft, temporary, and personal scratch files out of versioned content.
 
 ## Naming Rules
 

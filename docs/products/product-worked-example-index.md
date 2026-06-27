@@ -1,0 +1,73 @@
+# Product Worked Example Index
+
+This index is the entry point for practical product examples across the knowledge base.
+
+Use it when you need a concrete example for learning, advisory review, business analysis, implementation design, QA scenarios, reporting checks, analytics treatment, support-boundary decisions, or future product planning.
+
+## How To Use This Index
+
+1. Start with the product-family table when the product is already known.
+2. Start with the workflow table when the question is about a platform process such as lifecycle, valuation, reporting, suitability, rebalancing, authority, or reconciliation.
+3. Use [`cross-product-worked-examples.md`](cross-product-worked-examples.md) for compact multi-product examples.
+4. Use the local worked-example file in each product pack for deeper product-specific examples and regression tests.
+
+## Product Family Example Files
+
+| Product family | Worked-example file | Primary example coverage |
+|---|---|---|
+| Bonds | [`bonds/05-worked-examples-and-implementation-patterns.md`](bonds/05-worked-examples-and-implementation-patterns.md) | Clean/dirty settlement, accrued interest, yield, duration, callable bonds, downgrade impact, maturity ladders, default/recovery. |
+| Cash, deposits, money market and FX | [`cash-deposits-money-market-fx/10-worked-examples-and-implementation-patterns.md`](cash-deposits-money-market-fx/10-worked-examples-and-implementation-patterns.md) | Available cash, deposits, money market funds, FX spot, forwards, NDFs, liquidity ladders, settlement and buying power. |
+| Client, account, portfolio and relationship master data | [`client-account-portfolio-master-data/11-worked-examples-and-implementation-patterns.md`](client-account-portfolio-master-data/11-worked-examples-and-implementation-patterns.md) | Client/account hierarchy, booking centre, household, beneficial owner, mandate, access control, reporting scope and migration. |
+| Commodities, precious metals and real assets | [`commodities-precious-metals-real-assets/10-worked-examples-and-implementation-patterns.md`](commodities-precious-metals-real-assets/10-worked-examples-and-implementation-patterns.md) | Allocated and unallocated gold, futures rolls, ETN issuer risk, pledged metal haircuts, commodity-linked notes and fund look-through. |
+| Data governance, quality, lineage and controls | [`data-governance-quality-lineage-controls/11-worked-examples-and-implementation-patterns.md`](data-governance-quality-lineage-controls/11-worked-examples-and-implementation-patterns.md) | Quality scorecards, lineage, reconciliation, control certification, migration, source outage, report readiness and incident triage. |
+| Derivatives | [`derivatives/09-worked-examples-and-implementation-patterns.md`](derivatives/09-worked-examples-and-implementation-patterns.md) | Options, covered calls, futures variation margin, FX forwards, NDFs, swaps, CDS, margin/collateral and exposure lenses. |
+| Entitlements, digital channels and advisor workbench | [`entitlements-digital-channels-advisor-workbench/11-worked-examples-and-implementation-patterns.md`](entitlements-digital-channels-advisor-workbench/11-worked-examples-and-implementation-patterns.md) | RBAC/ABAC, delegated access, advisor workbench, digital delivery, workflow approvals, consent, interaction history and audit. |
+| Equities | [`equities/09-worked-examples-and-implementation-patterns.md`](equities/09-worked-examples-and-implementation-patterns.md) | Settlement, dividends, withholding, corporate actions, cost basis, ADRs, multi-currency P&L, contribution and delisting. |
+| Funds | [`funds/05-worked-examples-and-implementation-patterns.md`](funds/05-worked-examples-and-implementation-patterns.md) | Subscriptions, redemptions, NAV confirmation, gates, distributions, share classes, ETFs, look-through, capital calls and NAV restatements. |
+| Insurance and annuities | [`insurance-annuities/11-worked-examples-and-implementation-patterns.md`](insurance-annuities/11-worked-examples-and-implementation-patterns.md) | ILPs, charges, surrender, policy loans, lapse, claims, annuity payouts, premium financing, replacement review and reporting labels. |
+| Investment accounting and ledger | [`investment-accounting-ledger/11-worked-examples-and-implementation-patterns.md`](investment-accounting-ledger/11-worked-examples-and-implementation-patterns.md) | Transaction legs, trade/settlement views, accruals, fees, withholding, realized/unrealized P&L, FX translation, valuation and reconciliation. |
+| Loans, Lombard, margin and collateral | [`loans-lombard-margin-collateral/10-worked-examples-and-implementation-patterns.md`](loans-lombard-margin-collateral/10-worked-examples-and-implementation-patterns.md) | Availability, haircuts, FX haircuts, rating downgrades, margin calls, forced liquidation, reservations, collateral substitution and interest accrual. |
+| Market data, reference data, pricing and instrument master | [`market-data-reference-data-pricing-instrument-master/11-worked-examples-and-implementation-patterns.md`](market-data-reference-data-pricing-instrument-master/11-worked-examples-and-implementation-patterns.md) | Instrument identity, identifiers, pricing hierarchy, stale prices, FX rates, curves, benchmarks, corporate actions, source ownership and overrides. |
+| Model portfolios, rebalancing, advisory and suitability | [`model-portfolios-rebalancing-advisory-suitability/11-worked-examples-and-implementation-patterns.md`](model-portfolios-rebalancing-advisory-suitability/11-worked-examples-and-implementation-patterns.md) | Model version rollout, drift, funding constraints, tax-aware rebalance, suitability failures, proposal expiry, DPM restrictions and residual drift. |
+| Portfolio performance, attribution, risk and benchmarks | [`portfolio-performance-attribution-risk-benchmark/11-worked-examples-and-implementation-patterns.md`](portfolio-performance-attribution-risk-benchmark/11-worked-examples-and-implementation-patterns.md) | TWR, MWR, cashflows, contribution, attribution, benchmarks, drawdown, stress, mandate analytics and data-lineage supportability. |
+| Portfolio reporting and client experience | [`portfolio-reporting-statement-client-experience/11-worked-examples-and-implementation-patterns.md`](portfolio-reporting-statement-client-experience/11-worked-examples-and-implementation-patterns.md) | Reporting snapshots, holdings labels, activity classification, degraded data, restatements, PDF rendering, delivery and client review. |
+| Private markets | [`private-markets/11-worked-examples-and-implementation-patterns.md`](private-markets/11-worked-examples-and-implementation-patterns.md) | Commitment ledgers, capital calls, distributions, NAV lag, restatements, partial-history IRR, private credit, gates and secondary sales. |
+| Product governance, APU and target market | [`product-governance-apu-target-market/11-worked-examples-and-implementation-patterns.md`](product-governance-apu-target-market/11-worked-examples-and-implementation-patterns.md) | Due diligence, approved product universe, target market, eligibility, product risk, disclosure gates, suspension, audit replay and stakeholder artifacts. |
+| Real estate, REITs and infrastructure | [`real-estate-reits-infrastructure/10-worked-examples-and-implementation-patterns.md`](real-estate-reits-infrastructure/10-worked-examples-and-implementation-patterns.md) | REIT distributions, rights issues, private real estate calls, appraisal restatements, infrastructure distributions, redemption queues and direct property valuation. |
+| Structured notes | [`structured-notes/05-worked-examples-and-implementation-patterns.md`](structured-notes/05-worked-examples-and-implementation-patterns.md) | Fixed coupon notes, reverse convertibles, Phoenix notes, credit-linked notes, dual currency notes, barrier reporting and physical delivery. |
+| Structured products | [`structured-products/08-worked-examples-and-implementation-patterns.md`](structured-products/08-worked-examples-and-implementation-patterns.md) | Autocallables, memory coupons, principal protection, buffers, dual currency investments, accumulators, decumulators, certificates and valuation controls. |
+| Tax, regulatory reporting and cross-border reporting | [`tax-regulatory-reporting/10-worked-examples-and-implementation-patterns.md`](tax-regulatory-reporting/10-worked-examples-and-implementation-patterns.md) | Dividends, withholding, accrued interest, tax lots, corporate-action basis, fund distributions, structured-note delivery, documentation expiry and corrections. |
+| Trade lifecycle, settlement, custody and operations | [`trade-lifecycle-operations/11-worked-examples-and-implementation-patterns.md`](trade-lifecycle-operations/11-worked-examples-and-implementation-patterns.md) | Orders, partial fills, accrued-interest settlement, settlement fails, fund cut-offs, entitlement revisions, data contracts and reconciliation breaks. |
+| Trusts, estate, family office and wealth structuring | [`trusts-estate-family-office-wealth-structuring/10-worked-examples-and-implementation-patterns.md`](trusts-estate-family-office-wealth-structuring/10-worked-examples-and-implementation-patterns.md) | Trust distributions, estate account restrictions, holding-company pledges, beneficiary access, family-office reporting, policy roles and authority changes. |
+
+## Workflow-To-Example Map
+
+| Workflow or question | Start here |
+|---|---|
+| Legal holding versus analytical exposure | Structured products, structured notes, derivatives, commodities, real estate, private markets, wealth structuring. |
+| Cashflow lifecycle and event booking | Cash/FX, bonds, funds, structured notes, private markets, insurance, loans, trade lifecycle, investment accounting. |
+| Payoff and scenario behavior | Structured products, structured notes, derivatives, bonds, insurance, commodities, loans/collateral. |
+| Valuation and stale-source handling | Market data, funds, bonds, derivatives, structured products, private markets, real estate, insurance, portfolio reporting. |
+| Performance, contribution and attribution | Portfolio performance, investment accounting, equities, bonds, funds, derivatives, private markets, structured products. |
+| Risk, exposure and concentration | Portfolio exposure guide, derivatives, structured products, commodities, loans/collateral, real estate, model portfolios. |
+| Advisory, suitability and mandate controls | Product governance, model portfolios, structured products, derivatives, private markets, insurance, trusts/wealth structuring. |
+| DPM and rebalance workflows | Model portfolios, portfolio construction guide, cash/FX, funds, private markets, tax reporting, trade lifecycle. |
+| Client reporting and statement behavior | Portfolio reporting, tax reporting, trusts/wealth structuring, private markets, real estate, insurance, market data. |
+| Source ownership and support boundaries | Product capability boundary matrix, implementation-backed capability map, market data, data governance, product governance, source ownership matrix. |
+| QA and regression pack design | Every local worked-example file ends with regression scenarios; use [`product-qa-regression-matrix.md`](product-qa-regression-matrix.md) for cross-product release gates. |
+
+## Coverage Rule
+
+Every product pack should keep a local worked-example file that includes:
+
+1. representative lifecycle events,
+2. numeric calculations where useful,
+3. cashflow behavior,
+4. valuation or pricing basis,
+5. performance/risk/reporting treatment,
+6. advisory, suitability or mandate implications,
+7. implementation boundaries,
+8. degraded or missing-source states,
+9. regression scenarios.
+
+When adding a new product pack, update this index, [`product-knowledge-coverage-matrix.md`](product-knowledge-coverage-matrix.md), the product [`README.md`](README.md), and the repository root [`../../README.md`](../../README.md).
