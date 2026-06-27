@@ -4446,3 +4446,249 @@ release_allowed = waiver_active and liquidity_shortfall <= waiver_shortfall_perm
 | Shortfall is within old waiver limit | Expired waiver is still invalid. |
 | Waiver is renewed | Renewal has new approval, expiry and reviewer evidence. |
 | Liquidity dashboard is generated | Required buffer, actual buffer, shortfall and waiver state are distinct. |
+
+## Example 110. Intraday sweep reversal approval
+
+### Scenario
+
+An automated treasury sweep moves excess cash into a short-term liquidity product during the morning cycle. A high-priority outgoing payment is then released earlier than expected, requiring a partial sweep reversal before the market cut-off.
+
+| Attribute | Value |
+|---|---:|
+| Certified available cash before sweep | 2,400,000 |
+| Executed sweep amount | 1,350,000 |
+| Priority payment released after sweep | 1,250,000 |
+| Required operating buffer | 250,000 |
+
+### Required reversal
+
+```text
+post_sweep_cash = certified_available_cash_before_sweep - executed_sweep_amount
+post_sweep_cash = 2,400,000 - 1,350,000 = 1,050,000
+
+required_reversal = max(0, priority_payment + required_buffer - post_sweep_cash)
+required_reversal = max(0, 1,250,000 + 250,000 - 1,050,000) = 450,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve sweep run id, certified cash snapshot, priority payment release, reversal approval and cut-off timestamp. |
+| Cash | Separate original sweep, reversed sweep and residual swept balance. |
+| Operations | Require maker/checker approval when reversal exceeds auto-reversal tolerance or misses the standard unwind window. |
+| Reporting | Do not report the reversal as external client withdrawal or investment sale without context. |
+| Controls | Revalidate payment reservations immediately before sweep execution and before payment release. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Payment releases after sweep | Required reversal amount is calculated from post-sweep cash and buffer. |
+| Reversal requires approval | Release is blocked until approval evidence is present. |
+| Reversal completes before cut-off | Liquidity state updates without creating a duplicate cashflow. |
+| Statement is generated | Sweep, reversal and residual swept exposure remain separately explainable. |
+
+## Example 111. Deposit protection scheme merger
+
+### Scenario
+
+Two banks merge and are treated as one protection group from an effective date. A client who was below the protection monitoring limit at each bank now has an aggregated exposure above the scheme limit.
+
+| Attribute | Value |
+|---|---:|
+| Protected deposits at Bank A | 180,000 |
+| Protected deposits at Bank B | 165,000 |
+| Merged scheme monitoring limit | 250,000 |
+| Aggregated exposure after merger | 345,000 |
+
+### Aggregated excess
+
+```text
+combined_protected_balance = bank_a_deposits + bank_b_deposits
+combined_protected_balance = 180,000 + 165,000 = 345,000
+
+merged_scheme_excess = combined_protected_balance - merged_scheme_monitoring_limit
+merged_scheme_excess = 345,000 - 250,000 = 95,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve scheme notice, legal effective date, merged protection group id, depositor identity and affected deposits. |
+| Advisory | Reassess concentration, protection status and rollover recommendations from the merger effective date. |
+| DPM | Block automatic rollover into excess exposure unless mandate and exception policy permit it. |
+| Reporting | Show the merged protection group and unprotected excess without implying a cash loss. |
+| Controls | Recalculate protection exposure when bank ownership or scheme grouping changes. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Banks merge under one scheme | Exposure aggregates under the new protection group. |
+| Effective date is future dated | Current and future protection states are both visible. |
+| Rollover would increase excess | Pre-trade control warns or blocks according to policy. |
+| Client report is produced | Protected, unprotected and excess amounts are labelled separately. |
+
+## Example 112. FX pre-hedge cancellation cost
+
+### Scenario
+
+A client order is cancelled after the desk executed a pre-hedge. The hedge is unwound at a worse rate, creating a cancellation cost that must be separated from ordinary FX conversion P&L and from cash reservation release.
+
+| Attribute | Value |
+|---|---:|
+| Pre-hedge notional | 3,000,000 |
+| Original hedge rate | 1.0850 |
+| Unwind rate | 1.0815 |
+| Cancelled exposure percentage | 100% |
+
+### Cancellation cost
+
+```text
+fx_cancellation_cost = pre_hedge_notional x abs(original_hedge_rate - unwind_rate) x cancelled_exposure_percentage
+fx_cancellation_cost = 3,000,000 x abs(1.0850 - 1.0815) x 100% = 10,500
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve original order, cancellation timestamp, hedge execution, unwind execution, client consent and desk approval. |
+| Cash | Release unused reservation separately from realized hedge unwind cost. |
+| Performance | Classify the cost consistently as transaction cost, FX result or operational charge according to policy. |
+| Advisory | Explain that the cost arises from cancelling after pre-hedge execution, not from final asset purchase. |
+| Controls | Require explicit policy for who bears pre-hedge cancellation costs and when client consent is required. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Order is cancelled after hedge | Hedge unwind cost is calculated and linked to original hedge. |
+| Reservation is released | Released cash does not offset or hide realized hedge cost. |
+| Client consent is required | Cost posting is blocked without consent evidence. |
+| Performance report is generated | Cancellation cost follows the configured classification and explanation. |
+
+## Example 113. Payment-service-provider reserve release
+
+### Scenario
+
+A payment-service provider holds a rolling reserve against card receipts for chargeback risk. Part of the reserve is released after the reserve period expires, but the release must not be confused with new client contribution cash.
+
+| Attribute | Value |
+|---|---:|
+| PSP reserve balance | 95,000 |
+| Reserve release percentage | 60% |
+| Pending chargeback holdback | 8,000 |
+| Net release expected | 49,000 |
+
+### Net reserve release
+
+```text
+gross_reserve_release = psp_reserve_balance x reserve_release_percentage
+gross_reserve_release = 95,000 x 60% = 57,000
+
+net_reserve_release = gross_reserve_release - pending_chargeback_holdback
+net_reserve_release = 57,000 - 8,000 = 49,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve PSP reserve statement, release schedule, chargeback holdback, settlement file and bank statement. |
+| Cash | Treat released reserve as settlement of prior restricted receivable, not new external contribution. |
+| Liquidity | Make the release available only after bank settlement or approved advance funding. |
+| Reporting | Explain movement from restricted PSP reserve to settled cash. |
+| Controls | Reconcile reserve release to PSP files and bank credit before updating ledger cash. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Reserve release file arrives | Gross release, holdback and net release are calculated separately. |
+| Bank cash not settled yet | Release remains receivable or projected cash. |
+| Chargeback holdback exists | Holdback remains restricted and ageing is visible. |
+| Statement is generated | Reserve release is not classified as new contribution. |
+
+## Example 114. Multilingual negative-rate disclosure
+
+### Scenario
+
+A negative-rate disclosure is updated in English, but the translated versions for two supported statement languages still use old wording. The charge calculation is correct, but client disclosure is inconsistent.
+
+| Attribute | Value |
+|---|---:|
+| Chargeable cash balance | 1,800,000 |
+| Exempt threshold | 1,000,000 |
+| Negative rate | 0.35% |
+| Charge period | 30 days |
+
+### Charge and disclosure scope
+
+```text
+charge = max(0, average_cash - exempt_threshold) x abs(rate) x days / 360
+charge = max(0, 1,800,000 - 1,000,000) x 0.35% x 30 / 360 = 233.33
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve rate table, threshold policy, disclosure version, translation keys, approved languages and delivery channel. |
+| Reporting | Use the same business meaning across all supported languages and channels. |
+| Client experience | Issue correction or suppress delivery where required disclosure text is stale. |
+| Advisory | Ensure relationship teams can explain threshold, rate, period and exemption treatment consistently. |
+| Controls | Tie statement generation to approved disclosure versions, not only numeric charge calculation. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| English disclosure changes | Translation tasks open for all supported languages. |
+| Translated text remains stale | Statement generation blocks or flags according to policy. |
+| Charge calculation is correct | Disclosure control still validates independently. |
+| Client statement is delivered | Charge, threshold and disclosure version are auditable. |
+
+## Example 115. Liquidity waiver renewal governance
+
+### Scenario
+
+A temporary liquidity waiver is due for renewal. The client remains below the required buffer, but the original business rationale has changed and requires renewed approval before further payment releases.
+
+| Attribute | Value |
+|---|---:|
+| Required liquidity buffer | 2,000,000 |
+| Current buffer | 1,520,000 |
+| Prior approved shortfall | 600,000 |
+| Current shortfall | 480,000 |
+
+### Renewal decision
+
+```text
+current_shortfall = required_liquidity_buffer - current_buffer
+current_shortfall = 2,000,000 - 1,520,000 = 480,000
+
+renewal_within_prior_size = current_shortfall <= prior_approved_shortfall
+renewal_within_prior_size = true
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve prior waiver, renewal request, updated rationale, liquidity forecast, payment queue, approver and expiry. |
+| Control | Do not auto-renew only because the current shortfall is smaller than the prior approved shortfall. |
+| Operations | Route to renewal, funding, payment deferral or exception closure based on updated facts. |
+| DPM | Confirm whether mandate liquidity rules permit renewed shortfall and for how long. |
+| Reporting | Show active, expired, pending-renewal and rejected waiver states distinctly. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Renewal is requested | Updated rationale and forecast evidence are required. |
+| Shortfall fits old approval | New approval is still required after expiry or material rationale change. |
+| Renewal is rejected | Payment release follows funding or deferral workflow. |
+| Dashboard is generated | Waiver state, shortfall, expiry and renewal owner are visible. |
