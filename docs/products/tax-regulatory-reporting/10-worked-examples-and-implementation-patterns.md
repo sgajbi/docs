@@ -1158,7 +1158,213 @@ QA assertions:
 | Recipient is not delivery-authorized | Restatement is retained internally and not delivered externally. |
 | Advisor opens client view | Active version and prior version are both visible with correction reason. |
 
-## 40. Advisory And Reporting Boundary
+## 40. Tax Voucher Duplicate Suppression
+
+Scenario:
+
+A custodian sends two tax voucher files for the same dividend event. The second file has a later timestamp but identical voucher identity and amounts. The platform must suppress duplicate delivery while preserving audit lineage.
+
+| Voucher | Gross income | Withholding | State |
+|---|---:|---:|---|
+| Original voucher | 80,000 | 12,000 | Delivered |
+| Duplicate voucher | 80,000 | 12,000 | Suppressed |
+
+Duplicate check:
+
+```text
+duplicate_key = income_event_id + voucher_number + gross_income + withholding + tax_year
+suppressed_duplicate_count = 1
+```
+
+Correct treatment:
+
+- preserve both inbound files, source timestamps, voucher number, income event id and duplicate decision;
+- do not create a second client voucher, second report line or duplicate withholding record;
+- allow a corrected voucher only when version, amount, correction reason or source status changes;
+- expose suppression evidence to operations without delivering duplicate client output.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Exact duplicate voucher arrives | Duplicate is suppressed and original active voucher remains unchanged. |
+| Same voucher number has changed amount | Correction workflow opens rather than duplicate suppression. |
+| Client tax pack is generated | Only one active voucher appears with audit lineage. |
+
+## 41. Cross-Border Reporting Blackout Window
+
+Scenario:
+
+A booking centre enforces a blackout window before regulatory filing cut-off. Reports can be generated for review but cannot be delivered externally until compliance release is confirmed.
+
+| Attribute | Value |
+|---|---:|
+| Reports generated | 420 |
+| Reports in blackout scope | 95 |
+| Externally deliverable before release | 0 |
+| Internal review exceptions | 8 |
+
+Blackout control:
+
+```text
+delivery_blocked_count = reports_in_blackout_scope - compliance_released_count
+delivery_blocked_count = 95 - 0 = 95
+```
+
+Correct treatment:
+
+- preserve blackout rule, jurisdiction, booking centre, report type, effective dates and compliance release state;
+- allow internal generation, reconciliation and sign-off without external client delivery;
+- apply delivery entitlement and blackout rule together, not as independent manual filters;
+- release only the approved version after compliance confirmation and report-version freeze.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Report is generated during blackout | Report remains internal and externally blocked. |
+| Compliance release is approved | Delivery resumes only for the approved report version. |
+| Advisor attempts delivery | UI/API shows blocked state and reason without exposing restricted documents. |
+
+## 42. Entity Classification Remediation
+
+Scenario:
+
+An entity account has conflicting classification between onboarding and tax documentation. Filing cannot be finalized until the active entity classification is remediated.
+
+| Classification source | Entity type | State |
+|---|---|---|
+| Onboarding/KYC | Passive NFFE | Active |
+| Tax self-certification | Financial institution | Active |
+| Operations remediation | Pending review | Open |
+
+Conflict count:
+
+```text
+active_entity_classifications = 2
+classification_conflict_count = active_entity_classifications - 1 = 1
+```
+
+Correct treatment:
+
+- preserve each source classification, effective date, document version, reviewer, decision owner and remediation due date;
+- block or label impacted filings while the material classification conflict remains unresolved;
+- avoid overwriting source documents with a manually selected classification without approval evidence;
+- update reportability, withholding pool and CRS/FATCA output only from the approved active classification.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Two active classifications conflict | Remediation case opens and impacted output is blocked or partial. |
+| Reviewer approves classification | Active classification changes with effective-dated lineage. |
+| Filing is regenerated | Reportability and withholding pools use the approved classification only. |
+
+## 43. Missing Treaty Documentation Ageing
+
+Scenario:
+
+A client is eligible for treaty relief only when required documentation is current. Documentation is missing for multiple income events and must be aged for operations follow-up.
+
+| Age bucket | Income events | Gross income | Potential relief |
+|---|---:|---:|---:|
+| 0-30 days | 6 | 90,000 | 9,000 |
+| 31-60 days | 4 | 55,000 | 5,500 |
+| 61+ days | 3 | 70,000 | 7,000 |
+
+Ageing exposure:
+
+```text
+aged_potential_relief_61_plus = 7,000
+total_potential_relief_at_risk = 9,000 + 5,500 + 7,000 = 21,500
+```
+
+Correct treatment:
+
+- preserve document requirement, event date, source country, income type, outreach state, due date and ageing bucket;
+- apply statutory or fallback withholding when treaty documentation is missing at event date;
+- track potential relief at risk separately from booked cash, reclaim estimates and final tax output;
+- trigger escalation when ageing exceeds policy threshold or filing deadline risk increases.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Treaty document is missing on event date | Treaty rate is not applied unless policy explicitly allows it. |
+| Ageing crosses threshold | Operations escalation and report exception state are updated. |
+| Document arrives later | Future events use updated status; prior events follow correction or reclaim workflow. |
+
+## 44. Withholding Pool Variance Remediation
+
+Scenario:
+
+A qualified intermediary withholding pool file does not reconcile to allocated client withholding. The variance must be remediated before final filing.
+
+| Attribute | Value |
+|---|---:|
+| Pool file withholding total | 1,250,000 |
+| Sum of client allocations | 1,238,500 |
+| Materiality threshold | 2,000 |
+| Unallocated variance | 11,500 |
+
+Variance:
+
+```text
+pool_variance = pool_file_total - sum_client_allocations
+pool_variance = 1,250,000 - 1,238,500 = 11,500
+```
+
+Correct treatment:
+
+- preserve pool file, allocation run, client allocation records, variance reason, remediation owner and sign-off state;
+- block final filing or label it exceptioned when variance exceeds threshold;
+- separate true source variance, timing difference, duplicate allocation and manual adjustment cases;
+- release filing only after corrected source, approved adjustment or documented immateriality decision.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Variance exceeds threshold | Filing remains blocked or exceptioned. |
+| Corrected allocation arrives | Pool variance recalculates and remediation lineage is retained. |
+| Manual adjustment is approved | Adjustment carries owner, reason and sign-off evidence. |
+
+## 45. Multi-Jurisdiction Tax-Pack Delivery Controls
+
+Scenario:
+
+A family-office client requires tax packs for several jurisdictions. Each output uses different report sections, delivery restrictions and recipient entitlements.
+
+| Jurisdiction pack | Generated | Delivery allowed | Suppressed |
+|---|---:|---:|---:|
+| Jurisdiction A | 12 | 12 | 0 |
+| Jurisdiction B | 12 | 9 | 3 |
+| Jurisdiction C | 12 | 0 | 12 |
+
+Delivery control:
+
+```text
+total_generated = 36
+total_deliverable = 12 + 9 + 0 = 21
+total_suppressed = 0 + 3 + 12 = 15
+```
+
+Correct treatment:
+
+- preserve jurisdiction, report template, recipient role, entity scope, language, suppression rule and delivery approval;
+- generate jurisdiction-specific packs from the same source events without mixing incompatible tax classifications;
+- prevent delivery when recipient authority, cross-border rule or documentation state blocks the output;
+- keep internal evidence for suppressed packs while exposing only permitted outputs to advisors and clients.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Pack is generated but suppressed | Internal evidence remains, external delivery is blocked. |
+| Recipient has partial authority | Only authorized jurisdictions/entities are deliverable. |
+| Source event changes | Impact assessment identifies every jurisdiction pack affected. |
+
+## 46. Advisory And Reporting Boundary
 
 | Activity | Platform can support | Platform should not imply |
 |---|---|---|
@@ -1168,7 +1374,7 @@ QA assertions:
 | show reportable event | configured reporting regime | universal reporting obligation |
 | simulate rebalance tax impact | estimated gains/losses under assumptions | advice to execute for tax reasons |
 
-## 41. Current Support Boundary And Candidate Extensions
+## 47. Current Support Boundary And Candidate Extensions
 
 | Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
 |---|---|---|
@@ -1183,8 +1389,9 @@ QA assertions:
 | Late classifications | estimated/final tax breakdown, received date and impact assessment where sourced | automated late-breakdown correction and client-notice orchestration |
 | Cross-border controls | residency changes, documentation pools, method-specific output and filing status where sourced | full jurisdiction-specific tax-rule engine and regulator integration |
 | Conflicts and cancellations | conflicting self-certifications, look-through gaps, cancelled filing versions, denied reclaims, classification overrides and restatement notices where source-backed | automated regulator workflow orchestration and legal interpretation |
+| Delivery and remediation controls | duplicate voucher suppression, blackout states, entity classification remediation, treaty-document ageing, pool variance remediation and multi-jurisdiction delivery controls where source-backed | automated tax authority workflow orchestration, jurisdiction-specific legal interpretation and client-specific tax advice |
 
-## 42. Regression Test Pack
+## 48. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -1228,3 +1435,9 @@ Minimum release-gate scenarios:
 38. Withholding reclaim denial reverses estimated reclaim availability and links to documentation evidence.
 39. Instrument tax-classification override changes report classification without duplicating cash events.
 40. Client tax-pack restatement notice identifies prior version, corrected fields, delivery entitlement and approval lineage.
+41. Tax voucher duplicate suppression prevents duplicate client output while preserving inbound file lineage.
+42. Cross-border reporting blackout windows allow internal review but block external delivery until release.
+43. Entity classification remediation blocks or labels filings until source-backed active classification is approved.
+44. Missing treaty documentation ageing tracks potential relief at risk and escalates stale remediation items.
+45. Withholding pool variance remediation blocks final filing when material pool/allocation breaks remain.
+46. Multi-jurisdiction tax-pack delivery controls generate evidence while delivering only authorized outputs.
