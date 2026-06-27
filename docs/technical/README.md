@@ -36,6 +36,7 @@ It translates patterns observed across a mature multi-application platform into 
 | [`performance-scalability-resilience-async/`](performance-scalability-resilience-async/README.md) | Deep-dive into performance mindset, latency, throughput, saturation, API performance, timeouts, retries, circuit breakers, back-pressure, idempotency, async jobs, workers, queues, caching, batching, database performance, graceful degradation, autoscaling, SLOs, performance testing and recovery runbooks. |
 | [`16-practitioner-review-prompts-and-checklists.md`](16-practitioner-review-prompts-and-checklists.md) | Use practitioner prompts and checklists for architecture, API, data, CI/CD, testing, security, observability and readiness reviews. |
 | [`17-implementation-evidence-reading-map.md`](17-implementation-evidence-reading-map.md) | Learn where to find implementation evidence while keeping reusable documentation neutral and source-safe. |
+| [`documentation-knowledge-governance/`](documentation-knowledge-governance/README.md) | Deep-dive into documentation as engineering infrastructure, knowledge-base taxonomy, source-controlled durable truth, README standards, architecture docs, ADRs/RFCs, API/data-product docs, runbooks, capability-status docs, diagrams, onboarding, documentation gates, sensitive-data handling, AI/RAG readiness and knowledge-maintenance lifecycle. |
 
 ## Mental Model
 
@@ -62,7 +63,7 @@ The strongest engineering systems make the correct path easy: one local command 
 | DevOps / platform engineer | Files 05, 06, 07, 08, 10, 11, 12 and the CI/CD/runtime/observability deep-dive packs. |
 | QA engineer | Files 03, 05, 08, 09 and 13. |
 | Frontend engineer | Files 03, 06, 08, 09, 12 and 13. |
-| Engineering lead | Files 01, 04, 05, 06, 09, 10, 11, 12, 13, 14, 16, 17, the backend/API/data-product/CI-CD/runtime/observability/security/testing/Git deep-dive packs and the coverage matrix. |
+| Engineering lead | Files 01, 04, 05, 06, 09, 10, 11, 12, 13, 14, 16, 17, the backend/API/data-product/CI-CD/runtime/observability/security/testing/Git/documentation-governance deep-dive packs and the coverage matrix. |
 | New joiner | Read files 01 through 14 in order, then use files 15 through 17 and the coverage matrix to choose deeper slices. |
 
 ## Relationship To Reference Packs

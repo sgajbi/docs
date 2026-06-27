@@ -40,6 +40,7 @@ Use it to decide:
 | Performance, scalability, resilience and async engineering deep dive | [`performance-scalability-resilience-async/`](performance-scalability-resilience-async/README.md) | Strong deep-dive coverage of performance mindset, latency, throughput, saturation, capacity, API performance, pagination, filtering, large result sets, timeouts, retries, backoff, jitter, circuit breakers, back-pressure, load shedding, rate limiting, bulkheads, idempotency, concurrency, duplicate prevention, async execution, job state, polling, workers, queues, leasing, dead-letter handling, replay, recovery, caching, materialized views, batching, streaming, database performance, graceful degradation, resource limits, autoscaling, SLOs, performance dashboards, load/stress/soak/chaos testing and recovery playbooks. | Add implementation-backed examples for portfolio analytics jobs, report-generation queues, source ingestion replay, database query tuning, cache invalidation incidents, autoscaling reviews and capacity planning scorecards. |
 | Practitioner review prompts | [`16-practitioner-review-prompts-and-checklists.md`](16-practitioner-review-prompts-and-checklists.md) | Strong reusable prompts for architecture, API, data products, CI/CD, testing, security, observability, production readiness and engineering-lead review. | Add role-specific review packs for backend, frontend, platform, QA, SRE and architecture leadership. |
 | Implementation evidence reading | [`17-implementation-evidence-reading-map.md`](17-implementation-evidence-reading-map.md) | Strong map from neutral concepts to repository evidence areas, file types, repository roles and source-backed implementation patterns. | Add examples of how to convert a repository observation into neutral knowledge-base content. |
+| Documentation, knowledge management and architecture governance deep dive | [`documentation-knowledge-governance/`](documentation-knowledge-governance/README.md) | Strong deep-dive coverage of documentation as engineering infrastructure, knowledge-base taxonomy, information architecture, durable truth, source-controlled docs, wiki publication, README and repository navigation, architecture documentation, ADRs, RFCs, decision logs, architecture governance, API/data-product/contract documentation, runbooks, SRE documentation, supported-feature and capability-status maps, evidence maps, diagrams, KT, onboarding, learning paths, documentation quality gates, sensitive-data handling, AI-assisted documentation, RAG readiness, knowledge maintenance and engineering-lead playbooks. | Add implementation-backed examples for ADR lifecycle, stale-doc detection, wiki publication evidence, capability-status review, diagram review, onboarding certification and RAG-ready metadata. |
 
 ## Technical Coverage Dimensions
 
@@ -84,7 +85,8 @@ The technical knowledge base now has strong coverage for:
 22. performance, resilience and async execution depth,
 23. performance, scalability, resilience and async engineering deep dive,
 24. practical engineering review checklists,
-25. implementation evidence reading.
+25. implementation evidence reading,
+26. documentation, knowledge management and architecture governance depth.
 
 ## Next High-Value Slices
 
@@ -97,7 +99,7 @@ Future technical enrichment should prioritize:
 5. frontend panel drift and browser-regression case studies,
 6. dependency upgrade and runtime-version governance,
 7. implementation-backed async report-generation and data-ingestion replay examples,
-8. ADR and architecture-decision review templates,
+8. implementation-backed documentation governance examples,
 9. role-specific learning paths for backend, frontend, platform, QA and architecture leads.
 
 ## Maintenance Rule
