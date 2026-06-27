@@ -1,4 +1,4 @@
-# 01 — Bonds Fundamentals and Product Taxonomy
+# 01 - Bonds Fundamentals and Product Taxonomy
 
 ## 1. What Is a Bond?
 

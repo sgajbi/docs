@@ -1,4 +1,4 @@
-# 03 — Bond Data Model, Valuation, Yield, and Risk
+# 03 - Bond Data Model, Valuation, Yield, and Risk
 
 ## 1. Recommended Data Model Overview
 
@@ -67,21 +67,21 @@ Use extensions rather than one huge nullable table.
 
 ```text
 Instrument
-  └── BondContract
-        ├── CouponSchedule[]
-        ├── CashflowSchedule[]
-        ├── FloatingRateTerms?
-        ├── InflationLinkedTerms?
-        ├── CallSchedule?
-        ├── PutSchedule?
-        ├── AmortisationSchedule?
-        ├── SinkingFundSchedule?
-        ├── ConvertibleTerms?
-        ├── PerpetualHybridTerms?
-        ├── ABS_MBS_Terms?
-        ├── RatingHistory[]
-        ├── LifecycleEvents[]
-        └── Valuations[]
+  +-- BondContract
+        +-- CouponSchedule[]
+        +-- CashflowSchedule[]
+        +-- FloatingRateTerms?
+        +-- InflationLinkedTerms?
+        +-- CallSchedule?
+        +-- PutSchedule?
+        +-- AmortisationSchedule?
+        +-- SinkingFundSchedule?
+        +-- ConvertibleTerms?
+        +-- PerpetualHybridTerms?
+        +-- ABS_MBS_Terms?
+        +-- RatingHistory[]
+        +-- LifecycleEvents[]
+        +-- Valuations[]
 ```
 
 This keeps the common model clean and makes subtype-specific attributes explicit.
@@ -127,7 +127,7 @@ Coupon formula example:
 
 ```text
 Coupon rate = reference rate + spread
-Coupon amount = nominal × coupon rate × day-count fraction
+Coupon amount = nominal x coupon rate x day-count fraction
 ```
 
 ---
@@ -229,7 +229,7 @@ Dirty price = Clean price + accrued interest
 Market value:
 
 ```text
-Clean market value = nominal × clean price / 100
+Clean market value = nominal x clean price / 100
 Dirty market value = clean market value + accrued interest amount
 ```
 
@@ -260,7 +260,7 @@ Why this matters:
 General formula:
 
 ```text
-Accrued interest = nominal × coupon rate × accrued day-count fraction
+Accrued interest = nominal x coupon rate x accrued day-count fraction
 ```
 
 Example:
@@ -274,7 +274,7 @@ Example:
 | Day-count base | 180 |
 
 ```text
-Accrued interest = 100,000 × 6% × 60/360 = 1,000
+Accrued interest = 100,000 x 6% x 60/360 = 1,000
 ```
 
 Actual calculation depends on day-count convention, coupon calendar, ex-coupon convention, business-day adjustments, default status, and market practice.
@@ -358,7 +358,7 @@ Bond price = Present value of coupons + Present value of principal
 Expanded:
 
 ```text
-Price = Σ [Coupon_t / (1 + yield)^t] + [Principal / (1 + yield)^T]
+Price = sum of discounted coupons + discounted principal
 ```
 
 The price is quoted per 100 par.
@@ -436,7 +436,7 @@ Higher duration = more price sensitivity to yield changes.
 ### Modified duration approximation
 
 ```text
-Approximate price change % = -Modified duration × yield change
+Approximate price change % = -Modified duration x yield change
 ```
 
 Example:
@@ -452,7 +452,7 @@ Example:
 DV01 is the approximate currency value change for a 1 basis point move.
 
 ```text
-DV01 ≈ Market value × modified duration × 0.0001
+DV01 approx. Market value x modified duration x 0.0001
 ```
 
 Example:
@@ -519,7 +519,7 @@ Credit risk has several layers.
 Expected loss framework:
 
 ```text
-Expected loss = Probability of default × Loss given default
+Expected loss = Probability of default x Loss given default
 Loss given default = 1 - recovery rate
 ```
 

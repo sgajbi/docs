@@ -1,4 +1,4 @@
-# 04 — Platform Implementation, Advisory, and Practitioner Reference
+# 04 - Platform Implementation, Advisory, and Practitioner Reference
 
 ## 1. Platform Capability Checklist
 
@@ -106,16 +106,16 @@ For higher-yield bonds:
 
 | Misconception | Correct Understanding |
 |---|---|
-| “Bonds are always safe.” | Bonds can lose value due to rates, credit, liquidity, FX, default, or structure. |
-| “If I hold to maturity, I cannot lose.” | Holding to maturity helps avoid market-price loss only if issuer pays in full and currency/tax risks are acceptable. |
-| “Coupon equals return.” | Return depends on purchase price, coupons, maturity/redemption value, reinvestment, FX, taxes, and default risk. |
-| “High yield is better.” | High yield usually means higher risk. |
-| “Investment grade means no default risk.” | Investment grade means lower risk, not zero risk. |
-| “Callable bond yield to maturity is enough.” | Yield to call and yield to worst may be more relevant. |
-| “Perpetuals will always be called.” | Issuers may extend instead of calling; extension risk can be material. |
-| “Floating-rate bonds have no risk.” | They still have credit, spread, liquidity, reset, cap/floor, and issuer risk. |
-| “Listed bond means liquid.” | Listing does not guarantee tight bid/ask or strong market depth. |
-| “Green bond means safer.” | Green label does not remove issuer credit risk. |
+| "Bonds are always safe." | Bonds can lose value due to rates, credit, liquidity, FX, default, or structure. |
+| "If I hold to maturity, I cannot lose." | Holding to maturity helps avoid market-price loss only if issuer pays in full and currency/tax risks are acceptable. |
+| "Coupon equals return." | Return depends on purchase price, coupons, maturity/redemption value, reinvestment, FX, taxes, and default risk. |
+| "High yield is better." | High yield usually means higher risk. |
+| "Investment grade means no default risk." | Investment grade means lower risk, not zero risk. |
+| "Callable bond yield to maturity is enough." | Yield to call and yield to worst may be more relevant. |
+| "Perpetuals will always be called." | Issuers may extend instead of calling; extension risk can be material. |
+| "Floating-rate bonds have no risk." | They still have credit, spread, liquidity, reset, cap/floor, and issuer risk. |
+| "Listed bond means liquid." | Listing does not guarantee tight bid/ask or strong market depth. |
+| "Green bond means safer." | Green label does not remove issuer credit risk. |
 
 ---
 
@@ -255,7 +255,7 @@ A strong client report should show more than market value.
 | Scenario | Expected Result |
 |---|---|
 | Maturity redemption | Nominal closes, principal cash posted. |
-| Callable bond called at 102 | Position closes, cash = nominal × 102%. |
+| Callable bond called at 102 | Position closes, cash = nominal x 102%. |
 | Putable bond exercised | Position closes/reduces, cash posted at put price. |
 | Amortising bond principal payment | Current face reduces, cash posted. |
 | Convertible bond conversion | Bond closes, equity position created. |

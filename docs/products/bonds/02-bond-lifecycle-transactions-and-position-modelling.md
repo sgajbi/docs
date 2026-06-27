@@ -1,4 +1,4 @@
-# 02 — Bond Lifecycle, Transactions, and Position Modelling
+# 02 - Bond Lifecycle, Transactions, and Position Modelling
 
 ## 1. Core Design Principle
 
@@ -162,7 +162,7 @@ A bond position should support nominal, market value, accrued income, and lifecy
 | accrued_interest_amount | Interest accrued since last coupon date. |
 | clean_market_price_pct | Current clean price. |
 | dirty_market_price_pct | Clean price + accrued interest per par. |
-| clean_market_value | Current face × clean price %. |
+| clean_market_value | Current face x clean price %. |
 | dirty_market_value | Clean market value + accrued interest. |
 | valuation_currency | Usually bond currency. |
 | base_market_value | Converted into portfolio base currency. |
@@ -234,7 +234,7 @@ Example:
 Calculation:
 
 ```text
-Clean consideration = 100,000 × 98.00% = 98,000
+Clean consideration = 100,000 x 98.00% = 98,000
 Accrued interest paid = 1,200
 Fee = 100
 Total cash paid = 98,000 + 1,200 + 100 = 99,300
@@ -304,7 +304,7 @@ Example:
 Calculation:
 
 ```text
-Clean sale proceeds = 100,000 × 101.00% = 101,000
+Clean sale proceeds = 100,000 x 101.00% = 101,000
 Accrued interest received = 800
 Fee = 100
 Net cash received = 101,000 + 800 - 100 = 101,700

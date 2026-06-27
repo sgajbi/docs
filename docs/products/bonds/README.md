@@ -18,6 +18,7 @@
 | `02-bond-lifecycle-transactions-and-position-modelling.md` | Explains bond lifecycle events, transaction types, accrued interest handling, calls/puts/maturity/default/conversion, position modelling, and performance treatment. |
 | `03-bond-data-model-valuation-yield-and-risk.md` | Gives a common data model for bonds, valuation hierarchy, pricing/yield concepts, duration/DV01/spread risk, clean/dirty price treatment, and look-through risk. |
 | `04-platform-implementation-advisory-and-practitioner-reference.md` | Provides platform implementation checklists, advisory/suitability views, reporting requirements, operational controls, QA scenarios, glossary, and practitioner explanations and questions and answers. |
+| `05-worked-examples-and-implementation-patterns.md` | Provides practical examples for clean/dirty price, accrued interest, coupon accrual, yield, duration, callable bonds, downgrades, maturity ladders, default/recovery and QA. |
 
 ---
 
@@ -47,17 +48,17 @@ Recommended structure:
 
 ```text
 Instrument
-  └── BondContract
-        ├── Coupon schedule
-        ├── Cashflow schedule
-        ├── Day-count and business-day rules
-        ├── Call / put / sinking fund schedules
-        ├── Amortisation schedule
-        ├── Rating and issuer data
-        ├── Collateral / seniority / guarantee terms
-        ├── Optional subtype extensions
-        ├── Lifecycle events
-        └── Valuation records
+  +-- BondContract
+        +-- Coupon schedule
+        +-- Cashflow schedule
+        +-- Day-count and business-day rules
+        +-- Call / put / sinking fund schedules
+        +-- Amortisation schedule
+        +-- Rating and issuer data
+        +-- Collateral / seniority / guarantee terms
+        +-- Optional subtype extensions
+        +-- Lifecycle events
+        +-- Valuation records
 ```
 
 Accounting transactions should be compact and economic:
@@ -105,13 +106,13 @@ This pack covers:
 
 These sources were used as external validation and investor-education references:
 
-- FINRA — Bonds: https://www.finra.org/investors/investing/investment-products/bonds
-- FINRA — Fixed Income Data: https://www.finra.org/finra-data/fixed-income
-- FINRA — Corporate and Agency Bond Data Glossary: https://www.finra.org/finra-data/fixed-income/corp-and-agency/glossary
-- MoneySense Singapore — Understanding Bonds: https://www.moneysense.gov.sg/understanding-bonds/
-- SEC — When Interest Rates Go Up, Prices of Fixed-Rate Bonds Fall: https://www.sec.gov/files/ib_interestraterisk.pdf
-- Investor.gov — Callable or Redeemable Bonds: https://www.investor.gov/introduction-investing/investing-basics/glossary/callable-or-redeemable-bonds
-- Investor.gov — Municipal Bonds, Asset Allocation, Diversification, and Risk: https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/investor-bulletins-35
+- FINRA - Bonds: https://www.finra.org/investors/investing/investment-products/bonds
+- FINRA - Fixed Income Data: https://www.finra.org/finra-data/fixed-income
+- FINRA - Corporate and Agency Bond Data Glossary: https://www.finra.org/finra-data/fixed-income/corp-and-agency/glossary
+- MoneySense Singapore - Understanding Bonds: https://www.moneysense.gov.sg/understanding-bonds/
+- SEC - When Interest Rates Go Up, Prices of Fixed-Rate Bonds Fall: https://www.sec.gov/files/ib_interestraterisk.pdf
+- Investor.gov - Callable or Redeemable Bonds: https://www.investor.gov/introduction-investing/investing-basics/glossary/callable-or-redeemable-bonds
+- Investor.gov - Municipal Bonds, Asset Allocation, Diversification, and Risk: https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/investor-bulletins-35
 
 ---
 
