@@ -2007,7 +2007,232 @@ QA assertions:
 | Some records fail validation | Final filing is blocked or scoped according to regulatory rule. |
 | Records are remediated | Successful remediated records link to prior validation errors. |
 
-## 64. Advisory And Reporting Boundary
+## 64. Cross-Border Report Resend Approval Override
+
+### Scenario
+
+A cross-border tax report delivery failed for several recipients. The standard throttling rule blocks further resend attempts, but operations requests an approved override for a small group of recipients with corrected delivery channels.
+
+| Attribute | Value |
+|---|---:|
+| Failed deliveries | 120 |
+| Standard resend limit | 2 attempts |
+| Recipients approved for override | 18 |
+| Recipients still blocked | 102 |
+
+### Override scope
+
+```text
+override_resend_scope = recipients_approved_for_override
+override_resend_scope = 18
+
+blocked_after_override = failed_deliveries - recipients_approved_for_override
+blocked_after_override = 120 - 18 = 102
+```
+
+### Correct treatment
+
+- preserve original delivery batch, failure reason, resend attempts, throttling rule, override approval and corrected channel evidence;
+- scope override to approved recipients only;
+- keep generated report, failed delivery, resend attempt and successful delivery evidence separate;
+- prevent duplicate client packs for recipients outside the override scope;
+- expire override after the approved resend window.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Resend limit is reached | Further resend is blocked by default. |
+| Override approval exists | Only approved recipients become resend eligible. |
+| Recipient channel is not corrected | Recipient remains blocked even if override exists. |
+| Delivery evidence is produced | Original failure, override and final delivery are linked. |
+
+## 65. Delegated Advisor Recertification Campaign
+
+### Scenario
+
+Tax report access was delegated to external advisors. A periodic recertification campaign finds that some delegates are not recertified by the client before expiry.
+
+| Attribute | Value |
+|---|---:|
+| Delegated advisors in campaign | 42 |
+| Recertified advisors | 35 |
+| Expired advisors | 7 |
+| Scheduled tax packs pending | 12 |
+
+### Expired delegate count
+
+```text
+expired_delegate_count = delegated_advisors_in_campaign - recertified_advisors
+expired_delegate_count = 42 - 35 = 7
+```
+
+### Correct treatment
+
+- preserve delegation scope, client authorization, campaign notice, recertification decision, expiry date and report-delivery schedule;
+- remove expired delegates from future delivery and access lists;
+- keep client delivery entitlement separate from delegated advisor entitlement;
+- route pending packs to client or recertified recipients only;
+- retain prior access audit evidence for expired delegates.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Delegate is not recertified | Future advisor access and scheduled delivery are removed. |
+| Client remains entitled | Client delivery is unaffected unless separately withdrawn. |
+| Delegate is recertified late | Access resumes only from approved effective date. |
+| Campaign report is generated | Recertified, expired and pending delegates are visible. |
+
+## 66. Tax Residency Overlap-Period Conflict
+
+### Scenario
+
+A client has two approved tax residency records that overlap for part of the reporting year. Both records have source documents, but the report cannot infer which residency applies to affected income events without configured conflict resolution.
+
+| Attribute | Value |
+|---|---:|
+| Income events in overlap period | 14 |
+| Income amount in overlap period | 86,000 |
+| Events resolved by source rule | 9 |
+| Events still conflicted | 5 |
+
+### Conflicted income amount
+
+```text
+conflicted_event_count = income_events_in_overlap_period - events_resolved_by_source_rule
+conflicted_event_count = 14 - 9 = 5
+```
+
+### Correct treatment
+
+- preserve both residency records, effective dates, source documents, income event dates, conflict rule and remediation owner;
+- classify events outside the overlap normally;
+- block or label final reporting for unresolved overlap-period events;
+- avoid selecting a residency based only on latest document receipt date;
+- retain conflict-resolution evidence for amended outputs.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Residency dates overlap | Conflict state is opened for affected events. |
+| Source rule resolves some events | Resolved and unresolved event counts remain separate. |
+| Final report is requested | Unresolved events are blocked or labelled according to policy. |
+| Conflict is remediated | Final output links to the conflict-resolution evidence. |
+
+## 67. Withholding Reclaim Settlement Reversal
+
+### Scenario
+
+A withholding reclaim was partially settled, then the tax authority reverses part of the settlement after a documentation review. The reversal must reduce received benefit without reopening the entire original claim unless required.
+
+| Attribute | Value |
+|---|---:|
+| Original reclaim claim | 38,000 |
+| Partial settlement received | 24,000 |
+| Authority reversal | 6,500 |
+| Net settled benefit | 17,500 |
+
+### Net settled benefit
+
+```text
+net_settled_benefit_after_reversal = partial_settlement_received - authority_reversal
+net_settled_benefit_after_reversal = 24,000 - 6,500 = 17,500
+```
+
+### Correct treatment
+
+- preserve original claim, settlement notice, cash receipt, reversal notice, documentation reason and residual claim status;
+- reverse only the affected settled benefit unless authority reopens the full claim;
+- keep reclaim cash, fees, reversal and residual claim separately visible;
+- update client tax pack or correction notice when material;
+- avoid treating reversal as ordinary withholding on a new income event.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Reversal notice arrives | Net settled benefit is recalculated. |
+| Full claim is not reopened | Residual claim status remains source-labelled. |
+| Correction notice is required | Prior tax-pack impact is linked to reversal evidence. |
+| Cash report is generated | Settlement cash, reversal and residual claim reconcile. |
+
+## 68. E-Signature Envelope Expiry Remediation
+
+### Scenario
+
+A tax document package was generated and sent for e-signature, but the envelope expired before all required signers completed. A corrected package must be issued with a new envelope while preserving the expired package history.
+
+| Attribute | Value |
+|---|---:|
+| Documents in package | 8 |
+| Documents fully signed before expiry | 5 |
+| Documents requiring reissue | 3 |
+| Expired envelope count | 1 |
+
+### Reissue requirement
+
+```text
+documents_requiring_reissue = documents_in_package - documents_fully_signed_before_expiry
+documents_requiring_reissue = 8 - 5 = 3
+```
+
+### Correct treatment
+
+- preserve original package manifest, expired envelope id, signer status, corrected package, new envelope id and approval evidence;
+- block downstream submission until the required package is signed under active envelope;
+- keep expired package evidence for audit without treating it as approved tax evidence;
+- avoid overwriting expired envelope status with the replacement envelope;
+- notify affected recipients according to delivery policy.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Envelope expires before completion | Package remains blocked for downstream use. |
+| Replacement package is issued | New envelope links to expired package and corrected manifest. |
+| Some documents were signed | Reissue requirement is scoped by package policy. |
+| Submission is attempted | Submission is blocked until active signed package exists. |
+
+## 69. Regulatory Schema Validation Waiver Approval
+
+### Scenario
+
+During a regulatory schema migration, a small set of non-critical fields fails validation. The regulator permits a time-boxed validation waiver for those fields while remediation continues.
+
+| Attribute | Value |
+|---|---:|
+| Records prepared under active schema | 2,400 |
+| Records failing non-critical validation | 36 |
+| Records approved under waiver | 36 |
+| Waiver expiry days | 30 |
+
+### Waiver rate
+
+```text
+schema_waiver_rate = records_approved_under_waiver / records_prepared_under_active_schema
+schema_waiver_rate = 36 / 2,400 = 1.50%
+```
+
+### Correct treatment
+
+- preserve active schema, validation output, failed fields, regulator waiver, expiry date, remediation owner and resubmission plan;
+- scope waiver only to approved fields and records;
+- block critical validation failures even when non-critical waiver exists;
+- flag final output as waiver-backed where evidence requires it;
+- track expiry and remediation before the next filing cycle.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Non-critical validation failures exist | Waiver can scope approved records only. |
+| Critical failures exist | Final filing remains blocked. |
+| Waiver expires | Future filing requires remediation or renewed approval. |
+| Filing evidence is generated | Schema version, failed fields, waiver and remediation plan are linked. |
+
+## 70. Advisory And Reporting Boundary
 
 | Activity | Platform can support | Platform should not imply |
 |---|---|---|
@@ -2017,7 +2242,7 @@ QA assertions:
 | show reportable event | configured reporting regime | universal reporting obligation |
 | simulate rebalance tax impact | estimated gains/losses under assumptions | advice to execute for tax reasons |
 
-## 65. Current Support Boundary And Candidate Extensions
+## 71. Current Support Boundary And Candidate Extensions
 
 | Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
 |---|---|---|
@@ -2035,7 +2260,7 @@ QA assertions:
 | Delivery and remediation controls | duplicate voucher suppression, blackout states, entity classification remediation, treaty-document ageing, pool variance remediation, multi-jurisdiction delivery controls, correction sequencing, archive retention, consent withdrawal, acknowledgement timeout, entitlement recertification, delivery bouncebacks, localized voucher templates, evidence expiry and cancellation windows where source-backed | automated tax authority workflow orchestration, jurisdiction-specific legal interpretation and client-specific tax advice |
 | Multi-source tax operations | custodian-source reconciliation, correction deltas, reclaim appeal status, denial evidence and source-file lineage where source-backed | fully automated custodian dispute management or tax authority workflow integration |
 
-## 66. Regression Test Pack
+## 72. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -2103,3 +2328,9 @@ Minimum release-gate scenarios:
 62. Withholding reclaim partial settlement separates net settled cash, fees, residual claim and final authority status.
 63. Tax document package e-signature rejection blocks downstream submission until the corrected package is signed.
 64. Regulatory schema version migration blocks or scopes final filing when records fail active-schema validation.
+65. Cross-border report resend approval override scopes resend eligibility to approved recipients only.
+66. Delegated advisor recertification removes expired delegates without removing client delivery entitlement.
+67. Tax residency overlap-period conflict blocks or labels unresolved affected income events.
+68. Withholding reclaim settlement reversal recalculates net settled benefit without creating a new income event.
+69. E-signature envelope expiry remediation preserves expired package evidence and requires an active signed replacement.
+70. Regulatory schema validation waiver approval remains scoped, time-boxed and unavailable for critical failures.
