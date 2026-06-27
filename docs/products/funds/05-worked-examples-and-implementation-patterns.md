@@ -4261,3 +4261,232 @@ facility_interest_cost = 2,000,000 x 6.00% x 45 / 360 = 15,000
 | Shortfall exceeds facility | Residual funding gap remains visible. |
 | Interest accrues | Facility cost is calculated from draw amount, rate and days. |
 | Liquidity report is generated | Master liquidity, facility draw, residual gap and repayment plan are distinct. |
+
+## Example 116. Fund Vote Instruction Deadline Miss
+
+### Scenario
+
+A fund vote requires investor instructions by a transfer-agent deadline. The advisor submits the vote after the custodian cut-off, so the instruction cannot be transmitted. The platform must retain late-instruction evidence and avoid showing the vote as accepted.
+
+| Attribute | Value |
+|---|---:|
+| Eligible units | 48,000 |
+| Instruction units submitted | 48,000 |
+| Custodian cut-off | Day 10 16:00 |
+| Advisor submission | Day 10 17:25 |
+| Late units | 48,000 |
+
+### Late voting exposure
+
+```text
+late_vote_units = instruction_units_submitted where submission_time > custodian_cutoff
+late_vote_units = 48,000
+```
+
+### Correct treatment
+
+- retain voting notice, eligible units, custodian cut-off, advisor submission timestamp, transfer-agent status and late reason;
+- keep vote instruction state separate from vote eligibility and fund holding state;
+- report late instruction as missed or rejected, not accepted;
+- preserve escalation outcome if transfer agent makes an exception;
+- avoid changing investor consent, proxy status or voting outcome without source acceptance.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Instruction arrives after cut-off | Vote status becomes late or rejected. |
+| Transfer agent grants exception | Accepted status requires source evidence. |
+| Eligible units differ from submitted units | Late and accepted units are calculated separately. |
+| Investor report is generated | Eligible units, submitted units and accepted vote status are distinct. |
+
+## Example 117. ETF Fair-Value Basket Proxy Gap
+
+### Scenario
+
+An ETF trades during a market disruption while several basket securities have no reliable price. A fair-value proxy is approved for most securities, but some basket exposure remains unpriced.
+
+| Attribute | Value |
+|---|---:|
+| Total basket market value | 18,000,000 |
+| Securities with approved proxy | 15,750,000 |
+| Securities without proxy | 2,250,000 |
+| Unpriced basket ratio | 12.50% |
+
+### Basket proxy gap
+
+```text
+unpriced_basket_value = total_basket_market_value - securities_with_approved_proxy
+unpriced_basket_value = 18,000,000 - 15,750,000 = 2,250,000
+
+unpriced_basket_ratio = unpriced_basket_value / total_basket_market_value
+unpriced_basket_ratio = 2,250,000 / 18,000,000 = 12.50%
+```
+
+### Correct treatment
+
+- retain ETF basket file, unavailable prices, proxy methodology, valuation committee approval and unresolved security list;
+- label NAV or indicative value as fair-value estimated when proxy coverage is partial;
+- prevent unpriced basket exposure from being hidden inside a normal market price;
+- show uncertainty in risk, reporting and client explanations where material;
+- expire proxy approval according to governance policy.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Basket securities lack prices | Unpriced basket value and ratio are calculated. |
+| Proxy is approved for part of basket | Estimated and unresolved exposure are separated. |
+| Proxy expires | Valuation state becomes stale or blocked until renewed. |
+| Report is generated | Fair-value proxy basis and unresolved basket gap are visible. |
+
+## Example 118. Private-Fund Most-Favoured-Nation Fee Election
+
+### Scenario
+
+A private fund offers an MFN election that lets an eligible investor adopt a lower management-fee term granted to another investor. The investor elects the lower fee, but only from the effective date in the side-letter process.
+
+| Attribute | Value |
+|---|---:|
+| Commitment | 5,000,000 |
+| Original annual fee rate | 1.50% |
+| Elected MFN fee rate | 1.25% |
+| Days effective in period | 90 |
+
+### MFN fee saving
+
+```text
+period_fee_saving = commitment x (original_fee_rate - elected_mfn_fee_rate) x days_effective / 360
+period_fee_saving = 5,000,000 x (1.50% - 1.25%) x 90 / 360 = 3,125
+```
+
+### Correct treatment
+
+- retain MFN offer, eligibility evidence, election notice, accepted side-letter term, effective date and administrator confirmation;
+- apply fee election from effective date, not retroactively unless terms allow it;
+- keep MFN fee saving separate from rebate, distribution or capital activity;
+- explain elected fee term in investor reporting where fees are transparent;
+- prevent non-eligible investors from inheriting the elected term.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Investor is eligible and elects | Fee rate changes from effective date. |
+| Election is late | Prior period fee remains at original rate unless accepted source says otherwise. |
+| Investor lacks eligibility | MFN election is blocked. |
+| Fee report is generated | Original rate, elected rate, effective days and saving reconcile. |
+
+## Example 119. Expense-Cap Board Renewal Delay
+
+### Scenario
+
+A fund expense cap is due for annual renewal. The board approval arrives after the old cap expires, creating a gap period where expenses cannot automatically use the renewed cap.
+
+| Attribute | Value |
+|---|---:|
+| Expense cap rate | 0.85% |
+| Fund NAV | 220,000,000 |
+| Renewal gap days | 12 |
+| Gross expense rate | 0.96% |
+
+### Gap-period uncapped expense exposure
+
+```text
+gap_expense_cap_exposure = fund_nav x (gross_expense_rate - expense_cap_rate) x renewal_gap_days / 365
+gap_expense_cap_exposure = 220,000,000 x (0.96% - 0.85%) x 12 / 365 = 7,956.16
+```
+
+### Correct treatment
+
+- retain prior cap agreement, expiry date, board agenda, delayed approval, effective date and administrator treatment;
+- avoid applying renewed cap to the gap period without explicit retroactive approval;
+- show pending cap renewal separately from active cap;
+- reconcile expense accruals if board approval is later made retroactive;
+- disclose or report material expense treatment changes according to fund policy.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Cap expires before renewal | Gap period is flagged. |
+| Renewal is retroactive | Gap accrual is recalculated with approval evidence. |
+| Renewal is not retroactive | Gross or uncapped treatment applies to gap according to policy. |
+| Expense report is generated | Cap expiry, renewal date and gap exposure are visible. |
+
+## Example 120. UCITS Breach Cure Sequencing
+
+### Scenario
+
+A UCITS fund has multiple compliance breaches. The manager proposes curing the smaller breach first, but policy requires curing the active investment breach before a passive market-movement breach.
+
+| Attribute | Value |
+|---|---:|
+| Active breach excess | 1,100,000 |
+| Passive breach excess | 875,000 |
+| Available trade capacity | 1,250,000 |
+| Required first cure | Active breach |
+
+### Cure capacity after first breach
+
+```text
+remaining_capacity_after_active_cure = available_trade_capacity - active_breach_excess
+remaining_capacity_after_active_cure = 1,250,000 - 1,100,000 = 150,000
+```
+
+### Correct treatment
+
+- retain breach register, cause classification, remediation policy, proposed trades, capacity constraints and compliance approval;
+- sequence active and passive breach remediation according to policy, not only breach size;
+- show partial cure capacity and residual passive breach after active cure;
+- prevent remediation trades that worsen another breach without approval;
+- keep compliance sign-off with the final cure order.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Active and passive breaches coexist | Cure sequence follows policy priority. |
+| Capacity cannot cure both | Residual breach remains with owner and plan. |
+| Proposed cure worsens another limit | Trade is blocked or escalated. |
+| Compliance report is generated | Breach cause, sequence, capacity and residual exposure are visible. |
+
+## Example 121. Feeder Facility Repayment Waterfall
+
+### Scenario
+
+A feeder fund used an emergency liquidity facility. Later master fund redemption proceeds arrive and must repay facility principal, accrued interest and remaining investor redemption amounts in the agreed waterfall order.
+
+| Attribute | Value |
+|---|---:|
+| Master redemption proceeds | 2,250,000 |
+| Facility principal outstanding | 2,000,000 |
+| Accrued facility interest | 15,000 |
+| Residual proceeds after facility repayment | 235,000 |
+
+### Repayment waterfall
+
+```text
+facility_repayment_due = facility_principal_outstanding + accrued_facility_interest
+facility_repayment_due = 2,000,000 + 15,000 = 2,015,000
+
+residual_after_facility_repayment = master_redemption_proceeds - facility_repayment_due
+residual_after_facility_repayment = 2,250,000 - 2,015,000 = 235,000
+```
+
+### Correct treatment
+
+- retain master redemption notice, facility agreement, repayment waterfall, interest calculation, payment evidence and investor redemption queue;
+- repay facility principal and interest before releasing residual liquidity when documents require that order;
+- keep facility repayment separate from investor redemption cash and fund expenses;
+- calculate any residual investor funding gap after waterfall application;
+- report emergency facility use, repayment and remaining liquidity stress distinctly.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Master proceeds arrive | Repayment waterfall applies before residual liquidity is released. |
+| Proceeds are insufficient | Facility principal, interest and investor residual are prioritized by terms. |
+| Interest calculation changes | Repayment due recalculates from source rate and days. |
+| Liquidity report is generated | Proceeds, repayment, residual cash and remaining investor gap reconcile. |
