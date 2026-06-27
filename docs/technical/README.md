@@ -4,6 +4,15 @@ This section is a practical engineering knowledge base for enterprise-grade weal
 
 It translates patterns observed across a mature multi-application platform into neutral, reusable guidance. It is intentionally not tied to any one product name or repository. Use it for self-learning, KT, architecture review, onboarding, engineering leadership development, and delivery planning.
 
+## Fast Start
+
+| Need | Start here |
+|---|---|
+| Build a structured technical study plan | [`technical-master-index-study-roadmap/README.md`](technical-master-index-study-roadmap/README.md) |
+| Choose a path by role or project type | [`technical-learning-path-and-role-guide.md`](technical-learning-path-and-role-guide.md) |
+| Turn study into action, KT or review evidence | [`technical-master-index-study-roadmap/17-master-checklists-and-execution-playbook.md`](technical-master-index-study-roadmap/17-master-checklists-and-execution-playbook.md) |
+| Understand current strengths and next enrichment areas | [`technical-knowledge-coverage-matrix.md`](technical-knowledge-coverage-matrix.md) |
+
 ## Reading Path
 
 | File | Use |
