@@ -3849,3 +3849,204 @@ QA assertions:
 | Determination is missing | Settlement remains provisional or source-limited. |
 | Replacement observation changes result | Realized variance and settlement version are recalculated. |
 | Client report is generated | Extraordinary closure, adjusted count and calculation basis are explainable. |
+
+## 116. Futures Delivery Quality-Grade Appeal
+
+Scenario:
+
+- A physically settled futures contract delivers a commodity lot with a quality-grade adjustment.
+- The client appeals the quality grade because independent inspection indicates a higher grade.
+- Original invoice uses a lower-grade discount of 42,000.
+- Appeal-supported discount is 18,000.
+- The invoice has not yet been finalized.
+
+Appeal economics:
+
+```text
+quality_grade_appeal_value = original_quality_discount - appeal_supported_quality_discount
+quality_grade_appeal_value = 42,000 - 18,000 = 24,000
+```
+
+Correct treatment:
+
+- preserve delivery notice, warehouse receipt, quality certificate, original invoice, appeal filing and independent inspection evidence;
+- keep delivery quantity, quality grade and cash invoice adjustment as separate fields;
+- treat the appeal value as disputed until the clearing broker or exchange confirms the final grade;
+- avoid booking appeal value as cash, variation margin or realized trading P&L before final invoice correction;
+- show provisional invoice state in operations and client reporting where material.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Quality-grade appeal is filed | Disputed invoice adjustment is opened with source evidence. |
+| Appeal is accepted | Delivery invoice recalculates from confirmed grade. |
+| Appeal is rejected | Original grade discount remains final with rejection evidence. |
+| Delivery report is generated | Quantity, grade, invoice adjustment and appeal state are visible. |
+
+## 117. Option Assignment Lot-Method Correction Reversal
+
+Scenario:
+
+- An option assignment initially sources lots using average cost.
+- The account policy requires FIFO, so a correction is booked.
+- A later tax review finds the account had a valid specific-lot election, requiring reversal of the FIFO correction.
+- Original assigned shares are 3,000.
+
+Lot-method reversal:
+
+```text
+fifo_correction_gain = fifo_realized_gain - average_cost_realized_gain
+fifo_correction_gain = 32,400 - 27,900 = 4,500
+
+specific_lot_reversal = specific_lot_realized_gain - fifo_realized_gain
+specific_lot_reversal = 29,100 - 32,400 = -3,300
+```
+
+Correct treatment:
+
+- preserve assignment notice, original lot method, FIFO correction, specific-lot election evidence, tax review and approval;
+- reverse only the superseded FIFO correction and retain the full correction chain;
+- keep option premium, assignment proceeds, cost basis and tax-lot correction separately traceable;
+- avoid changing cash settlement when only tax-lot sourcing changes;
+- block client tax output until the final lot-method evidence is approved.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Specific-lot election is validated | FIFO correction is reversed and final lot result is recalculated. |
+| Election evidence is missing | Reversal remains blocked or provisional. |
+| Cash settlement already occurred | Cash remains unchanged while realized result is corrected. |
+| Tax report is generated | Original, FIFO-corrected and final specific-lot versions are auditable. |
+
+## 118. Cleared Swap Transferred Collateral Interest Claim
+
+Scenario:
+
+- A cleared swap account transfers to a new clearing member.
+- Collateral principal transfers correctly, but interest accrued before transfer is not credited.
+- The client claims missing collateral interest for the transfer window.
+
+Interest claim:
+
+```text
+transferred_collateral_interest_claim = transferred_collateral_principal x collateral_interest_rate x transfer_window_days / 360
+transferred_collateral_interest_claim = 2,350,000 x 4.20% x 9 / 360 = 2,467.50
+```
+
+Correct treatment:
+
+- preserve old and new clearing statements, collateral transfer file, interest convention, transfer window, claim filing and settlement response;
+- separate collateral principal transfer from accrued interest entitlement;
+- keep the interest claim as receivable or disputed until clearing member confirmation;
+- avoid treating missing interest as swap valuation P&L or variation margin;
+- reconcile final interest settlement to transfer-window convention and principal balance.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Collateral principal transfers | Principal transfer closes independently from interest claim. |
+| Interest credit is missing | Interest claim is calculated from transfer-window evidence. |
+| Clearing member pays claim | Cash posting links to original transfer case. |
+| Collateral report is generated | Principal, interest claim and settlement state are separate. |
+
+## 119. Volatility Surface Fallback Expiry Review
+
+Scenario:
+
+- A fallback volatility surface was approved after the primary vendor outage.
+- The fallback approval expires before primary data resumes.
+- Risk requests continued fallback use for a subset of products, but the approval scope is narrower than the portfolio exposure.
+
+Fallback expiry exposure:
+
+```text
+unapproved_fallback_exposure = total_products_using_fallback - products_with_renewed_fallback_approval
+unapproved_fallback_exposure = 42 - 31 = 11
+```
+
+Correct treatment:
+
+- preserve primary outage evidence, fallback approval, expiry timestamp, renewal request, approved product scope and unmapped products;
+- stop fallback use for products outside renewed scope or label them source-limited;
+- retain valuation versions produced under original approval and renewed approval;
+- avoid silently extending fallback approvals beyond expiry;
+- show fallback expiry, renewal status and unapproved exposure in valuation governance reporting.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Fallback approval expires | Products without renewal become blocked or source-limited. |
+| Renewal scope is partial | Approved and unapproved products are separated. |
+| Primary vendor resumes | Fallback use closes after reconciliation. |
+| Valuation report is generated | Original approval, expiry, renewal and unapproved exposure are visible. |
+
+## 120. Collateral Dispute Tax Treatment Reversal
+
+Scenario:
+
+- A collateral dispute settlement interest payment was classified as taxable interest.
+- Tax review later determines part of the payment is non-taxable dispute compensation.
+- The tax classification reversal must not reopen the collateral principal settlement.
+
+Tax reversal:
+
+```text
+taxable_interest_reversal = originally_taxable_interest - corrected_taxable_interest
+taxable_interest_reversal = 14,200 - 9,600 = 4,600
+
+non_taxable_compensation = taxable_interest_reversal
+non_taxable_compensation = 4,600
+```
+
+Correct treatment:
+
+- preserve settlement agreement, original tax classification, tax review, corrected classification, approval and reporting period;
+- adjust tax labels without changing collateral principal settlement or cash receipt;
+- keep taxable interest and non-taxable compensation separately reportable;
+- avoid treating tax reversal as a new collateral dispute or new cashflow;
+- retain original and corrected tax output versions.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Tax review changes classification | Tax labels update while cash and principal settlement remain unchanged. |
+| Approval is missing | Tax reversal remains blocked or provisional. |
+| Client tax report is regenerated | Original and corrected classification versions are retained. |
+| Collateral report is generated | Principal, interest, compensation and tax treatment are separate. |
+
+## 121. Variance-Swap Extraordinary Closure Settlement Appeal
+
+Scenario:
+
+- A variance-swap extraordinary market closure determination changes realized variance and settlement.
+- The counterparty appeals the replacement observation method.
+- The platform must preserve the official settlement while tracking appeal exposure and possible settlement adjustment.
+
+Settlement appeal:
+
+```text
+appealed_settlement_delta = appealed_settlement_amount - official_settlement_amount
+appealed_settlement_delta = 1,284,000 - 1,236,500 = 47,500
+```
+
+Correct treatment:
+
+- preserve extraordinary closure determination, official settlement, appeal filing, alternate observation method, counterparty response and appeal status;
+- keep official settlement as booked state unless the appeal outcome changes it;
+- track appealed settlement delta as disputed exposure, not realized P&L;
+- version official, appealed and final settlement calculations;
+- disclose unsettled appeal status in risk and operations reporting where material.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Appeal is filed | Official settlement remains active with appeal flag. |
+| Appeal amount differs | Disputed settlement delta is calculated and tracked. |
+| Appeal succeeds | Settlement correction is booked from final source outcome. |
+| Client report is generated | Official settlement, appeal delta and final state are explainable. |
