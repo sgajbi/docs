@@ -1364,7 +1364,217 @@ QA assertions:
 | Recipient has partial authority | Only authorized jurisdictions/entities are deliverable. |
 | Source event changes | Impact assessment identifies every jurisdiction pack affected. |
 
-## 46. Advisory And Reporting Boundary
+## 46. Cross-Border Correction Sequencing
+
+Scenario:
+
+A cross-border tax pack has already been generated for one jurisdiction when a corrected withholding source and a corrected income classification arrive. The client-facing correction, internal archive and amended regulatory file must be sequenced so that recipients do not receive inconsistent versions.
+
+| Output | Original amount | Corrected amount | State |
+|---|---:|---:|---|
+| Client tax pack income | 125,000 | 118,000 | Restatement required |
+| Withholding reported | 18,750 | 16,520 | Correction required |
+| Regulatory file records | 14 | 14 | Amendment pending |
+
+Correction delta:
+
+```text
+income_delta = corrected_income - original_income
+income_delta = 118,000 - 125,000 = -7,000
+withholding_delta = corrected_withholding - original_withholding
+withholding_delta = 16,520 - 18,750 = -2,230
+```
+
+Correct treatment:
+
+- preserve original client output, corrected source, impact assessment, amended output and delivery approval as separate versioned records;
+- sequence correction as source validation, impact calculation, regulatory amendment, client restatement and archive update;
+- prevent delivery of a corrected client pack while the required prior regulatory state is still blocked or rejected;
+- expose correction status to operations, advisors and reporting owners without implying tax advice.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Corrected withholding arrives after report generation | Impact assessment identifies every affected output and recipient. |
+| Regulatory amendment is rejected | Client-ready correction remains blocked or clearly labelled according to policy. |
+| Corrected pack is delivered | Prior version remains archived and delivery evidence links to the correction chain. |
+
+## 47. Tax-Report Archive Retention Dispute
+
+Scenario:
+
+A client questions why a superseded tax report remains visible in archive metadata after a restated pack is issued. The platform must retain legally required evidence while showing the active client-facing version clearly.
+
+| Report version | Status | Client display | Archive retention |
+|---|---|---|---|
+| v1 original | Superseded | Hidden from current pack view | Retained |
+| v2 corrected | Active | Visible | Retained |
+| correction notice | Delivered | Visible | Retained |
+
+Retention count:
+
+```text
+retained_report_versions = original_versions + corrected_versions + notices
+retained_report_versions = 1 + 1 + 1 = 3
+```
+
+Correct treatment:
+
+- preserve original report, correction notice, corrected report, delivery timestamp, retention class and legal-hold state;
+- separate current client display from immutable archive and audit evidence;
+- prevent manual deletion of report evidence when retention, regulatory, legal-hold or complaint controls require preservation;
+- provide a clear archive status label so advisors do not mistake retained evidence for the current client statement.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Client views current tax pack | Active corrected version is visible and superseded version is not presented as current. |
+| Operations searches archive | All retained versions and notices remain discoverable with status labels. |
+| Delete request is submitted | Deletion is blocked or routed to retention review when retention policy applies. |
+
+## 48. Client Consent Withdrawal Before Delivery
+
+Scenario:
+
+A client withdraws consent for digital delivery after the tax pack is generated but before external delivery is completed. The report should remain internally auditable but must not be delivered through the withdrawn channel.
+
+| Attribute | Value |
+|---|---:|
+| Generated packs | 24 |
+| Packs already delivered | 18 |
+| Packs pending delivery | 6 |
+| Pending packs with withdrawn consent | 4 |
+
+Deliverable count:
+
+```text
+remaining_deliverable = pending_delivery - withdrawn_consent_pending
+remaining_deliverable = 6 - 4 = 2
+```
+
+Correct treatment:
+
+- preserve consent version, withdrawal timestamp, channel, report version, delivery batch and recipient authority;
+- stop pending delivery through the withdrawn channel while retaining internal report evidence;
+- avoid recalling already delivered documents unless policy requires a separate recall or notice workflow;
+- route undelivered packs to approved alternate channel or manual review only after authority is confirmed.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Consent is withdrawn before delivery batch runs | Pending reports for that channel are blocked. |
+| Some reports were already delivered | Prior delivery evidence remains and recall handling follows policy. |
+| Alternate recipient exists | Delivery occurs only if recipient authority and channel consent are active. |
+
+## 49. Regulator Acknowledgement Timeout
+
+Scenario:
+
+A regulatory tax filing is submitted successfully from the platform, but the regulator acknowledgement does not arrive within the expected window. Operations needs timeout evidence without creating duplicate submissions.
+
+| Attribute | Value |
+|---|---:|
+| Submitted records | 8,000 |
+| Acknowledged records | 0 |
+| Timeout threshold | 4 hours |
+| Elapsed time | 6 hours |
+
+Timeout state:
+
+```text
+acknowledgement_timeout_hours = elapsed_hours - threshold_hours
+acknowledgement_timeout_hours = 6 - 4 = 2
+```
+
+Correct treatment:
+
+- preserve submission id, file hash, submission timestamp, transport status, acknowledgement state and retry policy;
+- distinguish transport success from regulator acceptance;
+- prevent blind resubmission while acknowledgement state is unknown unless an approved retry rule exists;
+- create an operations case with elapsed-time evidence, source file hash and escalation owner.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Submission transport succeeds but acknowledgement is missing | Filing remains pending acknowledgement and timeout alert opens. |
+| Operator attempts resubmission | Platform requires retry policy or approval and prevents duplicate active filings. |
+| Late acknowledgement arrives | Filing state resolves with original submission id and timeout evidence retained. |
+
+## 50. Late Issuer Reclassification After Client Delivery
+
+Scenario:
+
+An issuer later reclassifies part of a delivered dividend as return of capital. Client reports and cost-basis records must be corrected without duplicating the original cash event.
+
+| Classification | Delivered amount | Reclassified amount |
+|---|---:|---:|
+| Dividend income | 40,000 | 28,000 |
+| Return of capital | 0 | 12,000 |
+| Cash received | 40,000 | 40,000 |
+
+Reclassification delta:
+
+```text
+income_reclassification_delta = reclassified_income - delivered_income
+income_reclassification_delta = 28,000 - 40,000 = -12,000
+return_of_capital_delta = 12,000 - 0 = 12,000
+```
+
+Correct treatment:
+
+- preserve issuer notice, original cash event, original report classification, corrected classification and basis adjustment evidence;
+- restate classification and affected reports without creating a second dividend cash event;
+- identify impacted tax lots, realized-gain basis and client statements that used the original classification;
+- label unsupported downstream tax treatment as source-limited when jurisdiction-specific interpretation is not configured.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Issuer classification changes after delivery | Impact assessment identifies report, lot and basis outputs affected. |
+| Correction is applied | Cash event remains single while classification and basis records version forward. |
+| Client report is regenerated | Restatement notice explains changed classification and impacted period. |
+
+## 51. Tax-Report Entitlement Recertification
+
+Scenario:
+
+A family-office tax-report entitlement is recertified annually. One external accountant and one family member lose access, while the principal and trustee retain access.
+
+| Recipient | Prior access | Recertified access |
+|---|---|---|
+| Principal | Allowed | Allowed |
+| Trustee | Allowed | Allowed |
+| External accountant | Allowed | Removed |
+| Family member | Allowed | Removed |
+
+Removed access count:
+
+```text
+removed_recipients = prior_allowed_recipients - recertified_allowed_recipients
+removed_recipients = 4 - 2 = 2
+```
+
+Correct treatment:
+
+- preserve prior entitlement, recertification decision, approver, effective date, report scope and recipient role;
+- remove future delivery and portal visibility for recipients not recertified;
+- retain historical delivery evidence without granting continued report access;
+- trigger exception handling for scheduled reports whose recipient list changes after generation but before delivery.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Recipient is not recertified | Future report access and delivery are removed from the effective date. |
+| Prior report was delivered before recertification | Delivery evidence remains but does not imply ongoing access. |
+| Scheduled delivery uses old recipient list | Batch is blocked or recalculated against current entitlement state. |
+
+## 52. Advisory And Reporting Boundary
 
 | Activity | Platform can support | Platform should not imply |
 |---|---|---|
@@ -1374,7 +1584,7 @@ QA assertions:
 | show reportable event | configured reporting regime | universal reporting obligation |
 | simulate rebalance tax impact | estimated gains/losses under assumptions | advice to execute for tax reasons |
 
-## 47. Current Support Boundary And Candidate Extensions
+## 53. Current Support Boundary And Candidate Extensions
 
 | Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
 |---|---|---|
@@ -1389,9 +1599,9 @@ QA assertions:
 | Late classifications | estimated/final tax breakdown, received date and impact assessment where sourced | automated late-breakdown correction and client-notice orchestration |
 | Cross-border controls | residency changes, documentation pools, method-specific output and filing status where sourced | full jurisdiction-specific tax-rule engine and regulator integration |
 | Conflicts and cancellations | conflicting self-certifications, look-through gaps, cancelled filing versions, denied reclaims, classification overrides and restatement notices where source-backed | automated regulator workflow orchestration and legal interpretation |
-| Delivery and remediation controls | duplicate voucher suppression, blackout states, entity classification remediation, treaty-document ageing, pool variance remediation and multi-jurisdiction delivery controls where source-backed | automated tax authority workflow orchestration, jurisdiction-specific legal interpretation and client-specific tax advice |
+| Delivery and remediation controls | duplicate voucher suppression, blackout states, entity classification remediation, treaty-document ageing, pool variance remediation, multi-jurisdiction delivery controls, correction sequencing, archive retention, consent withdrawal, acknowledgement timeout and entitlement recertification where source-backed | automated tax authority workflow orchestration, jurisdiction-specific legal interpretation and client-specific tax advice |
 
-## 48. Regression Test Pack
+## 54. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -1441,3 +1651,9 @@ Minimum release-gate scenarios:
 44. Missing treaty documentation ageing tracks potential relief at risk and escalates stale remediation items.
 45. Withholding pool variance remediation blocks final filing when material pool/allocation breaks remain.
 46. Multi-jurisdiction tax-pack delivery controls generate evidence while delivering only authorized outputs.
+47. Cross-border correction sequencing preserves source validation, regulatory amendment, client restatement and archive lineage.
+48. Tax-report archive retention keeps superseded versions as evidence while clearly marking the active client-facing pack.
+49. Client consent withdrawal before delivery blocks pending output for withdrawn channels while retaining internal evidence.
+50. Regulator acknowledgement timeout creates pending-acknowledgement evidence without duplicate blind resubmission.
+51. Late issuer reclassification restates classification and basis treatment without duplicating the cash event.
+52. Tax-report entitlement recertification removes future access and scheduled delivery for recipients not recertified.
