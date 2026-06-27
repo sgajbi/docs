@@ -32,7 +32,7 @@ It translates patterns observed across a mature multi-application platform into 
 | [`12-technology-stack-and-engineering-patterns.md`](12-technology-stack-and-engineering-patterns.md) | Understand common technology choices, toolchain patterns, tradeoffs and how to read a new repository. |
 | [`13-frontend-experience-api-and-ui-supportability.md`](13-frontend-experience-api-and-ui-supportability.md) | Learn gateway-first UI delivery, state handling, view models, browser validation, accessibility and frontend supportability. |
 | [`technical-knowledge-coverage-matrix.md`](technical-knowledge-coverage-matrix.md) | Track current technical KB coverage, strongest areas and next enrichment slices. |
-| [`technical-learning-path-and-role-guide.md`](technical-learning-path-and-role-guide.md) | Choose reading paths by role, project type and engineering problem across the technical deep-dive packs. |
+| [`technical-learning-path-and-role-guide.md`](technical-learning-path-and-role-guide.md) | Choose reading paths by role, project type and engineering problem across the technical deep-dive guides. |
 | [`technical-master-index-study-roadmap/`](technical-master-index-study-roadmap/README.md) | Use the master technical study roadmap for learning sequence, role-based paths, KT, repository adoption, architecture review, PR standards, production readiness, AI adoption, specialization maps, scorecards, evidence cadence and quarterly maturity planning. |
 | [`14-engineering-leadership-learning-roadmap.md`](14-engineering-leadership-learning-roadmap.md) | Follow a 30/60/90-day self-learning and KT path for enterprise platform engineering leadership. |
 | [`15-performance-scalability-resilience-and-async-work.md`](15-performance-scalability-resilience-and-async-work.md) | Deepen performance, timeout, retry, back-pressure, idempotency, async execution, recovery, caching and large-read design. |
@@ -67,16 +67,16 @@ The strongest engineering systems make the correct path easy: one local command 
 
 | Role | Useful starting point |
 |---|---|
-| Backend engineer | Files 02, 03, 05, 08, 09, 13 and the backend/API deep-dive packs. |
-| Architect | Files 01, 03, 04, 06, 09, 12, 13 and the backend/API/data-product deep-dive packs. |
-| DevOps / platform engineer | Files 05, 06, 07, 08, 10, 11, 12 and the CI/CD/runtime/observability deep-dive packs. |
+| Backend engineer | Files 02, 03, 05, 08, 09, 13 and the backend/API deep-dive guides. |
+| Architect | Files 01, 03, 04, 06, 09, 12, 13 and the backend/API/data-product deep-dive guides. |
+| DevOps / platform engineer | Files 05, 06, 07, 08, 10, 11, 12 and the CI/CD/runtime/observability deep-dive guides. |
 | QA engineer | Files 03, 05, 08, 09 and 13. |
 | Frontend engineer | Files 03, 06, 08, 09, 12 and 13. |
 | AI engineer / AI product technologist | The AI/RAG/copilot guide plus API, data-product, security, testing, observability and documentation-governance deep dives. |
 | Migration / transformation engineer | The migration/replatforming guide plus data-product, API, reporting, security, runtime, CI/CD, observability, testing and Git deep dives. |
 | Production support / SRE engineer | The production-support guide plus observability, performance, runtime, security, testing, CI/CD and documentation-governance deep dives. |
 | Reporting / platform product engineer | The reporting/document-evidence and platform-productization guides plus migration, production support, performance, CI/CD, security, observability and testing deep dives. |
-| Engineering lead | Files 01, 04, 05, 06, 09, 10, 11, 12, 13, 14, 16, 17, the technical learning path, the engineering-leadership guide, the wealth-domain guide, the AI guide, the reporting guide, the productization guide, the migration guide, the production-support guide, the backend/API/data-product/CI-CD/runtime/observability/security/testing/Git/documentation-governance deep-dive packs and the coverage matrix. |
+| Engineering lead | Files 01, 04, 05, 06, 09, 10, 11, 12, 13, 14, 16, 17, the technical learning path, the engineering-leadership guide, the wealth-domain guide, the AI guide, the reporting guide, the productization guide, the migration guide, the production-support guide, the backend/API/data-product/CI-CD/runtime/observability/security/testing/Git/documentation-governance deep-dive guides and the coverage matrix. |
 | New joiner | Read files 01 through 14 in order, then use the master roadmap, files 15 through 17 and the coverage matrix to choose deeper slices. |
 
 ## Relationship To Reference Packs

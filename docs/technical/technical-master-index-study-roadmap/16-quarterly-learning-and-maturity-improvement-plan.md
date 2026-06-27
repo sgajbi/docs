@@ -12,7 +12,7 @@ The plan combines study, repo improvements, KT, and governance outputs.
 
 Focus:
 
-- read core packs
+- read core guides
 - assess current repos
 - create documentation map
 - identify quality gaps
@@ -78,7 +78,7 @@ Deliverables:
 
 | Week | Activity |
 |---:|---|
-| 1 | Read foundation packs and create repo inventory. |
+| 1 | Read foundation guides and create repo inventory. |
 | 2 | Review backend/API/testing posture. |
 | 3 | Review CI/CD/runtime/security posture. |
 | 4 | Review observability/support/performance posture. |

@@ -130,7 +130,7 @@ Guide 15 wealth domain and Guide 16 reporting
 | Architecture review | Use relevant guide review questions before design approval. |
 | PR review | Use API, testing, security, Git, and performance checklists. |
 | Production readiness | Use runtime, observability, support, security, and DR guides. |
-| Productization | Use productization, security, support, documentation and evidence guides. |
+| Productization | Use productization, security, support, documentation and evidence packs. |
 | Migration | Use migration, data, reporting, security and operations guides. |
 | AI adoption | Use AI governance, security, testing and productization guides. |
 

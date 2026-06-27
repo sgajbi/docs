@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This file explains how to apply the knowledge-base packs into real repositories.
+This file explains how to apply the knowledge-base guides into real repositories.
 
 The guides should inform repo-local standards, not remain separate reading material only.
 
@@ -53,28 +53,28 @@ Every enterprise repo should consider:
 
 ---
 
-## Pack-To-Repo Mapping
+## Guide-To-Repo Mapping
 
-| Repo Need | Source Pack |
+| Repo Need | Source Guide |
 |---|---|
-| Backend structure | Pack 2 |
-| API docs | Pack 3 |
-| Data product docs | Pack 4 |
-| CI/CD standards | Pack 5 |
-| Runtime docs | Pack 6 |
-| Observability/runbooks | Pack 7 |
-| Security docs | Pack 8 |
-| Testing docs | Pack 9 |
-| Git/PR workflow | Pack 10 |
-| Performance/resilience docs | Pack 11 |
-| Documentation governance | Pack 12 |
-| Leadership scorecards | Pack 13 |
-| AI feature docs | Pack 14 |
-| Domain docs | Pack 15 |
-| Reporting docs | Pack 16 |
-| Productization docs | Pack 17 |
-| Migration docs | Pack 18 |
-| Support docs | Pack 19 |
+| Backend structure | Guide 2 |
+| API docs | Guide 3 |
+| Data product docs | Guide 4 |
+| CI/CD standards | Guide 5 |
+| Runtime docs | Guide 6 |
+| Observability/runbooks | Guide 7 |
+| Security docs | Guide 8 |
+| Testing docs | Guide 9 |
+| Git/PR workflow | Guide 10 |
+| Performance/resilience docs | Guide 11 |
+| Documentation governance | Guide 12 |
+| Leadership scorecards | Guide 13 |
+| AI feature docs | Guide 14 |
+| Domain docs | Guide 15 |
+| Reporting docs | Guide 16 |
+| Productization docs | Guide 17 |
+| Migration docs | Guide 18 |
+| Support docs | Guide 19 |
 
 ---
 

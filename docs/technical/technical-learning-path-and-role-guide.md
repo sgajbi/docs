@@ -17,6 +17,7 @@ Start with these files when time is limited:
 | Need | Read first |
 |---|---|
 | Choose a structured technical study path | [`technical-master-index-study-roadmap/README.md`](technical-master-index-study-roadmap/README.md) |
+| Turn study into repo evidence or KT actions | [`technical-master-index-study-roadmap/17-master-checklists-and-execution-playbook.md`](technical-master-index-study-roadmap/17-master-checklists-and-execution-playbook.md) |
 | Understand the platform shape | [`01-architecture-and-service-boundaries.md`](01-architecture-and-service-boundaries.md) |
 | Learn wealth technology domain patterns | [`wealth-management-domain-engineering/README.md`](wealth-management-domain-engineering/README.md) |
 | Understand backend service structure | [`backend-service-design/README.md`](backend-service-design/README.md) |

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This file maps architecture-review topics to the relevant knowledge packs.
+This file maps architecture-review topics to the relevant knowledge guides.
 
 Use it when reviewing new services, APIs, migrations, reporting systems, AI features, or production changes.
 
@@ -10,7 +10,7 @@ Use it when reviewing new services, APIs, migrations, reporting systems, AI feat
 
 ## Architecture Review Areas
 
-| Review Area | Packs |
+| Review Area | Guides |
 |---|---|
 | Service boundary | 2, 13, 15 |
 | API contract | 3, 9 |

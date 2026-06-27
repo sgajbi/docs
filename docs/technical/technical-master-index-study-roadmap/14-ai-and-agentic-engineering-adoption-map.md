@@ -2,23 +2,23 @@
 
 ## Purpose
 
-This file explains how to use the AI pack with the rest of the knowledge base.
+This file explains how to use the AI guide with the rest of the knowledge base.
 
 AI adoption should be integrated with architecture, security, testing, operations, productization, and domain governance.
 
 ---
 
-## AI Adoption Core Packs
+## AI Adoption Core Guides
 
 Read:
 
-- Pack 14: AI, RAG, Copilot, and Agentic Engineering Governance
-- Pack 8: Security and Cyber Resilience
-- Pack 9: Testing and Certification
-- Pack 12: Documentation and Knowledge Governance
-- Pack 13: Engineering Leadership
-- Pack 17: Productization
-- Pack 19: Production Support
+- Guide 14: AI, RAG, Copilot, and Agentic Engineering Governance
+- Guide 8: Security and Cyber Resilience
+- Guide 9: Testing and Certification
+- Guide 12: Documentation and Knowledge Governance
+- Guide 13: Engineering Leadership
+- Guide 17: Productization
+- Guide 19: Production Support
 
 ---
 

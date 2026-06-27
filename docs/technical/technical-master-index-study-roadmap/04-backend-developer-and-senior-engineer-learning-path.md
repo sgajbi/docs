@@ -8,7 +8,7 @@ The goal is to move from feature implementation to enterprise-grade service owne
 
 ---
 
-## Core Packs
+## Core Guides
 
 Read in this order:
 

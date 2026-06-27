@@ -10,14 +10,14 @@ Use it as the final execution guide.
 
 ## Personal Study Checklist
 
-- [ ] Read foundation packs.
-- [ ] Read backend/API/testing/Git packs.
-- [ ] Read CI/CD/runtime/security/observability packs.
-- [ ] Read performance/data/documentation packs.
-- [ ] Read leadership pack.
-- [ ] Read AI/domain/reporting/productization/migration/support packs.
-- [ ] Summarize each pack in your own words.
-- [ ] Convert each pack into one practical action.
+- [ ] Read foundation guides.
+- [ ] Read backend/API/testing/Git guides.
+- [ ] Read CI/CD/runtime/security/observability guides.
+- [ ] Read performance/data/documentation guides.
+- [ ] Read leadership guide.
+- [ ] Read AI/domain/reporting/productization/migration/support guides.
+- [ ] Summarize each guide in your own words.
+- [ ] Convert each guide into one practical action.
 
 ---
 
@@ -106,7 +106,7 @@ Use this checklist after reading any guide so the learning produces durable engi
 
 - [ ] Audience defined.
 - [ ] Learning path selected.
-- [ ] Pack sequence chosen.
+- [ ] Guide sequence chosen.
 - [ ] Hands-on exercise prepared.
 - [ ] Repo example selected.
 - [ ] Checklist shared.
@@ -245,7 +245,7 @@ Follow-up date:
 
 ## Final Operating Principle
 
-Every pack should ultimately become one of the following:
+Every guide should ultimately become one of the following:
 
 - a better design decision
 - a better checklist

@@ -96,4 +96,4 @@ Focus:
 
 QA, SRE, DevOps, and platform roles make quality and operations real.
 
-These packs help turn engineering claims into evidence and supportability.
+These guides help turn engineering claims into evidence and supportability.

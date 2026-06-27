@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This file provides a KT and onboarding model using the full pack series.
+This file provides a KT and onboarding model using the full guide series.
 
 Use it to train developers, architects, QA, SRE, BA, product, and support teams.
 
@@ -25,7 +25,7 @@ Good KT should be:
 
 ## Suggested KT Tracks
 
-| Track | Audience | Packs |
+| Track | Audience | Guides |
 |---|---|---|
 | Backend engineering | Developers | 2, 3, 9, 10, 11 |
 | Platform engineering | DevOps/SRE | 5, 6, 7, 8, 19 |

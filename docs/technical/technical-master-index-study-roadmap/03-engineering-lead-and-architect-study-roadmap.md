@@ -10,7 +10,7 @@ The goal is to build practical judgment across architecture, delivery, quality, 
 
 ## Core Competency Map
 
-| Competency | Packs |
+| Competency | Guides |
 |---|---|
 | System architecture | 1, 2, 3, 4, 6 |
 | Service boundaries | 2, 3, 4, 15 |
@@ -31,12 +31,12 @@ The goal is to build practical judgment across architecture, delivery, quality, 
 
 Read:
 
-- Pack 2: Backend Architecture
-- Pack 3: API Design
-- Pack 5: CI/CD
-- Pack 7: Observability
-- Pack 8: Security
-- Pack 13: Engineering Leadership
+- Guide 2: Backend Architecture
+- Guide 3: API Design
+- Guide 5: CI/CD
+- Guide 7: Observability
+- Guide 8: Security
+- Guide 13: Engineering Leadership
 
 Practice:
 
@@ -51,11 +51,11 @@ Practice:
 
 Read:
 
-- Pack 4: Data Products
-- Pack 9: Testing
-- Pack 11: Performance
-- Pack 12: Documentation
-- Pack 19: Production Support
+- Guide 4: Data Products
+- Guide 9: Testing
+- Guide 11: Performance
+- Guide 12: Documentation
+- Guide 19: Production Support
 
 Practice:
 
@@ -70,11 +70,11 @@ Practice:
 
 Read:
 
-- Pack 14: AI Governance
-- Pack 15: Wealth Domain
-- Pack 16: Reporting
-- Pack 17: Productization
-- Pack 18: Migration
+- Guide 14: AI Governance
+- Guide 15: Wealth Domain
+- Guide 16: Reporting
+- Guide 17: Productization
+- Guide 18: Migration
 
 Practice:
 
@@ -121,4 +121,4 @@ What evidence proves it?
 
 Engineering leadership is about connecting design, quality, operations, and business impact.
 
-Use the packs as a reference library for daily technical judgment.
+Use the guides as a reference library for daily technical judgment.

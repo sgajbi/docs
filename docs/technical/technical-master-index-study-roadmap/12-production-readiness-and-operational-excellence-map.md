@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This file maps production-readiness topics to the full pack series.
+This file maps production-readiness topics to the full guide series.
 
 Use it before go-live, major releases, migrations, pilots, and production-support handoff.
 
@@ -10,7 +10,7 @@ Use it before go-live, major releases, migrations, pilots, and production-suppor
 
 ## Production Readiness Areas
 
-| Area | Packs |
+| Area | Guides |
 |---|---|
 | Runtime | 6 |
 | Observability | 7 |
@@ -63,6 +63,6 @@ Create:
 
 ## Summary
 
-Production readiness is a cross-pack discipline.
+Production readiness is a cross-guide discipline.
 
 It requires runtime, security, observability, support, testing, documentation, and leadership alignment.

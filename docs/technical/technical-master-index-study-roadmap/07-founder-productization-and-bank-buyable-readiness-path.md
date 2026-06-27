@@ -8,7 +8,7 @@ The goal is to understand what must exist beyond code before an enterprise buyer
 
 ---
 
-## Core Packs
+## Core Guides
 
 Read:
 

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This file connects the domain-specialized packs to broader enterprise engineering practices.
+This file connects the domain-specialized guides to broader enterprise engineering practices.
 
 Use it when working on wealth platforms, reporting systems, archive, data migration, or productization.
 
@@ -12,11 +12,11 @@ Use it when working on wealth platforms, reporting systems, archive, data migrat
 
 Read:
 
-- Pack 15: Wealth Management Technology Domain Engineering
-- Pack 4: Data Products
-- Pack 3: API Design
-- Pack 11: Performance/Resilience
-- Pack 19: Production Support
+- Guide 15: Wealth Management Technology Domain Engineering
+- Guide 4: Data Products
+- Guide 3: API Design
+- Guide 11: Performance/Resilience
+- Guide 19: Production Support
 
 Focus:
 
@@ -34,11 +34,11 @@ Focus:
 
 Read:
 
-- Pack 16: Reporting and Evidence Engineering
-- Pack 15: Wealth Domain
-- Pack 9: Testing
-- Pack 7: Observability
-- Pack 19: Production Support
+- Guide 16: Reporting and Evidence Engineering
+- Guide 15: Wealth Domain
+- Guide 9: Testing
+- Guide 7: Observability
+- Guide 19: Production Support
 
 Focus:
 
@@ -57,11 +57,11 @@ Focus:
 
 Read:
 
-- Pack 18: Migration and Cutover Engineering
-- Pack 4: Data Products
-- Pack 15: Wealth Domain
-- Pack 16: Reporting
-- Pack 19: Production Support
+- Guide 18: Migration and Cutover Engineering
+- Guide 4: Data Products
+- Guide 15: Wealth Domain
+- Guide 16: Reporting
+- Guide 19: Production Support
 
 Focus:
 
@@ -80,11 +80,11 @@ Focus:
 
 Read:
 
-- Pack 17: Productization
-- Pack 8: Security
-- Pack 9: Testing
-- Pack 12: Documentation
-- Pack 19: Production Support
+- Guide 17: Productization
+- Guide 8: Security
+- Guide 9: Testing
+- Guide 12: Documentation
+- Guide 19: Production Support
 
 Focus:
 

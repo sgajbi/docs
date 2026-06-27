@@ -71,6 +71,21 @@ It includes:
 
 ---
 
+## Roadmap Operating Model
+
+Use this roadmap as a working system, not only as a reading list.
+
+| Mode | Input | Output |
+|---|---|---|
+| Learn | Pick one guide and one practical engineering question. | Short notes in your own words plus one action you can test against a real repository or delivery workflow. |
+| Apply | Use the closest checklist against a service, API, data product, release, runbook or architecture note. | Evidence-backed gap list with owner, scope, acceptance criteria and expected proof. |
+| Teach | Convert the guide into a KT walkthrough for one role. | Reading path, scenario exercise, teach-back questions and follow-up improvement item. |
+| Govern | Use the roadmap during architecture review, PR review, production readiness or maturity review. | Decision note, risk list, evidence links and next-quarter improvement backlog. |
+
+The useful test is simple: every study session should produce either a better decision, a better artifact, a better control or a better KT conversation.
+
+---
+
 ## How To Choose A Path Quickly
 
 Use this section when you have a practical goal and need a short route through the wider technical library.
@@ -106,7 +121,7 @@ Use this section when you have a practical goal and need a short route through t
 | 13 | `12-production-readiness-and-operational-excellence-map.md` | Which guides to use for production readiness and support. |
 | 14 | `13-migration-reporting-wealth-domain-and-platform-specialization-map.md` | Domain-specialized map across migration, reporting, wealth, and platform readiness. |
 | 15 | `14-ai-and-agentic-engineering-adoption-map.md` | How to adopt AI, RAG, copilots, and coding agents safely. |
-| 16 | `15-practitioner-and-leadership-readiness-roadmap.md` | How to use the guides for senior technical leadership narratives, executive conversations, and practitioner readiness. |
+| 16 | `15-practitioner-and-leadership-readiness-roadmap.md` | How to Use the guides for senior technical leadership narratives, executive conversations, and practitioner readiness. |
 | 17 | `16-quarterly-learning-and-maturity-improvement-plan.md` | 90-day roadmap to improve personal and team maturity. |
 | 18 | `17-master-checklists-and-execution-playbook.md` | Combined action checklists for study, repo adoption, KT, and governance. |
 

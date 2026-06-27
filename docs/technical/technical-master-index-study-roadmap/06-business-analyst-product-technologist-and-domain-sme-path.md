@@ -8,7 +8,7 @@ The goal is to connect business capability, domain meaning, technical design, da
 
 ---
 
-## Core Packs
+## Core Guides
 
 Read:
 

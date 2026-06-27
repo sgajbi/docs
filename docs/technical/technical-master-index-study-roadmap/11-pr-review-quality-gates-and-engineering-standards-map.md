@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This file maps PR review and quality-governance topics to the full pack series.
+This file maps PR review and quality-governance topics to the full guide series.
 
 Use it to build enterprise-grade PR templates, review checklists, and CI/CD gates.
 
@@ -10,7 +10,7 @@ Use it to build enterprise-grade PR templates, review checklists, and CI/CD gate
 
 ## PR Review Dimensions
 
-| Dimension | Packs |
+| Dimension | Guides |
 |---|---|
 | Code structure | 2 |
 | API contract | 3 |
@@ -72,4 +72,4 @@ Use it to build enterprise-grade PR templates, review checklists, and CI/CD gate
 
 PR review is daily architecture governance.
 
-Use the packs to make review consistent, evidence-based, and teachable.
+Use the guides to make review consistent, evidence-based, and teachable.
