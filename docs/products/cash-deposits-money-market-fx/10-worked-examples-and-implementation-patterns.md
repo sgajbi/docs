@@ -1367,3 +1367,172 @@ A client payment is held because name screening produces a potential sanctions m
 | Cut-off passes during review | Value date recalculates to the next eligible date. |
 | Client asks why payment is delayed | Client-facing reason is operationally safe and does not leak restricted screening details. |
 | Payment is cancelled during review | Reservation is released with cancellation and screening lineage retained. |
+
+## Example 33. Deposit ladder repricing during rate shock
+
+### Scenario
+
+A client has a short-term deposit ladder. Market rates rise sharply, and the advisor wants to compare holding existing deposits to maturity versus breaking and reinvesting.
+
+| Deposit | Principal | Existing rate | Days to maturity | Break penalty | New available rate |
+|---|---:|---:|---:|---:|---:|
+| A | 250,000 | 3.20% | 30 | 400 | 4.80% |
+| B | 250,000 | 3.35% | 60 | 700 | 4.85% |
+| C | 250,000 | 3.50% | 90 | 950 | 4.90% |
+
+### Simplified comparison
+
+```text
+incremental_interest_a = 250,000 x (4.80% - 3.20%) x 30 / 360 = 333.33
+net_break_benefit_a = 333.33 - 400 = -66.67
+```
+
+The same comparison should be run per maturity bucket, with actual bank breakage terms, day-count convention and reinvestment tenor.
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Advisory | Explain yield pickup, break penalty, reinvestment tenor and liquidity need. |
+| DPM | Reinvestment must respect mandate, cash buffer and concentration limits. |
+| Reporting | Show existing ladder, projected maturity cash and any breakage cost separately. |
+| Operations | Break and reinvest only after bank quote, client/mandate approval and cut-off validation. |
+| Audit | Preserve old deposit terms, new quote, penalty, approval and execution state. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| New rate quote is stale | Break/reinvest recommendation is blocked or labelled indicative. |
+| Penalty exceeds incremental interest | Net benefit is negative and clearly shown. |
+| Deposit is pledged collateral | Break workflow requires collateral release or substitution. |
+| Reinvestment concentration breaches limit | Placement is resized or rerouted. |
+
+## Example 34. Multi-currency payment recall with FX reversal risk
+
+### Scenario
+
+A client sends EUR 200,000 funded by a same-day USD/EUR FX conversion. The payment is recalled after release, but the FX conversion has already settled.
+
+| Attribute | Value |
+|---|---:|
+| EUR payment | 200,000 |
+| USD/EUR conversion rate | 0.92 |
+| USD sold | 217,391.30 |
+| Returned EUR after bank charges | 199,850 |
+| Recall fee | 75 EUR |
+
+### Cash treatment
+
+```text
+returned_eur_net = 199,850
+unreturned_eur_difference = 200,000 - 199,850 = 150
+```
+
+The returned EUR does not automatically restore the original USD balance. A new FX trade may be required if the client wants USD back, creating FX risk and potentially a realized gain or loss.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Payment recall succeeds after FX settlement | Returned EUR posts separately; original USD sale is not reversed silently. |
+| Returned amount is net of charges | Bank charges and residual difference are visible. |
+| Client requests USD restoration | New FX quote/order is required. |
+| FX reversal rate differs | Realized FX impact is calculated and reported separately. |
+
+## Example 35. Client cash segmentation by booking centre
+
+### Scenario
+
+A client group has cash in two booking centres. The relationship view shows total cash, but regulatory, tax, booking and operational rules restrict movement between centres.
+
+| Booking centre | Currency | Ledger cash | Transfer allowed today | Reason |
+|---|---|---:|---:|---|
+| Singapore | USD | 600,000 | 600,000 | Same legal owner and open cut-off |
+| Switzerland | USD | 450,000 | 0 | Cross-border documentation pending |
+| Total | USD | 1,050,000 | 600,000 | Mixed availability |
+
+### Correct interpretation
+
+Total group cash is USD 1,050,000, but same-day usable cash for a Singapore-booked trade is USD 600,000 unless cross-border transfer documentation and approvals are complete.
+
+| Area | Treatment |
+|---|---|
+| Client 360 | Show total cash, booking-centre cash and transfer-restricted cash separately. |
+| Advisory | Do not imply cross-centre cash is freely available. |
+| DPM | Funding engine must use mandate, booking centre and legal-owner constraints. |
+| Reporting | Consolidated reports may show group cash but should label restrictions when material. |
+| Operations | Cross-centre transfer requires authority, documentation, cut-off and FX checks. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Cross-border documentation is pending | Transferable cash excludes restricted booking centre. |
+| Group report is generated | Total and restricted cash are both explainable. |
+| Trade is booked in Singapore | Funding uses Singapore-available cash unless transfer is approved. |
+| Restriction clears | Transferable amount updates from effective time with audit lineage. |
+
+## Example 36. Intraday overdraft escalation
+
+### Scenario
+
+An account has positive projected end-of-day cash but an intraday settlement debit arrives before incoming funds. The account needs temporary overdraft approval.
+
+| Attribute | Value |
+|---|---:|
+| Opening settled cash | 80,000 |
+| Securities settlement debit at 10:00 | 250,000 |
+| Incoming FX settlement at 15:00 | 220,000 |
+| Minimum intraday buffer | 25,000 |
+
+### Intraday gap
+
+```text
+intraday_required_cash = 250,000 + 25,000 = 275,000
+intraday_shortfall_before_inflow = 275,000 - 80,000 = 195,000
+projected_end_of_day_cash = 80,000 - 250,000 + 220,000 = 50,000
+```
+
+The positive projected end-of-day balance does not eliminate the 10:00 funding shortfall.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Settlement debit arrives before incoming funds | Intraday shortfall is raised. |
+| End-of-day projection is positive | Intraday overdraft workflow still requires approval or funding action. |
+| Overdraft limit is insufficient | Settlement is blocked, reprioritized or escalated. |
+| Incoming FX settlement fails | Overdraft exposure remains open and aged. |
+
+## Example 37. Treasury sweep exception reporting
+
+### Scenario
+
+An automated sweep should move excess cash into an approved money market sweep vehicle, but exceptions prevent full sweep execution.
+
+| Attribute | Value |
+|---|---:|
+| Eligible excess cash | 900,000 |
+| Minimum operating cash buffer | 100,000 |
+| Sweep target amount | 800,000 |
+| Amount successfully swept | 550,000 |
+| Exception amount | 250,000 |
+
+### Exception classification
+
+| Exception reason | Amount | Treatment |
+|---|---:|---|
+| Cut-off missed | 150,000 | Retry next eligible dealing window. |
+| Product eligibility missing | 75,000 | Hold as cash until eligibility is resolved. |
+| Screening hold | 25,000 | Keep reserved/restricted until cleared. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Sweep partially executes | Swept amount, unswept cash and exception reasons are all visible. |
+| Cut-off missed | Retry date and expected value date are calculated. |
+| Eligibility is missing | Cash is not swept into an unsupported product. |
+| Screening hold exists | Restricted cash remains excluded from sweepable amount. |
+| Advisor view is generated | Shows cash drag reason instead of treating unswept cash as unexplained idle cash. |
