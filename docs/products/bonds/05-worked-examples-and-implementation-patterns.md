@@ -5280,6 +5280,243 @@ disputed_release_delay_days = 368 - 365 = 3
 | Transfer is requested during disputed period | Transfer is blocked or routed to exception approval. |
 | Report is generated | Lock-up end date, disputed basis and restricted nominal are visible. |
 
+## Example 136. Call Election Correction Reversal
+
+### Scenario
+
+A beneficial-owner call election was corrected before the external deadline, but the custodian later rejects the correction and reverts to the original election. The platform must reverse the corrected call assumption, reinstate the original election basis and preserve both instruction versions.
+
+| Attribute | Value |
+|---|---:|
+| Original elected call nominal | 4,500,000 |
+| Corrected elected call nominal | 2,750,000 |
+| Rejected correction nominal | 1,750,000 |
+| Final accepted call nominal | 4,500,000 |
+
+### Reversal amount
+
+```text
+call_election_reversal_nominal = final_accepted_call_nominal - corrected_elected_call_nominal
+call_election_reversal_nominal = 4,500,000 - 2,750,000 = 1,750,000
+```
+
+### Correct treatment
+
+- preserve original instruction, correction request, custodian rejection, cut-off evidence and final accepted election;
+- reverse only the correction delta and retain the original instruction lineage;
+- update projected redemption cash, retained nominal and client communication from final accepted election;
+- avoid treating the rejected correction as a new call event or separate trade;
+- show reversal state in operations, reporting and affected cash projections.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Correction is rejected | Final call nominal reverts to source-accepted election. |
+| Projection was built from corrected election | Projected cash and retained nominal are recalculated. |
+| Client report is generated | Original, corrected, rejected and final election states are traceable. |
+| Rejection arrives after internal approval | External acceptance still controls final lifecycle treatment. |
+
+## Example 137. Escrow Substitution Valuation Lag
+
+### Scenario
+
+A municipal escrow substitution is accepted by the trustee, but the replacement securities use stale prices because market data arrives one day late. The platform must flag valuation lag separately from legal substitution acceptance.
+
+| Attribute | Value |
+|---|---:|
+| Required escrow coverage value | 12,600,000 |
+| Replacement value using stale prices | 12,480,000 |
+| Replacement value using current prices | 12,690,000 |
+| Stale-price shortfall | 120,000 |
+
+### Stale valuation effect
+
+```text
+stale_price_shortfall = required_escrow_coverage_value - replacement_value_using_stale_prices
+stale_price_shortfall = 12,600,000 - 12,480,000 = 120,000
+
+current_price_surplus = replacement_value_using_current_prices - required_escrow_coverage_value
+current_price_surplus = 12,690,000 - 12,600,000 = 90,000
+```
+
+### Correct treatment
+
+- preserve trustee substitution notice, replacement asset list, stale valuation timestamp, refreshed price source and coverage test;
+- keep legal substitution acceptance separate from valuation freshness;
+- label reports as stale or refreshed according to price timestamp;
+- avoid opening a false economic shortfall after refreshed prices prove coverage;
+- retain both stale and refreshed coverage calculations for audit.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Trustee accepts substitution | Asset composition updates with source evidence. |
+| Prices are stale | Coverage status is labelled stale or provisional. |
+| Refreshed prices arrive | Coverage recalculates and stale shortfall is closed if resolved. |
+| Risk report is generated | Legal acceptance, price freshness and coverage result are separate. |
+
+## Example 138. ABS Residual Tax Reclassification
+
+### Scenario
+
+An ABS residual certificate distribution was initially classified as ordinary interest. A corrected tax notice reclassifies part of the distribution as return of capital. The platform must adjust tax reporting without changing the cash amount received.
+
+| Attribute | Value |
+|---|---:|
+| Original interest classification | 315,000 |
+| Reclassified return of capital | 95,000 |
+| Corrected interest classification | 220,000 |
+| Cash received | 315,000 |
+
+### Tax classification delta
+
+```text
+interest_reclassification_delta = original_interest_classification - corrected_interest_classification
+interest_reclassification_delta = 315,000 - 220,000 = 95,000
+```
+
+### Correct treatment
+
+- preserve original trustee tax notice, corrected tax notice, affected income period, cash receipt and approval state;
+- keep cash settlement unchanged while tax classification and income labels are corrected;
+- adjust taxable income, cost basis or return-of-capital records according to policy;
+- explain corrected classification in client tax packs and reporting where material;
+- avoid double-counting return of capital as a new cashflow.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Corrected tax notice arrives | Interest and return-of-capital labels are recalculated. |
+| Cash already settled | Ledger cash remains unchanged. |
+| Tax report is regenerated | Prior classification is superseded with source evidence. |
+| Correction is unapproved | Client tax output remains blocked or labelled provisional. |
+
+## Example 139. Sovereign Warrant Acceleration Challenge Appeal
+
+### Scenario
+
+A sovereign warrant expiry acceleration is challenged by investors who argue that the trigger notice is invalid. The platform must keep the accelerated expiry as source-effective while tracking appeal exposure and possible reinstatement.
+
+| Attribute | Value |
+|---|---:|
+| Original days to expiry | 420 |
+| Accelerated days to expiry | 180 |
+| Appeal probability weight | 35% |
+| Warrant notional | 6,000,000 |
+
+### Appeal-weighted days at risk
+
+```text
+days_lost_to_acceleration = original_days_to_expiry - accelerated_days_to_expiry
+days_lost_to_acceleration = 420 - 180 = 240
+
+appeal_weighted_days_at_risk = days_lost_to_acceleration x appeal_probability_weight
+appeal_weighted_days_at_risk = 240 x 35% = 84
+```
+
+### Correct treatment
+
+- preserve acceleration notice, challenge filing, legal or trustee response, valuation source and appeal status;
+- use the source-effective accelerated expiry for lifecycle processing unless appeal outcome changes it;
+- keep appeal scenario analytics separate from official position state;
+- report optionality uncertainty where material without overstating reinstatement;
+- update valuation and expiry treatment only when appeal outcome is source-confirmed.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Appeal is filed | Official expiry remains accelerated with appeal flag. |
+| Appeal scenario is requested | Scenario output is labelled and separate from book valuation. |
+| Appeal succeeds | Expiry is reinstated from source-confirmed outcome. |
+| Client report is generated | Official expiry and appeal uncertainty are explainable. |
+
+## Example 140. Covered-Bond Monitoring SLA Waiver
+
+### Scenario
+
+A covered-bond monitor misses a weekly post-waiver update SLA because a trustee data feed failed. Risk governance approves a short SLA waiver, but collateral cure evidence is still required.
+
+| Attribute | Value |
+|---|---:|
+| Required monitoring updates | 4 |
+| Received monitoring updates | 2 |
+| Waiver-approved missed updates | 1 |
+| Remaining unwaived missed updates | 1 |
+
+### Unwaived monitoring gap
+
+```text
+raw_missing_updates = required_monitoring_updates - received_monitoring_updates
+raw_missing_updates = 4 - 2 = 2
+
+unwaived_missing_updates = raw_missing_updates - waiver_approved_missed_updates
+unwaived_missing_updates = 2 - 1 = 1
+```
+
+### Correct treatment
+
+- preserve monitoring schedule, missed update dates, data-feed incident, waiver approval, expiry and remaining cure evidence;
+- distinguish SLA waiver from cure completion or collateral sufficiency;
+- continue escalation for unwaived missing updates and expired waivers;
+- avoid closing the covered-bond breach solely because monitoring SLA was waived;
+- show waived and unwaived monitoring gaps in risk reporting.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| SLA waiver exists | Waived missed updates are labelled with approval and expiry. |
+| Unwaived gap remains | Monitoring exception remains open. |
+| Waiver expires | Missed updates become escalation candidates again. |
+| Risk dashboard is generated | Waiver, monitoring gap and collateral cure are separate fields. |
+
+## Example 141. Private-Placement Lock-Up Release Compensation Claim
+
+### Scenario
+
+A private-placement bond release is delayed after the lock-up period because counsel confirmation arrives late. The client claims compensation for a missed transfer opportunity. The platform must keep transferability correction, compensation claim and market liquidity assumptions separate.
+
+| Attribute | Value |
+|---|---:|
+| Restricted nominal affected | 2,400,000 |
+| Claimed price differential | 0.35% |
+| Claimed operational cost | 1,200 |
+| Provider compensation offered | 6,000 |
+
+### Compensation gap
+
+```text
+claimed_opportunity_amount = restricted_nominal_affected x claimed_price_differential
+claimed_opportunity_amount = 2,400,000 x 0.35% = 8,400
+
+total_claimed_compensation = claimed_opportunity_amount + claimed_operational_cost
+total_claimed_compensation = 8,400 + 1,200 = 9,600
+
+unrecovered_compensation_claim = total_claimed_compensation - provider_compensation_offered
+unrecovered_compensation_claim = 9,600 - 6,000 = 3,600
+```
+
+### Correct treatment
+
+- preserve lock-up terms, release request, delayed counsel confirmation, transfer request, claim calculation and provider response;
+- update transferability only from final release evidence;
+- keep compensation claim separate from bond price return, coupon income and client contribution;
+- avoid treating missed transfer opportunity as executable market liquidity without order evidence;
+- retain unrecovered claim state until settled, rejected or written off.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Release evidence arrives late | Transferability updates from effective source evidence. |
+| Compensation is offered below claim | Unrecovered compensation claim remains open. |
+| Claim is settled | Cash posting links to original lock-up release case. |
+| Performance report is generated | Compensation is excluded from bond market return. |
+
 ## Implementation-backed capability lens
 
 When reviewing whether a platform truly supports bonds, use these evidence questions:
