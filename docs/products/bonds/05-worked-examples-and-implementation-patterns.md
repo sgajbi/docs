@@ -4828,6 +4828,235 @@ blocked_transfer_value = 1,500,000 x 97.25 / 100 = 1,458,750
 | Cash was reserved | Reservation is released or held according to cancellation evidence. |
 | Client report is generated | Failed qualification, blocked transfer and continuing holding are visible. |
 
+## Example 124. Call Notice Amendment Cut-Off Conflict
+
+### Scenario
+
+An issuer sends an amended call notice after the custodian's corporate-action processing cut-off. The paying agent confirms the amended call price, but the custodian rejects the late amendment for that processing cycle. The platform must show the at-risk redemption cash without closing the position until the valid processing instruction is confirmed.
+
+| Attribute | Value |
+|---|---:|
+| Affected nominal | 2,500,000 |
+| Amended call price | 101.20 |
+| Original call price | 100.75 |
+| Custodian cut-off status | Missed |
+
+### At-risk redemption cash
+
+```text
+at_risk_redemption_cash = affected_nominal x amended_call_price / 100
+at_risk_redemption_cash = 2,500,000 x 101.20 / 100 = 2,530,000
+```
+
+### Correct treatment
+
+- preserve original call notice, amended notice, paying-agent confirmation, custodian cut-off evidence and final processing instruction;
+- show redemption cash as provisional or disputed when the amendment is economically valid but operationally rejected;
+- do not close the position, recognize realized proceeds or update performance until the custodian confirms processing;
+- keep notice validity, operational cut-off and cash projection as separate states;
+- avoid overwriting the original notice without an audit trail.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Amendment arrives after cut-off | Position remains open and projected proceeds are flagged as at risk. |
+| Paying agent confirms the amendment | Economic evidence is retained but does not override custodian processing state. |
+| Custodian later accepts the amendment | Redemption proceeds and position closure use accepted processing evidence. |
+| Client report is generated | Original price, amended price, cut-off miss and provisional cash state are visible. |
+
+## Example 125. Escrow Reinvestment Shortfall
+
+### Scenario
+
+A defeasance escrow portfolio is reinvested after securities mature earlier than expected. The reinvestment yield is lower than the defeased bond liability yield, creating a projected shortfall against future principal and coupon obligations.
+
+| Attribute | Value |
+|---|---:|
+| Required future liabilities | 10,000,000 |
+| Projected escrow value after reinvestment | 9,875,000 |
+| Reinvestment date | 2026-08-14 |
+| Escrow status | Coverage shortfall |
+
+### Escrow reinvestment shortfall
+
+```text
+escrow_reinvestment_shortfall = required_future_liabilities - projected_escrow_value_after_reinvestment
+escrow_reinvestment_shortfall = 10,000,000 - 9,875,000 = 125,000
+```
+
+### Correct treatment
+
+- retain escrow statement, reinvestment trade evidence, liability schedule, projected income assumptions and trustee shortfall notice;
+- classify the issue as escrow coverage risk, not a current principal loss, until legal or trustee treatment confirms impact;
+- surface the shortfall in risk and reporting while keeping the bond position and defeased liability schedule intact;
+- require source-owner approval before using alternative reinvestment assumptions;
+- avoid blending escrow income, coupon income and shortfall remediation into one cashflow type.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Reinvestment yield falls below assumption | Escrow coverage shortfall is calculated from source schedules. |
+| Trustee provides updated projection | Shortfall uses trustee-backed projection rather than manual estimate. |
+| Shortfall is not yet crystallized | Position is not written down solely from projected shortfall. |
+| Risk report is generated | Required liabilities, projected escrow value and shortfall are visible. |
+
+## Example 126. ABS Waterfall Restatement Dispute
+
+### Scenario
+
+An ABS trustee restates the monthly waterfall allocation after a servicer correction. Principal and interest distributions both change, and investors dispute whether the restated allocation should be applied to previously reported cashflows.
+
+| Distribution component | Original | Restated |
+|---|---:|---:|
+| Principal distribution | 180,000 | 166,500 |
+| Interest distribution | 42,000 | 47,250 |
+
+### Restatement deltas
+
+```text
+principal_delta = restated_principal_distribution - original_principal_distribution
+principal_delta = 166,500 - 180,000 = -13,500
+
+interest_delta = restated_interest_distribution - original_interest_distribution
+interest_delta = 47,250 - 42,000 = 5,250
+
+cashflow_restatement_delta = principal_delta + interest_delta
+cashflow_restatement_delta = -13,500 + 5,250 = -8,250
+```
+
+### Correct treatment
+
+- preserve original trustee report, restated trustee report, servicer correction evidence, waterfall rule version and investor dispute status;
+- restate principal and interest components separately because they affect position factor, income, yield and tax treatment differently;
+- keep disputed restatement amounts visible until trustee finality and custodian booking agree;
+- update analytics only from the accepted restatement basis;
+- avoid treating the net delta as a simple fee, price movement or trade correction.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Restatement changes principal and interest | Separate deltas are calculated and retained. |
+| Investor dispute remains open | Reporting marks cashflow restatement as disputed or provisional. |
+| Custodian booking differs from trustee file | Break is routed to reconciliation rather than silently accepted. |
+| Performance is calculated | Income, principal return and valuation effects remain separated. |
+
+## Example 127. Sovereign Warrant Valuation Source Override
+
+### Scenario
+
+A sovereign GDP-linked warrant is thinly traded and the vendor price is stale. The valuation committee approves a temporary override based on a documented methodology and market inputs. Reporting must show the override delta and retain the approved valuation source.
+
+| Attribute | Value |
+|---|---:|
+| Warrant units | 12,000 |
+| Vendor price | 18.40 |
+| Committee-approved price | 21.75 |
+| Override status | Approved |
+
+### Valuation override delta
+
+```text
+valuation_override_delta = warrant_units x (committee_price - vendor_price)
+valuation_override_delta = 12,000 x (21.75 - 18.40) = 40,200
+```
+
+### Correct treatment
+
+- retain vendor price, stale-price evidence, committee approval, methodology note, market inputs and override expiry;
+- classify the valuation as committee-approved rather than market-executable when liquidity is weak;
+- include the override delta in valuation control reporting and portfolio valuation audit trails;
+- require expiry, renewal or reversion logic for temporary overrides;
+- avoid using the committee price as implied execution liquidity without separate trading evidence.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Vendor price is stale | Override requires approval and methodology evidence. |
+| Committee price is active | Portfolio valuation uses approved source with source flag. |
+| Override expires | Valuation reverts or requires renewed approval. |
+| Client report is generated | Valuation basis and override status are available for disclosure or advisor explanation. |
+
+## Example 128. Covered-Bond Cure Deadline Waiver
+
+### Scenario
+
+A covered-bond program misses an overcollateralization cure deadline. The trustee grants a limited waiver and extends the deadline while the breach remains unresolved. The platform must not mark the breach as cured only because the deadline changed.
+
+| Attribute | Value |
+|---|---:|
+| Original cure deadline | 2026-09-30 |
+| Revised cure deadline | 2026-10-31 |
+| Required collateral top-up | 18,000,000 |
+| Confirmed collateral top-up | 6,500,000 |
+
+### Deadline extension and remaining top-up
+
+```text
+days_extended = revised_cure_deadline - original_cure_deadline
+days_extended = 31 days
+
+remaining_top_up = required_collateral_top_up - confirmed_collateral_top_up
+remaining_top_up = 18,000,000 - 6,500,000 = 11,500,000
+```
+
+### Correct treatment
+
+- preserve original breach notice, waiver approval, revised deadline, collateral top-up evidence and rating-agency or trustee commentary;
+- keep breach status, waiver status and cure completion as separate fields;
+- continue risk monitoring until the remaining top-up is fully confirmed;
+- show waiver expiry and escalation trigger in operations and risk reporting;
+- avoid resetting breach age or hiding the original missed deadline.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Waiver extends deadline | Breach remains open with revised deadline and waiver evidence. |
+| Partial top-up arrives | Remaining top-up is calculated and monitoring continues. |
+| Revised deadline expires | Escalation triggers if cure evidence is incomplete. |
+| Risk report is generated | Original deadline, revised deadline, waiver status and remaining top-up are visible. |
+
+## Example 129. Private-Placement Resale Legend Removal
+
+### Scenario
+
+A restricted private-placement bond becomes eligible for resale after the holding period and issuer counsel opinion are complete. The resale legend is removed for part of the holding. The event changes transferability but is not itself a sale, redemption or price change.
+
+| Attribute | Value |
+|---|---:|
+| Total restricted nominal | 3,000,000 |
+| Nominal released from legend | 1,200,000 |
+| Remaining restricted nominal | 1,800,000 |
+| Legal opinion status | Received |
+
+### Transferable percentage
+
+```text
+transferable_percentage = released_nominal / total_restricted_nominal
+transferable_percentage = 1,200,000 / 3,000,000 = 40.00%
+```
+
+### Correct treatment
+
+- retain issuer notice, counsel opinion, holding-period evidence, legend removal instruction and custodian eligibility confirmation;
+- update transferability and restriction status without creating a sale or redemption transaction;
+- keep released and restricted nominal visible when only part of the holding is released;
+- ensure suitability, advisory and reporting controls can distinguish market liquidity from legal transferability;
+- avoid using legend removal as proof of executable liquidity or client consent to sell.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Legal opinion is received | Transferability can be updated only with source-backed evidence. |
+| Partial nominal is released | Released and remaining restricted nominal are both visible. |
+| No trade is instructed | Position quantity and cost basis remain unchanged. |
+| Client report is generated | Restriction status and eligible transferable nominal are available. |
+
 ## Implementation-backed capability lens
 
 When reviewing whether a platform truly supports bonds, use these evidence questions:
