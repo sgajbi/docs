@@ -2952,6 +2952,238 @@ ineligible_asset_increase = 22,000,000 - 15,000,000 = 7,000,000
 | Ineligible assets breach policy | Exception or review workflow opens. |
 | Client report is generated | Covered-bond exposure remains position-based while collateral analytics are updated. |
 
+## Example 76. Callable make-whole tax allocation
+
+### Scenario
+
+A corporate bond is redeemed through a make-whole call. The custodian pays principal, accrued interest and a make-whole premium in one cash movement, but tax and performance reporting need separate components.
+
+| Component | Amount |
+|---|---:|
+| Held nominal | 1,500,000 |
+| Call price | 104.25 |
+| Par principal component | 1,500,000 |
+| Accrued interest | 18,750 |
+| Make-whole premium | 63,750 |
+
+### Tax allocation
+
+```text
+gross_redemption_cash = 1,500,000 x 104.25 / 100 + 18,750 = 1,582,500
+make_whole_premium = 1,500,000 x (104.25 - 100.00) / 100 = 63,750
+principal_cash = 1,500,000
+```
+
+### Correct treatment
+
+- separate principal, accrued interest and make-whole premium even when custodian cash arrives as one posting;
+- preserve issuer notice, call price, accrued-interest source, tax classification and withholding basis;
+- route premium treatment to jurisdiction/product tax configuration rather than assuming capital gain or income;
+- reduce nominal only after confirmed redemption;
+- explain performance impact separately from coupon income and principal return.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Custodian sends one cash amount | Cash is split into principal, accrued interest and premium components. |
+| Tax classification is missing | Tax report is source-limited or routed to tax review. |
+| Call price differs from notice | Difference opens reconciliation or price challenge workflow. |
+| Client report is generated | Premium is not merged into ordinary coupon income. |
+
+## Example 77. Distressed consent fee clawback
+
+### Scenario
+
+A distressed issuer paid a consent fee for covenant amendments. The restructuring plan later includes a clawback of part of the consent fee from holders who participate in a new exchange package.
+
+| Attribute | Value |
+|---|---:|
+| Eligible nominal | 2,000,000 |
+| Original consent fee | 1.00 per 100 nominal |
+| Clawback rate | 40% |
+| Holders participating in exchange | Yes |
+
+### Clawback amount
+
+```text
+original_consent_fee = 2,000,000 x 1.00 / 100 = 20,000
+clawback_amount = 20,000 x 40% = 8,000
+net_consent_fee_retained = 20,000 - 8,000 = 12,000
+```
+
+### Correct treatment
+
+- preserve original consent acceptance, fee payment, restructuring terms, clawback trigger and exchange election;
+- post the clawback as linked reversal/adjustment rather than rewriting the historical fee;
+- distinguish consent fee income, clawback cash movement and exchange package value;
+- update tax and client reporting according to source-backed classification;
+- route disputed clawbacks to operations/tax review with original and adjusted values visible.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Clawback trigger applies | Adjustment is linked to original consent fee and exchange event. |
+| Holder did not participate in exchange | Clawback does not apply unless terms say otherwise. |
+| Source terms are missing | Clawback is blocked or source-limited. |
+| Report is generated | Original fee, clawback and net retained amount are separately explainable. |
+
+## Example 78. Sovereign CAC aggregation
+
+### Scenario
+
+A sovereign restructuring uses collective action clauses across multiple bond series. The client holds two affected series, and acceptance depends on both series-level and aggregated voting thresholds.
+
+| Bond series | Held nominal | Series acceptance | Threshold |
+|---|---:|---:|---:|
+| Series A | 1,000,000 | 78% | 75% |
+| Series B | 700,000 | 62% | 75% |
+| Aggregated pool | 1,700,000 | 81% | 66.67% |
+
+### CAC result
+
+```text
+series_a_passed = 78% >= 75% = true
+series_b_passed = 62% >= 75% = false
+aggregate_passed = 81% >= 66.67% = true
+restructuring_binding = aggregate_passed and aggregation_terms_override_series_failure
+```
+
+### Correct treatment
+
+- preserve CAC terms, series identifiers, voting record, aggregation method and final official notice;
+- do not infer binding outcome from one series threshold alone;
+- apply exchange, haircut or maturity extension only after official result and implementation date;
+- explain affected positions by series because cashflows and new instruments may differ;
+- keep advisory suitability and client communication separate from legal binding status.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| One series fails but aggregate passes | Binding outcome follows the documented CAC aggregation terms. |
+| Official notice is missing | Restructuring remains pending or source-limited. |
+| Series terms differ | Each bond series keeps its own cashflow and exchange mapping. |
+| Client report is generated | CAC aggregation is explained without collapsing all series into one generic event. |
+
+## Example 79. Bond insurance wrap claim
+
+### Scenario
+
+A municipal bond misses an issuer coupon payment, but the bond has an insurance wrap. The insurer is expected to pay covered debt service after claim validation.
+
+| Attribute | Value |
+|---|---:|
+| Insured nominal | 1,200,000 |
+| Coupon rate | 3.50% |
+| Coupon frequency | Semi-annual |
+| Issuer cash received | 0 |
+| Insurance coverage | Principal and interest |
+
+### Insured claim
+
+```text
+expected_coupon = 1,200,000 x 3.50% / 2 = 21,000
+insurance_claim_amount = expected_coupon - issuer_cash_received = 21,000
+```
+
+### Correct treatment
+
+- preserve issuer default/missed-payment evidence, insurance policy, coverage scope, claim filing and insurer response;
+- keep issuer credit event separate from insured recovery expectation;
+- do not mark cash as received until insurer or paying agent pays;
+- report claim state, expected insured amount and any coverage dispute separately;
+- update risk analytics for both issuer risk and insurer counterparty/claims risk.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Issuer misses coupon but insurance applies | Claim workflow opens and cash remains receivable until paid. |
+| Insurance coverage excludes disputed item | Claim is source-limited or partially eligible. |
+| Insurer pays late | Receivable closes against insurer cash with delay evidence. |
+| Client report is generated | Insured claim is not shown as ordinary paid coupon before receipt. |
+
+## Example 80. MBS extension risk
+
+### Scenario
+
+A mortgage-backed security prepays slower than expected after rates rise. Weighted-average life extends, changing liquidity, duration and reinvestment assumptions.
+
+| Attribute | Base case | Stress case |
+|---|---:|---:|
+| Current principal | 900,000 | 900,000 |
+| Expected monthly prepayment | 45,000 | 18,000 |
+| Weighted-average life | 3.2 years | 5.8 years |
+| Effective duration | 2.7 | 4.9 |
+
+### Extension impact
+
+```text
+prepayment_shortfall = 45,000 - 18,000 = 27,000 per month
+wal_extension = 5.8 - 3.2 = 2.6 years
+duration_extension = 4.9 - 2.7 = 2.2
+```
+
+### Correct treatment
+
+- update analytics from prepayment model version, factor file, rate scenario and collateral assumptions;
+- do not treat slower prepayment as default unless delinquency/default evidence supports it;
+- show liquidity and duration impact separately from price movement;
+- route mandate or advisory review when extended duration breaches policy;
+- preserve base-case and stress-case assumptions for client and risk explanation.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Prepayment speed falls | WAL and duration extend with model/version evidence. |
+| Factor file is stale | Extension analytics are blocked or labelled stale. |
+| Mandate duration limit is breached | Review or exception workflow opens. |
+| Client report is generated | Extension risk is explained separately from credit loss. |
+
+## Example 81. Greenium performance attribution
+
+### Scenario
+
+A labelled green bond trades richer than a comparable conventional bond. Portfolio reporting needs to explain performance from spread movement, duration and the greenium without treating the label itself as a guaranteed return source.
+
+| Attribute | Green bond | Conventional comparator |
+|---|---:|---:|
+| Starting spread | 85 bps | 105 bps |
+| Ending spread | 78 bps | 101 bps |
+| Duration | 6.0 | 6.0 |
+| Starting greenium | 20 bps | n/a |
+| Ending greenium | 23 bps | n/a |
+
+### Attribution estimate
+
+```text
+green_bond_spread_tightening = 85 - 78 = 7 bps
+comparator_spread_tightening = 105 - 101 = 4 bps
+greenium_change = 23 - 20 = 3 bps
+approx_greenium_return_effect = duration x greenium_change / 10000
+approx_greenium_return_effect = 6.0 x 3 / 10000 = 0.18%
+```
+
+### Correct treatment
+
+- preserve green-bond label source, taxonomy status, comparator selection, spread source and duration basis;
+- explain greenium attribution as analytical estimate, not contractual payoff;
+- keep ESG label failure/remediation workflow separate from market spread performance;
+- route comparator methodology changes through model governance when used in client reporting;
+- show residual spread movement that cannot be explained by the greenium estimate.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Comparator changes | Attribution is restated or versioned with methodology evidence. |
+| Green label is under review | Greenium attribution is warning-labelled or suspended by policy. |
+| Spread source is stale | Attribution is blocked or labelled stale. |
+| Client report is generated | Greenium effect is shown as analytical attribution, not guaranteed income. |
+
 ## Implementation-backed capability lens
 
 When reviewing whether a platform truly supports bonds, use these evidence questions:
