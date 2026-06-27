@@ -19,6 +19,7 @@ This repo is organized so new document sets can be added without turning the roo
 | Document Set | Location | Status |
 |---|---|---|
 | Bonds reference pack | [`docs/products/bonds/`](docs/products/bonds/README.md) | Imported from `C:\Users\Sandeep\Downloads\bonds_reference_pack.zip\bonds_reference_pack` on 2026-06-27. |
+| Equities reference pack | [`docs/products/equities/`](docs/products/equities/README.md) | Imported from `C:\Users\Sandeep\Downloads\equities_and_product_kb_expansion.zip\equities_reference_pack` on 2026-06-27. |
 | Funds reference pack | [`docs/products/funds/`](docs/products/funds/README.md) | Imported from `C:\Users\Sandeep\Downloads\funds_reference_pack.zip\funds_reference_pack` on 2026-06-27. |
 | Structured notes reference pack | [`docs/products/structured-notes/`](docs/products/structured-notes/README.md) | Imported from `C:\Users\Sandeep\Downloads\notes_reference_pack` on 2026-06-27. |
 
@@ -26,9 +27,11 @@ This repo is organized so new document sets can be added without turning the roo
 
 | Map | Purpose |
 |---|---|
+| [`docs/products/direct-equities-and-market-operations.md`](docs/products/direct-equities-and-market-operations.md) | Product and platform-design map for direct equities, trading, settlement, corporate actions, P&L, risk, and market operations. |
 | [`docs/products/fixed-income-and-structured-products.md`](docs/products/fixed-income-and-structured-products.md) | Product and platform-design comparison for bonds and structured notes. |
 | [`docs/products/pooled-investment-products.md`](docs/products/pooled-investment-products.md) | Product and platform-design map for funds, ETFs, fund of funds, hedge funds, and private market funds. |
 | [`docs/reference/private-banking-platform-knowledge-map.md`](docs/reference/private-banking-platform-knowledge-map.md) | Reusable checklist for applying product knowledge to APIs, UI, docs, QA, and source-ownership decisions. |
+| [`docs/reference/wealth-product-framework/`](docs/reference/wealth-product-framework/README.md) | Cross-product canonical position, transaction, advisory, mandate, analytics, reporting, and knowledge-base quality framework. |
 
 ## Adding New Material
 

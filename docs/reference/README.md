@@ -17,3 +17,4 @@ When a reference only supports one product pack, it can remain inside that produ
 | Reference | Use |
 |---|---|
 | [`private-banking-platform-knowledge-map.md`](private-banking-platform-knowledge-map.md) | Cross-product checklist for turning domain knowledge into project-ready API, UI, documentation, and operating decisions. |
+| [`wealth-product-framework/`](wealth-product-framework/README.md) | Cross-product canonical position, transaction, advisory, mandate, analytics, reporting, and quality-standard material. |

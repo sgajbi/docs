@@ -21,6 +21,7 @@ This map turns product reference material into reusable project knowledge for we
 | Product Area | Modelling Reminder |
 |---|---|
 | Bonds | Separate clean price, dirty value, accrued interest, yield, duration, spread, call/put schedules, and credit events. |
+| Equities | Separate issuer, instrument, listing, trade, settlement, lot, corporate-action, valuation, P&L, risk, and entitlement concepts. |
 | Funds | Separate legal fund units from look-through exposure; model NAV, share class, dealing terms, distributions, fees, gates, suspensions, and pending orders explicitly. |
 | Structured notes | Separate legal note position from embedded derivative terms; model barriers, observations, autocalls, payoff terms, physical settlement, and issuer risk explicitly. |
 
@@ -31,14 +32,15 @@ Use these before designing APIs or UI:
 1. Who owns the product master?
 2. Who owns transaction booking?
 3. Who owns portfolio holdings and positions?
-4. Who owns valuation and price source selection?
-5. Who owns risk methodology?
-6. Who owns performance methodology?
-7. Who owns advisory suitability and proposal state?
-8. Who owns reporting, rendering, archive, and legal evidence?
-9. Who owns fund NAV, share-class terms, dealing status, fees, distributions, and look-through files?
-10. Which data is source truth, derived view, cached projection, or user-entered override?
-11. How does the system fail closed when the source owner cannot provide evidence?
+4. Who owns equity corporate actions, entitlements, elections, lots, cost basis, and listing status?
+5. Who owns valuation and price source selection?
+6. Who owns risk methodology?
+7. Who owns performance methodology?
+8. Who owns advisory suitability and proposal state?
+9. Who owns reporting, rendering, archive, and legal evidence?
+10. Who owns fund NAV, share-class terms, dealing status, fees, distributions, and look-through files?
+11. Which data is source truth, derived view, cached projection, or user-entered override?
+12. How does the system fail closed when the source owner cannot provide evidence?
 
 ## API Design Checklist
 
