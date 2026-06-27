@@ -1654,3 +1654,238 @@ manual_posting_allowed = below_materiality_threshold and approval_complete and e
 | Amount exceeds threshold | Higher approval or non-manual remediation is required. |
 | Posting is approved | Ledger entry links to break id, approver and reason code. |
 | Similar breaks repeat | Cumulative monitoring opens root-cause review. |
+
+## Example 46. Custody Account Closure With Pending Settlements
+
+### Scenario
+
+A client account is requested for closure, but two securities trades and one income reversal remain unsettled. Operations must prevent premature closure while allowing non-risky closure preparation.
+
+| Pending item | Amount or value | Status |
+|---|---:|---|
+| Equity sale settlement cash | 125,000 | Pending |
+| Bond purchase cash obligation | 98,500 | Pending |
+| Income reversal | 2,400 | Exception |
+
+### Closure exposure
+
+```text
+net_pending_cash = pending_sale_cash - pending_purchase_cash - pending_income_reversal
+net_pending_cash = 125,000 - 98,500 - 2,400 = 24,100
+closure_blocked = pending_settlement_count > 0 or pending_reversal_count > 0
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Closure intake | Preserve closure request, client authority, account state and requested effective date. |
+| Pending sweep | Identify unsettled trades, income reversals, fees, tax postings, custody movements and open claims. |
+| Account state | Move to closure-pending state rather than fully closed while settlement obligations remain. |
+| Cash control | Keep expected cash, reserved cash and recovery items visible until final settlement. |
+| Reporting | Show pending settlement and reversal items as closure blockers with owners and due dates. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Pending settlement exists | Account cannot move to final closed state. |
+| Closure preparation starts | New trading is blocked while settlement and recovery workflows continue. |
+| Pending income reversal remains | Closure exception stays open with recovery or write-off path. |
+| All items settle | Final closure can proceed with evidence and final statement generation. |
+
+## Example 47. Standing Settlement Instruction Rollback
+
+### Scenario
+
+A new standing settlement instruction is activated for a market, but the custodian rejects it after several pending trades were routed to the new instruction. Operations must roll back safely without losing rejected-instruction evidence.
+
+| Attribute | Value |
+|---|---:|
+| Trades routed to new SSI | 18 |
+| Custodian-rejected instructions | 5 |
+| Trades repaired before cut-off | 4 |
+| Trades still at risk | 1 |
+
+### Repair coverage
+
+```text
+repair_coverage = repaired_before_cutoff / custodian_rejected_instructions
+repair_coverage = 4 / 5 = 80%
+unrepaired_rejected_instructions = 5 - 4 = 1
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Versioning | Preserve old SSI, new SSI, approval, effective date, rejection reason and custodian response. |
+| Rollback | Route future eligible trades back to the prior approved SSI or alternate approved instruction. |
+| In-flight repair | Repair pending trades individually with acknowledgement evidence. |
+| Controls | Prevent blanket overwrite of settlement instructions without preserving failed version lineage. |
+| Reporting | Show routed, rejected, repaired and still-at-risk trades separately. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| New SSI is rejected | Rejection is retained and new instruction is blocked for future use. |
+| Trade was routed before rollback | Trade repair is tracked individually with acknowledgement evidence. |
+| Prior SSI is restored | Restoration is versioned and approval-backed. |
+| One repair misses cut-off | Settlement risk remains open and cash stays reserved. |
+
+## Example 48. Stale Broker Confirmation Repair
+
+### Scenario
+
+A broker confirmation remains stale after execution because the broker sends a corrected confirmation late. Internal trade economics match the execution record, but confirmation state must be repaired before final settlement.
+
+| Attribute | Internal trade | Broker confirmation |
+|---|---:|---:|
+| Quantity | 50,000 | 50,000 |
+| Price | 18.40 | 18.40 |
+| Settlement amount | 920,000 | 920,000 |
+| Confirmation age | 2 days | 7 days |
+
+### Stale confirmation age
+
+```text
+confirmation_age_days = current_date - broker_confirmation_received_date
+stale_confirmation = confirmation_age_days > configured_confirmation_sla_days
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Stale state | Preserve original expected confirmation, broker responses, SLA breach and escalation owner. |
+| Repair | Link corrected broker confirmation to the original trade without duplicating the execution. |
+| Settlement | Allow settlement only when confirmation repair is accepted or exception-approved by policy. |
+| Reporting | Show confirmation age, repair state and settlement readiness separately. |
+| Controls | Monitor repeated stale confirmations by broker, market, instrument and desk. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Broker confirmation is stale | Exception opens with SLA age and owner. |
+| Corrected confirmation matches execution | Confirmation state repairs without creating a duplicate trade. |
+| Confirmation remains stale at cut-off | Settlement readiness is blocked or exception-approved by policy. |
+| Broker repeats stale confirmations | Broker-level control metric updates. |
+
+## Example 49. Trade Enrichment Source Conflict
+
+### Scenario
+
+A trade enrichment service supplies product classification and fee treatment that conflicts with the golden instrument master and broker fee file.
+
+| Field | Instrument master | Enrichment service | Broker file |
+|---|---|---|---|
+| Product type | ETF | Mutual fund | ETF |
+| Settlement cycle | T+1 | T+2 | T+1 |
+| Fee code | Exchange fee | Platform fee | Exchange fee |
+
+### Conflict count
+
+```text
+conflict_count = count(fields where enrichment_value != golden_source_value)
+conflict_count = 3
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Source hierarchy | Use governed source priority for product type, settlement cycle, fee code and tax treatment. |
+| Conflict capture | Preserve all source values, timestamps, lineage, owner and resolution decision. |
+| Booking | Block or label downstream enrichment-dependent outputs until material conflicts are resolved. |
+| Correction | Version repaired enrichment and trigger impact assessment for fees, settlement, reporting and analytics. |
+| Reporting | Show source-conflict state as data-quality issue, not a client trade amendment unless economics change. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Enrichment conflicts with golden source | Conflict opens and governed source priority is applied. |
+| Conflict affects settlement cycle | Settlement date is blocked or repaired with evidence. |
+| Conflict affects fee code | Fee posting waits for source-backed resolution or exception approval. |
+| Conflict is resolved | Lineage preserves prior values and resolution decision. |
+
+## Example 50. Settlement Penalty Appeal
+
+### Scenario
+
+A settlement penalty is charged for a failed trade, but operations disputes the penalty because the fail was caused by a market infrastructure outage. The penalty is initially reserved while the appeal is pending.
+
+| Attribute | Value |
+|---|---:|
+| Penalty charged | 7,500 |
+| Internal reserve | 7,500 |
+| Appeal amount | 7,500 |
+| Expected recoverable amount | 5,000 |
+
+### Unrecovered exposure
+
+```text
+expected_unrecovered_penalty = penalty_charged - expected_recoverable_amount
+expected_unrecovered_penalty = 7,500 - 5,000 = 2,500
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Penalty intake | Preserve penalty notice, fail id, cause attribution, market outage evidence and charge date. |
+| Appeal | Track appeal filing, evidence, expected recovery, response deadline and final decision. |
+| Cash treatment | Reserve or accrue penalty separately from confirmed client pass-through. |
+| Allocation | Block client pass-through unless policy, cause attribution and approval support it. |
+| Reporting | Show charged, appealed, expected recoverable and unrecovered amounts separately. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Penalty is under appeal | Penalty remains pending or reserved, not final client charge. |
+| Appeal is partially accepted | Recovered and unrecovered portions are separated. |
+| Appeal is rejected | Final allocation follows approved policy and cause evidence. |
+| Outage evidence is missing | Appeal cannot be marked evidence-complete. |
+
+## Example 51. Corporate-Action Instruction Cancellation Window
+
+### Scenario
+
+An advisor submits a voluntary corporate-action election, then asks to cancel before the internal cut-off. The custodian cut-off is later than the internal cut-off, but cancellation still requires accepted instruction evidence.
+
+| Attribute | Value |
+|---|---|
+| Eligible quantity | 12,000 |
+| Elected quantity | 8,000 |
+| Internal cancellation cut-off | 14:00 |
+| Cancellation request time | 13:35 |
+| Custodian acceptance | Pending |
+
+### Cancellation window
+
+```text
+internal_window_open = cancellation_request_time <= internal_cancellation_cutoff
+pending_elected_quantity = 8,000 while custodian_acceptance != cancelled
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Original election | Preserve advisor authority, election quantity, event terms, timestamp and submission channel. |
+| Cancellation request | Capture request timestamp, reason, internal cut-off state and approver. |
+| Custodian response | Do not reverse election state until custodian cancellation acceptance is received. |
+| Client reporting | Show election as cancellation-pending, not cancelled, while external acceptance is pending. |
+| Controls | Prevent post-cut-off cancellations from being treated as accepted without custodian evidence. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Cancellation is requested before internal cut-off | Cancellation workflow opens with authority and timestamp. |
+| Custodian has not accepted cancellation | Election remains cancellation-pending, not cancelled. |
+| Custodian accepts cancellation | Elected quantity returns to unelected or available state with lineage. |
+| Cancellation request misses cut-off | Escalation opens and election state remains submitted unless accepted externally. |
