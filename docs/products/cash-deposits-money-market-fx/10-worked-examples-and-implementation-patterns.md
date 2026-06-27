@@ -1135,3 +1135,235 @@ cash available for placement = 1,300,000
 | Deposit is broken early | Breakage workflow adjusts interest and liquidity reporting. |
 | Counterparty limit changes | Future placements recompute available headroom. |
 | Statement is generated | Deposit ladder appears separately from operating cash. |
+
+## Example 27. CLS fallback dispute after failed PVP settlement
+
+### Scenario
+
+A USD/JPY FX trade is expected to settle through payment-versus-payment processing. The trade misses the matching cut-off and treasury approves bilateral fallback, but the counterparty later disputes the JPY amount.
+
+| Attribute | Value |
+|---|---:|
+| Trade | Sell USD / buy JPY |
+| USD sold | 2,000,000 |
+| Contract rate | 150.2500 JPY per USD |
+| Expected JPY receipt | 300,500,000 |
+| Settlement model | CLS/PVP intended, bilateral fallback approved |
+| Counterparty disputed amount | 300,350,000 |
+| Difference | 150,000 JPY |
+
+### Correct treatment
+
+The fallback approval does not make the bought currency risk-free. The platform should preserve the original PVP intent, fallback reason, residual settlement-risk approval and disputed settlement amount separately.
+
+| Object | Treatment |
+|---|---|
+| FX trade | Keep original economic terms and value date. |
+| Fallback approval | Store approver, reason, timestamp and residual settlement-risk category. |
+| USD leg | Post only when external cash confirmation is available. |
+| JPY leg | Restrict disputed amount until counterparty confirmation or adjustment. |
+| Linked funding | Do not release disputed JPY for securities settlement without approved bridge funding. |
+| Reporting | Show bilateral fallback and disputed receivable state where material. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| PVP matching fails before cut-off | Trade moves to escalation state, not normal settlement. |
+| Bilateral fallback is approved | Approval evidence and residual settlement-risk reason are retained. |
+| Counterparty disputes bought-currency amount | Disputed difference is restricted and aged. |
+| Linked JPY purchase needs the disputed amount | Purchase is blocked, bridged or resized according to funding policy. |
+| Final settlement differs from contract amount | Adjustment preserves original contract, disputed state and resolution evidence. |
+
+## Example 28. Payment recall after client withdrawal release
+
+### Scenario
+
+A USD payment has been released to a beneficiary, then the client requests a recall because the beneficiary account number was wrong. The cash has left the account, but the receiving bank has not confirmed return of funds.
+
+| Attribute | Value |
+|---|---:|
+| Payment amount | 125,000 |
+| Payment state | Released |
+| Recall request time | Same day after release |
+| Beneficiary bank response | Pending |
+| Expected recall fee | 75 |
+
+### Cash and reporting treatment
+
+| Balance or event | Treatment |
+|---|---|
+| Original payment | Remains a released cash outflow with bank reference. |
+| Recall request | Opens an operational workflow; it is not a cash reversal. |
+| Expected returned funds | Projected only, not available cash. |
+| Recall fee | Accrue or disclose when fee source confirms. |
+| Client statement | Shows original payment and any later returned funds as distinct events. |
+
+### Correct workflow
+
+1. Preserve original payment instruction and release evidence.
+2. Create a recall case linked to payment reference, beneficiary bank and client request.
+3. Keep cash unavailable until returned funds are confirmed by the bank.
+4. Post returned funds separately from original payment.
+5. Retain client communication and fee evidence.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Recall is requested after release | No automatic cash reversal is posted. |
+| Receiving bank rejects recall | Original payment remains final and recall case closes as unsuccessful. |
+| Funds are returned net of fee | Returned cash and fee are posted as separate, explainable entries. |
+| Client tries to reuse expected returned cash | Buying power excludes projected recall proceeds. |
+| Report is generated during recall | Report shows released payment and pending recall state, not available cash. |
+
+## Example 29. Cross-bank liquidity stress across multiple client accounts
+
+### Scenario
+
+Several related client accounts hold USD cash across three banks. A same-day liquidity need arises during a market event, but transfer capacity and bank-specific cut-offs constrain available liquidity.
+
+| Bank | Confirmed cash | Same-day transfer cap | Cut-off status | Stress-usable today |
+|---|---:|---:|---|---:|
+| Bank A | 700,000 | 500,000 | Open | 500,000 |
+| Bank B | 450,000 | 250,000 | Cut-off passed | 0 |
+| Bank C | 300,000 | 300,000 | Open | 300,000 |
+| Total | 1,450,000 | 1,050,000 | Mixed | 800,000 |
+
+### Correct interpretation
+
+The group has USD 1.45 million of confirmed cash, but only USD 800,000 is same-day stress-usable without exceptional processing. Liquidity views must show bank, account, legal-owner and transfer-window constraints.
+
+| Area | Treatment |
+|---|---|
+| Liquidity analytics | Separate total confirmed cash from same-day transferable cash. |
+| Advisory | Explain concentration, transfer windows, bank cut-offs and operational uncertainty. |
+| DPM | Funding decisions should not assume all group cash can be moved across legal owners. |
+| Operations | Create transfer plan with source bank, destination bank, amount, cut-off and confirmation status. |
+| Reporting | Label stress liquidity by availability horizon and transfer constraint. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Bank cut-off has passed | Same-day stress-usable amount excludes that bank unless override is approved. |
+| Transfer cap is lower than cash balance | Liquidity view uses cap-limited transfer amount. |
+| Accounts have different legal owners | Group view is analytical unless authority and transfer workflow exist. |
+| Destination bank delays confirmation | In-transit cash remains restricted. |
+| Multiple clients need liquidity at once | Stress workflow checks operational capacity and bank concentration. |
+
+## Example 30. Treasury counterparty downgrade during placement cycle
+
+### Scenario
+
+Treasury has approved a short-term deposit placement, but the counterparty bank is downgraded before execution. The client still wants yield pickup, but counterparty and concentration limits must be recomputed.
+
+| Attribute | Value |
+|---|---:|
+| Planned placement | 600,000 |
+| Original bank rating | A |
+| New bank rating | BBB |
+| Rating-based single-bank limit before downgrade | 750,000 |
+| Rating-based single-bank limit after downgrade | 250,000 |
+| Existing exposure to bank | 150,000 |
+
+### Revised headroom
+
+```text
+revised bank headroom = new single-bank limit - existing exposure
+revised bank headroom = 250,000 - 150,000
+revised bank headroom = 100,000
+
+excess planned placement = planned placement - revised bank headroom
+excess planned placement = 600,000 - 100,000
+excess planned placement = 500,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Placement workflow | Block, resize or reroute the placement based on the new rating limit. |
+| Counterparty exposure | Include deposits, cash balances, repo exposure and unsettled placements where policy requires. |
+| Advisory | Explain that yield may be reduced because counterparty quality changed. |
+| Reporting | Show placement status as blocked or amended due to counterparty limit. |
+| Audit | Preserve old rating, new rating, source timestamp, limit recalculation and approval decision. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Rating downgrade arrives before execution | Placement eligibility is recomputed before release. |
+| Existing exposure consumes most headroom | Placement is resized to available counterparty headroom. |
+| Advisor requests override | Override requires policy-approved reason and evidence. |
+| Rating feed is stale | Placement enters source-limited state. |
+| Placement had already executed | Exposure breach workflow opens if new limit is breached post-trade. |
+
+## Example 31. Same-day liquidity allocation across client groups
+
+### Scenario
+
+A treasury desk has limited same-day settlement capacity during a market disruption. Multiple client groups request urgent cash movement, and allocation must respect contractual priority, legal ownership, service model and risk.
+
+| Client group | Requested same-day liquidity | Priority basis | Approved same-day allocation |
+|---|---:|---|---:|
+| Group A | 400,000 | Contractual withdrawal already approved | 400,000 |
+| Group B | 350,000 | Margin-call cure deadline | 300,000 |
+| Group C | 250,000 | Non-urgent rebalance funding | 0 |
+| Group D | 150,000 | Estate distribution with legal deadline | 150,000 |
+| Available same-day capacity | 850,000 | Operational cap | 850,000 |
+
+### Allocation logic
+
+| Rule | Treatment |
+|---|---|
+| Legal authority | Allocate only within legal owner and account authority. |
+| Contractual obligation | Approved client withdrawals and margin deadlines outrank discretionary rebalances. |
+| Mandate and suitability | Do not create leverage, overdraft or asset sale without allowed mandate. |
+| Communication | Communicate partial allocation, revised timing and reason code. |
+| Evidence | Keep allocation decision, approvers, timestamps and rejected alternatives. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Same-day capacity is insufficient | Allocation follows documented priority rules. |
+| Lower-priority rebalance competes with client withdrawal | Rebalance funding is deferred. |
+| Group cash cannot legally support another group | Allocation engine blocks cross-owner use. |
+| Allocation is partial | Workflow records remaining shortfall and next action. |
+| Client report or advisor view is generated | Shows available, allocated, deferred and restricted liquidity separately. |
+
+## Example 32. Payment sanctions false-positive remediation
+
+### Scenario
+
+A client payment is held because name screening produces a potential sanctions match. Compliance later clears it as a false positive. Cash must remain reserved during review and release only after clearance evidence is recorded.
+
+| Attribute | Value |
+|---|---:|
+| Payment amount | 90,000 |
+| Currency | GBP |
+| Screening result | Potential match |
+| Review outcome | False positive cleared |
+| Original value date | Today |
+| Revised value date after clearance | Next business day |
+
+### Correct treatment
+
+| Workflow area | Treatment |
+|---|---|
+| Cash availability | Reserve payment amount while screening is open. |
+| Screening state | Keep potential match, reviewer, decision, timestamp and rationale. |
+| Payment release | Release only after clearance and payment cut-off/value-date recalculation. |
+| Client communication | Provide operational status without exposing restricted screening details. |
+| Reporting | Show reserved payment cash and revised value date where appropriate. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Potential match is raised | Payment is held and cash is reserved. |
+| Compliance clears false positive | Payment may proceed only after clearance evidence is recorded. |
+| Cut-off passes during review | Value date recalculates to the next eligible date. |
+| Client asks why payment is delayed | Client-facing reason is operationally safe and does not leak restricted screening details. |
+| Payment is cancelled during review | Reservation is released with cancellation and screening lineage retained. |
