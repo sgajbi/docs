@@ -1536,3 +1536,247 @@ An automated sweep should move excess cash into an approved money market sweep v
 | Eligibility is missing | Cash is not swept into an unsupported product. |
 | Screening hold exists | Restricted cash remains excluded from sweepable amount. |
 | Advisor view is generated | Shows cash drag reason instead of treating unswept cash as unexplained idle cash. |
+
+## Example 38. Trapped cash after market disruption
+
+### Scenario
+
+A client has cash at a correspondent bank in a market where payment rails are temporarily unavailable. The balance is confirmed by bank statement, but it cannot be transferred, swept or used for same-day settlement.
+
+| Attribute | Value |
+|---|---:|
+| Confirmed ledger cash | 420,000 |
+| Currency | USD |
+| Market | Restricted settlement market |
+| Transfer rail status | Suspended |
+| Same-day usable amount | 0 |
+| Expected review date | 2026-07-03 |
+
+### Liquidity treatment
+
+```text
+reported_cash = 420,000
+same_day_usable_cash = 0
+trapped_cash = 420,000 - 0 = 420,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Valuation | Keep the confirmed cash balance as cash if the bank statement supports it. |
+| Liquidity | Exclude trapped cash from available cash, buying power and settlement funding. |
+| Advisory | Explain that the balance exists but is operationally unavailable. |
+| DPM | Do not fund rebalances, withdrawals or margin cures from trapped cash. |
+| Reporting | Show restricted or trapped cash when material to liquidity explanation. |
+| Operations | Track rail status, correspondent bank update, expected review date and escalation owner. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Bank balance is confirmed but payment rails are suspended | Cash is reported but excluded from same-day available cash. |
+| Advisor proposes a funded withdrawal using trapped cash | Workflow blocks or escalates the instruction. |
+| Transfer rail reopens | Usable amount updates only from effective timestamp with source evidence. |
+| Client report is produced | Report separates total cash from restricted/trapped cash. |
+
+## Example 39. Blocked-market currency conversion control
+
+### Scenario
+
+A client holds an onshore currency that cannot be freely converted offshore. The client relationship view shows the local-currency cash equivalent in reporting currency, but conversion and repatriation require market-specific approval.
+
+| Attribute | Value |
+|---|---:|
+| Onshore cash | 2,000,000 |
+| Onshore FX rate to USD | 0.1380 |
+| Reporting equivalent | 276,000 USD |
+| Approved convertible amount today | 500,000 local currency |
+| Approval expiry | End of day |
+
+### Convertible value
+
+```text
+approved_convertible_usd = 500,000 x 0.1380 = 69,000
+blocked_equivalent_usd = (2,000,000 - 500,000) x 0.1380 = 207,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Reporting | Show translated value, but label conversion and repatriation limits. |
+| FX order entry | Limit conversion order to approved amount and valid approval window. |
+| Liquidity | Treat only approved convertible amount as near-term usable offshore liquidity. |
+| Performance | Translate local-currency cash for performance, but do not imply transferability. |
+| Operations | Preserve approval id, source, expiry, rate source and failed-attempt lineage. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Client has blocked-market cash | Reporting equivalent is not treated as freely transferable USD. |
+| FX order exceeds approved amount | Order is blocked or resized. |
+| Approval expires before execution | Conversion returns to blocked state. |
+| Rate updates but approval does not | Reporting equivalent updates; approved notional remains governed by approval evidence. |
+
+## Example 40. Pooled-client cash interest allocation
+
+### Scenario
+
+A booking centre receives interest on a pooled client cash account. The bank credits interest at pool level, but allocation to clients must follow the documented average-balance method after excluding restricted or non-interest-bearing balances.
+
+| Client | Average eligible balance | Restricted balance | Allocation weight |
+|---|---:|---:|---:|
+| A | 300,000 | 50,000 | 30.00% |
+| B | 500,000 | 0 | 50.00% |
+| C | 200,000 | 100,000 | 20.00% |
+| Total eligible | 1,000,000 | 150,000 | 100.00% |
+
+Pool interest credited is 4,200.
+
+### Allocation
+
+```text
+client_a_interest = 4,200 x 300,000 / 1,000,000 = 1,260
+client_b_interest = 4,200 x 500,000 / 1,000,000 = 2,100
+client_c_interest = 4,200 x 200,000 / 1,000,000 = 840
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Allocation basis | Use documented eligible average balance, not closing balance. |
+| Restrictions | Exclude restricted or non-interest-bearing balances where policy requires. |
+| Ledger | Post client-level interest with pool-level reconciliation reference. |
+| Reporting | Show interest income separately from balance movement. |
+| QA | Reconcile allocated interest back to pool credit within rounding tolerance. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Pool interest is received | Client allocations sum to pool credit within tolerance. |
+| Restricted balance is present | Restricted amount is excluded when policy marks it non-interest-bearing. |
+| Average-balance source is missing | Allocation enters exception state. |
+| Rounding creates residual | Residual is posted according to documented rounding policy. |
+
+## Example 41. Cash compensation after operational incident
+
+### Scenario
+
+A payment was delayed because of an internal processing error. The client should be compensated for lost interest based on the delayed amount, delay period and approved compensation rate.
+
+| Attribute | Value |
+|---|---:|
+| Delayed payment amount | 180,000 |
+| Delay | 4 days |
+| Compensation rate | 3.60% |
+| Day-count basis | 360 |
+
+### Compensation
+
+```text
+cash_compensation = 180,000 x 3.60% x 4 / 360 = 72.00
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Root cause | Link compensation to the operational incident and approval. |
+| Calculation | Use approved rate, date range, day-count basis and affected notional. |
+| Ledger | Post compensation as operational compensation, not investment income. |
+| Reporting | Label payment clearly so it is not confused with deposit interest or market return. |
+| Controls | Require approval and prevent duplicate compensation for the same incident. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Incident is approved for compensation | Compensation amount is calculated and posted with incident reference. |
+| Date range changes | Compensation recalculates from authoritative delay dates. |
+| Payment was delayed by correspondent bank, not internal error | Compensation requires policy decision and source classification. |
+| Duplicate claim arrives | Duplicate detection blocks second payment unless approved as adjustment. |
+
+## Example 42. Payment fraud recovery and provisional credit
+
+### Scenario
+
+A fraudulent payment leaves the client account. The bank grants a provisional credit while recovery investigation is open. Later, part of the funds are recovered and the final loss is allocated according to policy.
+
+| Attribute | Value |
+|---|---:|
+| Fraudulent payment | 250,000 |
+| Provisional credit | 250,000 |
+| Recovered amount | 180,000 |
+| Final unrecovered amount | 70,000 |
+
+### Recovery state
+
+```text
+provisional_credit = 250,000
+recovered_amount = 180,000
+unrecovered_amount = 250,000 - 180,000 = 70,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Availability | Provisional credit may be restricted until final decision. |
+| Ledger | Track original fraud debit, provisional credit, recovery receipt and final adjustment separately. |
+| Reporting | Avoid presenting provisional credit as final recovered cash. |
+| Operations | Preserve fraud case id, investigation state, recoveries, approval and client communication. |
+| Risk | Escalate repeated events, compromised instruction channel or control failure. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Provisional credit is posted | Balance is restored but marked provisional or restricted if policy requires. |
+| Partial recovery arrives | Recovery receipt reduces open exposure without duplicating client credit. |
+| Final decision allocates unrecovered loss | Final adjustment closes provisional state with evidence. |
+| Client report is generated during investigation | Report labels provisional state and avoids overstating final recovery. |
+
+## Example 43. Central-bank holiday emergency funding
+
+### Scenario
+
+An unexpected central-bank holiday closes domestic payment rails. A client has a securities settlement obligation due today, but domestic cash cannot move. Treasury considers an emergency bridge from an approved offshore liquidity source.
+
+| Attribute | Value |
+|---|---:|
+| Settlement obligation | 650,000 |
+| Domestic cash balance | 700,000 |
+| Domestic payment rail | Closed |
+| Approved offshore emergency line | 500,000 |
+| Required emergency top-up | 150,000 |
+
+### Funding gap
+
+```text
+same_day_domestic_usable_cash = 0
+available_emergency_line = 500,000
+remaining_shortfall = 650,000 - 500,000 = 150,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Liquidity | Domestic balance remains reported but unavailable for same-day settlement. |
+| Funding | Emergency line can fund only within approval, currency, legal-owner and facility terms. |
+| Settlement | Any remaining shortfall must be escalated to settlement, custody and advisor teams. |
+| Client communication | Explain operational market closure and revised funding path. |
+| Evidence | Preserve holiday source, emergency approval, facility drawdown, residual shortfall and resolution. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Central-bank holiday closes rails | Domestic cash is excluded from same-day settlement funding. |
+| Emergency line is smaller than obligation | Remaining shortfall is visible and escalated. |
+| Emergency line is not approved for client/legal owner | Funding cannot be used. |
+| Holiday is lifted | Cash availability updates from effective rail reopening time with source evidence. |
