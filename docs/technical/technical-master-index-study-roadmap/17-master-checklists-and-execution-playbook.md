@@ -212,7 +212,7 @@ Every pack should ultimately become one of the following:
 - a better document
 - a better KT session
 - a better product evidence artifact
-- a better leadership answer
+- a better leadership narrative
 - a better production outcome
 
 That is how knowledge becomes engineering maturity.
