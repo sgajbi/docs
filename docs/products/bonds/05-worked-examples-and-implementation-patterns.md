@@ -1825,6 +1825,227 @@ liquidity_discount = 825
 | Client report uses mid price | Report should not imply same price is executable for odd lot. |
 | Sale executes at odd-lot bid | Realized proceeds use actual execution, not prior mid valuation. |
 
+## Example 46. Bond ETF creation/redemption look-through
+
+### Scenario
+
+A client holds a bond ETF that tracks an investment-grade credit index. The portfolio report needs to show fund-level valuation and liquidity, while risk analytics need issuer, duration and credit-spread look-through from the ETF basket.
+
+| Attribute | Value |
+|---|---:|
+| ETF market value | 1,200,000 |
+| Look-through coverage | 92% |
+| ETF duration | 6.4 years |
+| Basket-weighted spread duration | 6.1 years |
+| Unlooked-through residual | 8% |
+
+### Look-through exposure
+
+```text
+looked_through_value = 1,200,000 x 92% = 1,104,000
+residual_unclassified_value = 1,200,000 x 8% = 96,000
+```
+
+### Correct treatment
+
+- keep the legal holding as the ETF or fund position;
+- use look-through only for analytics, concentration, credit quality, duration and stress reporting;
+- preserve basket effective date, provider, coverage percentage and residual classification;
+- do not create direct bond accounting positions from analytical look-through;
+- label stale or partial baskets so risk users know the quality of the exposure view.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| ETF basket coverage is below 100% | Residual unclassified exposure is visible. |
+| Basket file is stale | Look-through analytics are labelled stale/source-limited. |
+| ETF is redeemed in primary market | Accounting closes the ETF holding, not each constituent bond. |
+| Issuer concentration report runs | Uses source-backed constituent weights and shows coverage percentage. |
+
+## Example 47. Inflation-index restatement dispute
+
+### Scenario
+
+An inflation-linked bond uses a published index ratio. The index provider later restates the inflation index for an earlier valuation date, but the custodian has not yet corrected accrued principal and coupon calculations.
+
+| Attribute | Original | Restated |
+|---|---:|---:|
+| Original nominal | 1,000,000 | 1,000,000 |
+| Base index | 250.0000 | 250.0000 |
+| Current index | 285.0000 | 284.2000 |
+| Clean price | 101.20 | 101.20 |
+
+### Principal impact
+
+```text
+original_adjusted_principal = 1,000,000 x 285.0000 / 250.0000 = 1,140,000
+restated_adjusted_principal = 1,000,000 x 284.2000 / 250.0000 = 1,136,800
+adjusted_principal_delta = -3,200
+```
+
+### Correct treatment
+
+- preserve original and restated index values with provider, effective date and publication timestamp;
+- keep valuation and income restatement provisional until custodian/accounting confirmation arrives;
+- recalculate adjusted principal, real coupon base, clean/dirty value and inflation contribution;
+- do not book a cash movement unless a coupon, redemption or correction cashflow is confirmed.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Index provider restates value | Historical adjusted principal is versioned with reason. |
+| Custodian has not corrected accounting | Report labels valuation as restatement pending or source-limited. |
+| Coupon date falls in affected period | Coupon accrual and received cash reconciliation are reviewed. |
+| Performance attribution is rerun | Inflation contribution delta is separated from market-price movement. |
+
+## Example 48. Sovereign sanctions restriction
+
+### Scenario
+
+A sovereign bond is still priced by market vendors, but new sanctions restrict trading, transfer and coupon processing for certain client types and booking centres.
+
+| Attribute | Value |
+|---|---:|
+| Bond market value | 640,000 |
+| Vendor price | 80.00 |
+| Tradable amount today | 0 |
+| Coupon due next month | 18,000 |
+| Restriction status | Trading and transfer blocked |
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Valuation | Continue valuation only under approved policy and price hierarchy. |
+| Trading | Block buys, sells, transfers or collateral use unless policy explicitly permits. |
+| Income | Treat coupon projection as restricted or uncertain until paying-agent/custodian confirmation. |
+| Advisory | Surface suitability, restriction and liquidity flags before any recommendation. |
+| Reporting | Separate market value, restricted liquidity and blocked activity explanation. |
+| Operations | Preserve sanctions source, effective date, client-scope rule and exception approvals. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Vendor price exists but sanctions block trading | Position may be valued but is not tradable. |
+| Coupon projection is generated | Coupon is labelled restricted/uncertain until processing is confirmed. |
+| Advisor attempts sale order | Order is blocked before release. |
+| Restriction changes by booking centre | Eligibility is evaluated by client, account, booking centre and effective date. |
+
+## Example 49. Collateralized bond lending recall
+
+### Scenario
+
+A bond held in a discretionary portfolio is out on securities lending. The portfolio manager needs to sell the bond to reduce credit exposure, but the bond must be recalled before settlement.
+
+| Attribute | Value |
+|---|---:|
+| Bond nominal held | 1,000,000 |
+| Nominal on loan | 700,000 |
+| Available nominal before recall | 300,000 |
+| Sale order target nominal | 800,000 |
+| Recall settlement estimate | T+2 |
+
+### Sellable amount
+
+```text
+current_sellable_nominal = 1,000,000 - 700,000 = 300,000
+recall_needed = 800,000 - 300,000 = 500,000
+```
+
+### Correct treatment
+
+- distinguish held nominal, lent nominal, recalled nominal and sellable nominal;
+- prevent sale settlement failure by linking order release to recall confirmation or partial execution plan;
+- preserve lending counterparty, collateral, recall instruction, expected return date and fail state;
+- report lending revenue separately from bond investment income and sale proceeds.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Sale target exceeds available nominal | Recall workflow opens before full order release. |
+| Recall fails or returns late | Sale is resized, delayed or escalated for buy-in risk. |
+| Only partial recall succeeds | Available sellable nominal updates and residual order remains controlled. |
+| Client report is generated | Lending state and restricted sellability are explainable. |
+
+## Example 50. Primary allocation scaling
+
+### Scenario
+
+A client subscribes for a new issue bond in the primary market. Demand is oversubscribed and the syndicate scales allocations. Cash reservation must be released for the unallocated amount.
+
+| Attribute | Value |
+|---|---:|
+| Client order nominal | 1,000,000 |
+| Issue price | 99.50 |
+| Allocation percentage | 40% |
+| Final allocated nominal | 400,000 |
+
+### Cash reservation
+
+```text
+original_cash_reserved = 1,000,000 x 99.50 / 100 = 995,000
+final_cash_needed = 400,000 x 99.50 / 100 = 398,000
+cash_to_release = 995,000 - 398,000 = 597,000
+```
+
+### Correct treatment
+
+- reserve cash or buying power for the submitted order according to policy;
+- create final bond position only for allocated nominal after allocation confirmation;
+- release excess reservation promptly with reason code and timestamp;
+- preserve order, allocation file, price, settlement date, issuer, syndicate and suitability evidence;
+- do not treat unallocated nominal as a cancellation failure or missed trade.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Allocation is scaled | Final position and settlement cash use allocated nominal only. |
+| Cash reservation exceeds final need | Excess cash is released with allocation lineage. |
+| Allocation file arrives late | Order remains pending/allocation-limited. |
+| Multiple clients are allocated | Allocation and fairness evidence is retained by account/order. |
+
+## Example 51. Distressed valuation committee override
+
+### Scenario
+
+A distressed bond has no reliable executable market quote. A valuation committee approves an override price for reporting while workout and restructuring negotiations continue.
+
+| Attribute | Value |
+|---|---:|
+| Nominal held | 2,000,000 |
+| Last vendor price | 38.00 |
+| Approved committee price | 31.50 |
+| Override expiry | 2026-07-31 |
+
+### Valuation impact
+
+```text
+vendor_value = 2,000,000 x 38.00 / 100 = 760,000
+committee_value = 2,000,000 x 31.50 / 100 = 630,000
+override_valuation_delta = -130,000
+```
+
+### Correct treatment
+
+- preserve vendor price, override price, committee approval, rationale, expiry and approvers;
+- mark valuation as committee-approved, not market-executable;
+- require review or expiry handling so stale overrides do not become permanent;
+- separate valuation override from default, restructuring, write-down or realized loss events.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Approved override exists | Reporting valuation uses override with source and expiry. |
+| Override expires | Valuation returns to policy fallback or blocks final reporting until reviewed. |
+| Executable quote appears | Valuation hierarchy re-evaluates whether override remains appropriate. |
+| Restructuring event later occurs | Accounting lifecycle event is processed separately from valuation override. |
+
 ## Implementation-backed capability lens
 
 When reviewing whether a platform truly supports bonds, use these evidence questions:
