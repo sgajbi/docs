@@ -546,3 +546,203 @@ Portfolio exposure should show both mapped look-through and unmapped residual ex
 | Fund A holds Fund B | Circular or duplicate exposure is detected and controlled. |
 | Residual exposure remains | Reports show unmapped percentage rather than suppressing it. |
 | Underlying security identifier is missing | Exposure maps to unknown bucket with source exception. |
+
+## Example 17. Equalization After Partial Redemption
+
+### Scenario
+
+A hedge fund investor redeems part of a holding before the next performance-fee crystallization date. The administrator confirms the redemption proceeds and an equalization adjustment on the redeemed units.
+
+| Attribute | Value |
+|---|---:|
+| Opening units | 10,000.0000 |
+| Units redeemed | 4,000.0000 |
+| Dealing NAV before equalization | 128.00 |
+| Equalization debit per redeemed unit | 0.75 |
+
+### Calculation
+
+```text
+gross redemption value = 4,000.0000 x 128.00 = 512,000
+equalization debit = 4,000.0000 x 0.75 = 3,000
+net redemption value = 512,000 - 3,000 = 509,000
+remaining units = 10,000.0000 - 4,000.0000 = 6,000.0000
+```
+
+### Correct treatment
+
+Equalization should follow the administrator statement and apply only to the redeemed units or series covered by the event. It should not be spread across unrelated lots or presented as a generic redemption fee unless the administrator classifies it that way.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Partial redemption is confirmed | Redeemed units, remaining units and equalization amount reconcile to the administrator. |
+| Equalization data is missing | Proceeds are labelled incomplete or pending according to reporting policy. |
+| Multiple series exist | Equalization is calculated by series or lot, not averaged across all holdings. |
+| Cash settles later | Receivable remains linked to the redemption and equalization event. |
+
+## Example 18. Performance-Fee Crystallization
+
+### Scenario
+
+A hedge fund applies a 20% performance fee above a high-water mark at crystallization.
+
+| Attribute | Value |
+|---|---:|
+| Units | 5,000.0000 |
+| High-water mark NAV | 100.00 |
+| Pre-fee NAV | 112.00 |
+| Performance fee rate | 20% |
+
+### Calculation
+
+```text
+gain above high-water mark per unit = 112.00 - 100.00 = 12.00
+performance fee per unit = 12.00 x 20% = 2.40
+post-fee NAV = 112.00 - 2.40 = 109.60
+total fee economics = 5,000.0000 x 2.40 = 12,000
+```
+
+### Correct treatment
+
+Performance-fee crystallization is usually reflected in NAV or administrator fee allocation, not necessarily as a separate cash debit from the client account. Reporting should show the fee basis where available, including high-water mark, hurdle, equalization or series treatment.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Pre-fee NAV is below high-water mark | No performance fee crystallizes unless fund terms state otherwise. |
+| Hurdle rate applies | Fee base is reduced by the hurdle before fee calculation. |
+| Fee is embedded in NAV | Platform does not create a duplicate cash fee. |
+| Administrator statement differs | Source-confirmed value overrides estimates with audit lineage. |
+
+## Example 19. In-Specie Fund Redemption
+
+### Scenario
+
+A fund redemption is settled partly by transferring securities rather than paying only cash.
+
+| Attribute | Value |
+|---|---:|
+| Redemption value | 1,000,000 |
+| Cash component | 250,000 |
+| Delivered bond market value | 450,000 |
+| Delivered equity basket value | 300,000 |
+
+### Reconciliation
+
+```text
+delivered asset value = 450,000 + 300,000 = 750,000
+total settlement value = 250,000 + 750,000 = 1,000,000
+```
+
+### Correct treatment
+
+The fund position should reduce through the redemption event, while delivered securities become new direct holdings only after custodian confirmation. Cost basis, acquisition date, liquidity, suitability and mandate treatment depend on policy and source terms.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Delivered instruments are not in instrument master | New direct holdings remain in exception state until setup is complete. |
+| Custodian confirms only cash | Securities are not created from expected delivery alone. |
+| Mandate disallows delivered asset | Exception or forced-sale workflow is triggered according to mandate policy. |
+| Settlement values do not reconcile | Redemption remains open with a settlement break. |
+
+## Example 20. Custody Re-Registration Of Fund Units
+
+### Scenario
+
+A client transfers fund units from one custodian account to another without changing beneficial ownership.
+
+| Attribute | Value |
+|---|---:|
+| Units transferred | 20,000.0000 |
+| Source custodian balance before transfer | 20,000.0000 |
+| Target custodian balance before transfer | 0.0000 |
+| NAV on transfer date | 15.50 |
+
+### Position movement
+
+```text
+transfer value for reporting reference = 20,000.0000 x 15.50 = 310,000
+source custodian ending units = 20,000.0000 - 20,000.0000 = 0.0000
+target custodian ending units = 0.0000 + 20,000.0000 = 20,000.0000
+```
+
+### Correct treatment
+
+Custody re-registration is not an investment sale, redemption or subscription when beneficial ownership is unchanged. The event should preserve cost basis, performance history, holding period and advisory context while changing custody location and reconciliation source.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Beneficial owner is unchanged | No realized gain/loss or client cashflow is created. |
+| Transfer is partial | Source and target balances reconcile to the transferred units. |
+| Target account is not eligible | Transfer remains pending or blocked with reason. |
+| Custodian statements disagree | Re-registration break remains open until both sides reconcile. |
+
+## Example 21. Fund Suspension Reopening
+
+### Scenario
+
+A fund suspended dealing during market stress and later announces a reopening with limited initial liquidity.
+
+| Attribute | Value |
+|---|---|
+| Suspension date | 2026-03-15 |
+| Reopening date | 2026-06-30 |
+| Reopening dealing frequency | Monthly |
+| Initial redemption cap | 25% of submitted units |
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Suspension | Block new subscriptions/redemptions unless fund notice allows exceptions. |
+| Pending orders | Mark orders as suspended, cancelled or carried forward according to administrator notice. |
+| Reopening | Restore dealing calendar with new terms and source notice. |
+| Liquidity cap | Apply cap or gate rules to submitted redemptions. |
+| Reporting | Show suspension history and current liquidity limitation. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Order is entered during suspension | Order is blocked or accepted only into an allowed pending state. |
+| Reopening terms differ from old terms | New calendar and cap rules are effective-dated. |
+| Report is generated after reopening | Liquidity status reflects reopened but constrained dealing. |
+| Old pending order is carried forward | Order keeps original lineage and new dealing treatment. |
+
+## Example 22. Stale Look-Through Override Expiry
+
+### Scenario
+
+A fund holdings file is normally monthly but has not arrived. Risk approves a temporary stale look-through override for reporting while waiting for the administrator file.
+
+| Attribute | Value |
+|---|---|
+| Last holdings date | 2026-04-30 |
+| Normal freshness threshold | 45 days |
+| Override approved until | 2026-06-30 |
+| Reporting date | 2026-07-05 |
+
+### Correct treatment
+
+The look-through file may be used only while the override is valid. After expiry, exposure should move to stale, partial, or classification-only reporting according to policy.
+
+```text
+override valid on 2026-06-20 = true
+override valid on 2026-07-05 = false
+```
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Override is active | Report labels look-through as stale but approved through the expiry date. |
+| Override expires | Look-through analytics degrade or block according to policy. |
+| New holdings file arrives | Override closes and source date updates. |
+| Override lacks approver or reason | It cannot support client-ready reporting. |

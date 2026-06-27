@@ -35,6 +35,11 @@ For deeper private-market implementation guidance, use [`private-markets-and-alt
 | Notice period and holdback | Separate submitted redemption, notice window, initial cash payout, pending holdback and final audit adjustment. |
 | Transfer-agent rejection | Do not create units from an unconfirmed order; release or reclassify reserved cash with rejection reason and resubmission lineage. |
 | Fund-of-funds look-through | Calculate effective coverage across layers and show unmapped residual exposure instead of implying complete transparency. |
+| Performance-fee crystallization | Preserve high-water mark, hurdle, equalization or series treatment, and avoid duplicate cash fee booking when fees are embedded in NAV. |
+| In-specie redemption | Reduce fund units through the redemption event and create delivered securities only after custodian confirmation. |
+| Custody re-registration | Move fund units between custody accounts without creating a sale, redemption or subscription when beneficial ownership is unchanged. |
+| Suspension reopening | Reopen dealing with effective-dated calendar, cap, gate and pending-order treatment from the administrator notice. |
+| Stale look-through override expiry | Use stale holdings only while approved; degrade or block look-through analytics when the override expires. |
 
 ## Core Platform Distinctions
 
@@ -76,7 +81,7 @@ Fund APIs and UI should make these states explicit:
 8. lockup, gate, suspension, or side-pocket posture,
 9. look-through availability and source,
 10. suitability and reporting restrictions,
-11. equalization, conversion, merger, holdback, rejection and lifecycle-event lineage where applicable.
+11. equalization, conversion, merger, holdback, rejection, in-specie settlement, re-registration and lifecycle-event lineage where applicable.
 
 ## QA Scenarios To Preserve
 
@@ -95,4 +100,7 @@ Fund APIs and UI should make these states explicit:
 13. share-class conversion with fee, tax and cost-basis policy,
 14. transfer-agent rejection and cash reservation release,
 15. notice-period redemption with holdback and final adjustment,
-16. multi-level fund-of-funds look-through with unmapped residual exposure.
+16. multi-level fund-of-funds look-through with unmapped residual exposure,
+17. performance-fee crystallization and equalization after partial redemption,
+18. in-specie redemption and custody re-registration,
+19. fund suspension reopening and stale look-through override expiry.
