@@ -1783,7 +1783,231 @@ QA assertions:
 | Appeal is filed | Appeal exposure is tracked separately from cash and original denial. |
 | Appeal remains pending | Report labels status as pending and does not book refund income. |
 
-## 58. Advisory And Reporting Boundary
+## 58. Cross-Border Report Resend Throttling
+
+Scenario:
+
+A cross-border tax report delivery fails for a subset of clients. Operations requests repeated resends, but the delivery policy limits resends to avoid duplicate client delivery and regulator-facing confusion.
+
+| Attribute | Value |
+|---|---:|
+| Failed deliveries | 180 |
+| Maximum resend attempts per recipient | 2 |
+| Recipients already resent twice | 35 |
+| Recipients eligible for resend | 145 |
+
+Resend throttling:
+
+```text
+blocked_resends = recipients_already_resent_twice
+blocked_resends = 35
+
+resend_eligible_count = failed_deliveries - blocked_resends
+resend_eligible_count = 180 - 35 = 145
+```
+
+Correct treatment:
+
+- preserve original delivery batch, failure reason, recipient entitlement, resend attempts, throttling policy and approval evidence;
+- resend only to eligible recipients under the approved delivery channel;
+- retain generated report evidence separately from successful delivery evidence;
+- suppress or escalate recipients that exceed resend policy;
+- avoid blind resubmission that could create duplicate client packs or conflicting regulator evidence.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Recipient has remaining resend capacity | Resend is allowed with attempt count incremented. |
+| Recipient reached resend limit | Resend is blocked or routed for approval. |
+| Delivery succeeds after resend | Successful delivery evidence links to original report version. |
+
+## 59. Tax Advisor Access Delegation Expiry
+
+Scenario:
+
+A client delegates tax-pack access to an external tax advisor. The delegation expires before the annual pack is delivered, so the report must remain available to the client but not to the expired delegate.
+
+| Attribute | Value |
+|---|---:|
+| Authorized recipients before expiry | 3 |
+| Expired delegated advisors | 1 |
+| Authorized recipients after expiry | 2 |
+
+Recipient removal:
+
+```text
+remaining_authorized_recipients = authorized_recipients_before_expiry - expired_delegated_advisors
+remaining_authorized_recipients = 3 - 1 = 2
+```
+
+Correct treatment:
+
+- preserve delegation instruction, expiry date, advisor identity, report entitlement, delivery schedule and recertification status;
+- remove expired delegates from future report delivery;
+- keep client access intact where the client remains entitled;
+- record attempted delivery blocks for audit;
+- avoid delivering tax packs to expired delegates even if prior-year access existed.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Delegation expires before delivery | Advisor is removed from delivery recipients. |
+| Client remains active | Client delivery continues if entitled. |
+| Advisor is renewed later | Access resumes only from renewed effective date and approval. |
+
+## 60. Tax Residency Effective-Date Backdating
+
+Scenario:
+
+A client submits tax-residency documentation after year-end, but the approved effective date is backdated to an earlier point in the tax year. Reportable events must be classified according to event date and effective residency, not document receipt date.
+
+| Attribute | Value |
+|---|---:|
+| Events in year | 240 |
+| Events before effective date | 70 |
+| Events on or after effective date | 170 |
+| Documentation receipt date | After year-end |
+
+Backdated residency coverage:
+
+```text
+backdated_residency_event_coverage = events_on_or_after_effective_date / events_in_year
+backdated_residency_event_coverage = 170 / 240 = 70.83%
+```
+
+Correct treatment:
+
+- preserve prior residency, new residency, effective date, receipt date, approval evidence and impacted event population;
+- classify reportable events by event date against effective residency;
+- keep receipt date visible for audit and remediation timeliness;
+- recalculate outputs only for impacted periods and regimes;
+- avoid applying the new residency to all year events when effective date is mid-year.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Effective date is backdated | Events from effective date onward use new residency. |
+| Events predate effective date | Prior residency remains active for those events. |
+| Documentation arrived late | Audit trail shows receipt date and approved effective date separately. |
+
+## 61. Withholding Reclaim Partial Settlement
+
+Scenario:
+
+A withholding reclaim was filed for 42,000. The authority settles only part of the reclaim and leaves a residual under review. Fees are deducted from the settled amount.
+
+| Attribute | Value |
+|---|---:|
+| Filed reclaim | 42,000 |
+| Settled gross amount | 28,000 |
+| Settlement fee | 700 |
+| Residual under review | 14,000 |
+
+Partial settlement:
+
+```text
+net_settled_reclaim = settled_gross_amount - settlement_fee
+net_settled_reclaim = 28,000 - 700 = 27,300
+
+unsettled_reclaim = filed_reclaim - settled_gross_amount
+unsettled_reclaim = 42,000 - 28,000 = 14,000
+```
+
+Correct treatment:
+
+- preserve original reclaim, authority settlement notice, fee evidence, cash receipt, residual claim status and appeal or review path;
+- book received cash only for settled net amount;
+- keep residual reclaim as pending, denied or appealed according to source evidence;
+- separate reclaim fee from withholding tax and refund cash;
+- avoid closing the full reclaim when only partial settlement occurred.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Partial settlement arrives | Net cash, fee and residual amount are calculated separately. |
+| Residual remains under review | Claim remains open for residual amount. |
+| Final denial arrives later | Residual is reversed or closed with denial evidence. |
+
+## 62. Tax Document Package E-Signature Rejection
+
+Scenario:
+
+A client tax-document package requires e-signature before submission. The e-signature provider rejects the package because one required document is missing a signature anchor.
+
+| Attribute | Value |
+|---|---:|
+| Documents in package | 12 |
+| Documents accepted | 11 |
+| Documents rejected | 1 |
+| Recipients affected | 1 |
+
+Package acceptance rate:
+
+```text
+accepted_document_rate = documents_accepted / documents_in_package
+accepted_document_rate = 11 / 12 = 91.67%
+```
+
+Correct treatment:
+
+- preserve package manifest, e-signature envelope id, rejection reason, missing anchor evidence, corrected package and resubmission status;
+- block downstream submission until the rejected package is corrected and signed;
+- keep original rejected package for audit rather than overwriting it;
+- notify operations or client-servicing workflow according to policy;
+- avoid treating generated but unsigned documents as client-approved tax evidence.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| E-signature rejects package | Package status changes to rejected and submission is blocked. |
+| Corrected package is sent | New envelope version links to rejected version. |
+| Partial documents were accepted | Final package still waits for all required signatures. |
+
+## 63. Regulatory Schema Version Migration
+
+Scenario:
+
+A regulator publishes a new filing schema version. Existing report extracts must be migrated from the prior schema to the new version before submission, and records that fail validation must remain excluded from final filing.
+
+| Attribute | Value |
+|---|---:|
+| Records prepared under prior schema | 12,500 |
+| Records migrated successfully | 12,240 |
+| Records failed validation | 260 |
+| Filing threshold for final submission | 100% valid required |
+
+Migration validation:
+
+```text
+migration_success_rate = records_migrated_successfully / records_prepared_under_prior_schema
+migration_success_rate = 12,240 / 12,500 = 97.92%
+
+failed_validation_count = records_failed_validation
+failed_validation_count = 260
+```
+
+Correct treatment:
+
+- preserve prior schema, new schema, mapping rules, validation output, rejected records and remediation owner;
+- block final filing until required record population validates under the active schema;
+- keep old and new schema outputs versioned for audit;
+- report failed validation population separately from successfully migrated records;
+- avoid submitting mixed-schema files unless the regulator explicitly supports them.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Schema version changes | Mapping and validation run against active schema. |
+| Some records fail validation | Final filing is blocked or scoped according to regulatory rule. |
+| Records are remediated | Successful remediated records link to prior validation errors. |
+
+## 64. Advisory And Reporting Boundary
 
 | Activity | Platform can support | Platform should not imply |
 |---|---|---|
@@ -1793,7 +2017,7 @@ QA assertions:
 | show reportable event | configured reporting regime | universal reporting obligation |
 | simulate rebalance tax impact | estimated gains/losses under assumptions | advice to execute for tax reasons |
 
-## 59. Current Support Boundary And Candidate Extensions
+## 65. Current Support Boundary And Candidate Extensions
 
 | Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
 |---|---|---|
@@ -1811,7 +2035,7 @@ QA assertions:
 | Delivery and remediation controls | duplicate voucher suppression, blackout states, entity classification remediation, treaty-document ageing, pool variance remediation, multi-jurisdiction delivery controls, correction sequencing, archive retention, consent withdrawal, acknowledgement timeout, entitlement recertification, delivery bouncebacks, localized voucher templates, evidence expiry and cancellation windows where source-backed | automated tax authority workflow orchestration, jurisdiction-specific legal interpretation and client-specific tax advice |
 | Multi-source tax operations | custodian-source reconciliation, correction deltas, reclaim appeal status, denial evidence and source-file lineage where source-backed | fully automated custodian dispute management or tax authority workflow integration |
 
-## 60. Regression Test Pack
+## 66. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -1873,3 +2097,9 @@ Minimum release-gate scenarios:
 56. Multi-custodian income reconciliation preserves source files, correction deltas, report impact and restatement workflow.
 57. Tax voucher localization suppresses missing-template deliveries instead of silently delivering an unauthorized language.
 58. Withholding reclaim appeal evidence separates denied reclaim, appeal amount, fees, pending status and received cash.
+59. Cross-border report resend throttling preserves resend attempts, delivery evidence and duplicate-output controls.
+60. Tax advisor access delegation expiry removes expired delegates while preserving client delivery entitlement.
+61. Tax residency effective-date backdating classifies events by approved effective date rather than document receipt date.
+62. Withholding reclaim partial settlement separates net settled cash, fees, residual claim and final authority status.
+63. Tax document package e-signature rejection blocks downstream submission until the corrected package is signed.
+64. Regulatory schema version migration blocks or scopes final filing when records fail active-schema validation.
