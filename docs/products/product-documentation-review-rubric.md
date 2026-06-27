@@ -67,11 +67,12 @@ Do not copy internal app names into product docs unless the target document is e
 3. Remove duplicate or preparation-only phrasing and convert it into practitioner language.
 4. Add missing cross-links instead of duplicating long explanations.
 5. Add at least one worked example when a product has complex payoff, cashflow, valuation, or support boundary behavior.
-6. Update [`product-knowledge-coverage-matrix.md`](product-knowledge-coverage-matrix.md) when a gap or enrichment area changes.
-7. Update [`product-capability-boundary-matrix.md`](product-capability-boundary-matrix.md) when a support claim, partial state, or future candidate changes.
-8. Update [`product-calculation-example-catalog.md`](product-calculation-example-catalog.md) when a formula or QA assertion is added.
-9. Update [`cross-product-worked-examples.md`](cross-product-worked-examples.md) when a new example applies beyond one product pack.
-10. Run repository checks for relative links, narrow preparation-only wording, unsupported brand references, and whitespace.
+6. Use [`implementation-backed-capability-map.md`](implementation-backed-capability-map.md) to keep support claims neutral, evidence-aware, and non-branded.
+7. Update [`product-knowledge-coverage-matrix.md`](product-knowledge-coverage-matrix.md) when a gap or enrichment area changes.
+8. Update [`product-capability-boundary-matrix.md`](product-capability-boundary-matrix.md) when a support claim, partial state, or future candidate changes.
+9. Update [`product-calculation-example-catalog.md`](product-calculation-example-catalog.md) when a formula or QA assertion is added.
+10. Update [`cross-product-worked-examples.md`](cross-product-worked-examples.md) when a new example applies beyond one product pack.
+11. Run repository checks for relative links, narrow preparation-only wording, unsupported brand references, and whitespace.
 
 ## Minimum Quality Bar
 

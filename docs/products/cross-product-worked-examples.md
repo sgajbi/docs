@@ -542,6 +542,205 @@ Daily TWR = (1 + 2.00%) x (1 + 0.4464%) - 1 = 2.4553%
 | QA | Validate lineage from model target to proposal/trade/post-trade state and confirm blocked evidence remains visible. |
 | Boundary | Do not reconstruct missing fills, settlement, client communication, or external execution status from internal rebalance evidence. |
 
+## Example 19: Bond Downgrade And Collateral Haircut Change
+
+| Dimension | Example |
+|---|---|
+| Product families | Bonds; loans, Lombard, margin and collateral; risk reporting |
+| Client objective | Hold an income bond that is also pledged as collateral. |
+| Product terms | USD 500,000 nominal corporate bond; market value USD 480,000; current collateral haircut 30 percent; issuer downgraded below eligible collateral threshold. |
+| Key distinction | A credit event can affect valuation, risk classification, mandate eligibility, and collateral availability at the same time. |
+
+### Lifecycle And Calculations
+
+| Event | Treatment |
+|---|---|
+| Rating downgrade | Update issuer/rating, credit bucket, mandate status, and collateral eligibility. |
+| Price update | Revalue bond using approved price source and stale-state rules. |
+| Haircut change | Recalculate lending value or mark collateral ineligible if threshold is breached. |
+| Margin review | Compare updated lending value to loan exposure and generate shortfall if needed. |
+
+```text
+Old lending value = 480,000 x (1 - 30%) = 336,000
+If new haircut = 55%, new lending value = 480,000 x (1 - 55%) = 216,000
+Availability impact = 120,000 reduction before other facility constraints
+```
+
+### Reporting And QA
+
+| Area | Expected treatment |
+|---|---|
+| Advisory | Explain credit deterioration, price risk, income uncertainty, and collateral impact. |
+| DPM/mandate | Check rating floor, issuer concentration, income mandate eligibility, and forced rebalance or exception workflow. |
+| Reporting | Show rating, price date, yield basis, collateral value, haircut, lending value, and breach/shortfall state. |
+| QA | Validate rating effective date, price source, haircut rule, pledged quantity, exposure, and margin-call trigger. |
+| Boundary | Do not continue using old lending value after a source-backed downgrade or collateral-policy change. |
+
+## Example 20: Fund Cut-Off, Stale NAV And Partial Redemption
+
+| Dimension | Example |
+|---|---|
+| Product families | Funds; cash; portfolio construction; reporting |
+| Client objective | Raise cash from a fund redemption for a planned rebalance. |
+| Product terms | Fund deals weekly; order cut-off Monday 12:00; client submits after cut-off; latest NAV is five business days old; fund confirms only 60 percent redemption due to liquidity management. |
+| Key distinction | Order request, accepted order, dealing NAV, confirmed redemption, and settlement cash are separate states. |
+
+### Workflow
+
+| Step | Expected treatment |
+|---|---|
+| Order submitted after cut-off | Assign next eligible dealing date, not current dealing date. |
+| NAV stale | Mark valuation and drift as stale or partial until updated NAV is sourced. |
+| Partial confirmation | Reduce units only for confirmed portion where booking policy permits. |
+| Settlement | Cash becomes available only on settlement date and currency. |
+
+### Reporting And QA
+
+| Area | Expected treatment |
+|---|---|
+| Advisory | Explain liquidity timing, stale valuation, possible gates/partial fills, and funding uncertainty. |
+| DPM/mandate | Treat rebalance funding as pending liquidity, not executable cash. |
+| Reporting | Show requested, accepted, confirmed, pending, settled, NAV date, and settlement date. |
+| QA | Validate cut-off calendar, stale NAV flag, partial redemption units, cash projection, and blocked funding. |
+| Boundary | Do not use requested redemption amount as available cash. |
+
+## Example 21: Rights Issue With Entitlement And Cost Basis
+
+| Dimension | Example |
+|---|---|
+| Product families | Equities; tax reporting; advisory; DPM |
+| Client objective | Decide whether to exercise rights on an existing equity holding. |
+| Product terms | Client owns 1,000 shares; rights issue grants 1 right for every 5 shares; 1 right plus SGD 3.00 subscribes for 1 new share; market price is SGD 4.20. |
+| Key distinction | A corporate action can create an entitlement, a decision deadline, cash funding need, and tax/cost-basis effect. |
+
+### Calculations
+
+```text
+Rights received = 1,000 / 5 = 200 rights
+Subscription cash required = 200 x 3.00 = SGD 600
+New shares if exercised = 200
+Total shares after exercise = 1,200
+```
+
+### Reporting And QA
+
+| Area | Expected treatment |
+|---|---|
+| Advisory | Explain dilution, subscription cost, deadline, funding, and alternatives such as sell rights or lapse. |
+| DPM/mandate | Check authority, cash availability, single-name limit, and model drift after exercise. |
+| Reporting | Show entitlement, election status, deadline, required cash, resulting shares, and cost-basis policy. |
+| QA | Validate entitlement ratio, fractional treatment, election deadline, cash reservation, resulting quantity, and cost basis. |
+| Boundary | Do not book new shares before election and allocation are confirmed. |
+
+## Example 22: Futures Variation Margin And Notional Exposure
+
+| Dimension | Example |
+|---|---|
+| Product families | Derivatives; commodities; cash; risk |
+| Client objective | Use futures for tactical commodity exposure. |
+| Product terms | Long 2 futures contracts; contract multiplier 1,000 barrels; prior settlement USD 80; current settlement USD 82. |
+| Key distinction | Daily variation margin changes cash, but notional exposure remains based on contract terms. |
+
+### Calculations
+
+```text
+Notional exposure = 2 x 1,000 x 82 = USD 164,000
+Variation margin = (82 - 80) x 1,000 x 2 = USD 4,000 cash inflow
+```
+
+### Reporting And QA
+
+| Area | Expected treatment |
+|---|---|
+| Advisory | Explain leverage, margin, expiry, roll risk, and commodity price volatility. |
+| DPM/mandate | Check derivative permission, notional exposure, margin availability, and concentration limits. |
+| Reporting | Show notional, market value/MTM, margin cash, realized daily P&L, expiry, and underlying exposure. |
+| QA | Validate multiplier, contract count, settlement price, cash movement, notional exposure, and expiry handling. |
+| Boundary | Do not use margin cash balance as the measure of commodity exposure. |
+
+## Example 23: Structured Product Scenario With Missing Observation
+
+| Dimension | Example |
+|---|---|
+| Product families | Structured products; structured notes; reporting; QA |
+| Client objective | Review an autocallable note before the next observation date. |
+| Product terms | Note has quarterly autocall and coupon observations; latest underlying price is available but issuer observation result is missing. |
+| Key distinction | Market data can support an indicative view, but the lifecycle event is not confirmed until the observation result is sourced. |
+
+### Treatment
+
+| View | Expected state |
+|---|---|
+| Indicative scenario | Can show illustrative barrier distance and possible outcome with clear source date. |
+| Confirmed coupon/autocall | Must remain pending until issuer/custodian/source notice confirms observation result. |
+| Reporting | Should separate indicative scenario from confirmed cashflow or redemption. |
+
+### Reporting And QA
+
+| Area | Expected treatment |
+|---|---|
+| Advisory | Explain conditionality, issuer confirmation dependency, liquidity limits, and worst-case outcome. |
+| DPM/mandate | Keep replacement trade or reinvestment action pending until autocall/redemption is confirmed. |
+| Reporting | Show next observation, indicative barrier distance, pending confirmation, and unsupported confirmed-cashflow state. |
+| QA | Validate missing observation behavior, no premature coupon booking, no premature redemption, and scenario label. |
+| Boundary | Do not book coupon, autocall redemption, or delivered assets from indicative market data alone. |
+
+## Example 24: Private-Market NAV Restatement
+
+| Dimension | Example |
+|---|---|
+| Product families | Private markets; performance; reporting; operations |
+| Client objective | Correct historical reporting after a manager restates prior-quarter NAV. |
+| Product terms | Q1 NAV was reported as USD 950,000 and later restated to USD 910,000; Q2 report and trailing performance already consumed the old NAV. |
+| Key distinction | Restatement should preserve prior report lineage and trigger controlled recalculation, not silent overwrite. |
+
+### Workflow
+
+| Step | Expected treatment |
+|---|---|
+| Receive restatement | Store old NAV, new NAV, source notice, received date, effective valuation date, and reason where available. |
+| Recalculate | Recompute affected market value, allocation, contribution, IRR/MWR where methodology allows. |
+| Report | Mark revised figures and disclose restatement where reporting policy requires. |
+| Audit | Preserve prior report snapshot and recalculation lineage. |
+
+### Reporting And QA
+
+| Area | Expected treatment |
+|---|---|
+| Advisory | Explain valuation lag, uncertainty, and why historical figures changed. |
+| DPM/mandate | Reassess allocation, liquidity planning, and unfunded commitment if thresholds changed. |
+| Reporting | Show restated NAV, valuation date, received date, prior value, and affected calculations. |
+| QA | Validate restatement lineage, recalculation scope, stale report handling, and unchanged unrelated periods. |
+| Boundary | Do not overwrite prior NAV without audit trail and recalculation evidence. |
+
+## Example 25: Family Office Consolidated Reporting With Authority Limits
+
+| Dimension | Example |
+|---|---|
+| Product families | Trusts, estate planning, family office, wealth structuring; reporting; advisory |
+| Client objective | Produce a consolidated family report across individual, trust, holding-company, and policy-owned assets. |
+| Product terms | One beneficiary can view trust distributions but not full trustee investment records; one holding company pledges shares to a credit facility; one policy has restricted beneficiary data. |
+| Key distinction | Reporting perimeter is not the same as legal ownership or access authority. |
+
+### Treatment
+
+| Area | Expected treatment |
+|---|---|
+| Ownership | Separate legal owner, beneficial owner, controller, trustee, director, policyholder, insured, and beneficiary roles. |
+| Access | Apply role-based visibility and restricted-data rules by entity, account, document, and report section. |
+| Exposure | Consolidate where authorized while preserving entity-level source and pledge restrictions. |
+| Reporting | Show consolidation basis, omitted/restricted sections, source dates, and authority caveats. |
+
+### Reporting And QA
+
+| Area | Expected treatment |
+|---|---|
+| Advisory | Explain consolidated view limits, authority, fiduciary roles, pledge constraints, and restricted information. |
+| DPM/mandate | Avoid trading or rebalancing across entities without proper authority and mandate scope. |
+| Reporting | Show entity hierarchy, included accounts, excluded/restricted sections, pledge state, and report audience. |
+| QA | Validate access permissions, beneficial-owner mapping, pledge propagation, policy data restriction, and export controls. |
+| Boundary | Do not expose restricted trust, policy, or holding-company data merely because it is part of a family consolidation. |
+
 ## Example Template
 
 Use this structure when adding deeper examples to product packs:

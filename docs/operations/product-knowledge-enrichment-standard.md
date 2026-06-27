@@ -117,6 +117,10 @@ It defines the required review dimensions for:
 Use the rubric to turn imported content into a stronger long-term knowledge base without turning
 the product docs into branded product marketing.
 
+When implementation evidence is useful, translate it through
+[`../products/implementation-backed-capability-map.md`](../products/implementation-backed-capability-map.md)
+so the product docs stay platform-aware, evidence-aware, and non-branded.
+
 ## Ongoing Improvement Principle
 
 Every new product pack should make the repository more useful than a folder of imported notes.

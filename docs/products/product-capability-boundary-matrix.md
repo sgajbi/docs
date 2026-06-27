@@ -2,7 +2,7 @@
 
 This matrix helps decide whether a product feature can be supported through a generic portfolio platform capability or needs product-specific implementation, source ownership, calculations, controls, and QA.
 
-Use it when writing requirements, reviewing API scope, designing UI states, planning product roadmap, preparing QA scenarios, or deciding whether a feature should be marked supported, partial, source-limited, or unsupported.
+Use it when writing requirements, reviewing API scope, designing UI states, planning product roadmap, preparing QA scenarios, or deciding whether a feature should be marked supported, partial, source-limited, or unsupported. For a neutral map of implementation-backed capability areas and future candidates, use [`implementation-backed-capability-map.md`](implementation-backed-capability-map.md).
 
 ## Support Classification
 
