@@ -5757,6 +5757,249 @@ revised_unrecovered_claim = 9,600 - 4,000 = 5,600
 | Revised unrecovered claim remains | Claim case stays open with updated amount. |
 | Performance report is generated | Reversal is excluded from bond market return and coupon income. |
 
+## Example 148. Call Election Reinstatement Duplicate Suppression
+
+### Scenario
+
+A callable bond election was corrected, rejected and then reinstated by the custodian. A second reinstatement file with the same event id arrives the next day. The platform must suppress the duplicate while preserving both source files for audit.
+
+| Attribute | Value |
+|---|---:|
+| Original elected nominal | 1,000,000 |
+| Accepted reinstated nominal | 400,000 |
+| Duplicate reinstatement nominal | 400,000 |
+| Existing reinstatement event count | 1 |
+
+### Duplicate suppression
+
+```text
+duplicate_reinstatement_nominal = duplicate_reinstatement_nominal if source_event_id_already_processed else 0
+duplicate_reinstatement_nominal = 400,000
+
+additional_redemption_cash = 0 when source_event_id_already_processed
+additional_redemption_cash = 0
+```
+
+### Correct treatment
+
+- preserve both reinstatement files, source event id, prior correction, accepted nominal and processing decision;
+- suppress duplicate cash, position and tax-lot events when the reinstatement source id is already active;
+- keep duplicate source evidence linked for audit and source-quality review;
+- report the active reinstatement once, with duplicate-suppression status where operationally relevant;
+- alert operations when duplicate files arrive outside normal source retry patterns.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Duplicate reinstatement source id arrives | No second redemption cash or position event is created. |
+| Duplicate nominal differs from active event | Exception workflow opens for source investigation. |
+| Audit report is generated | Active and suppressed source files are traceable. |
+| Client report is generated | Reinstatement appears once. |
+
+## Example 149. Escrow Reversal Tax-Lot Impact
+
+### Scenario
+
+An escrow valuation-lag remediation reversal also changes the tax-lot treatment of a municipal bond because the provisional remediation had been allocated to specific tax lots. The platform must reverse lot-level basis adjustments without changing settled bond holdings.
+
+| Attribute | Value |
+|---|---:|
+| Provisional remediation allocated to Lot A | 72,000 |
+| Provisional remediation allocated to Lot B | 48,000 |
+| Total remediation reversal | 120,000 |
+| Holding nominal unchanged | 2,000,000 |
+
+### Lot reversal
+
+```text
+lot_a_basis_reversal = provisional_remediation_allocated_to_lot_a
+lot_a_basis_reversal = 72,000
+
+lot_b_basis_reversal = provisional_remediation_allocated_to_lot_b
+lot_b_basis_reversal = 48,000
+
+total_lot_basis_reversal = lot_a_basis_reversal + lot_b_basis_reversal
+total_lot_basis_reversal = 72,000 + 48,000 = 120,000
+```
+
+### Correct treatment
+
+- preserve original tax-lot allocation, trustee escrow evidence, refreshed valuation source and reversal approval;
+- reverse lot-level basis adjustments according to original allocation lineage;
+- keep nominal position, legal escrow substitution and settlement cash unchanged;
+- recalculate realized-gain and tax reporting projections from corrected lot basis;
+- block amended tax output when lot allocation evidence is missing.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Remediation reversal posts | Lot-level basis adjustments reverse by original allocation. |
+| Holding nominal is checked | Nominal remains unchanged. |
+| Lot evidence is missing | Tax-lot reversal is blocked or routed for review. |
+| Tax report is generated | Corrected basis and reversal lineage are visible. |
+
+## Example 150. ABS Amended Statement Delivery Reversal
+
+### Scenario
+
+An ABS amended statement was generated and delivered, but the trustee later withdraws the amended tax notice. The platform must reverse the amended-statement delivery state, restore the prior active statement and preserve client communication evidence.
+
+| Attribute | Value |
+|---|---:|
+| Corrected interest in amended statement | 220,000 |
+| Return of capital in amended statement | 95,000 |
+| Trustee withdrawal amount affected | 315,000 |
+| Client delivery batches impacted | 2 |
+
+### Delivery reversal
+
+```text
+statement_amount_reverted = corrected_interest_in_amended_statement + return_of_capital_in_amended_statement
+statement_amount_reverted = 220,000 + 95,000 = 315,000
+
+active_delivery_batch_count_after_reversal = 0
+active_delivery_batch_count_after_reversal = 0
+```
+
+### Correct treatment
+
+- preserve amended statement, trustee withdrawal notice, delivery batches, client communication evidence and restored statement version;
+- reverse active amended-statement status without deleting the delivered document record;
+- restore the prior statement as active only when policy and source evidence allow it;
+- issue correction or withdrawal communication where client delivery already occurred;
+- keep cash receipt unchanged unless trustee cash correction also arrives.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Trustee withdraws amended notice | Amended statement is no longer active. |
+| Client already received amended statement | Withdrawal/correction communication workflow opens. |
+| Prior statement can be restored | Prior active statement is reinstated with lineage. |
+| Cash report is generated | Cash remains unchanged absent trustee cash correction. |
+
+## Example 151. Sovereign Warrant Settlement Correction Notice
+
+### Scenario
+
+A sovereign warrant appeal settlement is corrected after publication because the settlement notice used the wrong accelerated value. The platform must issue a correction notice, revalue the warrant and keep the prior client explanation traceable.
+
+| Attribute | Value |
+|---|---:|
+| Originally settled accelerated value | 310,000 |
+| Corrected settlement value | 335,000 |
+| Prior reinstated scenario value | 480,000 |
+| Notice materiality threshold | 10,000 |
+
+### Correction impact
+
+```text
+settlement_correction_delta = corrected_settlement_value - originally_settled_accelerated_value
+settlement_correction_delta = 335,000 - 310,000 = 25,000
+
+remaining_scenario_gap = prior_reinstated_scenario_value - corrected_settlement_value
+remaining_scenario_gap = 480,000 - 335,000 = 145,000
+```
+
+### Correct treatment
+
+- preserve original settlement, correction notice, valuation run, client explanation and approval evidence;
+- update official valuation from corrected settlement source rather than scenario assumptions;
+- issue a client-facing correction notice when material and previously reported;
+- keep prior scenario analytics available for explanation but inactive for official valuation;
+- recalculate performance attribution as correction/restatement, not market movement.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Corrected settlement value arrives | Official valuation updates from corrected source. |
+| Correction exceeds threshold | Client notice workflow is triggered. |
+| Prior explanation exists | Prior and corrected explanations are linked. |
+| Performance report is generated | Delta is labelled as settlement correction. |
+
+## Example 152. Covered-Bond Waiver Renewal Denial
+
+### Scenario
+
+A covered-bond monitor asks to renew an expired monitoring SLA waiver, but the renewal is denied because required update files remain missing. The platform must keep escalation active and prevent the expired waiver from suppressing breaches.
+
+| Attribute | Value |
+|---|---:|
+| Missing monitoring updates | 2 |
+| Renewal request window days | 7 |
+| Days since renewal request | 3 |
+| Renewal approved | 0 |
+
+### Active breach count
+
+```text
+active_breach_updates = missing_monitoring_updates if renewal_approved = 0
+active_breach_updates = 2
+
+waiver_suppressed_updates = 0
+waiver_suppressed_updates = 0
+```
+
+### Correct treatment
+
+- preserve expired waiver, renewal request, denial reason, missing update files and escalation owner;
+- keep monitoring SLA breach active after renewal denial;
+- separate waiver status from covered-bond collateral sufficiency and issuer credit state;
+- alert risk, operations and portfolio oversight when renewal denial leaves updates unresolved;
+- require fresh source evidence before any renewed waiver can suppress future breaches.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Waiver renewal is denied | Breach remains active. |
+| Expired waiver exists | Expired waiver remains audit evidence only. |
+| Missing updates later arrive | Breach can close with source evidence. |
+| Risk dashboard is generated | Denied renewal and active missing updates are visible. |
+
+## Example 153. Private-Placement Compensation Clawback Appeal
+
+### Scenario
+
+A provider claws back part of a private-placement lock-up compensation settlement. The investor appeals the clawback with timestamp evidence. The platform must track appeal exposure without reversing transferability or overstating receivable cash.
+
+| Attribute | Value |
+|---|---:|
+| Provider clawback amount | 2,000 |
+| Appeal-supported amount | 1,500 |
+| Appeal filing fee | 100 |
+| Prior unrecovered claim | 5,600 |
+
+### Appeal exposure
+
+```text
+net_appeal_recovery_exposure = appeal_supported_amount - appeal_filing_fee
+net_appeal_recovery_exposure = 1,500 - 100 = 1,400
+
+unrecovered_claim_after_potential_appeal = prior_unrecovered_claim - net_appeal_recovery_exposure
+unrecovered_claim_after_potential_appeal = 5,600 - 1,400 = 4,200
+```
+
+### Correct treatment
+
+- preserve provider clawback, appeal filing, timestamp evidence, fee evidence and provider acknowledgement;
+- classify appeal exposure as pending evidence, not received compensation cash;
+- keep lock-up release and transferability unchanged unless source transfer terms change;
+- report appeal-supported amount separately from retained compensation and unrecovered claim;
+- close or reverse appeal exposure only on provider decision or appeal expiry.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Appeal is filed | Pending appeal exposure is created with evidence. |
+| Appeal fee is recorded | Net appeal exposure is reduced by fee. |
+| Provider has not accepted appeal | Cash receivable is not booked as settled. |
+| Client report is generated | Clawback, appeal and unrecovered claim are separate. |
+
 ## Implementation-backed capability lens
 
 When reviewing whether a platform truly supports bonds, use these evidence questions:
