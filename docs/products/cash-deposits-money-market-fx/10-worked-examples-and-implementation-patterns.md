@@ -5671,3 +5671,259 @@ new_cash_floor = 500,000 + 175,000 + 125,000 = 800,000
 | New floor is approved | Buying power and liquidity checks use new effective-dated floor. |
 | Historical reports are regenerated | Prior periods retain prior floor unless restatement is approved. |
 | Portfolio dashboard is generated | Old floor, reset reason, new floor and effective date are visible. |
+
+## Example 140. Sweep provider recovery claim
+
+### Scenario
+
+A sweep provider outage left cash in an operating account overnight. The provider later accepts partial responsibility and offers a recovery payment based on missed yield and documented operational cost. The platform must keep the recovery claim separate from investment income, cash yield and client contribution.
+
+| Attribute | Value |
+|---|---:|
+| Eligible unswept cash | 3,400,000 |
+| Missed yield rate | 0.012% |
+| Outage days | 2 |
+| Approved operational cost recovery | 350 |
+| Provider recovery received | 1,050 |
+
+### Recovery claim
+
+```text
+missed_yield_claim = eligible_unswept_cash x missed_yield_rate x outage_days
+missed_yield_claim = 3,400,000 x 0.012% x 2 = 816
+
+total_recovery_claim = missed_yield_claim + approved_operational_cost_recovery
+total_recovery_claim = 816 + 350 = 1,166
+
+unrecovered_claim = total_recovery_claim - provider_recovery_received
+unrecovered_claim = 1,166 - 1,050 = 116
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve outage notice, scheduled sweep file, unswept amount, claim calculation, provider response and settlement evidence. |
+| Cash | Book only settled recovery as cash; keep unresolved claim balance separate. |
+| Performance | Do not classify recovery as portfolio yield, investment income or external contribution. |
+| Reporting | Explain recovery as operational compensation linked to the provider outage. |
+| Controls | Require approval when provider recovery differs from calculated claim. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Recovery is received | Cash posting links to original outage case. |
+| Recovery is below calculated claim | Unrecovered claim remains open with reason. |
+| Recovery is above calculated claim | Excess is blocked for investigation. |
+| Client report is generated | Operational recovery is not included in money-market yield. |
+
+## Example 141. Deposit insurer beneficiary hierarchy dispute
+
+### Scenario
+
+A failed bank payout is delayed because the deposit insurer disputes the beneficiary hierarchy for a trust and joint-account structure. The platform must separate confirmed insured cash, disputed beneficiary allocation and unprotected exposure.
+
+| Attribute | Value |
+|---|---:|
+| Estimated insured balance | 250,000 |
+| Confirmed primary beneficiary payout | 150,000 |
+| Disputed beneficiary amount | 80,000 |
+| Unprotected excess | 20,000 |
+
+### Disputed allocation
+
+```text
+unresolved_insured_amount = estimated_insured_balance - confirmed_primary_beneficiary_payout
+unresolved_insured_amount = 250,000 - 150,000 = 100,000
+
+beneficiary_hierarchy_dispute = disputed_beneficiary_amount
+beneficiary_hierarchy_dispute = 80,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve account structure, beneficiary records, trust or joint-account evidence, insurer correspondence and payout file. |
+| Cash | Book confirmed payout only; disputed allocation remains a claim or receivable state. |
+| Advisory | Alert relationship owner when payout timing affects liquidity or client communication. |
+| Reporting | Label disputed insured amount separately from unprotected excess. |
+| Controls | Require legal, operations or policy review before reallocating disputed beneficiary proceeds. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Primary beneficiary payout is confirmed | Confirmed amount becomes cash. |
+| Hierarchy dispute remains open | Disputed amount is not available cash. |
+| Beneficiary evidence changes | Reallocation creates an auditable correction. |
+| Statement is produced | Confirmed, disputed and unprotected amounts are separately labelled. |
+
+## Example 142. FX hedge audit exception remediation
+
+### Scenario
+
+An audit finds that a prior FX hedge allocation used an outdated policy weight. The remediation must calculate the correction, route approval and distinguish the correction from market FX performance.
+
+| Attribute | Value |
+|---|---:|
+| Original allocated hedge cost | 42,500 |
+| Correct policy allocation | 39,800 |
+| Prior reversal already booked | 1,000 |
+| Materiality threshold | 500 |
+
+### Remediation amount
+
+```text
+gross_allocation_exception = original_allocated_hedge_cost - correct_policy_allocation
+gross_allocation_exception = 42,500 - 39,800 = 2,700
+
+remaining_remediation_amount = gross_allocation_exception - prior_reversal_already_booked
+remaining_remediation_amount = 2,700 - 1,000 = 1,700
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve hedge ticket, policy version, audit sample, exception reason, recalculation and remediation approval. |
+| Performance | Keep remediation outside market FX gain/loss and hedge effectiveness analytics. |
+| Accounting | Post approved adjustment to the correct allocation period or correction ledger according to policy. |
+| Reporting | Explain client-visible adjustment as allocation remediation when material. |
+| Controls | Require remediation approval when remaining amount exceeds materiality threshold. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Remaining remediation exceeds threshold | Approval workflow is required. |
+| Policy version is missing | Remediation calculation is blocked. |
+| Adjustment is posted | Posting links to audit exception and recalculation evidence. |
+| Performance report is generated | Remediation is excluded from market FX P&L. |
+
+## Example 143. PSP reserve recovered-fee allocation
+
+### Scenario
+
+A payment-service provider releases reserve cash and recovered fees after a chargeback review. The platform must allocate recovered fees to the correct accounts and keep reserve release, fee recovery and write-off reversal separate.
+
+| Attribute | Value |
+|---|---:|
+| Provider reserve release | 75,000 |
+| Recovered fees included | 4,800 |
+| Account A fee allocation weight | 55% |
+| Account B fee allocation weight | 45% |
+
+### Fee allocation
+
+```text
+account_a_recovered_fee = recovered_fees_included x account_a_fee_allocation_weight
+account_a_recovered_fee = 4,800 x 55% = 2,640
+
+account_b_recovered_fee = recovered_fees_included x account_b_fee_allocation_weight
+account_b_recovered_fee = 4,800 x 45% = 2,160
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve provider reserve statement, fee recovery notice, allocation policy, affected accounts and settlement reference. |
+| Cash | Book provider cash release only after settlement confirmation. |
+| Accounting | Separate reserve principal recovery, recovered fees and any write-off reversal. |
+| Reporting | Do not classify recovered PSP fees as client investment income or payment inflow. |
+| Controls | Reconcile allocation weights to 100% and block unresolved residuals. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Fee allocation weights sum to 100% | Recovered fees allocate without residual. |
+| Weights do not sum to 100% | Posting is blocked for repair. |
+| Reserve release settles | Cash posting links to provider statement. |
+| Client report is generated | Fee recovery is labelled separately from cash activity. |
+
+## Example 144. Projected-cash acknowledgement waiver expiry
+
+### Scenario
+
+An advisor received a temporary waiver to proceed with an order while a projected-cash warning acknowledgement was pending. The waiver expires before the order is executed. The platform must reopen the acknowledgement control instead of relying on stale waiver evidence.
+
+| Attribute | Value |
+|---|---:|
+| Projected cash shown | 1,250,000 |
+| Settled available cash | 880,000 |
+| Waiver valid days | 3 |
+| Days since waiver approval | 5 |
+
+### Expired waiver exposure
+
+```text
+projected_cash_gap = projected_cash_shown - settled_available_cash
+projected_cash_gap = 1,250,000 - 880,000 = 370,000
+
+waiver_days_expired = days_since_waiver_approval - waiver_valid_days
+waiver_days_expired = 5 - 3 = 2
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve warning, delivery evidence, waiver approval, waiver expiry, order id and acknowledgement owner. |
+| Advisory and DPM | Reopen approval or acknowledgement requirement when waiver expires before execution. |
+| Cash | Do not allow projected cash to replace settled cash after waiver expiry. |
+| Reporting | Show waiver-expired state separately from acknowledged or active-waiver states. |
+| Controls | Require new approval, acknowledgement or order cancellation after expiry. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Waiver expires before order execution | Order returns to blocked or routed state. |
+| Advisor acknowledges after expiry | Control closes with new acknowledgement timestamp. |
+| New waiver is approved | New waiver carries fresh expiry and approver. |
+| Dashboard is generated | Active, expired and acknowledged states are distinct. |
+
+## Example 145. Liquidity floor model drift revalidation
+
+### Scenario
+
+A liquidity-floor model has not been revalidated after client spending behaviour changed. The observed shortfall is larger than the model buffer, so mandate liquidity controls need revalidation before new discretionary orders rely on the old floor.
+
+| Attribute | Value |
+|---|---:|
+| Model cash floor | 800,000 |
+| Observed required liquidity | 950,000 |
+| Model buffer | 75,000 |
+| Revalidation threshold | 50,000 |
+
+### Drift amount
+
+```text
+model_floor_shortfall = observed_required_liquidity - model_cash_floor
+model_floor_shortfall = 950,000 - 800,000 = 150,000
+
+uncovered_drift = model_floor_shortfall - model_buffer
+uncovered_drift = 150,000 - 75,000 = 75,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve model version, spending observations, stress assumptions, buffer policy, revalidation owner and effective date. |
+| Portfolio construction | Use current approved floor until revalidation approves a replacement floor. |
+| Advisory and DPM | Route orders when uncovered drift exceeds threshold and affects liquidity suitability. |
+| Reporting | Explain model revalidation status without restating historical cash floors unless approved. |
+| Controls | Require model-owner sign-off before updated floor drives buying power or mandate compliance. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Uncovered drift exceeds threshold | Revalidation task is opened. |
+| Model is not revalidated | Old floor remains active but flagged as under review. |
+| New floor is approved | Effective-dated floor updates liquidity and buying-power checks. |
+| Historical report is generated | Prior floor remains unless restatement is explicitly approved. |
