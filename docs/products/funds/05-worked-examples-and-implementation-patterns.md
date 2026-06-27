@@ -4490,3 +4490,234 @@ residual_after_facility_repayment = 2,250,000 - 2,015,000 = 235,000
 | Proceeds are insufficient | Facility principal, interest and investor residual are prioritized by terms. |
 | Interest calculation changes | Repayment due recalculates from source rate and days. |
 | Liquidity report is generated | Proceeds, repayment, residual cash and remaining investor gap reconcile. |
+
+## Example 122. Fund Vote Exception Acceptance Dispute
+
+### Scenario
+
+A fund vote instruction misses the standard custodian cut-off, but the transfer agent accepts it under an exception. A later operations review disputes whether the exception was valid because acceptance arrived after internal escalation had already closed the case as missed.
+
+| Attribute | Value |
+|---|---:|
+| Eligible units | 48,000 |
+| Late submitted units | 48,000 |
+| Exception-accepted units | 35,000 |
+| Disputed accepted units | 13,000 |
+
+### Accepted-vote coverage
+
+```text
+accepted_vote_coverage = exception_accepted_units / late_submitted_units
+accepted_vote_coverage = 35,000 / 48,000 = 72.92%
+
+disputed_vote_units = late_submitted_units - exception_accepted_units
+disputed_vote_units = 48,000 - 35,000 = 13,000
+```
+
+### Correct treatment
+
+- preserve original vote notice, custodian cut-off, late instruction, transfer-agent acceptance, dispute reason and final vote status;
+- distinguish late-submitted, exception-accepted and disputed units;
+- avoid reopening voting status solely from internal escalation notes without source acceptance;
+- show accepted and disputed units separately in operations and client explanations where material;
+- retain exception approval evidence for future voting control reviews.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Transfer agent accepts only part of late vote | Accepted and disputed units are separated. |
+| Internal case had closed as missed | Source acceptance can reopen only accepted units. |
+| Dispute remains open | Disputed units are not counted as accepted. |
+| Vote report is generated | Eligible, late, accepted and disputed units reconcile. |
+
+## Example 123. ETF Basket Proxy Expiry Renewal
+
+### Scenario
+
+An ETF fair-value proxy was approved during a market disruption. The proxy expires before normal pricing resumes, and the valuation committee renews it for only part of the basket.
+
+| Attribute | Value |
+|---|---:|
+| Basket value under proxy review | 18,000,000 |
+| Proxy coverage before expiry | 15,750,000 |
+| Proxy coverage renewed | 12,600,000 |
+| Proxy coverage expired | 3,150,000 |
+
+### Renewed proxy coverage
+
+```text
+renewed_proxy_ratio = proxy_coverage_renewed / basket_value_under_proxy_review
+renewed_proxy_ratio = 12,600,000 / 18,000,000 = 70.00%
+
+expired_proxy_value = proxy_coverage_before_expiry - proxy_coverage_renewed
+expired_proxy_value = 15,750,000 - 12,600,000 = 3,150,000
+```
+
+### Correct treatment
+
+- retain original proxy approval, expiry time, renewal decision, unresolved basket securities and committee sign-off;
+- label renewed and expired proxy coverage separately;
+- block normal indicative-value publication when material basket exposure lacks current proxy or price evidence;
+- avoid carrying expired proxy values forward without renewal;
+- show proxy expiry and renewal status in valuation and ETF operations reporting.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Proxy expires | Expired proxy coverage is no longer treated as approved. |
+| Renewal covers only part of basket | Renewed and expired coverage values are distinct. |
+| Price source resumes | Proxy state closes from refreshed price evidence. |
+| ETF report is generated | Proxy approval, expiry and renewal status are visible. |
+
+## Example 124. MFN Election Retroactive Fee Adjustment
+
+### Scenario
+
+A private-fund MFN election is accepted with a retroactive effective date. The administrator issues a corrected fee statement that reduces prior management fees. The adjustment must be separated from distributions and capital activity.
+
+| Attribute | Value |
+|---|---:|
+| Commitment | 5,000,000 |
+| Original annual fee rate | 1.50% |
+| Retroactive MFN fee rate | 1.25% |
+| Retroactive days | 120 |
+
+### Retroactive fee adjustment
+
+```text
+retroactive_fee_adjustment = commitment x (original_fee_rate - retroactive_mfn_fee_rate) x retroactive_days / 360
+retroactive_fee_adjustment = 5,000,000 x (1.50% - 1.25%) x 120 / 360 = 4,166.67
+```
+
+### Correct treatment
+
+- preserve MFN offer, eligibility evidence, accepted election, retroactive effective date, corrected administrator statement and approval;
+- treat the adjustment as fee remediation, not a distribution, capital call reduction or investment return;
+- update fee accruals and investor reporting for affected periods according to policy;
+- prevent retroactive adjustment for investors without accepted MFN eligibility;
+- reconcile original fee, corrected fee and adjustment cash or receivable.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Retroactive date is accepted | Prior-period fee adjustment is calculated. |
+| Retroactive authority is missing | Adjustment is blocked or labelled provisional. |
+| Cash settlement is pending | Adjustment remains receivable, not settled cash. |
+| Fee report is generated | Original rate, elected rate, retroactive days and adjustment reconcile. |
+
+## Example 125. Expense-Cap Retroactive Approval Restatement
+
+### Scenario
+
+A fund board renews an expense cap after expiry and explicitly makes the renewal retroactive to the expiry date. The platform must restate gap-period expense accruals and preserve board approval evidence.
+
+| Attribute | Value |
+|---|---:|
+| Fund NAV | 220,000,000 |
+| Gross expense rate | 0.96% |
+| Approved cap rate | 0.85% |
+| Retroactive gap days | 12 |
+
+### Expense restatement
+
+```text
+retroactive_expense_restatement = fund_nav x (gross_expense_rate - approved_cap_rate) x retroactive_gap_days / 365
+retroactive_expense_restatement = 220,000,000 x (0.96% - 0.85%) x 12 / 365 = 7,956.16
+```
+
+### Correct treatment
+
+- retain prior cap, expiry date, board renewal, retroactive approval wording, administrator accrual and restatement approval;
+- reverse or adjust gap-period accruals only for the retroactively approved period;
+- keep gross expense, capped expense and restatement amount separately traceable;
+- disclose material restatement impact according to fund reporting policy;
+- avoid applying retroactivity beyond the approved effective date.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Retroactive approval is explicit | Gap-period accrual is restated. |
+| Approval is not retroactive | Gap period remains under prior policy treatment. |
+| Restatement exceeds threshold | Review or disclosure workflow is triggered. |
+| Expense report is generated | Gross, capped and restated expense amounts reconcile. |
+
+## Example 126. UCITS Cure Trade Capacity Shortfall
+
+### Scenario
+
+A UCITS active breach requires a cure trade, but available market capacity is insufficient to cure the full breach without creating a liquidity or concentration issue. The platform must track partial cure and residual breach.
+
+| Attribute | Value |
+|---|---:|
+| Active breach excess | 1,100,000 |
+| Available compliant trade capacity | 650,000 |
+| Residual breach after cure | 450,000 |
+| Cure deadline days remaining | 5 |
+
+### Residual breach
+
+```text
+residual_breach_after_cure = active_breach_excess - available_compliant_trade_capacity
+residual_breach_after_cure = 1,100,000 - 650,000 = 450,000
+```
+
+### Correct treatment
+
+- retain breach register, proposed cure trades, market liquidity evidence, capacity constraint, compliance approval and residual cure plan;
+- execute or recommend only trades that do not worsen another mandate or regulatory limit;
+- show partial cure, residual breach and deadline together;
+- escalate residual breach before cure deadline expires;
+- avoid marking breach cured because the maximum available compliant trade was executed.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Capacity is below breach amount | Residual breach remains open. |
+| Proposed trade worsens another limit | Trade is blocked or escalated. |
+| Additional capacity appears | Residual cure plan recalculates from fresh source evidence. |
+| Compliance report is generated | Breach, capacity, partial cure and residual amount are visible. |
+
+## Example 127. Feeder Facility Interest Allocation Dispute
+
+### Scenario
+
+A feeder fund repaid an emergency facility, but investors dispute how accrued facility interest was allocated between redeeming and remaining investors. The platform must allocate interest according to fund terms and preserve the disputed residual.
+
+| Attribute | Value |
+|---|---:|
+| Accrued facility interest | 15,000 |
+| Redeeming investor allocation weight | 70% |
+| Remaining investor allocation weight | 30% |
+| Disputed interest amount | 2,250 |
+
+### Interest allocation
+
+```text
+redeeming_investor_interest_allocation = accrued_facility_interest x redeeming_investor_allocation_weight
+redeeming_investor_interest_allocation = 15,000 x 70% = 10,500
+
+remaining_investor_interest_allocation = accrued_facility_interest x remaining_investor_allocation_weight
+remaining_investor_interest_allocation = 15,000 x 30% = 4,500
+```
+
+### Correct treatment
+
+- preserve facility agreement, interest calculation, allocation policy, investor class or queue status, dispute reason and approval;
+- keep facility interest allocation separate from redemption proceeds and fund expenses;
+- hold disputed interest as unresolved until administrator or governing body confirms allocation;
+- prevent investor statements from showing disputed allocation as final;
+- reconcile allocated interest to total accrued facility interest.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Allocation weights sum to 100% | Interest allocation reconciles to accrued interest. |
+| Investor dispute remains open | Disputed amount is labelled unresolved. |
+| Administrator confirms allocation | Final allocation updates with source evidence. |
+| Liquidity report is generated | Principal repayment, interest allocation and disputed residual are separate. |
