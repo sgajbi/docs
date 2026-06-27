@@ -47,3 +47,5 @@ After importing a product pack, consider whether it needs:
 10. a disclaimer when content touches investing, tax, legal, regulation, or advice.
 
 Do not force every enhancement into the imported source file. Prefer separate maps and references when the knowledge applies across products.
+
+For the full standard, use [`product-knowledge-enrichment-standard.md`](product-knowledge-enrichment-standard.md).

@@ -34,14 +34,16 @@ This repo is organized so new document sets can be added without turning the roo
 | [`docs/products/pooled-investment-products.md`](docs/products/pooled-investment-products.md) | Product and platform-design map for funds, ETFs, fund of funds, hedge funds, and private market funds. |
 | [`docs/reference/private-banking-platform-knowledge-map.md`](docs/reference/private-banking-platform-knowledge-map.md) | Reusable checklist for applying product knowledge to APIs, UI, docs, QA, and source-ownership decisions. |
 | [`docs/reference/wealth-product-framework/`](docs/reference/wealth-product-framework/README.md) | Cross-product canonical position, transaction, advisory, mandate, analytics, reporting, and knowledge-base quality framework. |
+| [`docs/products/product-knowledge-coverage-matrix.md`](docs/products/product-knowledge-coverage-matrix.md) | Coverage and enrichment roadmap for the product library. |
 
 ## Adding New Material
 
 1. Decide the category first: product, prompt, reference, or operations.
 2. Create a folder with a stable lowercase slug, for example `docs/products/private-markets/`.
 3. Add a local `README.md` that explains purpose, audience, reading order, and source provenance.
-4. Update the closest index file and this root README.
-5. Keep draft, temporary, and personal scratch files out of versioned content.
+4. Add enrichment where useful: modelling distinctions, source ownership, API/UI implications, QA scenarios, controls, and stakeholder explanations.
+5. Update the closest index file, the product coverage matrix, and this root README.
+6. Keep draft, temporary, and personal scratch files out of versioned content.
 
 ## Naming Rules
 

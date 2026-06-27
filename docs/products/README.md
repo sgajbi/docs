@@ -22,6 +22,7 @@ Each product family should have its own folder with a local `README.md`, a clear
 | [`direct-equities-and-market-operations.md`](direct-equities-and-market-operations.md) | Captures reusable platform-design distinctions for direct equities, trading, corporate actions, P&L, risk, and market operations. |
 | [`fixed-income-and-structured-products.md`](fixed-income-and-structured-products.md) | Compares bonds and structured notes and captures reusable platform-design distinctions across fixed income and structured products. |
 | [`pooled-investment-products.md`](pooled-investment-products.md) | Captures reusable platform-design distinctions for funds, ETFs, fund of funds, hedge funds, and private market funds. |
+| [`product-knowledge-coverage-matrix.md`](product-knowledge-coverage-matrix.md) | Tracks current product coverage, companion maps, and useful next enrichment areas. |
 
 ## Suggested Pack Structure
 

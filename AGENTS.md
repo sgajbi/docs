@@ -12,8 +12,19 @@ This repository is the source of truth for Sandeep's reusable documentation libr
 6. Add or update an index whenever a new document set is added.
 7. Prefer stable, lowercase, hyphenated file and folder names.
 8. Preserve source provenance for imported packs, including source folder, import date, and original purpose.
-9. Do not mix investment education, implementation design, and prompt engineering in one folder unless the document explicitly bridges those topics.
-10. Keep disclaimers clear when material touches investments, regulation, tax, legal, or client advice.
+9. Treat imported packs as the starting point, not the final product. Add professional enrichment where it improves project usefulness, including platform modelling notes, API/UI implications, QA scenarios, source-ownership questions, stakeholder explanations, and cross-product comparisons.
+10. Do not mix investment education, implementation design, and prompt engineering in one folder unless the document explicitly bridges those topics.
+11. Keep disclaimers clear when material touches investments, regulation, tax, legal, or client advice.
+
+## Product Knowledge Enrichment Rule
+
+When adding or updating product material:
+
+1. preserve the imported source content unless cleanup is required for professional tone, readability, broken links, or repository standards,
+2. add separate enrichment maps or companion sections when broader project guidance is useful,
+3. improve the material toward practical private-banking, portfolio-platform, advisory, reporting, API, UI, QA, and operating use,
+4. remove narrow preparation-only framing and use practitioner, stakeholder, project, or knowledge-base language,
+5. update the product coverage matrix when the product library gains a new area or an important gap is identified.
 
 ## Standard Product Pack Shape
 
