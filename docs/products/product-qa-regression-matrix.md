@@ -98,6 +98,12 @@ Before calling product support release-ready, verify:
 8. REIT treated as generic equity with no real-asset exposure.
 9. Structured product coupon booked before observation confirmation.
 10. Corporate action processed without entitlement or cost-basis impact.
+11. Floating-rate note accrual continues with a stale reset fixing.
+12. Treasury bills pledged into repo still counted as fully available liquidity.
+13. Fund redemption proceeds calculated from headline NAV after swing pricing or side-pocket restriction.
+14. Tender-offer election quantity booked before final acceptance and proration.
+15. Participating-policy projected bonus treated as current accessible value.
+16. Structured deposit principal protection reported as current break value before maturity.
 
 ## Disclaimer
 

@@ -741,6 +741,190 @@ Variation margin = (82 - 80) x 1,000 x 2 = USD 4,000 cash inflow
 | QA | Validate access permissions, beneficial-owner mapping, pledge propagation, policy data restriction, and export controls. |
 | Boundary | Do not expose restricted trust, policy, or holding-company data merely because it is part of a family consolidation. |
 
+## Example 26: Floating-Rate Note Coupon Reset
+
+| Dimension | Example |
+|---|---|
+| Product families | Bonds; market data; performance; reporting |
+| Client objective | Hold a floating-rate note for income that adjusts with short-term rates. |
+| Product terms | USD 500,000 nominal FRN, quarterly coupon = 3-month SOFR + 120 bps, next reset on 2026-09-30, coupon floor 0 percent. |
+| Key distinction | Coupon income is not fixed for the full life of the bond; each reset depends on the fixing source, spread, reset date, day-count convention, and floor/cap terms. |
+
+### Reset Treatment
+
+| Step | Expected treatment |
+|---|---|
+| Before reset | Project coupon using current known fixing or clearly label estimate according to policy. |
+| Reset date | Source official fixing, apply spread, cap/floor and day-count convention. |
+| Accrual period | Accrue using reset coupon for the applicable period only. |
+| Pay date | Book coupon cash when confirmed and received. |
+
+### Calculation
+
+```text
+Reset coupon rate = max(0%, 3-month SOFR + 1.20%)
+If SOFR = 4.80%, reset coupon rate = 6.00%
+Quarterly coupon = 500,000 x 6.00% x 90 / 360 = USD 7,500
+```
+
+### Reporting And QA
+
+| Area | Expected treatment |
+|---|---|
+| Advisory | Explain income variability, reset lag, reference-rate risk, issuer credit risk and liquidity. |
+| DPM/mandate | Include in floating-rate or short-duration bucket where mandate taxonomy allows. |
+| Reporting | Show coupon basis, spread, last reset date, next reset date, current coupon, fixing source and accrual convention. |
+| QA | Validate fixing date, spread, floor/cap, day count, accrual start/end dates, stale fixing behavior and coupon cash posting. |
+| Boundary | Do not keep using an old coupon rate after the reset source has changed or gone stale. |
+
+## Example 27: Treasury Bill Discount Yield And Repo Collateral
+
+| Dimension | Example |
+|---|---|
+| Product families | Cash, deposits, money market and FX; bonds; loans/collateral |
+| Client objective | Hold short-term liquidity and use eligible securities in a secured funding transaction. |
+| Product terms | Buy a USD Treasury bill for 98.50 with 182 days to maturity; pledge USD 1,000,000 market value of bills into overnight repo with 2 percent haircut. |
+| Key distinction | A discount instrument's yield, maturity proceeds and repo lending value are related but separate calculations. |
+
+### Calculations
+
+```text
+T-bill discount yield = (100 - 98.50) / 100 x 360 / 182 = 2.9670%
+Maturity proceeds per 100 face = 100
+Repo collateral value = 1,000,000
+Repo cash available before fees = 1,000,000 x (1 - 2%) = 980,000
+```
+
+### Reporting And QA
+
+| Area | Expected treatment |
+|---|---|
+| Advisory | Explain reinvestment risk, discount-yield convention, settlement timing and secured-funding dependency. |
+| DPM/mandate | Treat the bill as short-term fixed income or liquidity according to mandate policy; treat repo as financing, not a sale. |
+| Reporting | Show face value, clean/discount price, maturity date, yield convention, pledged amount, haircut, repo exposure and maturity. |
+| QA | Validate price basis, day-count convention, maturity proceeds, pledge quantity, haircut, repo cash and unwind settlement. |
+| Boundary | Do not count pledged Treasury bills as fully available liquidity while they secure repo funding. |
+
+## Example 28: Fund Swing Pricing And Side Pocket
+
+| Dimension | Example |
+|---|---|
+| Product families | Funds; private markets; reporting; operations |
+| Client objective | Redeem from a fund during stressed liquidity conditions. |
+| Product terms | Client redeems 10,000 units. Published NAV is USD 101.00; fund applies a 1.5 percent swing factor and moves 8 percent of assets into a side pocket. |
+| Key distinction | Redeemable units, swung NAV, side-pocket units and settled cash are separate states. |
+
+### Calculation
+
+```text
+Swung NAV = 101.00 x (1 - 1.5%) = 99.485
+Redeemable units before side pocket = 10,000 x 92% = 9,200
+Side-pocket units = 10,000 x 8% = 800
+Estimated redemption cash before fees/tax = 9,200 x 99.485 = USD 915,262
+```
+
+### Reporting And QA
+
+| Area | Expected treatment |
+|---|---|
+| Advisory | Explain liquidity stress, dilution adjustment, side-pocket restrictions, settlement uncertainty and valuation lag. |
+| DPM/mandate | Treat side-pocket exposure as restricted/illiquid and exclude it from immediate rebalance funding. |
+| Reporting | Show original units, redeemable units, side-pocket units, swung NAV, NAV date, settlement date and restricted state. |
+| QA | Validate swing factor source, side-pocket percentage, remaining units, cash projection, settlement status and stale NAV behavior. |
+| Boundary | Do not report full redemption cash from headline NAV when swing pricing or side pockets apply. |
+
+## Example 29: Equity Tender Offer With Mixed Consideration
+
+| Dimension | Example |
+|---|---|
+| Product families | Equities; tax reporting; trade lifecycle; advisory |
+| Client objective | Elect whether to tender shares into a corporate action. |
+| Product terms | Client owns 1,000 shares. Tender offer provides USD 12 cash plus 0.25 shares of acquirer for each accepted share. Client tenders 600 shares; final proration accepts 80 percent. |
+| Key distinction | Election, acceptance, proration, cash proceeds, new share receipt and residual holding are separate events. |
+
+### Calculation
+
+```text
+Accepted shares = 600 x 80% = 480
+Cash proceeds = 480 x 12 = USD 5,760
+Acquirer shares received = 480 x 0.25 = 120
+Original shares remaining = 1,000 - 480 = 520
+```
+
+### Reporting And QA
+
+| Area | Expected treatment |
+|---|---|
+| Advisory | Explain election deadline, proration risk, cash/share mix, residual exposure and tax/cost-basis impact. |
+| DPM/mandate | Check election authority, single-name concentration after receipt and cash reinvestment policy. |
+| Reporting | Show election status, accepted quantity, cash consideration, share consideration, residual holding and cost-basis treatment. |
+| QA | Validate tendered quantity, proration, new share quantity, cash proceeds, cost allocation, fractional treatment and entitlement dates. |
+| Boundary | Do not reduce the full elected quantity until accepted quantity is confirmed. |
+
+## Example 30: Participating Policy Bonus And Assignment Release
+
+| Dimension | Example |
+|---|---|
+| Product families | Insurance and annuities; lending/collateral; wealth structuring |
+| Client objective | Hold a participating life policy that has been assigned as collateral, then release the assignment after loan repayment. |
+| Product terms | Policy account/cash value USD 150,000; declared reversionary bonus USD 4,000; outstanding policy-secured loan USD 60,000; collateral assignment released after repayment. |
+| Key distinction | Declared bonuses, projected bonuses, surrender value, death benefit, loan balance and collateral assignment are different facts. |
+
+### Calculation
+
+```text
+Updated cash value = 150,000 + declared bonus 4,000 = USD 154,000
+Net accessible value while loan outstanding = 154,000 - 60,000 = USD 94,000 before charges
+Net accessible value after repayment and assignment release = 154,000 before charges
+```
+
+### Reporting And QA
+
+| Area | Expected treatment |
+|---|---|
+| Advisory | Explain guaranteed versus non-guaranteed bonuses, surrender consequences, loan impact and assignment restrictions. |
+| DPM/mandate | Do not treat assigned policy value as freely available collateral or liquid portfolio value without release evidence. |
+| Reporting | Show cash/account value, declared bonus, projected bonus if sourced, loan balance, assignment state, release date and source date. |
+| QA | Validate insurer value source, bonus classification, loan deduction, assignment flag, release workflow and stale insurer quote behavior. |
+| Boundary | Do not use projected non-guaranteed bonus as current market value or available collateral. |
+
+## Example 31: Structured Deposit With Capital Protection And Early Break
+
+| Dimension | Example |
+|---|---|
+| Product families | Structured products; cash/deposits; FX; advisory |
+| Client objective | Earn enhanced conditional return while preserving principal if held to maturity. |
+| Product terms | USD 200,000 six-month structured deposit linked to an equity index; principal protected at maturity by deposit issuer; conditional 5 percent annualized coupon if index closes above initial level; early break value depends on issuer quote. |
+| Key distinction | Maturity protection does not mean daily liquidity at par. |
+
+### Scenario Treatment
+
+| Scenario | Treatment |
+|---|---|
+| Held to maturity, condition met | Return principal plus confirmed coupon. |
+| Held to maturity, condition not met | Return principal only, subject to issuer terms. |
+| Early break | Use issuer break quote and show possible loss versus principal. |
+| Issuer distress | Treat issuer credit risk separately from payoff formula. |
+
+### Calculation
+
+```text
+Conditional coupon if met = 200,000 x 5.00% x 0.5 = USD 5,000
+Maturity cash if condition met = 205,000
+Maturity cash if condition not met = 200,000
+Early break value = issuer quote, not formula par
+```
+
+### Reporting And QA
+
+| Area | Expected treatment |
+|---|---|
+| Advisory | Explain conditional return, issuer risk, early-break risk, deposit eligibility, liquidity and payoff observation. |
+| DPM/mandate | Classify according to product-governance policy: deposit wrapper, structured exposure, issuer risk and complexity. |
+| Reporting | Show principal, maturity date, payoff condition, observation source, projected/confirmed coupon, break-value source and protection caveat. |
+| QA | Validate observation level, coupon condition, maturity cash, early-break quote state, issuer exposure and reporting labels. |
+| Boundary | Do not report principal protection as current realizable value before maturity. |
+
 ## Example Template
 
 Use this structure when adding deeper examples to product packs:

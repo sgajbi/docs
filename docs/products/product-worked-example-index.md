@@ -40,6 +40,23 @@ Use it when you need a concrete example for learning, advisory review, business 
 | Trade lifecycle, settlement, custody and operations | [`trade-lifecycle-operations/11-worked-examples-and-implementation-patterns.md`](trade-lifecycle-operations/11-worked-examples-and-implementation-patterns.md) | Orders, partial fills, accrued-interest settlement, settlement fails, fund cut-offs, entitlement revisions, data contracts and reconciliation breaks. |
 | Trusts, estate, family office and wealth structuring | [`trusts-estate-family-office-wealth-structuring/10-worked-examples-and-implementation-patterns.md`](trusts-estate-family-office-wealth-structuring/10-worked-examples-and-implementation-patterns.md) | Trust distributions, estate account restrictions, holding-company pledges, beneficiary access, family-office reporting, policy roles and authority changes. |
 
+## Cross-Product Example Sets
+
+Use [`cross-product-worked-examples.md`](cross-product-worked-examples.md) when a workflow cuts across product, cash, reporting, collateral, tax, lifecycle or authority boundaries.
+
+| Example set | Start with |
+|---|---|
+| Cash availability, liquidity and secured funding | Examples 1, 10, 20 and 27. |
+| Fixed-income and structured-income behavior | Examples 2, 19, 26 and 31. |
+| Corporate actions and source-owned lifecycle events | Examples 3, 21 and 29. |
+| Fund liquidity and valuation stress | Examples 4, 20, 24 and 28. |
+| Collateral, leverage and pledged assets | Examples 5, 11, 19, 27 and 30. |
+| Private-market and illiquid-asset reporting | Examples 6, 13, 24 and 25. |
+| Derivatives, overlays and notional exposure | Examples 7 and 22. |
+| Structured-product observations and support boundaries | Examples 8, 9, 23 and 31. |
+| Insurance value, policy loans and restrictions | Examples 12 and 30. |
+| Portfolio analytics, model portfolios and advisory workflow | Examples 14, 15, 16, 17 and 18. |
+
 ## Workflow-To-Example Map
 
 | Workflow or question | Start here |
