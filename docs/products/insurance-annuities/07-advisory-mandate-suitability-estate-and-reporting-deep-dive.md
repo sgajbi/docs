@@ -1,4 +1,4 @@
-# 07 — Advisory, Mandate, Suitability, Estate and Reporting Deep Dive
+# 07 - Advisory, Mandate, Suitability, Estate and Reporting Deep Dive
 
 ## 1. Advisory purpose framework
 
@@ -185,4 +185,4 @@ When replacing or surrendering an existing policy, the advisor should compare:
 
 ## 10. Interview-ready advisory answer
 
-“Insurance and annuity products should be assessed based on purpose first: protection, savings, investment-linked growth, retirement income, estate liquidity or legacy planning. Suitability depends not only on risk profile but also premium affordability, liquidity needs, time horizon, health underwriting, policy charges, surrender value, guaranteed versus non-guaranteed benefits and beneficiary structure. In a wealth platform, I would not report death benefit as portfolio market value; I would separately show policy value, surrender value, protection amount, premium obligations, annuity income and ILP look-through exposure where available.”
+"Insurance and annuity products should be assessed based on purpose first: protection, savings, investment-linked growth, retirement income, estate liquidity or legacy planning. Suitability depends not only on risk profile but also premium affordability, liquidity needs, time horizon, health underwriting, policy charges, surrender value, guaranteed versus non-guaranteed benefits and beneficiary structure. In a wealth platform, I would not report death benefit as portfolio market value; I would separately show policy value, surrender value, protection amount, premium obligations, annuity income and ILP look-through exposure where available."

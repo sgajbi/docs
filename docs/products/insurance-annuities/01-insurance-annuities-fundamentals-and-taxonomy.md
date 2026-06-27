@@ -1,4 +1,4 @@
-# 01 — Insurance, Annuities and Protection-Linked Products: Fundamentals and Taxonomy
+# 01 - Insurance, Annuities and Protection-Linked Products: Fundamentals and Taxonomy
 
 ## 1. What these products are
 
@@ -112,7 +112,7 @@ Insurance and annuity products are used for:
 - key-person/business continuity planning;
 - policy financing and collateralized lending.
 
-In advisory and portfolio analytics, these products are not just “investments.” They often sit at the boundary between financial planning, wealth management, credit, estate planning and client reporting.
+In advisory and portfolio analytics, these products are not just "investments." They often sit at the boundary between financial planning, wealth management, credit, estate planning and client reporting.
 
 ## 8. What should be treated carefully
 

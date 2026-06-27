@@ -1,4 +1,4 @@
-# 03 — Annuities, Retirement Income and Longevity Products
+# 03 - Annuities, Retirement Income and Longevity Products
 
 ## 1. What an annuity is
 
@@ -127,8 +127,8 @@ Annuities are suitable only when the client understands the trade-offs:
 
 | Mistake | Correct understanding |
 |---|---|
-| “Guaranteed income means no risk” | Insurer credit, inflation and liquidity risks remain |
-| “Benefit base is my account value” | Benefit base is often only a calculation base |
-| “I can exit anytime at full value” | Surrender charges and market adjustments may apply |
-| “Variable annuity is just a fund” | It is an insurance contract with sub-accounts, fees and guarantees |
-| “Highest payout is best” | Highest payout may leave no residual benefit to spouse/heirs |
+| "Guaranteed income means no risk" | Insurer credit, inflation and liquidity risks remain |
+| "Benefit base is my account value" | Benefit base is often only a calculation base |
+| "I can exit anytime at full value" | Surrender charges and market adjustments may apply |
+| "Variable annuity is just a fund" | It is an insurance contract with sub-accounts, fees and guarantees |
+| "Highest payout is best" | Highest payout may leave no residual benefit to spouse/heirs |

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This pack is part of a high-quality wealth management product knowledge base. It is designed for re-study, office knowledge sharing, advisory conversations, DPM / mandate design, analytics, reporting and platform implementation.
+This pack is part of a high-quality wealth management product knowledge base. It is designed for future study, office knowledge sharing, advisory conversations, DPM / mandate design, analytics, reporting and platform implementation.
 
 Insurance and annuity products are different from normal securities. They combine legal contract rights, protection benefits, actuarial risk pooling, investment-linked assets, premium schedules, surrender rights, charges, riders, guarantees, claims and sometimes estate-planning objectives. A platform must therefore treat them as **policy contracts with financial values**, not merely as fund positions or bonds.
 
@@ -20,6 +20,7 @@ Insurance and annuity products are different from normal securities. They combin
 | `08-platform-implementation-controls-reconciliation-test-scenarios-and-glossary.md` | Implementation guidance, controls, reconciliation, QA scenarios and glossary |
 | `09-practitioner-reference-review-questions-and-product-combinations.md` | Practitioner explanations, product combinations, review questions and reusable mental models |
 | `10-source-notes-and-further-reading.md` | Source notes and useful references |
+| `11-worked-examples-and-implementation-patterns.md` | Practical examples for ILP premiums and charges, policy loans, surrender, lapse, claims, annuity payouts, reporting, controls and QA |
 
 ## How to use this pack
 
@@ -34,12 +35,12 @@ A policy should be modelled as a **contractual asset or liability with one or mo
 
 ```text
 Policy Contract
-  ├── Policy roles: owner, insured/life assured, annuitant, beneficiary, payer, advisor
-  ├── Coverage components: death benefit, maturity benefit, rider benefits, income guarantees
-  ├── Investment components: cash value, account value, ILP sub-funds, bonus/dividend account
-  ├── Cashflow schedules: premiums, charges, top-ups, withdrawals, annuity payouts
-  ├── Lifecycle events: issue, underwriting, lapse, reinstatement, claim, surrender, maturity
-  └── Valuation records: surrender value, account value, guaranteed value, projected value
+  |-- Policy roles: owner, insured/life assured, annuitant, beneficiary, payer, advisor
+  |-- Coverage components: death benefit, maturity benefit, rider benefits, income guarantees
+  |-- Investment components: cash value, account value, ILP sub-funds, bonus/dividend account
+  |-- Cashflow schedules: premiums, charges, top-ups, withdrawals, annuity payouts
+  |-- Lifecycle events: issue, underwriting, lapse, reinstatement, claim, surrender, maturity
+  `-- Valuation records: surrender value, account value, guaranteed value, projected value
 ```
 
 Do not model every policy as a normal traded security. Some policies behave like protection contracts, some like long-term savings plans, some like fund wrappers, some like retirement-income contracts and some like estate-planning structures.

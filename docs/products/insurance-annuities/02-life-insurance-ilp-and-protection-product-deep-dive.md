@@ -1,4 +1,4 @@
-# 02 — Life Insurance, ILP and Protection Product Deep Dive
+# 02 - Life Insurance, ILP and Protection Product Deep Dive
 
 ## 1. Term life insurance
 

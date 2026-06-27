@@ -1,4 +1,4 @@
-# 06 — Valuation, Performance, Risk, Liquidity and Capital Treatment
+# 06 - Valuation, Performance, Risk, Liquidity and Capital Treatment
 
 ## 1. Valuation concepts
 
@@ -6,7 +6,7 @@ Insurance valuation is product-specific. A single market value field is not enou
 
 | Value | Meaning | Typical source |
 |---|---|---|
-| Account value | Value of investment account/sub-funds | Insurer statement / NAV × units |
+| Account value | Value of investment account/sub-funds | Insurer statement / NAV x units |
 | Cash value | Internal accumulated value | Insurer statement |
 | Cash surrender value | Net amount available if surrendered | Insurer statement / surrender schedule |
 | Guaranteed value | Contractually guaranteed under stated conditions | Policy illustration/statement |
@@ -35,7 +35,7 @@ Not all components are available for every policy.
 ## 3. ILP / variable policy valuation
 
 ```text
-Policy Account Value = Σ (Sub-Fund Units × Sub-Fund NAV)
+Policy Account Value = sum (Sub-Fund Units x Sub-Fund NAV)
 Net Policy Value = Policy Account Value - Policy Charges - Surrender Charges - Policy Loans
 ```
 

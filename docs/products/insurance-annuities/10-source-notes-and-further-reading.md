@@ -1,4 +1,4 @@
-# 10 — Source Notes and Further Reading
+# 10 - Source Notes and Further Reading
 
 This pack is a practitioner-oriented educational and platform-design reference. It is not legal, tax, regulatory or insurance advice. Product rules vary by insurer, jurisdiction and contract wording.
 
@@ -6,13 +6,13 @@ This pack is a practitioner-oriented educational and platform-design reference. 
 
 | Topic | Reference |
 |---|---|
-| Singapore ILP fees and charges | MoneySense — Investment Linked Policies: Guide to Fees and Pricing |
-| Participating versus ILP policies | MoneySense — Investment-Linked versus Participating Life Insurance Policies |
-| Whole life insurance and bonuses/dividends | MoneySense — Understanding Whole Life Insurance |
-| Singapore complex product/PHS enhancements | MAS — Product Highlights Sheet and complex products framework proposals / parliamentary replies |
-| Variable life insurance | Investor.gov — Variable Life Insurance |
-| Variable annuities | Investor.gov / SEC — Variable Annuities investor bulletins and guide |
-| Life insurance roadmap | NAIC — Life Insurance Roadmap |
+| Singapore ILP fees and charges | MoneySense - Investment Linked Policies: Guide to Fees and Pricing |
+| Participating versus ILP policies | MoneySense - Investment-Linked versus Participating Life Insurance Policies |
+| Whole life insurance and bonuses/dividends | MoneySense - Understanding Whole Life Insurance |
+| Singapore complex product/PHS enhancements | MAS - Product Highlights Sheet and complex products framework proposals / parliamentary replies |
+| Variable life insurance | Investor.gov - Variable Life Insurance |
+| Variable annuities | Investor.gov / SEC - Variable Annuities investor bulletins and guide |
+| Life insurance roadmap | NAIC - Life Insurance Roadmap |
 | Margin/financing references for premium-financed policies | See Loans/Lombard pack |
 
 ## Source URLs captured during pack creation
@@ -39,9 +39,9 @@ This pack is a practitioner-oriented educational and platform-design reference. 
 
 This pack should cross-link with:
 
-- Cash, Deposits, Money Market and FX — for premium payments, policy currencies and cashflow planning.
-- Funds — for ILP sub-funds and variable annuity sub-accounts.
-- Loans, Lombard, Margin and Collateral — for premium financing and policy assignment.
-- Private Markets — for HNW estate planning and illiquidity comparison.
-- Performance and Reporting — for IRR/MWR, income classification and insurance reporting sections.
-- Advisory and Mandates — for suitability, discretionary/non-discretionary treatment and client objective mapping.
+- Cash, Deposits, Money Market and FX - for premium payments, policy currencies and cashflow planning.
+- Funds - for ILP sub-funds and variable annuity sub-accounts.
+- Loans, Lombard, Margin and Collateral - for premium financing and policy assignment.
+- Private Markets - for HNW estate planning and illiquidity comparison.
+- Performance and Reporting - for IRR/MWR, income classification and insurance reporting sections.
+- Advisory and Mandates - for suitability, discretionary/non-discretionary treatment and client objective mapping.

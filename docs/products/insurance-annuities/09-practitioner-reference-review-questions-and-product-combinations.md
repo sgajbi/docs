@@ -2,7 +2,7 @@
 
 ## 1. Practitioner-ready explanation
 
-“Insurance and annuity products are contractual products issued by insurers. They can provide protection, savings, investment-linked growth, retirement income or estate-planning benefits. Unlike a normal security, a policy has roles such as owner, insured, annuitant and beneficiary, and multiple values such as sum assured, account value, cash value, surrender value, death benefit and guaranteed or non-guaranteed benefits. From a wealth-platform perspective, I would model the policy contract separately from investment-linked fund holdings and cash transactions. Premiums, charges, policy loans, claims, surrenders, maturity proceeds and annuity payments should be proper transaction types, while underwriting, lapse, reinstatement, beneficiary changes and claim submission should be lifecycle events. For reporting, I would clearly separate investable value from protection benefit and surrender value.”
+"Insurance and annuity products are contractual products issued by insurers. They can provide protection, savings, investment-linked growth, retirement income or estate-planning benefits. Unlike a normal security, a policy has roles such as owner, insured, annuitant and beneficiary, and multiple values such as sum assured, account value, cash value, surrender value, death benefit and guaranteed or non-guaranteed benefits. From a wealth-platform perspective, I would model the policy contract separately from investment-linked fund holdings and cash transactions. Premiums, charges, policy loans, claims, surrenders, maturity proceeds and annuity payments should be proper transaction types, while underwriting, lapse, reinstatement, beneficiary changes and claim submission should be lifecycle events. For reporting, I would clearly separate investable value from protection benefit and surrender value."
 
 ## 2. Simple mental models
 
@@ -50,14 +50,14 @@
 
 | Misconception | Correction |
 |---|---|
-| “Death benefit is my portfolio value” | Death benefit is protection benefit, not current liquid wealth |
-| “Projected value is guaranteed” | Only explicitly guaranteed values are guaranteed |
-| “ILP is just a mutual fund” | ILP is an insurance contract with fund units, charges and cover |
-| “Cash value equals surrender value” | Surrender value may be lower after charges/loans |
-| “Policy loan is free money” | It accrues interest and can reduce benefits or cause lapse |
-| “Annuity guarantee means no risk” | Insurer credit, inflation and liquidity risks remain |
-| “Surrender is simple” | Surrender may lose benefits, trigger charges and close protection |
-| “Premium financing improves return automatically” | Leverage introduces interest-rate and collateral risk |
+| "Death benefit is my portfolio value" | Death benefit is protection benefit, not current liquid wealth |
+| "Projected value is guaranteed" | Only explicitly guaranteed values are guaranteed |
+| "ILP is just a mutual fund" | ILP is an insurance contract with fund units, charges and cover |
+| "Cash value equals surrender value" | Surrender value may be lower after charges/loans |
+| "Policy loan is free money" | It accrues interest and can reduce benefits or cause lapse |
+| "Annuity guarantee means no risk" | Insurer credit, inflation and liquidity risks remain |
+| "Surrender is simple" | Surrender may lose benefits, trigger charges and close protection |
+| "Premium financing improves return automatically" | Leverage introduces interest-rate and collateral risk |
 
 ## 6. Platform practitioner checklist
 

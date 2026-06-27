@@ -1,4 +1,4 @@
-# 05 — Data Model: Policy Contract, Coverage, Beneficiary, Funds and Ledger Design
+# 05 - Data Model: Policy Contract, Coverage, Beneficiary, Funds and Ledger Design
 
 ## 1. Why a dedicated model is needed
 
@@ -8,21 +8,21 @@ Insurance products have more parties, lifecycle states and value concepts than n
 
 ```text
 InsuranceProduct
-  └── PolicyContract
-        ├── PolicyRole[]
-        ├── CoverageComponent[]
-        ├── Rider[]
-        ├── BeneficiaryDesignation[]
-        ├── PremiumSchedule
-        ├── PolicyValue[]
-        ├── PolicyCharge[]
-        ├── PolicyLoan[]
-        ├── InvestmentAccount?      # ILP / variable policy only
-        │     └── FundHolding[]
-        ├── AnnuityPayoutTerms?     # annuity only
-        ├── Assignment[]            # collateral/trust/lender assignment
-        ├── LifecycleEvent[]
-        └── Transaction[]
+  `-- PolicyContract
+        |-- PolicyRole[]
+        |-- CoverageComponent[]
+        |-- Rider[]
+        |-- BeneficiaryDesignation[]
+        |-- PremiumSchedule
+        |-- PolicyValue[]
+        |-- PolicyCharge[]
+        |-- PolicyLoan[]
+        |-- InvestmentAccount?      # ILP / variable policy only
+        |     `-- FundHolding[]
+        |-- AnnuityPayoutTerms?     # annuity only
+        |-- Assignment[]            # collateral/trust/lender assignment
+        |-- LifecycleEvent[]
+        `-- Transaction[]
 ```
 
 ## 3. Product master table
@@ -165,7 +165,7 @@ Store values with explicit type. Never overwrite or mix them.
 | units | Units held |
 | nav_per_unit | NAV/unit price |
 | nav_date | NAV date |
-| market_value | Units × NAV |
+| market_value | Units x NAV |
 | allocation_pct | Allocation weight |
 | cost_basis | Optional, depending statement availability |
 | fund_currency | Fund currency |
@@ -204,9 +204,9 @@ Insurance can be assigned to a lender or trust.
 
 For high-quality implementation, maintain both:
 
-1. **Policy event ledger** — lifecycle state changes.
-2. **Financial transaction ledger** — cash/value/unit movements.
-3. **Valuation ledger** — periodic policy value snapshots.
-4. **Exposure ledger** — investment-linked look-through and risk exposures.
+1. **Policy event ledger** - lifecycle state changes.
+2. **Financial transaction ledger** - cash/value/unit movements.
+3. **Valuation ledger** - periodic policy value snapshots.
+4. **Exposure ledger** - investment-linked look-through and risk exposures.
 
 This separation prevents lifecycle events such as claim submission or grace-period start from being confused with actual cash postings.

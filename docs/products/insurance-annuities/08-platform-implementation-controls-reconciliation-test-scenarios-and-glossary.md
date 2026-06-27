@@ -1,4 +1,4 @@
-# 08 — Platform Implementation, Controls, Reconciliation, Test Scenarios and Glossary
+# 08 - Platform Implementation, Controls, Reconciliation, Test Scenarios and Glossary
 
 ## 1. Implementation architecture
 
@@ -67,7 +67,7 @@ Recommended bounded contexts:
 ### ILP account value reconciliation
 
 ```text
-Expected Account Value = Σ (fund units × latest NAV)
+Expected Account Value = sum (fund units x latest NAV)
 Variance = Insurer Account Value - Expected Account Value
 ```
 

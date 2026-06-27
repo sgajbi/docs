@@ -1,4 +1,4 @@
-# 04 — Lifecycle, Transactions, Position, Policy and Cashflow Modelling
+# 04 - Lifecycle, Transactions, Position, Policy and Cashflow Modelling
 
 ## 1. Core modelling principle
 
@@ -92,7 +92,7 @@ Not every lifecycle event is a financial transaction.
 
 ## 5. Policy position model
 
-A policy position is not just quantity × price.
+A policy position is not just quantity x price.
 
 | Field | Meaning |
 |---|---|
@@ -131,7 +131,7 @@ A policy position is not just quantity × price.
 | units | Number of units |
 | nav_per_unit | Latest NAV/unit price |
 | fund_currency | Sub-fund currency |
-| market_value | Units × NAV |
+| market_value | Units x NAV |
 | allocation_pct | Weight in policy account value |
 | risk_rating | Fund risk classification |
 | asset_class | Look-through asset class |
@@ -154,7 +154,7 @@ A policy position is not just quantity × price.
 
 ## 8. Transaction group examples
 
-### Example A — ILP premium allocation
+### Example A - ILP premium allocation
 
 Client pays SGD 10,000 annual premium. Allocation charge is 5%. SGD 9,500 is invested in two sub-funds.
 
@@ -165,7 +165,7 @@ Client pays SGD 10,000 annual premium. Allocation charge is 5%. SGD 9,500 is inv
 | INS_PREMIUM_ALLOCATION | 9,500 | Policy investment account funded |
 | INS_FUND_SWITCH_IN / allocation | Fund A 60%, Fund B 40% | Sub-fund units created |
 
-### Example B — Full surrender
+### Example B - Full surrender
 
 Account value is SGD 120,000, surrender charge is SGD 4,000, policy loan is SGD 10,000.
 
@@ -180,7 +180,7 @@ Cash surrender proceeds = 120,000 - 4,000 - 10,000 = SGD 106,000
 | INS_POLICY_LOAN_REPAYMENT | -10,000 | Loan settled from proceeds |
 | Cash receipt | +106,000 | Net cash to client/portfolio |
 
-### Example C — Annuity income payment
+### Example C - Annuity income payment
 
 | Transaction | Amount | Effect |
 |---|---:|---|
