@@ -946,3 +946,192 @@ The difference is explained by a late fee posting and a same-day payment not yet
 | Positive break would increase buying power | Available cash excludes it until resolved. |
 | Manual adjustment is used | Adjustment requires reason, approver and source evidence. |
 | Same break repeats | Root-cause workflow opens for feed, mapping or timing issue. |
+
+## Example 22. Source-calendar governance for cash and FX dates
+
+### Scenario
+
+A booking platform must calculate value dates for USD payments, SGD securities settlement and USD/SGD FX funding. Calendar sources disagree after an unscheduled public holiday is declared.
+
+| Calendar input | Source A | Source B | Required treatment |
+|---|---|---|---|
+| USD business day | Open | Open | No conflict. |
+| SGD business day | Closed | Open | Conflict blocks automatic value-date approval. |
+| Payment cut-off | 16:00 | 15:30 | Use governed source or escalate conflict. |
+| FX value date | T+2 | T+3 | Recalculate after calendar owner confirms. |
+
+### Correct treatment
+
+The platform should treat calendars as governed source data, not static code constants. Calendar conflicts affect payments, FX value dates, settlement funding, deposit maturities, notice periods, sweep dealing dates and liquidity ladders.
+
+| Workflow | Impact |
+|---|---|
+| FX funding | Earliest valid joint currency value date may change. |
+| Payment release | Cut-off and next value date must use governed payment calendar. |
+| Securities settlement | Funding date mismatch may require prefunding, credit bridge or escalation. |
+| Reporting | Projected cashflows should show calendar-source status when dates are uncertain. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Two calendar sources disagree | Automatic date approval is blocked or marked source-conflicted. |
+| Calendar owner publishes correction | Affected projected cashflows recalculate with audit trail. |
+| Existing settled transaction is replayed | Historical calendar version used at booking time remains reproducible. |
+| Calendar feed is unavailable | New date-sensitive workflow enters source-limited state. |
+
+## Example 23. Payment repair queue and name-screening hold
+
+### Scenario
+
+A client withdrawal instruction passes cash availability checks, but payment validation identifies a beneficiary-name mismatch and a screening alert.
+
+| Attribute | Value |
+|---|---|
+| Payment amount | USD 75,000 |
+| Available cash before payment | USD 120,000 |
+| Beneficiary name | Minor mismatch against stored beneficiary |
+| Screening status | Review required |
+| Payment state | Held for repair and screening |
+
+### Cash treatment
+
+| Balance view | Amount | Treatment |
+|---|---:|---|
+| Ledger cash | 120,000 | Cash still on account until payment is released. |
+| Reserved cash | -75,000 | Payment amount reserved while repair/screening is open. |
+| Available cash | 45,000 | Excludes held payment amount. |
+| Projected cash after release | 45,000 | Applies only when payment is approved and released. |
+
+### Correct workflow
+
+1. Reserve the payment amount after client approval.
+2. Move instruction to repair queue with reason code.
+3. Keep screening and repair decisions separate.
+4. Prevent reuse of reserved cash for new orders.
+5. Release, amend or cancel payment only through authorized workflow.
+6. Preserve client instruction, repair changes, approver and release evidence.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Payment enters repair queue | Cash is reserved and excluded from available cash. |
+| Screening hold is cleared but repair remains open | Payment is not released until both conditions clear. |
+| Payment is cancelled | Reservation is released with cancellation lineage. |
+| Advisor tries to use reserved cash for an order | Order is blocked or resized. |
+| Statement is generated during hold | Report labels cash as reserved for pending payment. |
+
+## Example 24. Multi-bank cash concentration and intraday credit cap
+
+### Scenario
+
+A client holds cash across two banks. A treasury process concentrates surplus into the preferred operating bank, but the receiving bank applies an intraday credit cap.
+
+| Bank | Currency | Cash balance | Concentration action |
+|---|---|---:|---|
+| Bank A | USD | 800,000 | Send 500,000 to Bank B |
+| Bank B | USD | 100,000 | Receive 500,000 |
+| Bank B intraday credit cap | USD | 400,000 | Excess requires split or next window |
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Liquidity view | Show source bank, target bank, transfer status and concentration window. |
+| Intraday availability | Do not count excess transfer above receiving cap until confirmed. |
+| Buying power | Use settled and confirmed cash by bank/currency where policy requires. |
+| Operations | Split transfer, defer excess or escalate to treasury. |
+| Reporting | Distinguish analytical group liquidity from settled operating cash. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Transfer exceeds receiving bank intraday cap | Excess is split, deferred or escalated. |
+| Bank A sends but Bank B does not confirm receipt | In-transit cash is restricted. |
+| Concentration is reversed | Reversal preserves original transfer and reason. |
+| New trade depends on concentrated cash | Funding is conditional until receiving bank confirmation. |
+| Cap changes intraday | Concentration plan recalculates with audit evidence. |
+
+## Example 25. CLS/PVP settlement control for FX
+
+### Scenario
+
+A USD/EUR FX trade is eligible for payment-versus-payment settlement through a settlement utility. The control should reduce principal settlement risk by ensuring both currency legs settle together.
+
+| Attribute | Value |
+|---|---|
+| Trade | Sell USD / buy EUR |
+| USD leg | -1,000,000 |
+| EUR leg | +920,000 |
+| Settlement model | PVP eligible |
+| Settlement status | Matched pending settlement |
+
+### Correct treatment
+
+| State | Platform behavior |
+|---|---|
+| Matched before cut-off | Reserve sold currency and show bought currency as pending PVP receipt. |
+| Unmatched before cut-off | Escalate; do not treat bought currency as available. |
+| PVP settled | Post both legs as settled with settlement evidence. |
+| PVP fails | Keep both legs restricted and open settlement exception. |
+| Bilateral fallback used | Record fallback reason and settlement-risk approval. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Trade is PVP eligible but unmatched | Bought currency is not available for new orders. |
+| One leg appears without PVP confirmation | Exception workflow blocks automatic availability. |
+| Bilateral fallback is approved | Audit records approver, reason and residual settlement risk. |
+| Settlement confirmation arrives | Both legs update atomically or through controlled paired posting. |
+| Client report is produced pre-settlement | Report labels pending PVP settlement and excludes pending receipt from settled cash. |
+
+## Example 26. Treasury cash placement workflow
+
+### Scenario
+
+Treasury places excess client cash into a short-term deposit ladder while preserving liquidity buffers, concentration limits and client service-model constraints.
+
+| Attribute | Value |
+|---|---:|
+| Excess USD cash | 2,000,000 |
+| Minimum operating buffer | 300,000 |
+| Maximum single-bank placement | 750,000 |
+| Maximum tenor | 30 days |
+| Near-term withdrawal forecast | 400,000 |
+
+### Placement plan
+
+```text
+cash available for placement = excess cash - operating buffer - withdrawal forecast
+cash available for placement = 2,000,000 - 300,000 - 400,000
+cash available for placement = 1,300,000
+```
+
+| Placement | Amount | Tenor | Control |
+|---|---:|---|---|
+| Bank A deposit | 650,000 | 14 days | Within single-bank cap. |
+| Bank B deposit | 650,000 | 30 days | Within tenor and bank cap. |
+| Residual cash | 700,000 | Same day | Covers buffer and forecast. |
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Liquidity | Deposit ladder is not same-day cash; maturity dates drive liquidity view. |
+| Concentration | Bank/counterparty exposure must include existing deposits and cash balances. |
+| Advisory | Explain yield, lock-up, early break terms, counterparty exposure and liquidity trade-off. |
+| DPM | Do not place cash reserved for model trades, fees, collateral calls or client withdrawals. |
+| Reporting | Show placement amount, tenor, rate, counterparty, maturity and liquidity bucket. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Placement breaches single-bank cap | Plan is blocked or resized. |
+| Withdrawal forecast increases | Placement amount is reduced before execution. |
+| Deposit is broken early | Breakage workflow adjusts interest and liquidity reporting. |
+| Counterparty limit changes | Future placements recompute available headroom. |
+| Statement is generated | Deposit ladder appears separately from operating cash. |
