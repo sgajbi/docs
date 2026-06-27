@@ -1609,7 +1609,218 @@ QA assertions:
 | Buyer disputes release | Disputed amount is not available cash. |
 | Escrow is released | Cash posts from release date with dispute lineage. |
 
-## 52. Advisory And Mandate Checklist
+## 52. Direct-Property Easement Dispute
+
+Scenario:
+
+A direct-property holding is subject to a disputed access easement. The property remains owned and income-producing, but sale liquidity and development assumptions are impaired until the dispute is resolved.
+
+| Attribute | Value |
+|---|---:|
+| Current appraisal value | 18,000,000 |
+| Liquidity discount while disputed | 8.00% |
+| Estimated legal reserve | 250,000 |
+| Discounted reporting scenario | 16,310,000 |
+
+Scenario value:
+
+```text
+liquidity_discount = 18,000,000 x 8.00% = 1,440,000
+scenario_value_after_reserve = 18,000,000 - 1,440,000 - 250,000 = 16,310,000
+```
+
+Treatment:
+
+- preserve title documents, easement claim, legal opinion, dispute owner, reserve and expected resolution path;
+- keep legal ownership and appraisal value separate from liquidity-adjusted scenario value;
+- block unsupported development or sale assumptions when access rights are unresolved;
+- report dispute state without overstating impairment as a completed sale loss.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Easement dispute is open | Property remains held but liquidity/development assumptions are flagged. |
+| Legal reserve is approved | Reserve is tracked separately from appraisal value. |
+| Dispute resolves | Scenario discount is removed or updated only from source evidence. |
+
+## 53. REIT Rights Issue Underwriting Failure
+
+Scenario:
+
+A REIT rights issue is underwritten, but an underwriter fails to take up its residual commitment. The REIT still issues subscribed units, while the shortfall affects expected proceeds, leverage reduction and market confidence.
+
+| Attribute | Value |
+|---|---:|
+| Target gross proceeds | 500,000,000 |
+| Valid subscriptions | 430,000,000 |
+| Underwriter residual commitment | 70,000,000 |
+| Failed underwriter take-up | 40,000,000 |
+| Actual proceeds | 460,000,000 |
+
+Shortfall:
+
+```text
+expected_proceeds = 500,000,000
+actual_proceeds = 430,000,000 + 30,000,000 = 460,000,000
+proceeds_shortfall = 40,000,000
+```
+
+Treatment:
+
+- process client rights, subscriptions and lapsed rights from confirmed registrar data;
+- separate REIT-level funding shortfall from client entitlement processing;
+- update leverage, refinancing plan and distribution assumptions only from final proceeds;
+- preserve underwriting agreement, failure notice, remedial plan and exchange announcement.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Client subscribes valid rights | Client units increase from accepted subscription only. |
+| Underwriter fails residual take-up | REIT proceeds analytics update without changing client rights result. |
+| Final proceeds are unknown | Leverage reduction and use-of-proceeds analytics remain provisional. |
+
+## 54. Infrastructure Inflation-Index Lag
+
+Scenario:
+
+An infrastructure concession has tariff indexation linked to CPI with a six-month lag. Current CPI has increased sharply, but allowed revenue uses the lagged index until the next reset.
+
+| Attribute | Current CPI | Lagged CPI |
+|---|---:|---:|
+| Index level | 128.0 | 123.5 |
+| Base index | 120.0 | 120.0 |
+| Base annual tariff revenue | 25,000,000 | 25,000,000 |
+
+Allowed revenue:
+
+```text
+current_indexed_revenue = 25,000,000 x 128.0 / 120.0 = 26,666,667
+lagged_allowed_revenue = 25,000,000 x 123.5 / 120.0 = 25,729,167
+index_lag_difference = 937,500
+```
+
+Treatment:
+
+- preserve tariff formula, base index, lag convention, reset date and regulator/funder source;
+- separate current inflation exposure from legally allowed tariff revenue;
+- update projections only when the lagged reset becomes effective;
+- explain timing lag in performance attribution and income forecasts.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Current CPI moves before reset | Scenario analytics may show exposure, but allowed revenue uses lagged formula. |
+| Reset date arrives | Allowed revenue updates from source-backed reset. |
+| CPI source is restated | Revenue calculation versions prior and restated inputs. |
+
+## 55. Property Tax Appeal Settlement
+
+Scenario:
+
+A property tax reassessment increases annual tax expense. The owner appeals and later settles at a lower assessed value. NOI and valuation assumptions need effective-dated correction.
+
+| Attribute | Reassessment | Settlement |
+|---|---:|---:|
+| Assessed value | 42,000,000 | 38,500,000 |
+| Tax rate | 1.20% | 1.20% |
+| Annual tax expense | 504,000 | 462,000 |
+
+Settlement impact:
+
+```text
+annual_tax_reduction = 504,000 - 462,000 = 42,000
+value_impact_at_6_cap = 42,000 / 6.00% = 700,000
+```
+
+Treatment:
+
+- preserve original assessment, appeal filing, settlement notice, effective date and refund/payable state;
+- update recurring tax expense, NOI and valuation assumptions from the settlement effective date;
+- separate tax expense correction from rent income and market cap-rate movement;
+- track any refund receivable or additional tax payable as a distinct cash event.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Appeal is pending | Expense and valuation are labelled disputed or provisional by policy. |
+| Settlement is confirmed | NOI and valuation assumptions update from effective date. |
+| Refund is due | Receivable is tracked separately from valuation uplift. |
+
+## 56. Renewable Repowering Capex
+
+Scenario:
+
+A wind farm repowers turbines to increase output and extend asset life. Capex is incurred before the uplift is fully operational, so valuation and distribution forecasts must separate approved capex, committed spend and operational uplift.
+
+| Attribute | Value |
+|---|---:|
+| Approved repowering capex | 8,000,000 |
+| Incurred capex | 3,200,000 |
+| Expected annual EBITDA uplift | 1,450,000 |
+| Remaining capex | 4,800,000 |
+
+Payback estimate:
+
+```text
+remaining_capex = 8,000,000 - 3,200,000 = 4,800,000
+simple_payback_years = 8,000,000 / 1,450,000 = 5.52
+```
+
+Treatment:
+
+- preserve board approval, EPC contract, grid study, capex budget, incurred cost and commissioning milestones;
+- separate construction-stage cash outflow from stabilized EBITDA uplift;
+- do not include full uplift in recurring income until commissioning evidence exists;
+- update renewable generation, curtailment, offtake and valuation assumptions from source milestones.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Capex is approved but not commissioned | Capex commitment is visible while income uplift remains scenario or provisional. |
+| Costs overrun | Budget headroom and distribution capacity update. |
+| Commissioning completes | Forecast EBITDA and valuation update from effective date. |
+
+## 57. Data-Centre Tenant Power Default
+
+Scenario:
+
+A data-centre tenant defaults on contracted power capacity payments. The tenant occupies space, but power reservation revenue and credit exposure are impaired until cure, replacement or termination.
+
+| Attribute | Value |
+|---|---:|
+| Contracted power capacity | 12 MW |
+| Annual rent per MW | 950,000 |
+| Expected recovery percentage | 35.00% |
+| Annual rent at risk | 7,410,000 |
+
+Rent at risk:
+
+```text
+annual_contract_rent = 12 x 950,000 = 11,400,000
+annual_rent_at_risk = 11,400,000 x (1 - 35.00%) = 7,410,000
+```
+
+Treatment:
+
+- preserve lease, power reservation agreement, default notice, cure period, security deposit and replacement-tenant plan;
+- separate physical occupancy, contracted power capacity, rent receivable and credit recovery estimate;
+- update tenant concentration, WALE, NOI, valuation and debt covenant analytics from default state;
+- avoid booking estimated recovery as cash before receipt or settlement agreement.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Tenant defaults on power capacity | Rent-at-risk and tenant concentration update with confidentiality controls. |
+| Cure period is active | Lease termination and replacement assumptions remain provisional. |
+| Replacement tenant signs | Revenue forecast updates from executed contract and power availability. |
+
+## 58. Advisory And Mandate Checklist
 
 | Dimension | Required question |
 |---|---|
@@ -1622,7 +1833,7 @@ QA assertions:
 | DPM mandate | allowed wrapper, illiquid allocation, income target, leverage limit, concentration cap? |
 | Reporting | legal holding, economic exposure, income classification, valuation date and liquidity label? |
 
-## 53. Current Support Boundary And Candidate Extensions
+## 59. Current Support Boundary And Candidate Extensions
 
 | Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
 |---|---|---|
@@ -1632,7 +1843,7 @@ QA assertions:
 | Infrastructure exposure | fund/security/private fund position, sector tags, concession, revenue model, clawback terms, availability deductions and regulated asset base reset terms where sourced | advanced concession, inflation-linkage, offtake, clawback and regulatory-risk analytics |
 | Reporting | wrapper, exposure, value, income, source date, liquidity label, operating metrics, development state and governance overrides where sourced | consolidated real-asset income and stress dashboard |
 
-## 54. Regression Test Pack
+## 60. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -1688,3 +1899,9 @@ Minimum release-gate scenarios:
 50. Renewable offtake replacement updates contracted revenue, merchant exposure and counterparty credit from source terms.
 51. Valuation cap-rate shock separates committee-approved valuation from cash sale or realized loss events.
 52. Property escrow release dispute separates received cash, escrow receivable, disputed claim and final release.
+53. Direct-property easement dispute separates legal ownership, appraisal value, legal reserve and liquidity-adjusted scenario value.
+54. REIT rights issue underwriting failure separates client rights processing from REIT-level proceeds shortfall.
+55. Infrastructure inflation-index lag applies lagged tariff formula before current CPI flows through allowed revenue.
+56. Property tax appeal settlement effective-dates NOI, valuation and refund/payable treatment.
+57. Renewable repowering capex separates approved capex, incurred cost, remaining spend and commissioned income uplift.
+58. Data-centre tenant power default updates rent-at-risk, concentration, recovery and replacement-tenant assumptions.
