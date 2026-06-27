@@ -1261,7 +1261,237 @@ QA assertions:
 | Retained contingency changes | Release amount recalculates with evidence. |
 | Final estate report is generated | Settled obligations, retained reserve and released cash are separate. |
 
-## 44. Regression Test Pack
+## 44. Purpose Trust Operating Budget
+
+Scenario:
+
+- A purpose trust funds maintenance, administration and oversight activities for a defined non-charitable purpose.
+- The annual operating budget is close to being exceeded after a proposed facility-maintenance payment.
+
+| Budget item | Amount |
+|---|---:|
+| Approved annual budget | 600,000 |
+| Committed spend to date | 420,000 |
+| Required contingency reserve | 50,000 |
+| Proposed maintenance payment | 150,000 |
+
+Budget headroom:
+
+```text
+available_budget_headroom = approved_budget - committed_spend - required_contingency
+available_budget_headroom = 600,000 - 420,000 - 50,000 = 130,000
+budget_shortfall = proposed_payment - available_budget_headroom = 20,000
+```
+
+Correct workflow:
+
+- preserve purpose trust deed, approved budget, enforcer or protector review, trustee approval, invoice and purpose-alignment evidence;
+- separate committed spend, proposed spend, contingency reserve and budget shortfall;
+- block or escalate payments that exceed approved budget headroom unless supplemental approval exists;
+- report purpose-trust spend against approved categories without treating operating disbursements as beneficiary distributions.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Proposed spend exceeds budget headroom | Payment is blocked or escalated for supplemental approval. |
+| Purpose evidence is missing | Payment remains pending or support-limited. |
+| Contingency reserve is required | Available budget excludes retained contingency. |
+| Report is generated | Operating spend is shown separately from beneficiary distributions. |
+
+## 45. Beneficiary Privacy Masking Appeal
+
+Scenario:
+
+- A discretionary beneficiary appeals masked reporting output and asks to see capital accounts, trustee notes and other beneficiary details.
+- The trustee approves limited additional visibility but keeps confidential sections masked.
+
+| Report section | Requested | Approved |
+|---|---|---|
+| Personal distribution history | Yes | Yes |
+| Own tax statement | Yes | Yes |
+| Capital account summary | Yes | No |
+| Trustee notes | Yes | No |
+| Other beneficiary details | Yes | No |
+
+Appeal outcome:
+
+```text
+requested_sections = 5
+approved_sections = 2
+denied_sections = requested_sections - approved_sections = 3
+approval_rate = 2 / 5 = 40%
+```
+
+Correct workflow:
+
+- preserve appeal request, beneficiary class, governing document, trustee decision, approved sections, denied sections and masking rule version;
+- expand visibility only for trustee-approved sections and effective dates;
+- avoid exposing other beneficiaries, trustee deliberations or restricted capital information through consolidated report views;
+- keep the appeal outcome auditable without disclosing restricted content in the denial reason.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Appeal is partially approved | Only approved sections become visible. |
+| Restricted content is requested | Denied sections remain masked with audit evidence. |
+| Beneficiary class changes | Visibility recalculates from effective-dated class and trustee decision. |
+| Report is regenerated | Masking follows the active rule version and approved scope. |
+
+## 46. Cross-Border Probate Delay
+
+Scenario:
+
+- An estate holds assets in two jurisdictions.
+- Probate is granted domestically, but foreign probate remains delayed, so only part of the estate can be distributed.
+
+| Estate component | Amount | Status |
+|---|---:|---|
+| Domestic liquid assets | 2,500,000 | Probate granted |
+| Foreign investment account | 1,500,000 | Probate pending |
+| Known liabilities | 600,000 | Payable |
+| Retained contingency | 200,000 | Required |
+
+Interim distributable amount:
+
+```text
+interim_distributable = domestic_liquid_assets - known_liabilities - retained_contingency
+interim_distributable = 2,500,000 - 600,000 - 200,000 = 1,700,000
+foreign_assets_locked = 1,500,000
+```
+
+Correct workflow:
+
+- preserve death certificate, domestic grant, foreign probate status, executor approval, asset inventory and liability schedule;
+- separate domestic distributable assets from foreign assets locked by probate delay;
+- prevent final estate closure while foreign probate, tax or creditor steps remain unresolved;
+- label interim distributions clearly and retain reserve for liabilities and cross-border costs.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Foreign probate is pending | Foreign asset value remains restricted and excluded from final distribution. |
+| Domestic probate is granted | Interim distribution can proceed only within approved domestic liquidity. |
+| Liabilities remain open | Distributable amount is reduced by liabilities and contingency. |
+| Final estate report is requested | Report shows interim, restricted and pending-probate components separately. |
+
+## 47. Family Governance Voting Deadlock
+
+Scenario:
+
+- A family investment committee votes on a strategic asset allocation change.
+- Quorum is met, but votes are split evenly and the family charter requires a majority of eligible voting members.
+
+| Attribute | Value |
+|---|---:|
+| Eligible voting members | 6 |
+| Quorum requirement | 4 |
+| Votes for | 3 |
+| Votes against | 3 |
+| Majority required | 4 |
+
+Decision state:
+
+```text
+quorum_met = eligible_voting_members >= quorum_requirement
+majority_met = votes_for >= majority_required
+decision_deadlocked = quorum_met and majority_met == false and votes_for == votes_against
+```
+
+Correct workflow:
+
+- preserve charter version, meeting notice, attendance, votes, conflicts, quorum rule and escalation mechanism;
+- block the proposed mandate or allocation change when the majority threshold is not met;
+- route deadlock to the tie-break, mediation, cooling-off or trustee decision process specified by the governance document;
+- prevent implementation teams from treating quorum as approval when voting threshold fails.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Quorum is met but majority fails | Proposal remains not approved. |
+| Votes are tied | Deadlock state opens with escalation route. |
+| Charter has tie-break rule | Workflow routes to the specified decision mechanism. |
+| Investment order is attempted | Order is blocked until governance approval is final. |
+
+## 48. Trustee Fee Tier Dispute
+
+Scenario:
+
+- A trustee invoice applies a flat fee rate, but the governing fee schedule uses tiered pricing.
+- The family office disputes the excess charge before allocating it to trust beneficiaries.
+
+| Fee component | Amount |
+|---|---:|
+| Trust assets under administration | 25,000,000 |
+| Flat fee charged at 0.50% | 125,000 |
+| First tier: 0.50% on first 10,000,000 | 50,000 |
+| Second tier: 0.35% on next 15,000,000 | 52,500 |
+
+Disputed fee:
+
+```text
+contracted_tiered_fee = 50,000 + 52,500 = 102,500
+disputed_fee = charged_fee - contracted_tiered_fee
+disputed_fee = 125,000 - 102,500 = 22,500
+```
+
+Correct workflow:
+
+- preserve trustee invoice, fee schedule, asset base, calculation version, dispute notice, credit-note status and allocation policy;
+- separate charged fee, contracted fee, accepted fee and disputed fee;
+- avoid allocating disputed fee to beneficiaries until dispute policy allows pass-through or absorption;
+- report fee tiering and dispute status to authorized recipients only.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Invoice exceeds fee schedule | Disputed fee amount is calculated and exceptioned. |
+| Credit note is received | Accepted and credited amounts reconcile to final fee. |
+| Allocation is requested before resolution | Disputed amount is excluded or separately labelled by policy. |
+| Report is generated | Fee schedule, charge and dispute status are auditable. |
+
+## 49. Foundation Dissolution Distribution
+
+Scenario:
+
+- A foundation is dissolved after completing its purpose.
+- Remaining assets must be distributed to approved successor recipients after liabilities, restricted reserves and wind-down costs.
+
+| Component | Amount |
+|---|---:|
+| Foundation assets | 2,000,000 |
+| Known liabilities | 300,000 |
+| Restricted reserve | 100,000 |
+| Wind-down costs | 50,000 |
+
+Final distributable amount:
+
+```text
+final_distributable = foundation_assets - known_liabilities - restricted_reserve - wind_down_costs
+final_distributable = 2,000,000 - 300,000 - 100,000 - 50,000 = 1,550,000
+```
+
+Correct workflow:
+
+- preserve council approval, registry dissolution evidence, successor recipient due diligence, liability schedule, reserve basis and distribution plan;
+- separate final distributable assets from liabilities, restricted reserves and wind-down costs;
+- block distribution to recipients that do not satisfy purpose, eligibility, sanctions or due-diligence controls;
+- close the foundation only after assets, liabilities, bank accounts, records and reports reconcile to zero or retained evidence state.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Liabilities remain open | Final distribution is reduced or blocked. |
+| Successor recipient is not approved | Distribution to that recipient is blocked. |
+| Restricted reserve remains required | Reserve is excluded from distributable amount. |
+| Dissolution is completed | Final report shows distributions, retained evidence and closure state. |
+
+## 50. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -1308,3 +1538,9 @@ Minimum release-gate scenarios:
 41. Protector conflict recusal removes conflicted protector approval for scoped transactions and routes permitted alternate authority.
 42. Family-office service-level chargebacks apply service-tier-specific allocation and preserve dispute evidence.
 43. Estate liquidity reserve releases separate settled obligations, retained contingency and approved beneficiary release.
+44. Purpose trust operating budgets separate committed spend, proposed spend, contingency and supplemental approval.
+45. Beneficiary privacy masking appeals expand only trustee-approved report sections and preserve restricted masking.
+46. Cross-border probate delays separate domestic interim distributable assets from foreign probate-restricted assets.
+47. Family governance voting deadlocks distinguish quorum from approval threshold and block implementation until resolved.
+48. Trustee fee tier disputes separate charged, contracted, accepted and disputed fee amounts before allocation.
+49. Foundation dissolution distributions deduct liabilities, restricted reserves and wind-down costs before recipient distribution.
