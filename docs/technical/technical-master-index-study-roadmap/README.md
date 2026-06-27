@@ -182,6 +182,21 @@ When adding future guides or lessons into this roadmap:
 4. link to curated repo guides instead of duplicating large sections,
 5. update the coverage matrix when a topic becomes materially stronger or a new gap appears.
 
+## Source Material Intake Rule
+
+Use this rule when new technical notes, roadmap packs, architecture material or learning content are added to the knowledge base.
+
+| Step | Action | Expected outcome |
+|---:|---|---|
+| 1 | Classify the source by topic, audience and intended use. | Clear placement decision: new guide, existing guide enrichment, checklist update or no-op. |
+| 2 | Compare it with the current curated guide and coverage matrix. | Duplicate material is skipped; only net-new or clearer content is carried forward. |
+| 3 | Rewrite source language into neutral practitioner guidance. | No local paths, package labels, generated headers, prep-only framing or product-specific branding remains. |
+| 4 | Convert useful ideas into durable artifacts. | Updated index, learning path, checklist, review map, evidence template, maturity rubric or roadmap item. |
+| 5 | Update navigation and coverage evidence. | The README, role guide or coverage matrix reflects the new or strengthened capability. |
+| 6 | Run repository safety checks before publishing. | Links resolve, source-sensitive terms are absent and the repo remains professional. |
+
+The default posture is consolidation, not accumulation. A new source is valuable when it improves decision quality, learning flow, delivery behavior or review evidence.
+
 ## Curation Note
 
 Curated into the technical knowledge base on 2026-06-27 and normalized for reusable technical-learning, KT, role-based roadmap, repository-adoption, architecture-review, PR-quality, production-readiness, AI-adoption and engineering-maturity guidance. Local source paths and package provenance are intentionally not retained.

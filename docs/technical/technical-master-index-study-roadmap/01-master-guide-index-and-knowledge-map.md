@@ -133,6 +133,7 @@ Guide 15 wealth domain and Guide 16 reporting
 | Productization | Use productization, security, support, documentation and evidence packs. |
 | Migration | Use migration, data, reporting, security and operations guides. |
 | AI adoption | Use AI governance, security, testing and productization guides. |
+| Source material intake | Use the roadmap, documentation governance and coverage matrix before adding or rewriting new technical material. |
 
 ## Applied Output Map
 
@@ -164,6 +165,7 @@ Use this matrix when the knowledge base needs to support a concrete delivery or 
 | Migration or replatforming | Migration engineering, data products, reporting evidence, security, testing, production support | Inventory, mapping rules, reconciliation plan, mock-cutover evidence, rollback posture and hypercare plan. |
 | AI-assisted feature | AI/RAG governance, security, data-product engineering, testing certification, observability | Use-case risk tier, source policy, grounding strategy, evaluation set, human-review rule and audit trail. |
 | Enterprise buyer or due-diligence review | Platform productization, security, documentation governance, CI/CD evidence, production support | Readiness scorecard, supported-feature matrix, deployment model, support model and evidence pack. |
+| New technical source material | Technical roadmap, documentation governance, coverage matrix, role guide | Placement decision, duplicate check, sanitized additions, updated navigation and coverage note. |
 
 ## Depth Progression
 

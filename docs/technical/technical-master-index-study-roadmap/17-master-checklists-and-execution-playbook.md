@@ -34,6 +34,20 @@ Use this checklist after reading any guide so the learning produces durable engi
 
 ---
 
+## Source Material Intake Checklist
+
+Use this checklist when adding a new technical note, source pack, roadmap, checklist or architecture-learning document.
+
+- [ ] Identify whether the material strengthens an existing guide, creates a real new topic or should be skipped as duplicate.
+- [ ] Map the material to the closest curated guide, role path and coverage-matrix row.
+- [ ] Remove local paths, package names, generated headers, narrow preparation language and product-specific branding.
+- [ ] Convert useful content into practitioner guidance, KT steps, review questions, evidence artifacts or maturity actions.
+- [ ] Preserve only the level of detail that improves learning, delivery behavior or review quality.
+- [ ] Update navigation, indexes and coverage notes when the curated library becomes materially stronger.
+- [ ] Run link, whitespace and source-safety checks before publishing.
+
+---
+
 ## Repo Adoption Checklist
 
 - [ ] README current.
