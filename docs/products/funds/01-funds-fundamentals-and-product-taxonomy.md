@@ -1,4 +1,4 @@
-# 01 — Funds Fundamentals and Product Taxonomy
+# 01 - Funds Fundamentals and Product Taxonomy
 
 ## 1. What Is a Fund?
 
@@ -410,7 +410,7 @@ Realized gain/loss
 IRR and multiple metrics
 ```
 
-Do not force private market funds into a simple units × daily NAV model unless the product is genuinely structured that way.
+Do not force private market funds into a simple units x daily NAV model unless the product is genuinely structured that way.
 
 ---
 
@@ -489,7 +489,7 @@ Example:
 - Portfolio assets: Global equities
 - Share class: SGD hedged
 
-The hedged share class attempts to reduce currency exposure between the share-class currency and the fund’s base or portfolio currency.
+The hedged share class attempts to reduce currency exposure between the share-class currency and the fund's base or portfolio currency.
 
 Important limitations:
 

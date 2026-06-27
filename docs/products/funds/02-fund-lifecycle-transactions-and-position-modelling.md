@@ -1,4 +1,4 @@
-# 02 — Fund Lifecycle, Transactions and Position Modelling
+# 02 - Fund Lifecycle, Transactions and Position Modelling
 
 ## 1. Why Fund Lifecycle Matters
 
@@ -540,7 +540,7 @@ Quarterly NAV is received.
 | average_cost | Average cost per unit. |
 | cost_amount | Total cost basis. |
 | market_nav | Latest NAV or valuation price. |
-| market_value | Units × NAV. |
+| market_value | Units x NAV. |
 | valuation_currency | Share-class currency. |
 | accrued_income | Usually not used unless distribution entitlement accrued. |
 | pending_subscription_units | Units expected but not confirmed. |
@@ -553,13 +553,13 @@ Quarterly NAV is received.
 Formula:
 
 ```text
-Market Value = Confirmed Units × NAV
+Market Value = Confirmed Units x NAV
 ```
 
 If bid/offer pricing applies:
 
 ```text
-Market Value = Confirmed Units × Valuation Price
+Market Value = Confirmed Units x Valuation Price
 Valuation Price may be bid, mid, offer, NAV or adjusted NAV depending on policy.
 ```
 
@@ -573,7 +573,7 @@ Valuation Price may be bid, mid, offer, NAV or adjusted NAV depending on policy.
 | exchange_price | Market price. |
 | nav_per_share | Fund NAV, analytical. |
 | premium_discount_pct | Market price vs NAV. |
-| market_value | Quantity × exchange price. |
+| market_value | Quantity x exchange price. |
 | trading_currency | Exchange trading currency. |
 | fund_base_currency | Fund accounting/base currency. |
 | distribution_income | Dividends/distributions. |
@@ -599,7 +599,7 @@ ETF/closed-end fund position is operationally closer to equity, but product taxo
 | report_received_date | Date NAV was received. |
 | liquidity_status | Locked / secondary possible / liquidating. |
 
-Private funds should not be valued only by units × daily NAV unless the actual product provides units and daily/periodic NAV in that form.
+Private funds should not be valued only by units x daily NAV unless the actual product provides units and daily/periodic NAV in that form.
 
 ---
 

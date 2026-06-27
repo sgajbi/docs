@@ -1,4 +1,4 @@
-# 03 — Fund Data Model, NAV, Valuation, Fees and Risk
+# 03 - Fund Data Model, NAV, Valuation, Fees and Risk
 
 ## 1. Core Data-Modelling Principle
 
@@ -25,16 +25,16 @@ The investable object is normally the **share class**, because currency, NAV, fe
 
 ```text
 FundHouse
-  └── FundUmbrella
-        └── SubFund
-              └── ShareClass / Instrument
-                    ├── NAVHistory
-                    ├── DistributionSchedule
-                    ├── DealingTerms
-                    ├── FeeTerms
-                    ├── RiskClassification
-                    ├── HoldingsLookThrough
-                    └── ClientPosition
+  +-- FundUmbrella
+        +-- SubFund
+              +-- ShareClass / Instrument
+                    +-- NAVHistory
+                    +-- DistributionSchedule
+                    +-- DealingTerms
+                    +-- FeeTerms
+                    +-- RiskClassification
+                    +-- HoldingsLookThrough
+                    +-- ClientPosition
 ```
 
 Avoid modelling only one flat `fund` table. Real fund products have multiple levels.
@@ -143,13 +143,13 @@ NAV per Unit = (Total Fund Assets - Fund Liabilities) / Units Outstanding
 For an investor position:
 
 ```text
-Market Value = Units Held × NAV per Unit
+Market Value = Units Held x NAV per Unit
 ```
 
 For ETFs and closed-end funds:
 
 ```text
-Market Value = Shares Held × Exchange Market Price
+Market Value = Shares Held x Exchange Market Price
 Premium/Discount = (Market Price - NAV per Share) / NAV per Share
 ```
 
@@ -238,7 +238,7 @@ Units = 100,000 / 10.05 = 9,950.248756 units
 Redemption of 9,950.248756 units:
 
 ```text
-Cash = 9,950.248756 × 9.95 = 99,005.00
+Cash = 9,950.248756 x 9.95 = 99,005.00
 ```
 
 The spread is an economic cost.
@@ -289,7 +289,7 @@ Example:
 
 Two valid models:
 
-### Model A — Explicit fee leg
+### Model A - Explicit fee leg
 
 | Leg | Amount |
 |---|---:|
@@ -297,7 +297,7 @@ Two valid models:
 | Sales charge | -2,000 |
 | Total cash | -100,000 |
 
-### Model B — Embedded fee in transaction
+### Model B - Embedded fee in transaction
 
 | Field | Amount |
 |---|---:|
@@ -462,13 +462,13 @@ Look-through exposure:
 Formula:
 
 ```text
-Look-through Exposure = Client Fund Market Value × Fund Holding Weight
+Look-through Exposure = Client Fund Market Value x Fund Holding Weight
 ```
 
 For fund-of-funds:
 
 ```text
-Client Exposure = Client Fund MV × Fund A weight in Fund B × Fund B underlying weight
+Client Exposure = Client Fund MV x Fund A weight in Fund B x Fund B underlying weight
 ```
 
 Use effective dates carefully.
@@ -496,7 +496,7 @@ If distribution is reinvested, total return should assume reinvestment according
 For client portfolio performance:
 
 ```text
-Fund contribution = position weight × fund holding-period return
+Fund contribution = position weight x fund holding-period return
 ```
 
 But client return also depends on:
@@ -547,7 +547,7 @@ A platform may classify funds using several dimensions.
 | Derivative use | Hedging only / investment / leverage. |
 | Concentration | Broad diversified / concentrated / thematic. |
 | Investor eligibility | Retail / accredited / professional. |
-| Risk rating | Internal 1–5 or 1–7 scale. |
+| Risk rating | Internal 1-5 or 1-7 scale. |
 | Currency risk | Hedged / unhedged / multi-currency. |
 
 Suitability rules should use these fields rather than relying only on product name.
@@ -563,7 +563,7 @@ Fund data quality controls:
 | NAV freshness check | Detect stale NAVs. |
 | NAV movement tolerance | Detect large unexpected price movements. |
 | Currency consistency | NAV currency must match share-class pricing currency. |
-| Distribution reconciliation | Cash received equals units × distribution per unit less tax. |
+| Distribution reconciliation | Cash received equals units x distribution per unit less tax. |
 | Unit balance reconciliation | Custodian units match platform units. |
 | Pending order ageing | Identify stuck unconfirmed orders. |
 | Duplicate NAV check | Avoid duplicate NAV for same date/source/type. |

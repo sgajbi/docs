@@ -1,8 +1,8 @@
-# 04 — Platform Implementation, Advisory, and Practitioner Reference
+# 04 - Platform Implementation, Advisory, and Practitioner Reference
 
 ## 1. Platform View of Funds
 
-From a wealth platform perspective, funds are not just simple price × quantity products. They require support for:
+From a wealth platform perspective, funds are not just simple price x quantity products. They require support for:
 
 - Product hierarchy
 - Share classes
@@ -28,21 +28,21 @@ The platform should model funds as a product family with common structures and s
 
 ```text
 Product Master
-    ↓
+    ->
 Fund Terms / Share Class Terms
-    ↓
+    ->
 Order Management / Advisory Validation
-    ↓
+    ->
 Fund Dealing Engine
-    ↓
+    ->
 Confirmation and Settlement
-    ↓
+    ->
 Transaction Ledger
-    ↓
+    ->
 Position Service
-    ↓
+    ->
 NAV / Valuation Service
-    ↓
+    ->
 Performance, Risk, Suitability and Reporting
 ```
 
