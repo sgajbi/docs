@@ -1837,7 +1837,204 @@ QA assertions:
 | Lot history is missing | Realized tax result is provisional or blocked by policy. |
 | Client report is generated | Trade P&L, realized tax result and remaining exposure are separately visible. |
 
-## 59. Advisory And Mandate Checklist
+## 59. Collateral Rehypothecation Restriction
+
+Scenario:
+
+- An OTC derivative CSA permits cash collateral but prohibits rehypothecation for segregated client assets.
+- The dealer requests permission to reuse posted collateral.
+- Posted collateral is USD 1,200,000.
+- Rehypothecation-eligible amount under current legal agreement is USD 0.
+
+Restriction check:
+
+```text
+restricted_collateral = posted_collateral - rehypothecation_eligible_amount
+restricted_collateral = 1,200,000 - 0 = 1,200,000
+```
+
+Correct treatment:
+
+- preserve CSA terms, segregation status, collateral account, legal owner and rehypothecation flag;
+- block collateral reuse when the governing agreement or client asset rule prohibits it;
+- separate collateral eligibility for margin from collateral eligibility for reuse;
+- report restriction state to operations, treasury and advisor workflows without exposing unrelated client terms.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| CSA prohibits reuse | Rehypothecation amount is zero and reuse workflow is blocked. |
+| Collateral is eligible for margin | Margin eligibility does not override reuse restriction. |
+| Legal terms change | Reuse status updates only from source-backed effective date. |
+| Operations report is generated | Posted, restricted and reusable collateral are separately visible. |
+
+## 60. FX Barrier Digital Payout Dispute
+
+Scenario:
+
+- A digital FX option pays USD 250,000 if EUR/USD trades at or above the barrier during the observation window.
+- Client source shows a high of 1.1052.
+- Dealer source shows a high of 1.1048.
+- Barrier is 1.1050.
+
+Payout state:
+
+```text
+client_source_triggered = 1.1052 >= 1.1050 = true
+dealer_source_triggered = 1.1048 >= 1.1050 = false
+disputed_payout = 250,000
+```
+
+Correct treatment:
+
+- keep the payout disputed until the governing observation source and timestamp are resolved;
+- preserve option terms, barrier level, observation window, source hierarchy and tick data;
+- do not book final digital payout from non-governing price evidence;
+- show provisional, disputed and final payout states separately.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Sources disagree around barrier | Payout remains disputed or provisional. |
+| Governing source confirms barrier hit | Digital payout is booked from confirmed source. |
+| Governing source confirms no hit | Option expires without payout and dispute evidence is retained. |
+| Client report is generated during dispute | Payoff state is labelled disputed, not final. |
+
+## 61. Option Auto-Exercise Threshold
+
+Scenario:
+
+- A listed call option is in the money by 0.04 at expiry.
+- Exchange auto-exercise threshold is 0.01.
+- Client has a do-not-exercise instruction for half the contracts.
+- Position is 20 contracts, contract size is 100.
+
+Exercise quantity:
+
+```text
+auto_exercise_contracts_before_instruction = 20
+do_not_exercise_contracts = 10
+final_exercised_contracts = 20 - 10 = 10
+delivered_shares = 10 x 100 = 1,000
+```
+
+Correct treatment:
+
+- apply exchange auto-exercise rules, client instructions, account eligibility and funding checks together;
+- preserve expiry price, threshold rule, do-not-exercise instruction, timestamp and clearing confirmation;
+- create underlying shares and strike cash only for final exercised contracts;
+- expire non-exercised contracts with clear reason and audit trail.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Option is above auto-exercise threshold | Auto-exercise workflow opens. |
+| Valid do-not-exercise instruction exists | Final exercise quantity excludes instructed contracts. |
+| Funding is insufficient | Exercise is blocked or exceptioned by policy. |
+| Expiry report is generated | Exercised, not-exercised and expired quantities reconcile to opening contracts. |
+
+## 62. Cleared Margin Model Migration
+
+Scenario:
+
+- A clearing house migrates from one margin model version to another.
+- Initial margin increases from USD 820,000 to USD 970,000 for the same cleared swap portfolio.
+- Market MTM is unchanged.
+
+Model impact:
+
+```text
+margin_model_delta = 970,000 - 820,000 = 150,000
+margin_model_delta_percentage = 150,000 / 820,000 = 18.29%
+```
+
+Correct treatment:
+
+- preserve old model version, new model version, effective date, clearing house notice and portfolio population;
+- separate model-driven margin change from market MTM movement and new trade activity;
+- update liquidity projections and margin dashboards from the migration effective date;
+- keep backtesting, approval and client explanation evidence for the methodology change.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Margin model changes | Initial margin changes with model-version lineage. |
+| MTM is unchanged | P&L does not change because margin methodology changed. |
+| Effective date is future-dated | Current margin remains on old model until effective date. |
+| Liquidity report is generated | Additional margin need is shown as model migration impact. |
+
+## 63. Swaption Exercise Settlement
+
+Scenario:
+
+- A physically settled payer swaption is exercised.
+- Exercise creates an underlying interest-rate swap rather than a cash-only payout.
+- Swaption notional is USD 15,000,000.
+- Exercise fee is USD 12,000.
+- Swap start date is two business days after exercise.
+
+Settlement workflow:
+
+```text
+exercise confirmed -> close swaption -> create underlying swap -> post exercise fee -> initialize swap schedule
+```
+
+Correct treatment:
+
+- validate exercise date, notice deadline, settlement method and swap terms before creating the underlying swap;
+- close the option position and create the swap only after exercise confirmation;
+- preserve swaption confirmation, exercise notice, resulting swap identifier, fee and schedule;
+- update DV01, counterparty exposure, collateral and future cashflows from the new swap.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Swaption is physically settled | Underlying swap is created after confirmed exercise. |
+| Exercise notice is late | Exercise is blocked or disputed according to terms. |
+| Cash-settled swaption is exercised | Cash settlement posts instead of creating a swap. |
+| Risk report is generated | Swaption exposure closes and swap DV01/exposure opens. |
+
+## 64. Total Return Swap Corporate-Action Basket Adjustment
+
+Scenario:
+
+- A total return swap references an equity basket.
+- One basket component completes a 2-for-1 stock split and another pays a special dividend.
+- The swap economics must adjust basket quantity and dividend return without creating direct client holdings.
+
+| Component | Event | Prior quantity | Adjustment |
+|---|---|---:|---|
+| Equity A | 2-for-1 split | 50,000 | New reference quantity 100,000 |
+| Equity B | Special dividend | 40,000 | Dividend adjustment 80,000 |
+
+Dividend adjustment:
+
+```text
+special_dividend_adjustment = 40,000 x 2.00 = 80,000
+```
+
+Correct treatment:
+
+- preserve basket composition, corporate-action terms, effective date and dealer calculation notice;
+- adjust reference basket economics without creating physical equity positions for the client;
+- separate synthetic dividend return, price return, financing leg and reset cashflow;
+- update exposure, attribution and client explanation from effective-dated basket terms.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Basket component splits | Reference quantity adjusts without creating client shares. |
+| Special dividend is confirmed | Synthetic dividend adjustment posts according to swap terms. |
+| Dealer notice is missing | Basket adjustment remains provisional or source-limited. |
+| Attribution report is generated | Price return, dividend adjustment and financing leg are separate. |
+
+## 65. Advisory And Mandate Checklist
 
 Before using derivatives in advisory or DPM workflows, check:
 
@@ -1852,7 +2049,7 @@ Before using derivatives in advisory or DPM workflows, check:
 | Authority | Who may approve trade, exercise, close-out, collateral movement, or unwind? |
 | Reporting | Which client/advisor labels and warnings are required? |
 
-## 60. Current Support Boundary And Candidate Extensions
+## 66. Current Support Boundary And Candidate Extensions
 
 | Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
 |---|---|---|
@@ -1863,7 +2060,7 @@ Before using derivatives in advisory or DPM workflows, check:
 | Lifecycle events | expiry, exercise, assignment, reset, fixing, settlement, novation, compression, clearing, porting, barrier events and notional exchanges when sourced | automated OTC confirmation matching, lifecycle replay engine and event generation |
 | Reporting | market value, exposure, source date, stale/unsupported labels, hedge overlay split, strategy grouping and clearing state where sourced | advanced hedge-effectiveness reporting and multi-factor attribution |
 
-## 61. Regression Test Pack
+## 67. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -1929,3 +2126,9 @@ Minimum release-gate scenarios:
 60. Swap rate-fixing dispute preserves internal fixing, dealer fixing, governing source and adjustment cashflow lineage.
 61. Portfolio compression rejection reduces notional only for accepted trades with final consent evidence.
 62. Derivative tax-lot close-out reporting reconciles closed lots, remaining lots, proceeds and realized tax result.
+63. Collateral rehypothecation restriction separates margin eligibility from collateral reuse permission.
+64. FX barrier digital payout dispute remains provisional until governing observation source resolves the barrier state.
+65. Option auto-exercise threshold applies exchange rules, client instructions, funding checks and final clearing confirmation.
+66. Cleared margin model migration separates methodology-driven margin change from market MTM movement.
+67. Swaption exercise settlement creates the correct resulting swap or cashflow according to settlement terms.
+68. Total return swap corporate-action basket adjustment changes synthetic economics without creating physical holdings.
