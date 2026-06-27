@@ -4211,3 +4211,238 @@ below_threshold = revised_ratio < policy_alert_threshold
 | Effective date is future-dated | Current report preserves current tier and future-dated pending state. |
 | Historic report is regenerated | Prior tier remains versioned by report date. |
 | Redemption estimate is requested | Estimate uses revised liquidity and redemption terms. |
+
+## Example 104. Intraday cash sweeping misallocation
+
+### Scenario
+
+An intraday sweep moved excess cash from operating accounts into a treasury account. The sweep engine used stale available-cash snapshots and pulled too much cash from one account, creating a payment shortfall later in the day.
+
+| Account | Latest certified available cash | Sweep executed | Reserved outgoing payments |
+|---|---:|---:|---:|
+| Account A | 1,200,000 | 950,000 | 400,000 |
+| Account B | 800,000 | 300,000 | 250,000 |
+
+### Misallocated sweep amount
+
+```text
+maximum_safe_sweep = certified_available_cash - reserved_outgoing_payments
+account_a_maximum_safe_sweep = 1,200,000 - 400,000 = 800,000
+account_a_misallocated_sweep = 950,000 - 800,000 = 150,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve sweep run id, cash snapshot timestamp, payment reservations, treasury rule and exception owner. |
+| Cash state | Separate swept cash, reserved payment cash and residual available cash. |
+| Operations | Reverse, partially unwind or fund the shortfall before the payment cut-off. |
+| Reporting | Label the event as sweep misallocation, not client withdrawal or investment activity. |
+| Controls | Block sweep execution when source cash snapshot is stale or payment reservation data is incomplete. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Sweep exceeds safe amount | Misallocated amount is calculated and exceptioned. |
+| Payment reservation changes after sweep | Revalidation opens a payment-risk alert. |
+| Sweep reversal is booked | Reversal links to original sweep run and does not create unrelated cashflow. |
+| Cash report is generated | Swept, reserved, available and misallocated amounts remain distinct. |
+
+## Example 105. Deposit insurance limit monitoring
+
+### Scenario
+
+A client holds multiple deposits across entities and booking centres. A new rollover would increase exposure above the monitored deposit insurance threshold for one protected entity.
+
+| Attribute | Value |
+|---|---:|
+| Existing protected deposits | 230,000 |
+| Proposed rollover | 90,000 |
+| Insurance monitoring limit | 250,000 |
+| Excess after rollover | 70,000 |
+
+### Excess exposure
+
+```text
+insured_limit_excess = existing_protected_deposits + proposed_rollover - insurance_monitoring_limit
+insured_limit_excess = 230,000 + 90,000 - 250,000 = 70,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve legal entity, depositor identity, booking centre, protection scheme, limit version and rollover instruction. |
+| Advisory | Show protected, unprotected and excess exposure before rollover confirmation. |
+| DPM | Route mandate breaches or concentration exceptions through approval workflow. |
+| Reporting | Avoid implying that the full balance is insured when only part is protected. |
+| Controls | Recalculate exposure when ownership, entity, currency or protection-scheme rules change. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Rollover creates excess | Excess exposure is visible before execution. |
+| Protection limit changes | Monitoring recalculates from effective date. |
+| Deposits are split across entities | Exposure groups by source-backed protected entity rules. |
+| Client report is produced | Protected and unprotected balances are labelled separately. |
+
+## Example 106. FX pre-hedge cash reservation dispute
+
+### Scenario
+
+A portfolio manager pre-hedges an expected foreign-currency purchase. Cash is reserved for the expected settlement, but the underlying purchase is reduced before trade date and the reservation is not released.
+
+| Attribute | Value |
+|---|---:|
+| Original expected purchase | 2,000,000 |
+| Revised purchase | 1,350,000 |
+| Pre-hedge cash reservation | 2,040,000 |
+| Required revised reservation | 1,377,000 |
+
+### Excess reservation
+
+```text
+excess_reserved_cash = pre_hedge_cash_reservation - required_revised_reservation
+excess_reserved_cash = 2,040,000 - 1,377,000 = 663,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve original order, revised order, hedge instruction, reservation id, FX quote and release approval. |
+| Cash | Separate required hedge funding from excess reserved cash. |
+| Risk | Keep hedge economics separate from cash reservation dispute. |
+| Advisory | Flag excess reservation where it restricts client liquidity or other orders. |
+| Controls | Release or resize reservation only from source-backed order and hedge state. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Underlying purchase is reduced | Required reservation recalculates from revised exposure. |
+| Reservation remains oversized | Excess reserved cash is surfaced as blocked liquidity. |
+| Hedge is already executed | Hedge P&L remains separate from cash release. |
+| Reservation is released | Release links to revised order and approval evidence. |
+
+## Example 107. Payment-service-provider settlement delay
+
+### Scenario
+
+A payment-service provider confirms client card receipts, but settlement into the custody cash account is delayed by one business day. The platform must not treat confirmed PSP receipts as settled ledger cash.
+
+| Attribute | Value |
+|---|---:|
+| PSP confirmed receipts | 180,000 |
+| Settled bank cash | 120,000 |
+| Unsettled PSP amount | 60,000 |
+| Settlement delay | 1 business day |
+
+### Unsettled receivable
+
+```text
+unsettled_psp_receivable = psp_confirmed_receipts - settled_bank_cash
+unsettled_psp_receivable = 180,000 - 120,000 = 60,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve PSP confirmation, settlement file, bank statement, value date, expected settlement date and delay reason. |
+| Cash | Treat unsettled PSP amount as receivable or projected cash, not settled cash. |
+| Liquidity | Exclude delayed settlement from same-day payment capacity unless policy permits advance funding. |
+| Reporting | Explain timing difference between confirmed receipts and settled cash. |
+| Controls | Age delayed PSP settlements and escalate beyond tolerance. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| PSP confirms but bank cash not received | Amount is projected or receivable, not ledger cash. |
+| Settlement delay breaches tolerance | Operational ageing alert opens. |
+| Advance funding is approved | Funding carries approval and remains separate from PSP settlement. |
+| Statement is generated | Confirmed, settled and delayed amounts are labelled distinctly. |
+
+## Example 108. Client cash statement language localization
+
+### Scenario
+
+A multilingual cash statement uses a translated label that incorrectly describes restricted escrow cash as available cash. The numeric balance is correct, but the localized wording creates a client-facing misstatement.
+
+| Attribute | Value |
+|---|---:|
+| Restricted escrow cash | 300,000 |
+| Available cash | 695,000 |
+| Incorrect localized label amount | 300,000 |
+| Correct restricted label amount | 300,000 |
+
+### Mislabelled restricted cash
+
+```text
+mislabelled_available_cash = restricted_cash_labelled_as_available
+mislabelled_available_cash = 300,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve translation key, language, statement version, balance type, approval workflow and correction notice. |
+| Reporting | Correct the localized label without changing source cash balances. |
+| Controls | Require translation review for regulated, restricted, provisional and projected cash states. |
+| Client experience | Issue correction where the statement was already delivered and the wording could mislead. |
+| QA | Test labels by balance state, not only by numeric output. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Restricted cash is translated | Label remains restricted in every supported language. |
+| Numeric balance is correct but label is wrong | Statement correction workflow still opens. |
+| Translation key is updated | Prior statement version and correction notice remain auditable. |
+| Report QA runs | Localized labels are checked against balance-state dictionary. |
+
+## Example 109. Emergency liquidity waiver expiry
+
+### Scenario
+
+An emergency liquidity waiver temporarily allows a client group to exceed a cash concentration or liquidity-buffer rule. The waiver expires before the next payment cycle, but the release engine still treats it as active.
+
+| Attribute | Value |
+|---|---:|
+| Required liquidity buffer | 1,000,000 |
+| Actual liquidity buffer | 720,000 |
+| Waiver shortfall permitted | 350,000 |
+| Current shortfall | 280,000 |
+
+### Expired waiver impact
+
+```text
+liquidity_shortfall = required_liquidity_buffer - actual_liquidity_buffer
+liquidity_shortfall = 1,000,000 - 720,000 = 280,000
+
+release_allowed = waiver_active and liquidity_shortfall <= waiver_shortfall_permitted
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve waiver approval, expiry timestamp, allowed shortfall, liquidity policy, release request and reviewer. |
+| Release control | Reject or re-route payment release when the waiver is expired, even if the shortfall is within prior waiver size. |
+| Operations | Escalate to renewal, funding, payment delay or policy exception workflow. |
+| Reporting | Show expired waiver state and current liquidity shortfall. |
+| Controls | Evaluate waiver validity at decision time, not only at queue-entry time. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Waiver expired before release | Release is blocked or re-approved. |
+| Shortfall is within old waiver limit | Expired waiver is still invalid. |
+| Waiver is renewed | Renewal has new approval, expiry and reviewer evidence. |
+| Liquidity dashboard is generated | Required buffer, actual buffer, shortfall and waiver state are distinct. |
