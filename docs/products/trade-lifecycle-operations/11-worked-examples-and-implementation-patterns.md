@@ -1418,3 +1418,239 @@ economic_terms_changed = false
 | Authority is missing | Amendment is blocked. |
 | Custodian rejects amendment | Settlement route remains old or exceptioned with rejection evidence. |
 | Economic terms change | Request is treated as correction/cancel-rebook, not settlement amendment. |
+
+## Example 40. Trade Date And Value Date Calendar Mismatch
+
+### Scenario
+
+A cross-border bond purchase is booked on a trade date where the execution market is open, but the funding currency has a holiday on the expected settlement date. The system must separate valid execution from funding-date repair and avoid treating the mismatch as a failed trade.
+
+| Attribute | Value |
+|---|---|
+| Trade date | Monday |
+| Security settlement cycle | T+2 |
+| Expected settlement date | Wednesday |
+| Funding currency calendar | Holiday on Wednesday |
+| Repaired value date | Thursday |
+
+### Date repair
+
+```text
+expected_settlement_date = trade_date + security_market_cycle
+funding_value_date_valid = expected_settlement_date not in funding_currency_holidays
+repaired_value_date = next_valid_funding_business_day
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Execution | Preserve original trade date, execution venue and contractual settlement cycle. |
+| Calendar validation | Validate security market, custodian, funding currency and payment rail calendars separately. |
+| Repair | Create value-date repair evidence rather than changing the executed trade date. |
+| Cash reservation | Reserve funding through the repaired value date and show the reason for extension. |
+| Reporting | Label expected, repaired and actual settlement dates distinctly. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Security market is open but funding currency is closed | Trade remains valid and value-date repair opens. |
+| Repaired date is selected | Original contractual date and repair reason are retained. |
+| Cash report is generated | Funding remains reserved until valid repaired value date. |
+| Performance report is generated | Trade-date exposure and settlement cash state are not confused. |
+
+## Example 41. Short-Settlement Market Conversion
+
+### Scenario
+
+A market migrates from T+2 to T+1 settlement. Trades executed before the effective date retain T+2, while trades executed after the effective date use T+1. Operations must avoid applying the new cycle retroactively.
+
+| Trade population | Trades | Settlement cycle |
+|---|---:|---|
+| Before conversion date | 124 | T+2 |
+| On/after conversion date | 96 | T+1 |
+| Exceptions needing review | 7 | Mixed source signals |
+
+### Cycle assignment
+
+```text
+settlement_cycle = new_cycle if trade_date >= conversion_effective_date else old_cycle
+exception_rate = exception_count / total_trades
+exception_rate = 7 / 220 = 3.18%
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Rule setup | Preserve market, asset class, conversion date, old cycle, new cycle and source notice. |
+| Trade capture | Assign settlement cycle by trade date and market rule version. |
+| Exception review | Flag trades with broker/custodian cycle mismatch for repair. |
+| Downstream impact | Recalculate funding, FX settlement, cut-off and fail-risk dates from assigned cycle. |
+| Reporting | Show conversion exceptions separately from genuine settlement fails. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Trade is before conversion date | Old settlement cycle applies. |
+| Trade is after conversion date | New settlement cycle applies. |
+| Broker sends conflicting cycle | Exception opens with source comparison. |
+| Settlement calendar changes | Funding and FX linked settlement dates update from assigned cycle. |
+
+## Example 42. Broker Step-Out Correction
+
+### Scenario
+
+A block trade is executed by one broker but stepped out to another broker for settlement. The original execution economics remain unchanged, while settlement counterparty and commission allocation are corrected.
+
+| Attribute | Original | Corrected |
+|---|---|---|
+| Execution broker | Broker A | Broker A |
+| Settlement broker | Broker A | Broker B |
+| Quantity | 25,000 | 25,000 |
+| Commission allocation | 100% Broker A | 60% Broker A / 40% Broker B |
+
+### Commission split
+
+```text
+broker_a_commission = total_commission x 60%
+broker_b_commission = total_commission x 40%
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Execution lineage | Preserve original execution broker, time, venue, quantity and price. |
+| Step-out instruction | Version settlement broker, allocation split, approval and broker acknowledgement. |
+| Confirmation | Reconcile execution confirmation to settlement confirmation without duplicating the trade. |
+| Fees | Allocate commission according to corrected step-out economics and approval. |
+| Reporting | Show execution source and settlement counterparty separately. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Step-out changes settlement broker only | Trade economics remain unchanged. |
+| Commission split changes | Fee allocation posts from corrected approval and retains prior version. |
+| Settlement broker rejects step-out | Trade remains exceptioned with rejection evidence. |
+| Report is generated | Execution broker and settlement broker are distinct fields. |
+
+## Example 43. Settlement Allegement Dispute
+
+### Scenario
+
+A custodian receives a settlement allegement from an external counterparty, but internal trade records do not match the alleged quantity and settlement amount. Operations must investigate without creating an unsupported trade.
+
+| Attribute | Alleged | Internal |
+|---|---:|---:|
+| Quantity | 15,000 | 10,000 |
+| Settlement cash | 303,000 | 202,000 |
+| Price | 20.20 | 20.20 |
+
+### Allegement break
+
+```text
+quantity_break = alleged_quantity - internal_quantity
+quantity_break = 15,000 - 10,000 = 5,000
+cash_break = alleged_cash - internal_cash
+cash_break = 303,000 - 202,000 = 101,000
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Intake | Preserve allegement id, counterparty, custodian message, instrument, quantity and cash. |
+| Matching | Compare allegement against internal trade, allocation, cancellation and step-out records. |
+| Booking control | Do not create a trade solely from an unmatched allegement. |
+| Repair | Route to counterparty dispute, internal missing-trade investigation or cancel/correct workflow. |
+| Reporting | Show allegement exposure as operational exception, not settled position or cash. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Allegement has no internal trade match | Exception opens and no position is booked. |
+| Quantity differs | Break amount and disputed quantity are calculated. |
+| Counterparty withdraws allegement | Exception closes with withdrawal evidence. |
+| Internal missing trade is confirmed | Trade is booked through approved capture workflow with allegement linkage. |
+
+## Example 44. Income Event Reversal Ageing
+
+### Scenario
+
+An income event was credited to clients and later reversed by the custodian because eligibility was corrected. Several client reversals remain pending due to insufficient cash or closed accounts.
+
+| Age bucket | Pending reversals | Reversal amount |
+|---|---:|---:|
+| 0-5 days | 9 | 18,750 |
+| 6-15 days | 4 | 32,400 |
+| 16+ days | 2 | 45,600 |
+
+### Ageing exposure
+
+```text
+total_pending_reversal = 18,750 + 32,400 + 45,600 = 96,750
+aged_reversal_ratio_16_plus = 45,600 / 96,750 = 47.13%
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Reversal source | Preserve custodian reversal notice, original income event, entitlement change and impacted accounts. |
+| Cash handling | Reverse cash only where permitted; route insufficient-cash cases to overdraft, claim or waiver workflow. |
+| Closed accounts | Use account-closure procedures rather than silently writing off reversals. |
+| Ageing | Track owner, due date, ageing bucket, client impact and materiality. |
+| Reporting | Show original income, reversal, pending amount and ageing state separately. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Reversal arrives after client credit | Original income and reversal are linked, not netted away silently. |
+| Client has insufficient cash | Pending reversal exception opens. |
+| Account is closed | Closure-specific recovery or write-off workflow is required. |
+| Ageing exceeds threshold | Escalation and materiality reporting update. |
+
+## Example 45. Manual Ledger Posting Approval
+
+### Scenario
+
+Operations needs a manual ledger posting to correct a small residual cash break after reconciliation. The posting must carry reason, evidence, maker-checker approval and client-impact classification.
+
+| Attribute | Value |
+|---|---:|
+| Residual cash break | 375 |
+| Materiality threshold | 500 |
+| Accounts impacted | 3 |
+| Approval required | Yes |
+
+### Posting decision
+
+```text
+below_materiality_threshold = residual_cash_break < materiality_threshold
+manual_posting_allowed = below_materiality_threshold and approval_complete and evidence_attached
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Break review | Preserve reconciliation break, source files, investigation notes and failed auto-match reason. |
+| Approval | Require maker-checker approval, posting reason, account scope and client-impact classification. |
+| Posting | Post only the approved amount to approved accounts with linkage to the break id. |
+| Controls | Prevent repeated small postings from bypassing cumulative materiality or root-cause review. |
+| Reporting | Expose manual posting count, amount, approver and residual break closure evidence. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Evidence is missing | Manual posting cannot be approved. |
+| Amount exceeds threshold | Higher approval or non-manual remediation is required. |
+| Posting is approved | Ledger entry links to break id, approver and reason code. |
+| Similar breaks repeat | Cumulative monitoring opens root-cause review. |
