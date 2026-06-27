@@ -229,4 +229,3 @@ Avoid:
 6. charts that omit source date or metric definition,
 7. browser screenshots captured before API validation,
 8. UI copy that promises future features as current support.
-
