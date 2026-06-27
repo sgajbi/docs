@@ -4692,3 +4692,256 @@ renewal_within_prior_size = true
 | Shortfall fits old approval | New approval is still required after expiry or material rationale change. |
 | Renewal is rejected | Payment release follows funding or deferral workflow. |
 | Dashboard is generated | Waiver state, shortfall, expiry and renewal owner are visible. |
+
+## Example 116. Sweep auto-reversal tolerance breach
+
+### Scenario
+
+A treasury sweep reversal is configured for automatic processing up to a small tolerance. A late payment release requires a reversal above that tolerance, so the workflow must route to manual approval instead of silently unwinding the sweep.
+
+| Attribute | Value |
+|---|---:|
+| Required reversal | 475,000 |
+| Auto-reversal tolerance | 250,000 |
+| Excess above tolerance | 225,000 |
+| Payment cut-off remaining | 45 minutes |
+
+### Tolerance breach
+
+```text
+auto_reversal_excess = required_reversal - auto_reversal_tolerance
+auto_reversal_excess = 475,000 - 250,000 = 225,000
+
+manual_approval_required = required_reversal > auto_reversal_tolerance
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve sweep run, reversal request, tolerance version, payment reason, approver and cut-off timestamp. |
+| Cash | Keep pending reversal, approved reversal and completed reversal states separate. |
+| Operations | Escalate to manual approval when tolerance is breached or cut-off risk is high. |
+| DPM | Flag repeated large reversals as liquidity-buffer or mandate cash-floor review items. |
+| Controls | Prevent auto-reversal rules from bypassing maker/checker thresholds. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Reversal exceeds tolerance | Manual approval is required before execution. |
+| Reversal is within tolerance | Auto-reversal can proceed if source evidence is complete. |
+| Cut-off is near | Workflow shows time-critical escalation state. |
+| Report is generated | Auto, manual, pending and completed reversals remain distinct. |
+
+## Example 117. Deposit insurer payout timeline
+
+### Scenario
+
+A bank failure triggers a deposit protection event. Protected balances are expected to be paid by the insurer after a statutory processing window, while unprotected balances remain subject to recovery uncertainty.
+
+| Attribute | Value |
+|---|---:|
+| Total deposit balance | 420,000 |
+| Protected amount | 250,000 |
+| Unprotected amount | 170,000 |
+| Expected protected payout days | 7 |
+
+### Protected and unprotected split
+
+```text
+unprotected_amount = total_deposit_balance - protected_amount
+unprotected_amount = 420,000 - 250,000 = 170,000
+
+expected_payout_date = protection_event_date + statutory_payout_days
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve protection event notice, insurer guidance, depositor identity, protected amount and expected payout date. |
+| Cash | Reclassify protected payout as expected receivable until insurer payment is received. |
+| Valuation | Keep unprotected amount under recovery or impairment policy rather than treating it as available cash. |
+| Reporting | Explain protected payout timeline, unprotected exposure and uncertainty separately. |
+| Controls | Block use of expected payout as same-day liquidity unless bridge funding is explicitly approved. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Protection event occurs | Protected and unprotected balances split by source-backed scheme rules. |
+| Payout not yet received | Protected amount is receivable, not ledger cash. |
+| Unprotected recovery estimate changes | Reporting updates recovery state without changing protected payout. |
+| Payment is received | Receivable clears to settled cash with insurer evidence. |
+
+## Example 118. FX hedge cost allocation dispute
+
+### Scenario
+
+A block FX hedge was executed for several accounts. One account later disputes its allocation after the underlying orders are resized, creating a mismatch between approved allocation weights and realized hedge cost.
+
+| Attribute | Value |
+|---|---:|
+| Total hedge unwind cost | 18,000 |
+| Approved account weight | 35% |
+| Account allocated cost | 8,100 |
+| Expected cost by approved weight | 6,300 |
+
+### Allocation variance
+
+```text
+expected_account_cost = total_hedge_unwind_cost x approved_account_weight
+expected_account_cost = 18,000 x 35% = 6,300
+
+allocation_variance = account_allocated_cost - expected_account_cost
+allocation_variance = 8,100 - 6,300 = 1,800
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve hedge ticket, participating accounts, approved weights, resized orders, cost allocation rule and dispute owner. |
+| Cash | Separate allocated hedge cost, disputed variance and any provisional adjustment. |
+| Performance | Do not restate account performance until allocation correction is approved. |
+| Advisory | Explain allocation basis and why resized orders changed or did not change cost sharing. |
+| Controls | Require allocation weights to be locked, amended or recalculated under an explicit policy. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Account allocation differs from approved weight | Variance is calculated and disputed. |
+| Order is resized after hedge | Allocation policy determines whether weights change. |
+| Provisional credit is posted | Credit remains linked to dispute and is reversible. |
+| Performance report is generated | Approved and disputed cost treatment is labelled consistently. |
+
+## Example 119. PSP chargeback reserve top-up
+
+### Scenario
+
+A payment-service provider increases the rolling reserve requirement after a spike in chargebacks. Additional receipts are withheld, reducing near-term available liquidity.
+
+| Attribute | Value |
+|---|---:|
+| Gross PSP receipts | 300,000 |
+| Prior reserve rate | 5% |
+| Revised reserve rate | 12% |
+| Incremental reserve top-up | 21,000 |
+
+### Reserve top-up
+
+```text
+prior_reserve = gross_psp_receipts x prior_reserve_rate
+prior_reserve = 300,000 x 5% = 15,000
+
+revised_reserve = gross_psp_receipts x revised_reserve_rate
+revised_reserve = 300,000 x 12% = 36,000
+
+incremental_reserve_top_up = revised_reserve - prior_reserve
+incremental_reserve_top_up = 36,000 - 15,000 = 21,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve PSP reserve notice, chargeback trend, revised reserve rate, effective date and settlement file. |
+| Cash | Reduce expected settled cash by the incremental reserve top-up. |
+| Liquidity | Update short-term liquidity forecast and payment release capacity. |
+| Reporting | Show reserve top-up as restricted settlement holdback, not fee expense unless policy says otherwise. |
+| Controls | Age reserves and reconcile future releases or chargeback use against PSP statements. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Reserve rate increases | Incremental holdback is calculated from effective date. |
+| PSP settlement arrives net of reserve | Ledger cash matches bank settlement, with restricted reserve tracked separately. |
+| Liquidity report is generated | Available cash excludes withheld reserve. |
+| Reserve is later released | Release clears restricted receivable rather than creating new income. |
+
+## Example 120. Localized cash-risk warning
+
+### Scenario
+
+A client statement includes a cash-risk warning for projected cash, but one localized version omits the warning that projected cash is not settled or available. The balance is correct, but the risk language is incomplete.
+
+| Attribute | Value |
+|---|---:|
+| Projected cash balance | 850,000 |
+| Settled cash balance | 410,000 |
+| Pending settlement receivable | 440,000 |
+| Localized warning missing amount | 850,000 |
+
+### Projected cash dependency
+
+```text
+projected_cash = settled_cash + pending_settlement_receivable
+projected_cash = 410,000 + 440,000 = 850,000
+
+unsettled_component = projected_cash - settled_cash
+unsettled_component = 850,000 - 410,000 = 440,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve statement version, language, translation key, balance-state dictionary, pending settlement source and approval. |
+| Reporting | Display projected-cash warning in every supported language where projected cash is shown. |
+| Client experience | Correct delivered statements if missing warning could mislead cash availability decisions. |
+| Advisory | Ensure relationship teams can explain settled, available and projected cash distinctions. |
+| Controls | Test warning presence by balance state and language, not only by statement template. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Projected cash appears | Risk warning is present in every supported language. |
+| Warning is missing in one language | Statement delivery blocks or correction workflow opens. |
+| Pending settlement fails | Projected cash and warning update from revised settlement state. |
+| Report is archived | Statement version and translation approval remain auditable. |
+
+## Example 121. Liquidity-waiver breach remediation
+
+### Scenario
+
+A renewed liquidity waiver permits a temporary buffer shortfall, but the portfolio breaches the approved shortfall after an unexpected payment. The breach requires remediation rather than silent continuation under the old waiver.
+
+| Attribute | Value |
+|---|---:|
+| Required liquidity buffer | 2,000,000 |
+| Approved waiver shortfall | 500,000 |
+| Actual buffer after payment | 1,360,000 |
+| Actual shortfall | 640,000 |
+
+### Breach amount
+
+```text
+actual_shortfall = required_liquidity_buffer - actual_buffer
+actual_shortfall = 2,000,000 - 1,360,000 = 640,000
+
+waiver_breach_amount = actual_shortfall - approved_waiver_shortfall
+waiver_breach_amount = 640,000 - 500,000 = 140,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve waiver approval, payment event, actual buffer, breach amount, remediation owner and closure evidence. |
+| Control | Treat breach as a new exception even when a waiver is active. |
+| Operations | Route to funding, payment reversal, asset sale, waiver amendment or breach acceptance workflow. |
+| DPM | Review mandate cash floor, client restrictions and recurring breach pattern. |
+| Reporting | Show approved shortfall, actual shortfall, breach amount and remediation state separately. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Actual shortfall exceeds waiver | Breach amount is calculated and exceptioned. |
+| Waiver is active | Active waiver does not suppress breach escalation. |
+| Remediation closes breach | Closure evidence links to funding, reversal, sale or approved amendment. |
+| Liquidity dashboard is generated | Approved waiver, actual shortfall and breach remediation are distinct. |
