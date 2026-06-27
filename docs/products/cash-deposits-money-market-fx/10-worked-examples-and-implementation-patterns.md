@@ -3974,3 +3974,240 @@ substitution_shortfall = 1,000,000 - 923,400 = 76,600
 | FX rate is stale | Substitution valuation is source-limited. |
 | Top-up is posted | Release recalculates after confirmed top-up. |
 | Collateral report is generated | Gross EUR, FX value, haircut and shortfall are distinct. |
+
+## Example 98. Cash statement correction reversal
+
+### Scenario
+
+A monthly cash statement included a correction credit for a bank fee dispute. The bank later reverses part of the correction because only part of the disputed fee was accepted.
+
+| Attribute | Value |
+|---|---:|
+| Original disputed fee | 1,200 |
+| Initial correction credit | 1,200 |
+| Bank accepted credit | 750 |
+| Reversal required | 450 |
+
+### Reversal amount
+
+```text
+reversal_required = initial_correction_credit - bank_accepted_credit
+reversal_required = 1,200 - 750 = 450
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Lineage | Preserve original fee, correction credit, bank dispute response, reversal and statement versions. |
+| Cash | Book reversal as a linked correction, not as a new unrelated fee. |
+| Reporting | Show original statement, corrected statement and reversal impact with clear effective date. |
+| Reconciliation | Reconcile bank statement, internal ledger and client statement across all versions. |
+| Controls | Prevent repeated correction/reversal loops without dispute-owner review. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Bank partially accepts dispute | Reversal equals unsupported credit amount. |
+| Reversal posts | Original correction lineage is retained. |
+| Statement is regenerated | Prior and current statement versions remain auditable. |
+| Reversal lacks bank evidence | Posting remains pending or exceptioned. |
+
+## Example 99. Payment chargeback evidence
+
+### Scenario
+
+A card or payment rail chargeback is opened after a client disputes an outgoing payment. Provisional recovery is credited, but the merchant response is still pending.
+
+| Attribute | Value |
+|---|---:|
+| Disputed payment | 4,800 |
+| Provisional credit | 4,800 |
+| Merchant accepted amount | 3,200 |
+| Merchant contested amount | 1,600 |
+
+### Unresolved chargeback exposure
+
+```text
+unresolved_chargeback = provisional_credit - merchant_accepted_amount
+unresolved_chargeback = 4,800 - 3,200 = 1,600
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Evidence | Preserve client dispute, original payment, provisional credit, merchant response and scheme deadline. |
+| Cash | Keep provisional credit separate from final recovered cash until chargeback outcome is final. |
+| Risk | Track contested amount, ageing and reversal risk. |
+| Reporting | Label provisional and final recovery distinctly in client and operations views. |
+| Controls | Do not release restricted funds or close the case without final scheme or merchant evidence. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Provisional credit is granted | Credit is labelled provisional and linked to dispute case. |
+| Merchant partially accepts | Accepted and contested amounts remain separate. |
+| Merchant wins dispute | Provisional credit reversal workflow opens. |
+| Case is reported | Evidence, deadline and cash state are visible. |
+
+## Example 100. Treasury same-bank offsetting exception
+
+### Scenario
+
+Treasury proposes to offset a same-bank cash surplus in one client group against a deficit in another. Policy permits operational offsetting only when client-money, legal-entity and mandate restrictions allow it.
+
+| Attribute | Value |
+|---|---:|
+| Group A surplus | 2,000,000 |
+| Group B deficit | 1,500,000 |
+| Legally offsettable amount | 900,000 |
+| Restricted surplus | 1,100,000 |
+
+### Offset gap
+
+```text
+uncovered_deficit_after_offset = group_b_deficit - legally_offsettable_amount
+uncovered_deficit_after_offset = 1,500,000 - 900,000 = 600,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Eligibility | Preserve entity, mandate, client-money, bank account and treasury policy constraints. |
+| Offset | Apply only legally and operationally permitted offset amount. |
+| Liquidity | Route uncovered deficit to funding, payment delay, credit line or escalation workflow. |
+| Reporting | Show gross surplus, gross deficit, offsettable amount and restricted surplus separately. |
+| Controls | Prevent cross-client or cross-entity cash use without source-backed authority. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Surplus is legally restricted | Restricted amount is excluded from offset capacity. |
+| Deficit remains after offset | Funding or escalation workflow opens for uncovered amount. |
+| Same bank holds both balances | Same-bank location alone does not authorize offsetting. |
+| Treasury report is generated | Gross balances and eligible offset are distinct. |
+
+## Example 101. FX funding allocation dispute
+
+### Scenario
+
+Multiple accounts fund a same-day FX conversion. A dispute arises because the allocation engine used available cash instead of approved funding weights.
+
+| Account | Approved weight | Actual funded |
+|---|---:|---:|
+| Account A | 50% | 650,000 |
+| Account B | 30% | 250,000 |
+| Account C | 20% | 100,000 |
+
+### Allocation variance
+
+```text
+total_funding = 1,000,000
+account_a_expected = 1,000,000 x 50% = 500,000
+account_a_variance = 650,000 - 500,000 = 150,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve funding instruction, approved weights, actual allocations, cash availability and FX trade id. |
+| Correction | Reallocate funding only through approved cash adjustment or internal transfer workflow. |
+| FX | Keep FX execution economics separate from funding-allocation dispute. |
+| Reporting | Show expected funding, actual funding, variance and correction state per account. |
+| Controls | Prevent available-cash fallback from overriding approved funding policy without exception evidence. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Actual funding differs from approved weights | Variance is calculated by account. |
+| FX trade executed correctly | Trade economics remain unchanged while funding allocation is disputed. |
+| Correction is approved | Cash transfers or adjustments carry approval and lineage. |
+| Funding policy is missing | Allocation is labelled source-limited or blocked by policy. |
+
+## Example 102. Escrow cash release condition
+
+### Scenario
+
+Escrow cash is held for a property transaction. Part can be released after completion evidence is received, but a defect holdback must remain restricted.
+
+| Attribute | Value |
+|---|---:|
+| Escrow balance | 1,000,000 |
+| Completion release | 700,000 |
+| Defect holdback | 250,000 |
+| Escrow fees | 5,000 |
+
+### Available release
+
+```text
+available_release = completion_release - escrow_fees
+available_release = 700,000 - 5,000 = 695,000
+restricted_after_release = escrow_balance - completion_release
+restricted_after_release = 300,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Conditions | Preserve escrow agreement, completion certificate, defect notice, fee schedule and release approval. |
+| Cash state | Separate released cash, restricted holdback, fees and unresolved conditions. |
+| Reporting | Label escrow cash as restricted until release conditions are source-backed. |
+| Controls | Prevent release above approved amount or before condition satisfaction. |
+| Reconciliation | Reconcile escrow bank movement to internal restricted/unrestricted cash states. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Completion evidence is received | Approved release can move to available cash net of fees. |
+| Defect holdback remains | Holdback stays restricted and visible. |
+| Release request exceeds approval | Excess amount is blocked. |
+| Escrow report is generated | Released, restricted and fee amounts are distinct. |
+
+## Example 103. Money-market liquidity tier reclassification
+
+### Scenario
+
+A money-market fund reclassifies part of its assets from weekly liquid assets to less-liquid assets after market stress. Client liquidity labels and redemption capacity must be updated.
+
+| Attribute | Value |
+|---|---:|
+| Fund position value | 5,000,000 |
+| Prior weekly liquid asset ratio | 42% |
+| Revised weekly liquid asset ratio | 28% |
+| Policy alert threshold | 30% |
+
+### Liquidity ratio decline
+
+```text
+liquidity_ratio_decline = prior_ratio - revised_ratio
+liquidity_ratio_decline = 42% - 28% = 14%
+below_threshold = revised_ratio < policy_alert_threshold
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve fund notice, liquidity classification, effective date, asset ratio and redemption terms. |
+| Liquidity | Update liquidity tier, redemption assumptions and stress labels from effective date. |
+| Advisory | Trigger suitability, DPM liquidity and client communication review when policy threshold is breached. |
+| Reporting | Show prior and revised liquidity labels rather than silently changing historic reports. |
+| Controls | Avoid treating fund value as same-day cash when liquidity tier falls below threshold. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Liquidity ratio falls below threshold | Alert, review or restriction workflow opens. |
+| Effective date is future-dated | Current report preserves current tier and future-dated pending state. |
+| Historic report is regenerated | Prior tier remains versioned by report date. |
+| Redemption estimate is requested | Estimate uses revised liquidity and redemption terms. |
