@@ -2154,3 +2154,231 @@ A fund board votes to suspend subscriptions and redemptions after a liquidity ev
 | Existing holding is reported | Position remains visible with suspended liquidity state. |
 | NAV is stale after suspension | Valuation is labelled stale or source-limited according to policy. |
 | Board lifts suspension | Dealing state changes only from source-confirmed effective date. |
+
+## Example 62. Private-fund continuation vehicle election
+
+### Scenario
+
+A private equity fund reaches end of life and offers investors an election: sell their interest for cash or roll into a continuation vehicle. The client elects to roll 70% and receive cash for 30%. The platform must preserve the original investment history while creating the new vehicle position only from confirmed election and transfer terms.
+
+| Attribute | Value |
+|---|---:|
+| Existing fund NAV | 1,500,000 |
+| Roll election | 70.00% |
+| Cash exit election | 30.00% |
+| Continuation vehicle NAV basis | 1,050,000 |
+| Cash proceeds before costs | 450,000 |
+| Transaction costs | 7,500 |
+
+### Election split
+
+```text
+roll_value = 1,500,000 x 70.00% = 1,050,000
+cash_exit_value = 1,500,000 x 30.00% = 450,000
+net_cash_proceeds = 450,000 - 7,500 = 442,500
+```
+
+### Correct treatment
+
+- close or reduce the old fund position only after confirmed election processing;
+- create the continuation vehicle as a new position with its own identifier, terms, liquidity and valuation policy;
+- preserve cost-basis, commitment, recallable distribution and tax treatment according to source guidance;
+- separate rollover value, cash exit proceeds, costs and any unrealized gain/loss treatment;
+- route suitability and product-governance checks for the continuation vehicle rather than assuming automatic eligibility.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Election is unconfirmed | Old position remains unchanged or source-limited. |
+| Partial rollover is confirmed | Old fund reduces, new vehicle opens, and net cash is posted separately. |
+| Continuation vehicle identifier is missing | New position creation is blocked until instrument setup completes. |
+| Client report is generated | Rollover, cash exit, costs and residual exposure are separately explainable. |
+
+## Example 63. ETF authorized-participant concentration failure
+
+### Scenario
+
+An ETF relies heavily on one authorized participant for creation/redemption activity. That AP withdraws during market stress, widening ETF premium/discount and reducing primary-market liquidity. The client still holds ETF shares, but liquidity analytics must reflect AP concentration risk.
+
+| Attribute | Normal state | Stress state |
+|---|---:|---:|
+| Active AP count | 5 | 2 |
+| Largest AP creation share | 35.00% | 72.00% |
+| ETF NAV | 100.00 | 100.00 |
+| Market bid | 99.80 | 96.50 |
+
+### Liquidity discount
+
+```text
+bid_discount_to_nav = (96.50 - 100.00) / 100.00 = -3.50%
+ap_concentration_change = 72.00% - 35.00% = 37.00%
+```
+
+### Correct treatment
+
+- keep ETF legal holding and exchange price valuation separate from creation/redemption liquidity analytics;
+- preserve AP status, market-maker status, ETF sponsor notices, bid/ask, NAV and basket availability;
+- degrade liquidity assumptions when AP concentration or market-maker withdrawal breaches policy thresholds;
+- explain NAV premium/discount separately from underlying fund NAV movement;
+- avoid using normal creation/redemption settlement assumptions during AP stress.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| AP count falls below threshold | ETF liquidity state degrades or triggers review. |
+| Bid discount widens materially | Liquidity analytics show discount to NAV and market stress. |
+| Client sells on exchange | Sale uses executable market price, not NAV. |
+| Look-through report is generated | Legal ETF holding, underlying exposure and liquidity quality remain distinct. |
+
+## Example 64. Fund tax-character restatement after year end
+
+### Scenario
+
+A fund initially reports a year-end distribution as ordinary income. After year end, the fund administrator restates part of the distribution as return of capital. Client tax packs, income analytics and cost basis need correction lineage.
+
+| Attribute | Original | Restated |
+|---|---:|---:|
+| Gross distribution | 120,000 | 120,000 |
+| Ordinary income component | 120,000 | 80,000 |
+| Return of capital component | 0 | 40,000 |
+| Cost-basis reduction | 0 | 40,000 |
+
+### Restatement impact
+
+```text
+ordinary_income_delta = 80,000 - 120,000 = -40,000
+return_of_capital_delta = 40,000 - 0 = 40,000
+```
+
+### Correct treatment
+
+- preserve original tax character, restated tax character, administrator notice and effective tax year;
+- update client tax pack and income analytics through correction workflow rather than overwriting prior output silently;
+- reduce cost basis only when return-of-capital treatment is source-confirmed and applicable under reporting policy;
+- distinguish accounting distribution cash from tax-character restatement;
+- record whether amended client reporting or next-cycle correction is required.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Restatement notice arrives after tax pack | Correction workflow opens and impacted reports are identified. |
+| Cash amount is unchanged | Cash ledger does not repost the distribution. |
+| Return of capital increases | Cost-basis adjustment is source-backed and traceable. |
+| Client report is regenerated | Original and corrected tax character remain auditable. |
+
+## Example 65. UCITS concentration breach remediation
+
+### Scenario
+
+A UCITS fund breaches a concentration limit because one issuer's value rises sharply. The breach is passive, but the fund must remediate within policy. Client reporting should explain the breach as fund-level compliance risk, not direct client concentration in a legally owned security.
+
+| Attribute | Limit | Actual |
+|---|---:|---:|
+| Single issuer limit | 10.00% |
+| Issuer exposure after move | 12.40% |
+| Fund NAV | 500,000,000 |
+| Excess exposure value | 12,000,000 |
+
+### Breach amount
+
+```text
+allowed_exposure = 500,000,000 x 10.00% = 50,000,000
+actual_exposure = 500,000,000 x 12.40% = 62,000,000
+excess_exposure = 62,000,000 - 50,000,000 = 12,000,000
+```
+
+### Correct treatment
+
+- preserve fund-level compliance notice, passive/active breach classification, remediation deadline and regulator/fund-board communication where available;
+- show client legal holding as fund units while look-through analytics reflect issuer concentration;
+- avoid forcing client sale unless product governance, mandate or advisory policy requires it;
+- update risk, suitability and approved-universe status if breach persists or changes product risk;
+- track remediation state and effective date.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Passive breach notice is received | Fund compliance state updates without creating client transaction. |
+| Breach persists past deadline | Product-governance or advisory review is triggered. |
+| Look-through file is stale | Concentration breach reporting is labelled stale or source-limited. |
+| Client report is generated | Fund units and look-through issuer concentration are clearly separated. |
+
+## Example 66. Private-credit fund PIK income reporting
+
+### Scenario
+
+A private-credit fund receives payment-in-kind interest from a borrower. The fund NAV increases, but no cash is distributed to the client. Reporting must avoid presenting PIK economics as client cash income unless the fund distributes cash.
+
+| Attribute | Value |
+|---|---:|
+| Client fund units | 100,000 |
+| Prior NAV per unit | 10.00 |
+| PIK-driven NAV uplift per unit | 0.08 |
+| New NAV per unit | 10.08 |
+| Client value uplift | 8,000 |
+
+### NAV uplift
+
+```text
+client_value_uplift = 100,000 x 0.08 = 8,000
+new_market_value = 100,000 x 10.08 = 1,008,000
+```
+
+### Correct treatment
+
+- treat PIK as fund-level income affecting NAV or capital account unless administrator confirms client distribution;
+- preserve borrower PIK notice if available, fund administrator statement, NAV bridge and income classification;
+- separate NAV appreciation, distributable income, cash distribution and tax-reporting character;
+- label analytics as estimate or source-limited when the fund does not provide enough income breakdown;
+- avoid booking client cash income without cash distribution or tax reporting source.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| PIK income is fund-level only | Client cash balance does not increase. |
+| NAV increases from PIK | Market value updates through NAV and attribution explains source if available. |
+| Fund later distributes cash | Distribution is booked as separate cash event. |
+| Income breakdown is missing | Reporting labels PIK attribution as source-limited. |
+
+## Example 67. Fund distribution clawback notice
+
+### Scenario
+
+A private fund issues a clawback notice after a prior distribution. The notice requires part of the earlier cash distribution to be returned. The platform must separate original distribution, clawback payable, cash repayment and performance correction.
+
+| Attribute | Value |
+|---|---:|
+| Prior distribution cash | 300,000 |
+| Clawback percentage | 12.00% |
+| Clawback payable | 36,000 |
+| Payment due date | 2026-09-30 |
+
+### Clawback payable
+
+```text
+clawback_payable = prior_distribution_cash x clawback_percentage
+clawback_payable = 300,000 x 12.00% = 36,000
+net_retained_distribution = 300,000 - 36,000 = 264,000
+```
+
+### Correct treatment
+
+- preserve clawback notice, prior distribution id, calculation basis, due date and approval state;
+- record payable or contingent obligation before cash repayment where policy requires;
+- do not delete or overwrite the original distribution event;
+- update performance, cashflow and tax reporting according to correction policy and source guidance;
+- track whether the clawback is funded by cash, offset against future distributions or disputed.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Clawback notice is received | Payable or contingent obligation is created with source lineage. |
+| Cash repayment is made | Cash outflow is linked to the clawback notice and prior distribution. |
+| Clawback is disputed | Obligation remains pending or disputed rather than removed. |
+| Client report is generated | Original distribution, clawback payable and net retained amount are explainable. |
