@@ -106,6 +106,22 @@ Pack 15 wealth domain and Pack 16 reporting
 | Migration | Use migration, data, reporting, security, and operations packs. |
 | AI adoption | Use AI governance, security, testing, and productization packs. |
 
+## Applied Output Map
+
+Use this map to convert reading into concrete engineering output.
+
+| Learning focus | Read first | Produce |
+|---|---|---|
+| Service ownership | Backend service design, API contract engineering, documentation governance | Capability boundary note, dependency map, owner list and integration contract inventory. |
+| API quality | API contract engineering, testing certification, Git workflow | OpenAPI review checklist, compatibility note, example payloads, error model and contract-test plan. |
+| Data trust | Data-product engineering, security, observability | Data contract, source lineage map, freshness/quality rules, access policy and trust telemetry. |
+| Release governance | CI/CD release evidence, Git workflow, testing certification | Local-check command, CI lane map, PR evidence rule, release checklist and rollback note. |
+| Runtime readiness | Runtime infrastructure, observability, security, production support | Deployment model, configuration map, probes, dashboards, runbook and support route. |
+| Resilience | Performance/resilience, observability, testing, production support | Timeout/retry policy, async recovery design, capacity assumptions and failure-mode tests. |
+| Security posture | Security/cyber resilience, CI/CD, runtime, AI governance where relevant | Threat model, control owner map, secrets policy, sensitive-data rules and verification evidence. |
+| Team KT | Technical learning path, documentation governance, leadership governance | Role curriculum, walkthrough exercise, teach-back checklist and follow-up improvement backlog. |
+| Productization | Platform productization, security, production support, documentation governance | Buyer evidence pack, supported-feature matrix, implementation guide, support model and due-diligence answers. |
+
 ## Execution Matrix By Scenario
 
 Use this matrix when the knowledge base needs to support a concrete delivery or review activity.
