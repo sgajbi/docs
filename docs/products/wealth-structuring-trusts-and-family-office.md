@@ -4,6 +4,8 @@ This map summarizes trusts, foundations, estate planning, family office structur
 
 Use it with the detailed pack in [`trusts-estate-family-office-wealth-structuring/`](trusts-estate-family-office-wealth-structuring/README.md).
 
+For practical examples, use [`trusts-estate-family-office-wealth-structuring/10-worked-examples-and-implementation-patterns.md`](trusts-estate-family-office-wealth-structuring/10-worked-examples-and-implementation-patterns.md).
+
 ## Core Principle
 
 Do not treat a trust, estate, foundation, holding company, family office, VCC, nominee arrangement, or insurance wrapper as a simple account label.
@@ -105,7 +107,7 @@ Reports should distinguish:
 | Auditability | Preserve who instructed, who approved, which document authorized it, and which users could see the outcome. |
 | Failure behavior | Block or degrade workflows when authority, beneficial ownership, tax documentation, or governing documents are missing. |
 
-## Worked Examples To Add In Product Packs
+## Worked Examples
 
 | Example | Useful For |
 |---|---|
@@ -115,6 +117,8 @@ Reports should distinguish:
 | Holding company borrows against portfolio collateral owned by the company, not the individual shareholder. | Lending, collateral, legal owner, beneficial owner. |
 | Insurance policy has different policyholder, life insured, premium payer, beneficiary, and assignee. | Insurance modelling and privacy. |
 | Private-market capital call funded by a trust account with trustee approval and beneficiary reporting note. | Private markets, liquidity, governance. |
+
+The detailed worked-example file expands these patterns into workflow, authority, access-control, support-boundary and regression scenarios.
 
 ## QA And Control Scenarios
 

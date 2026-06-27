@@ -4,6 +4,8 @@ This map summarizes tax-aware investment reporting, regulatory reporting, client
 
 Use it with the detailed pack in [`tax-regulatory-reporting/`](tax-regulatory-reporting/README.md).
 
+For practical examples, use [`tax-regulatory-reporting/10-worked-examples-and-implementation-patterns.md`](tax-regulatory-reporting/10-worked-examples-and-implementation-patterns.md).
+
 ## Core Principle
 
 Separate product economics from tax and regulatory interpretation.
@@ -89,7 +91,7 @@ Any tax-aware or regulatory reporting output should define:
 | Operations usability | Provide exception queues for missing documentation, stale classifications, unmatched withholding, and reporting breaks. |
 | QA coverage | Test normal, late, corrected, migrated, undocumented, cross-border, multi-currency, and unsupported cases. |
 
-## Worked Examples To Add In Product Packs
+## Worked Examples
 
 | Example | Useful For |
 |---|---|
@@ -100,6 +102,8 @@ Any tax-aware or regulatory reporting output should define:
 | Private-market distribution split into return of capital, gain, income, and recallable amount. | Private markets, cashflow analytics. |
 | Forced liquidation of pledged collateral and realized gain/loss. | Lending, collateral, risk reporting. |
 | Trust account report where legal owner and beneficial owner differ. | Wealth structuring, client access, reporting scope. |
+
+The detailed worked-example file expands these patterns into calculations, controls, support boundaries and regression scenarios.
 
 ## QA And Control Scenarios
 

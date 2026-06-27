@@ -1,0 +1,226 @@
+# 10 - Worked Examples and Implementation Patterns
+
+Use these examples when designing tax-aware reporting, cost-basis records, withholding treatment, cross-border documentation, regulatory outputs, client statements, operations controls, QA, and implementation boundaries.
+
+## 1. Economic Event To Tax Classification
+
+Do not mix product economics with tax conclusions.
+
+```text
+economic event -> accounting transaction -> source classification -> tax/reporting enrichment -> report output
+```
+
+| Layer | Example |
+|---|---|
+| economic event | equity dividend declared |
+| accounting transaction | gross income, withholding tax, net cash |
+| source classification | dividend, tax withheld, country of source |
+| tax/reporting enrichment | treaty rate, reportable income bucket, tax document link |
+| report output | client statement, tax pack, regulatory file |
+
+## 2. Equity Dividend With Treaty Withholding
+
+Scenario:
+
+- Shares held: 1,000.
+- Dividend: USD 2.00 per share.
+- Statutory withholding: 30%.
+- Treaty withholding: 15%.
+- Client documentation valid.
+
+Calculation:
+
+```text
+gross dividend = 1,000 x 2.00 = 2,000
+withholding tax = 2,000 x 15% = 300
+net cash = 1,700
+```
+
+Controls:
+
+- documentation validity must be checked as of dividend record/payment date;
+- source country, income type, rate and treaty basis should be stored;
+- invalid or expired documentation should not silently receive treaty rate;
+- client report should distinguish gross income, withholding and net cash.
+
+## 3. Bond Accrued Interest And Coupon Reporting
+
+Scenario:
+
+- Client buys a bond between coupon dates.
+- Dirty settlement includes accrued interest paid to seller.
+- Later full coupon is received.
+
+Reporting distinction:
+
+| Component | Treatment |
+|---|---|
+| accrued interest paid on purchase | cost/accrual adjustment according to policy |
+| full coupon received | cash income event |
+| net taxable/reportable income | jurisdiction and policy dependent |
+| performance income | should not double count paid accrued interest |
+
+Implementation requirement:
+
+Store accrued interest paid and coupon received as distinct facts. Do not infer tax-reporting treatment from cash movement alone.
+
+## 4. Tax Lot Sale With FIFO
+
+Scenario:
+
+- Lot 1: 100 shares at USD 40.
+- Lot 2: 100 shares at USD 55.
+- Sell 150 shares at USD 70.
+- FIFO method.
+
+Cost basis:
+
+```text
+cost basis = (100 x 40) + (50 x 55) = 6,750
+sale proceeds = 150 x 70 = 10,500
+realized gain = 3,750
+remaining lot = 50 shares from Lot 2 at 55
+```
+
+QA assertions:
+
+- lot selection method must be explicit;
+- partial lot depletion must preserve remaining quantity and basis;
+- fees and taxes should be included or excluded according to configured policy;
+- reporting currency gain may differ from local-currency gain due to FX.
+
+## 5. Corporate Action Cost Basis Allocation
+
+Scenario:
+
+- Client owns original company shares with cost basis USD 10,000.
+- Spin-off creates new company shares.
+- Allocation ratio from source: 80% original, 20% spin-off.
+
+Calculation:
+
+```text
+original company basis = 10,000 x 80% = 8,000
+spin-off company basis = 10,000 x 20% = 2,000
+```
+
+Controls:
+
+- use authoritative corporate-action or tax source;
+- preserve original basis and allocation record;
+- do not book the spin-off as zero-cost unless policy/source explicitly says so;
+- report missing allocation as support-limited.
+
+## 6. Fund Distribution Classification
+
+Scenario:
+
+- Fund distribution: USD 5,000.
+- Source classification:
+  - income: USD 2,000;
+  - capital gain: USD 1,500;
+  - return of capital: USD 1,500.
+
+Treatment:
+
+| Component | Reporting implication |
+|---|---|
+| income | income bucket |
+| capital gain | capital gain bucket |
+| return of capital | basis adjustment or capital return depending on policy |
+
+Do not classify the full distribution as yield or income without source support.
+
+## 7. Structured Note Physical Delivery
+
+Scenario:
+
+- Structured note physically delivers 2,000 shares.
+- Note cost basis: USD 100,000.
+- Cash-in-lieu: USD 120.
+
+Implementation questions:
+
+| Question | Why it matters |
+|---|---|
+| What basis transfers to delivered shares? | tax-lot and realized gain treatment |
+| Is cash-in-lieu taxable/reportable? | reporting classification |
+| Is note loss realized at delivery? | performance and tax treatment |
+| What is acquisition date of delivered shares? | holding-period rules |
+
+Correct posture:
+
+Capture source policy and jurisdictional configuration. If not supported, show tax treatment as unavailable rather than inferring it.
+
+## 8. CRS/FATCA Documentation Expiry
+
+Scenario:
+
+- Client tax self-certification expires before reporting cut-off.
+- Account has reportable income during year.
+
+Expected workflow:
+
+```text
+documentation expiry -> remediation task -> reportability status review -> reporting output or exception -> audit evidence
+```
+
+Controls:
+
+- documentation status should be effective-dated;
+- reportability should be based on applicable cut-off rules;
+- missing documentation should appear in exception dashboards;
+- client/advisor tasks should not alter historical facts without source evidence.
+
+## 9. Regulatory Report Correction
+
+Scenario:
+
+- A prior tax report used an incorrect withholding rate.
+- Corrected source file arrives after report publication.
+
+Required workflow:
+
+- preserve original report output;
+- store corrected input and reason;
+- recalculate impacted figures;
+- determine whether amended report, client notice or next-period disclosure is required;
+- preserve sign-off and audit trail.
+
+Do not overwrite published report data without versioning.
+
+## 10. Advisory And Reporting Boundary
+
+| Activity | Platform can support | Platform should not imply |
+|---|---|---|
+| show gross/net income | source-backed amounts and withholding | personalized tax advice |
+| show realized gain | configured lot method and source data | final tax liability |
+| show missing documentation | remediation status | legal conclusion on residency |
+| show reportable event | configured reporting regime | universal reporting obligation |
+| simulate rebalance tax impact | estimated gains/losses under assumptions | advice to execute for tax reasons |
+
+## 11. Current Support Boundary And Candidate Extensions
+
+| Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
+|---|---|---|
+| Income and withholding | gross, tax, net, source country, rate, document status | treaty optimization workflow |
+| Tax lots | lot quantity, basis, method, sale depletion | multi-jurisdiction tax-lot engine |
+| Corporate actions | source event, entitlement, basis allocation when supplied | automated tax impact classification |
+| Cross-border documentation | residency, FATCA/CRS status, expiry, remediation state | jurisdiction-specific rule engine |
+| Report output | versioned statement/tax pack with lineage | configurable regulatory filing generator |
+| Corrections | restatement and amended-output workflow | automated client notice workflow |
+
+## 12. Regression Test Pack
+
+Minimum release-gate scenarios:
+
+1. Dividend applies treaty rate only when documentation is valid.
+2. Bond accrued interest paid is not double counted as coupon income.
+3. FIFO sale depletes lots and computes realized gain.
+4. Corporate action basis allocation preserves source evidence.
+5. Fund distribution splits income, gain and return of capital.
+6. Structured note physical delivery creates support-limited tax treatment if policy is missing.
+7. Expired CRS/FATCA documentation creates remediation and reporting exception.
+8. Corrected withholding source creates versioned report correction.
+9. Missing source classification blocks client-ready tax category.
+10. Tax estimate is labelled as estimate, not final liability.

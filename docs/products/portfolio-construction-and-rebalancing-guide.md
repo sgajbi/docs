@@ -4,6 +4,8 @@ This guide defines a reusable cross-product standard for portfolio construction,
 
 Use it when designing advisory proposals, DPM model portfolios, portfolio review workflows, drift monitoring, rebalance tools, transition plans, cash deployment, tax-aware trade lists, or implementation acceptance criteria.
 
+For detailed workflow examples, use [`model-portfolios-rebalancing-advisory-suitability/11-worked-examples-and-implementation-patterns.md`](model-portfolios-rebalancing-advisory-suitability/11-worked-examples-and-implementation-patterns.md).
+
 ## Core Principle
 
 Portfolio construction is not just target weights.

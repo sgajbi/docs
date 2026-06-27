@@ -47,6 +47,7 @@ Use this pack for:
 | `08-platform-implementation-controls-reconciliation-and-test-scenarios.md` | Architecture, controls, reconciliation, QA scenarios and operating model |
 | `09-glossary-practitioner-reference-and-review-checklists.md` | Glossary, practitioner explanations, review prompts and implementation checklists |
 | `10-source-notes-and-further-reading.md` | Source notes and further reading |
+| `11-worked-examples-and-implementation-patterns.md` | Worked examples for model version rollout, drift rebalancing, funding-constrained rebalance, tax-aware rebalance, suitability failures, proposal expiry, DPM restrictions, post-trade residual drift, support boundaries and regression tests |
 
 ## Core design principle
 

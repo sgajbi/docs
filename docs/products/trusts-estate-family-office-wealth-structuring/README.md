@@ -23,6 +23,7 @@ In private banking and wealth platforms, this layer is critical because a portfo
 | `07-advisory-mandate-suitability-governance-tax-and-client-experience.md` | Advisory questions, DPM mandate implications, governance controls, tax/estate awareness |
 | `08-platform-implementation-controls-reconciliation-test-scenarios-and-glossary.md` | Platform controls, reconciliation, QA scenarios, common breaks, glossary |
 | `09-source-notes-and-further-reading.md` | Source notes and reference links |
+| `10-worked-examples-and-implementation-patterns.md` | Worked examples for trust distributions, estate account restrictions, holding-company pledges, beneficiary reporting access, family-office consolidated reports, insurance policy roles, authority changes, support boundaries and regression tests |
 
 ## 3. Core mental model
 

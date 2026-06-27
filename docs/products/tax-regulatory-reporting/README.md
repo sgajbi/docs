@@ -40,6 +40,7 @@ All product families studied so far eventually flow into reporting and tax-aware
 7. `07-advisory-mandate-suitability-and-client-experience.md`
 8. `08-platform-controls-reconciliation-test-scenarios-and-glossary.md`
 9. `09-source-notes-and-further-reading.md`
+10. `10-worked-examples-and-implementation-patterns.md`
 
 ## Core design principle
 
@@ -63,3 +64,4 @@ Do not hardcode tax logic inside product transaction processing. Store clean pro
 6. Study data model and platform architecture.
 7. Study advisory and mandate workflows.
 8. Use the control and QA file for implementation validation.
+9. Use the worked examples file for income, withholding, tax lots, corporate actions, fund distributions, structured-note delivery, documentation expiry, report corrections, support boundaries and regression tests.
