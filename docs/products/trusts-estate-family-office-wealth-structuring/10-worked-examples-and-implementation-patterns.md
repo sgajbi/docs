@@ -2661,7 +2661,235 @@ QA assertions:
 | Recipient delivery is waived | Waiver evidence is required before closure. |
 | Delivery audit is generated | Approved, delivered, failed and waived recipients are traceable. |
 
-## 80. Regression Test Pack
+## 80. Protector Reserve Beneficiary Objection Window
+
+Scenario:
+
+- A trustee approves release of part of a protector reserve after final cost review.
+- The governing process requires a beneficiary objection window before the release becomes distributable.
+- One beneficiary objects within the window, so the disputed release amount remains restricted.
+
+| Attribute | Value |
+|---|---:|
+| Trustee-approved release | 60,000 |
+| Amount objected within window | 25,000 |
+| Release available after objection window | 35,000 |
+
+Objection window:
+
+```text
+release_available_after_objection_window = trustee_approved_release - amount_objected_within_window
+release_available_after_objection_window = 60,000 - 25,000 = 35,000
+```
+
+Correct workflow:
+
+- preserve trustee release approval, beneficiary notice date, objection deadline, objection evidence, disputed amount and final release instruction;
+- keep objected amounts restricted until trustee, protector or dispute-resolution decision is complete;
+- release only the non-objected approved amount after the objection window closes;
+- record late objections separately from valid in-window objections;
+- avoid treating trustee approval as immediately distributable when an objection window applies.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Objection is received within window | Objected amount remains restricted. |
+| No objection is received by deadline | Approved release becomes distributable. |
+| Objection is late | Late objection is recorded but does not automatically restrict release. |
+| Beneficiary report is generated | Approved, objected and releasable amounts are separated. |
+
+## 81. Co-Investment Allocation Cancellation Fee
+
+Scenario:
+
+- A family entity cancels part of a committed co-investment allocation after the cancellation deadline.
+- The sponsor charges a cancellation fee.
+- The fee is charged to the cancelling entity and must not be allocated to remaining participants.
+
+| Attribute | Value |
+|---|---:|
+| Cancelled allocation | 500,000 |
+| Cancellation fee rate | 2% |
+| Cancellation fee | 10,000 |
+
+Cancellation fee:
+
+```text
+cancellation_fee = cancelled_allocation * cancellation_fee_rate
+cancellation_fee = 500,000 * 2% = 10,000
+```
+
+Correct workflow:
+
+- preserve cancellation request, deadline, sponsor fee terms, entity-level allocation ledger, fee approval and chargeback instruction;
+- reduce the cancelling entity's commitment by the cancelled amount;
+- charge cancellation fees only to the cancelling entity unless governing documents say otherwise;
+- exclude the cancelled allocation from future capital-call forecasts;
+- avoid spreading cancellation fees across non-cancelling participants as a general family-office expense.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Cancellation occurs after deadline | Cancellation fee is calculated. |
+| Cancellation occurs before deadline | Fee is not charged unless terms require it. |
+| Fee report is produced | Cancelling entity bears the fee. |
+| Forecast is refreshed | Cancelled allocation is removed from future calls. |
+
+## 82. Estate Substitution Valuation Appeal
+
+Scenario:
+
+- A beneficiary appeals the valuation used for a substitute asset in an estate equalization settlement.
+- An independent valuation is accepted at a lower value.
+- The residual cash shortfall must be recalculated from the accepted appeal value.
+
+| Attribute | Value |
+|---|---:|
+| Original substitute asset value | 125,000 |
+| Accepted appeal valuation | 110,000 |
+| Valuation reduction | 15,000 |
+
+Valuation appeal:
+
+```text
+valuation_reduction = original_substitute_asset_value - accepted_appeal_valuation
+valuation_reduction = 125,000 - 110,000 = 15,000
+```
+
+Correct workflow:
+
+- preserve original valuation, appeal notice, independent valuation, accepted value, beneficiary decision and recalculated equalization schedule;
+- replace provisional substitute value with accepted appeal value from the decision effective date;
+- increase residual cash shortfall when accepted valuation is lower;
+- keep previous report values as historical evidence and issue a correction if already delivered;
+- avoid using market movement after the appeal date unless the decision explicitly requires a fresh valuation date.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Appeal valuation is accepted | Substitute value is updated to accepted value. |
+| Accepted value is lower | Residual cash shortfall increases. |
+| Prior report was delivered | Correction evidence is generated. |
+| Appeal is rejected | Original substitute value remains effective. |
+
+## 83. Foundation Suspension Lift Condition
+
+Scenario:
+
+- A foundation suspended future grants after recurring restricted-purpose breaches.
+- The council agrees to lift the suspension only after evidence of remediation and enhanced monitoring acceptance.
+- Future grant release remains blocked until all lift conditions are satisfied.
+
+| Attribute | Value |
+|---|---:|
+| Suspension lift conditions required | 3 |
+| Lift conditions satisfied | 2 |
+| Conditions still open | 1 |
+
+Lift conditions:
+
+```text
+conditions_still_open = suspension_lift_conditions_required - lift_conditions_satisfied
+conditions_still_open = 3 - 2 = 1
+```
+
+Correct workflow:
+
+- preserve suspension decision, lift conditions, remediation evidence, monitoring acceptance, council approval and future grant release status;
+- track each lift condition independently;
+- keep grant release blocked until every mandatory condition is satisfied or formally waived;
+- retain recurrence history after suspension is lifted;
+- avoid reopening grant release solely because one remediation item is complete.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| One lift condition remains open | Suspension remains active. |
+| All conditions are satisfied | Council approval can lift suspension. |
+| Condition is waived | Waiver evidence and scope are required. |
+| Grant release is requested | Release is blocked until suspension is lifted. |
+
+## 84. Authority Ratification Downstream Reversal
+
+Scenario:
+
+- An approval was ratified after an ambiguous authority period.
+- A later review reverses the ratification for one downstream action.
+- The affected transaction must be unwound or reapproved through a valid authority path.
+
+| Attribute | Value |
+|---|---:|
+| Downstream actions relying on ratification | 4 |
+| Actions still valid after reversal review | 3 |
+| Actions requiring reversal or reapproval | 1 |
+
+Downstream reversal:
+
+```text
+actions_requiring_reversal_or_reapproval = downstream_actions_relying_on_ratification - actions_still_valid_after_reversal_review
+actions_requiring_reversal_or_reapproval = 4 - 3 = 1
+```
+
+Correct workflow:
+
+- preserve original ratification, reversal review, affected approval, downstream transaction list, unwind decision and reapproval route;
+- isolate only downstream actions affected by the reversed ratification;
+- block future reliance on the invalidated ratification;
+- decide whether affected actions require cancellation, reversal entry, fresh approval or reporting correction;
+- avoid assuming all ratified actions are invalid when reversal applies only to a scoped action.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Ratification is reversed for one action | Only scoped downstream actions are affected. |
+| Transaction already settled | Unwind or remediation workflow is triggered. |
+| Fresh authority approves action | Action can proceed under new approval evidence. |
+| Audit report is generated | Ratification, reversal and affected actions are traceable. |
+
+## 85. Correction-Package Recipient Waiver Governance
+
+Scenario:
+
+- A beneficiary correction package cannot be delivered to one approved recipient.
+- The trustee accepts a recipient-specific delivery waiver after documented contact attempts.
+- The correction workflow can close only for the waived recipient and must preserve waiver evidence.
+
+| Attribute | Value |
+|---|---:|
+| Delivery failures pending remediation | 1 |
+| Recipient waivers approved | 1 |
+| Delivery failures remaining open | 0 |
+
+Recipient waiver:
+
+```text
+delivery_failures_remaining_open = delivery_failures_pending_remediation - recipient_waivers_approved
+delivery_failures_remaining_open = 1 - 1 = 0
+```
+
+Correct workflow:
+
+- preserve failed-delivery evidence, contact attempts, trustee waiver approval, recipient scope, correction package identifier and closure decision;
+- apply waiver only to the named recipient and correction package;
+- keep other recipients' delivery requirements unchanged;
+- report waiver closure separately from successful delivery;
+- avoid using a delivery waiver as permission to suppress future required notices.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Waiver is approved for one recipient | Only that recipient's delivery failure closes. |
+| Waiver lacks trustee approval | Correction remains pending. |
+| Another package is generated later | Prior waiver does not automatically apply. |
+| Closure report is generated | Delivered, failed and waived recipients are distinguishable. |
+
+## 86. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -2744,3 +2972,9 @@ Minimum release-gate scenarios:
 77. Foundation recurring breach monitoring preserves breach history across remediation periods.
 78. Authority renewal post-approval ratification blocks unratified approvals from downstream use.
 79. Beneficiary correction-package delivery failures keep recipient disclosure state pending until remediated.
+80. Protector reserve beneficiary objection windows restrict objected amounts until dispute resolution.
+81. Co-investment allocation cancellation fees are charged to the cancelling entity and excluded from future calls.
+82. Estate substitution valuation appeals recalculate equalization from the accepted appeal valuation.
+83. Foundation suspension lift conditions keep grant release blocked until every mandatory condition is met or waived.
+84. Authority ratification downstream reversals affect only scoped downstream actions and require remediation evidence.
+85. Correction-package recipient waiver governance closes only recipient-specific delivery failures with trustee evidence.
