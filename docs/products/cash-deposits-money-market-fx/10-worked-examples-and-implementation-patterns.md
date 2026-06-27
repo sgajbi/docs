@@ -5429,3 +5429,245 @@ recurrence_review_required = breaches_in_lookback_period > recurrence_threshold
 | Latest breach is small | Recurrence flag still opens if count threshold is breached. |
 | Review action is completed | Future waiver renewal references recurrence review outcome. |
 | Dashboard is generated | Count, threshold, latest breach and owner are visible. |
+
+## Example 134. Sweep provider outage fallback
+
+### Scenario
+
+A cash sweep provider misses the normal sweep run because its file gateway is unavailable. The platform must preserve available cash truth, block unsupported investment cash claims and route balances through an approved fallback deposit or operating cash posture.
+
+| Attribute | Value |
+|---|---:|
+| Scheduled sweep amount | 3,400,000 |
+| Confirmed swept amount | 0 |
+| Approved fallback deposit | 2,750,000 |
+| Residual operating cash | 650,000 |
+
+### Unswept residual
+
+```text
+unswept_cash = scheduled_sweep_amount - confirmed_swept_amount
+unswept_cash = 3,400,000 - 0 = 3,400,000
+
+residual_after_fallback = unswept_cash - approved_fallback_deposit
+residual_after_fallback = 3,400,000 - 2,750,000 = 650,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve provider outage notice, scheduled sweep file, confirmation status, fallback approval and residual cash owner. |
+| Cash | Keep unswept balances as operating cash until provider confirmation or fallback placement evidence exists. |
+| Liquidity | Do not infer money-market exposure or yield when the sweep did not complete. |
+| Reporting | Show fallback placement, residual cash and provider outage status separately. |
+| Controls | Require treasury or operations approval before placing cash through fallback route. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Provider confirmation is missing | Scheduled sweep is not treated as invested. |
+| Fallback approval exists | Approved amount moves to fallback placement state. |
+| Residual remains | Residual operating cash remains visible and available according to policy. |
+| Statement is generated | Sweep outage, fallback and residual cash are separately labelled. |
+
+## Example 135. Deposit insurer documentation remediation
+
+### Scenario
+
+A client balance may qualify for deposit protection, but the insurer requests corrected beneficiary and account documentation before final payout. The platform must distinguish protected estimate, documentation-blocked amount and confirmed payout.
+
+| Attribute | Value |
+|---|---:|
+| Estimated protected amount | 250,000 |
+| Confirmed payout | 180,000 |
+| Documentation-blocked amount | 70,000 |
+| Unprotected excess | 40,000 |
+
+### Documentation-blocked claim
+
+```text
+documentation_blocked_claim = estimated_protected_amount - confirmed_payout
+documentation_blocked_claim = 250,000 - 180,000 = 70,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve insurer request, missing documents, corrected beneficiary details, account evidence, payout file and remediation owner. |
+| Cash | Book only confirmed payout as cash; documentation-blocked amount remains receivable or claim state. |
+| Client reporting | Explain that protection eligibility is pending documentation acceptance, not settled cash. |
+| Operations | Track document remediation SLA and insurer response deadline. |
+| Controls | Do not close the failure event until all protected, blocked and unprotected components are reconciled. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Documentation is incomplete | Blocked claim is not booked as available cash. |
+| Corrected evidence is accepted | Claim moves from documentation-blocked to payout receivable or paid. |
+| Insurer rejects correction | Rejected amount is separately retained with reason. |
+| Client report is produced | Confirmed payout, blocked claim and unprotected exposure are distinct. |
+
+## Example 136. FX hedge allocation audit sampling
+
+### Scenario
+
+An operations review samples FX hedge cost allocations across accounts after policy overrides. The platform must identify sampled accounts, compare allocated cost to policy cost and preserve audit evidence.
+
+| Attribute | Value |
+|---|---:|
+| Total hedge cost | 96,000 |
+| Sampled allocation weight | 18% |
+| Policy allocation weight | 16% |
+| Materiality threshold | 1,000 |
+
+### Sample exception amount
+
+```text
+sampled_cost = total_hedge_cost x sampled_allocation_weight
+sampled_cost = 96,000 x 18% = 17,280
+
+policy_cost = total_hedge_cost x policy_allocation_weight
+policy_cost = 96,000 x 16% = 15,360
+
+sample_exception = sampled_cost - policy_cost
+sample_exception = 17,280 - 15,360 = 1,920
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve hedge ticket, sampled account list, allocation policy, override evidence, recalculation output and reviewer sign-off. |
+| Performance | Keep allocation review adjustments separate from market FX P&L. |
+| Reporting | Show only approved final allocation in client reports while retaining audit sample evidence internally. |
+| Controls | Escalate sampled exceptions above threshold to allocation owner. |
+| QA | Recalculate sampled and policy weights independently from stored allocation results. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Sample exception exceeds threshold | Review exception is opened. |
+| Override approval exists | Exception links to approval and rationale. |
+| Policy weight changed after booking | Audit uses policy version effective on allocation date. |
+| Reviewer closes sample | Closure requires recalculation evidence and sign-off. |
+
+## Example 137. PSP reserve recovery after write-off
+
+### Scenario
+
+A payment-service-provider reserve was previously written off after ageing and dispute failure. Later, the provider releases part of the reserve. The recovery must be linked to the original write-off, not treated as unrelated operating cash.
+
+| Attribute | Value |
+|---|---:|
+| Original written-off reserve | 44,000 |
+| Later provider recovery | 18,500 |
+| Remaining unrecovered write-off | 25,500 |
+
+### Recovery balance
+
+```text
+remaining_unrecovered_write_off = original_written_off_reserve - later_provider_recovery
+remaining_unrecovered_write_off = 44,000 - 18,500 = 25,500
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve original write-off approval, provider recovery notice, settlement reference, posting date and accounting treatment. |
+| Cash | Book received recovery as cash only when settled by provider. |
+| Accounting | Link recovery to prior write-off reason code and affected reporting period where required by policy. |
+| Reporting | Do not present recovered cash as payment inflow, client contribution or investment income. |
+| Controls | Require reconciliation between original write-off, recovered amount and remaining unrecovered balance. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Recovery arrives after write-off | Recovery is linked to original reserve case. |
+| Recovery exceeds original write-off | Excess is blocked for investigation. |
+| Settlement is pending | Recovery remains receivable, not cash. |
+| Operations dashboard is generated | Original write-off, recovery and unrecovered amount reconcile. |
+
+## Example 138. Projected-cash disclosure acknowledgement gap
+
+### Scenario
+
+A projected-cash warning was delivered successfully, but the workflow requires advisor acknowledgement before the portfolio can be used for a large discretionary order. Delivery and acknowledgement must remain separate controls.
+
+| Attribute | Value |
+|---|---:|
+| Projected cash shown | 1,100,000 |
+| Settled available cash | 720,000 |
+| Unsettled component | 380,000 |
+| Required acknowledgement | Missing |
+
+### Acknowledgement exposure
+
+```text
+acknowledgement_gap_exposure = projected_cash_shown - settled_available_cash
+acknowledgement_gap_exposure = 1,100,000 - 720,000 = 380,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve warning delivery evidence, acknowledgement requirement, advisor queue state, order id and exception owner. |
+| Advisory and DPM | Block or route affected discretionary order until acknowledgement is captured or waived by policy. |
+| Reporting | Keep disclosure delivered state separate from acknowledgement completed state. |
+| Controls | Prevent silent closure when the client or advisor saw the report but did not acknowledge the cash caveat. |
+| QA | Test generated, delivered, acknowledged, waived and expired states. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Warning is delivered but not acknowledged | Acknowledgement gap remains open. |
+| Large order is proposed | Order is blocked or routed according to policy. |
+| Waiver is approved | Waiver is source-labelled with approver and expiry. |
+| Dashboard is generated | Delivery state and acknowledgement state are visible separately. |
+
+## Example 139. Liquidity-waiver structural cash-floor reset
+
+### Scenario
+
+Repeated liquidity-waiver breaches show that the standing cash floor is too low for the client mandate. The remedy is a structural cash-floor reset, not another temporary waiver.
+
+| Attribute | Value |
+|---|---:|
+| Existing cash floor | 500,000 |
+| Observed recurring shortfall | 175,000 |
+| Proposed structural buffer | 125,000 |
+| New cash floor | 800,000 |
+
+### Cash-floor reset
+
+```text
+new_cash_floor = existing_cash_floor + observed_recurring_shortfall + proposed_structural_buffer
+new_cash_floor = 500,000 + 175,000 + 125,000 = 800,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve recurrence review, mandate cash policy, spending pattern, proposed floor, approval and effective date. |
+| Portfolio construction | Rebalance target liquidity and model drift thresholds using the new cash floor. |
+| DPM | Treat future breaches against the reset floor, not the old waived floor. |
+| Reporting | Explain structural reset as mandate-liquidity control, not performance drag or ad hoc cash hold. |
+| Controls | Require approval when cash-floor reset changes investable amount or mandate compliance. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Recurrence review requires structural action | Temporary waiver renewal is blocked until reset decision exists. |
+| New floor is approved | Buying power and liquidity checks use new effective-dated floor. |
+| Historical reports are regenerated | Prior periods retain prior floor unless restatement is approved. |
+| Portfolio dashboard is generated | Old floor, reset reason, new floor and effective date are visible. |
