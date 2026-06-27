@@ -84,6 +84,64 @@ Each session:
 
 ---
 
+## Role-Based KT Outcomes
+
+Each audience should leave KT with a concrete capability, not only awareness of the reading material.
+
+| Audience | Should be able to explain | Should be able to produce |
+|---|---|---|
+| Backend developer | Service boundaries, use-case flow, contract ownership, error behavior and test placement. | Small service change with updated tests, API examples and release evidence. |
+| Senior engineer | Tradeoffs across API, data, runtime, security, observability and performance. | Design note, risk list, test strategy and PR review comments that improve the implementation. |
+| QA or quality engineer | Test pyramid, certification scope, fixture quality, contract testing and regression risk. | Meaningful test plan, gap list, defect evidence and release certification note. |
+| SRE or platform engineer | Runtime model, probes, dashboards, alerts, runbooks, rollback and incident flow. | Operational readiness review, runbook update and monitoring gap list. |
+| Business analyst or product technologist | Capability boundaries, data lineage, reporting evidence, supported features and acceptance criteria. | Domain scenario, acceptance example, source-owner note and reconciliation expectation. |
+| Architect or engineering lead | Decision rights, standards, cross-system tradeoffs, maturity gaps and stakeholder narrative. | Architecture review note, decision record, maturity backlog and KT follow-up plan. |
+
+## Teach-Back Question Bank
+
+Use these questions after a KT session to verify practical understanding.
+
+| Topic | Teach-back question |
+|---|---|
+| Architecture | What capability does this service own, and what should remain outside its boundary? |
+| API contracts | Which consumers depend on this contract, and how would a breaking change be detected? |
+| Data products | What is the source of truth, what quality rules apply, and how is lineage proven? |
+| CI/CD | Which checks must run locally, which checks belong in CI, and what evidence proves release readiness? |
+| Runtime | How does the service start, become ready, fail, recover and roll back? |
+| Observability | Which logs, metrics, traces and alerts would help diagnose the top three failure modes? |
+| Security | Where are the authorization, sensitive-data, secret and dependency controls enforced? |
+| Testing | Which behavior needs unit, service, contract, integration, E2E or performance coverage? |
+| Production support | Who owns the service during an incident, what runbook is used and how is learning captured? |
+| Leadership | What standard or operating rhythm would prevent this issue from recurring across teams? |
+
+## KT Evidence Pack
+
+For important KT, capture a small evidence pack so the session becomes reusable.
+
+| Evidence item | Why it matters |
+|---|---|
+| Audience and objective | Keeps the session scoped and role-appropriate. |
+| Reading path | Shows which curated guides support the session. |
+| Repo walkthrough notes | Connects general concepts to real implementation. |
+| Exercise output | Proves the audience practiced the skill. |
+| Teach-back answers | Shows whether judgment was built, not just attendance. |
+| Follow-up backlog | Converts learning gaps into concrete repo or process improvements. |
+| Owner and revisit date | Keeps KT from becoming stale. |
+
+## Training Anti-Patterns
+
+Avoid these patterns when using the knowledge base for onboarding or team training.
+
+| Anti-pattern | Better approach |
+|---|---|
+| Long slide-only walkthrough | Use short concept explanation plus repo walkthrough and exercise. |
+| Same content for every role | Tailor the reading path and output to the audience. |
+| No teach-back | Ask participants to explain a decision, failure mode or tradeoff in their own words. |
+| No repo action | End with one concrete documentation, test, runbook or evidence improvement. |
+| One-time KT | Revisit after incidents, releases, architecture changes and recurring review comments. |
+
+---
+
 ## Summary
 
 KT is not a presentation series.

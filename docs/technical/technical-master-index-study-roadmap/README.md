@@ -59,8 +59,8 @@ It includes:
 - QA and SRE curriculum
 - business analyst and product technologist curriculum
 - founder/productization curriculum
-- repo adoption model
-- KT and onboarding plan
+- repo adoption model with maturity stages, durable truth artifacts and adoption PR pattern
+- KT and onboarding plan with role outcomes, teach-back prompts and reusable evidence pack
 - architecture review map
 - PR review and quality-governance map
 - production-readiness map
@@ -83,8 +83,8 @@ It includes:
 | 6 | `05-qa-sre-devops-and-platform-learning-path.md` | Learning path for QA, SRE, DevOps, and platform teams. |
 | 7 | `06-business-analyst-product-technologist-and-domain-sme-path.md` | Learning path for BA, product technologists, and domain SMEs. |
 | 8 | `07-founder-productization-and-bank-buyable-readiness-path.md` | Startup/productization path for enterprise buyers and banks. |
-| 9 | `08-repo-adoption-model-and-documentation-structure.md` | How to apply the packs into repositories and wiki/docs. |
-| 10 | `09-kt-onboarding-and-team-training-plan.md` | KT plan for new joiners and cross-functional teams. |
+| 9 | `08-repo-adoption-model-and-documentation-structure.md` | How to apply the guides into repositories through maturity stages, durable truth artifacts and small adoption PRs. |
+| 10 | `09-kt-onboarding-and-team-training-plan.md` | KT plan for new joiners and cross-functional teams, including role outcomes, teach-back prompts and reusable evidence. |
 | 11 | `10-architecture-review-and-design-governance-map.md` | Which packs to use for architecture reviews. |
 | 12 | `11-pr-review-quality-gates-and-engineering-standards-map.md` | Which packs to use for PR review, CI, quality, and standards. |
 | 13 | `12-production-readiness-and-operational-excellence-map.md` | Which packs to use for production readiness and support. |
