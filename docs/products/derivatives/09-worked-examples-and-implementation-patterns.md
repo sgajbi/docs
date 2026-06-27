@@ -3641,3 +3641,211 @@ QA assertions:
 | Confirmation is missing | Settlement remains provisional or source-limited. |
 | Prior estimate differs | Prior and adjusted versions remain auditable. |
 | Settlement is finalized | Final cashflow uses the adjusted observation calendar. |
+
+## 110. Futures Delivery Invoice Correction
+
+Scenario:
+
+- A physically settled futures delivery invoice is corrected after final warehouse and quality adjustments.
+- Original delivery invoice amount is 1,840,000.
+- Corrected delivery invoice amount is 1,812,500.
+- The original invoice was already included in expected cash settlement.
+
+Invoice correction:
+
+```text
+delivery_invoice_correction = original_delivery_invoice_amount - corrected_delivery_invoice_amount
+delivery_invoice_correction = 1,840,000 - 1,812,500 = 27,500
+```
+
+Correct treatment:
+
+- preserve original invoice, corrected invoice, contract month, delivery notice, warehouse receipt, quality adjustment and clearing broker confirmation;
+- update delivery cash settlement only after corrected invoice source evidence is accepted;
+- keep delivery invoice correction separate from variation margin and ordinary trading P&L;
+- reconcile physical delivery quantity, invoice amount, warehouse fees and cash settlement;
+- avoid overwriting the original invoice without retaining the correction version.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Corrected invoice arrives | Delivery cash settlement is recalculated with version history. |
+| Warehouse adjustment is missing | Correction remains provisional or blocked. |
+| Variation margin is reported | Invoice correction is not classified as variation margin. |
+| Delivery report is generated | Original invoice, corrected invoice and correction amount are visible. |
+
+## 111. Option Assignment Tax-Lot Sourcing
+
+Scenario:
+
+- A short equity option is assigned and creates an underlying sale obligation.
+- The assignment must source tax lots for the delivered shares according to the configured method.
+- Assigned shares are 3,000.
+- Available lot A is 1,800 shares at 42.00 cost.
+- Available lot B is 1,200 shares at 47.50 cost.
+- Assignment delivery price is 55.00.
+
+Assigned lot realized result:
+
+```text
+assigned_sale_proceeds = assigned_shares x assignment_delivery_price
+assigned_sale_proceeds = 3,000 x 55.00 = 165,000
+
+assigned_cost_basis = (1,800 x 42.00) + (1,200 x 47.50)
+assigned_cost_basis = 75,600 + 57,000 = 132,600
+
+assigned_realized_gain = assigned_sale_proceeds - assigned_cost_basis
+assigned_realized_gain = 165,000 - 132,600 = 32,400
+```
+
+Correct treatment:
+
+- preserve assignment notice, option contract, exercise/assignment timestamp, tax-lot method, selected lots and delivery confirmation;
+- source underlying tax lots from position records, not from option premium history;
+- keep option premium, assigned share delivery and realized gain treatment separately visible;
+- block completion when required lots are unavailable or restricted;
+- retain lot-selection evidence for tax and client reporting.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Assignment occurs | Underlying delivery and lot sourcing are created from assignment evidence. |
+| Lots are insufficient | Assignment processing is blocked or routed to buy-in workflow. |
+| Lot method changes after assignment | Assignment retains method effective at assignment time. |
+| Tax report is generated | Assigned proceeds, cost basis and option premium treatment are separately traceable. |
+
+## 112. Cleared Swap House Transfer Margin Offset
+
+Scenario:
+
+- A cleared swap position transfers from one clearing member to another.
+- Old and new clearing houses publish margin statements during the transfer window.
+- The transfer should offset eligible margin, but a timing mismatch leaves temporary duplicate margin calls.
+
+Margin offset:
+
+```text
+net_transfer_margin_due = new_house_initial_margin - eligible_old_house_margin_offset
+net_transfer_margin_due = 2,900,000 - 2,350,000 = 550,000
+
+temporary_duplicate_margin = old_house_margin_not_released + new_house_initial_margin - eligible_offset
+temporary_duplicate_margin = 2,350,000 + 2,900,000 - 2,350,000 = 2,900,000
+```
+
+Correct treatment:
+
+- preserve transfer approval, old and new clearing statements, portability file, eligible offset rules, release date and settlement evidence;
+- separate economic margin requirement from temporary duplicate funding need;
+- show margin offset source and unapplied residual margin in operations reporting;
+- avoid double-counting old and new margin in portfolio risk once offset is accepted;
+- keep transfer cash movements separate from swap valuation P&L.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Transfer margin statements overlap | Temporary duplicate margin is visible. |
+| Eligible offset is confirmed | Net transfer margin due is reduced by accepted offset. |
+| Old margin release is delayed | Funding need remains visible until cash is released. |
+| Risk report is generated | Economic margin and temporary funding exposure are separate. |
+
+## 113. Volatility Surface Vendor Fallback Mapping
+
+Scenario:
+
+- The primary volatility-surface vendor is unavailable during end-of-day valuation.
+- A fallback vendor provides different tenor and moneyness buckets.
+- The model can value only after fallback buckets are mapped and approved.
+
+Fallback mapping:
+
+```text
+mapped_vol_difference = fallback_vendor_vol - last_primary_vendor_vol_for_equivalent_bucket
+mapped_vol_difference = 24.80% - 24.10% = 0.70%
+```
+
+Correct treatment:
+
+- preserve primary outage evidence, fallback vendor file, bucket mapping, interpolation rule, approval, timestamp and expiry;
+- use fallback vols only for approved product scopes and mapped buckets;
+- retain both vendor-native and mapped surface values for valuation audit;
+- label valuation as fallback-sourced while primary vendor is unavailable;
+- block valuations where required bucket mapping is missing or expired.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Primary vendor is unavailable | Fallback mapping workflow opens. |
+| Mapping is approved | Valuation uses mapped fallback buckets with source label. |
+| Bucket is unmapped | Product valuation is blocked or source-limited. |
+| Primary vendor returns | Fallback use ends according to expiry and reconciliation policy. |
+
+## 114. Collateral Dispute Settlement Interest Reversal
+
+Scenario:
+
+- A collateral dispute settlement included accrued dispute interest.
+- After legal review, part of the interest is reversed because the settlement date was corrected.
+- The reversal must not reopen the principal collateral dispute.
+
+Interest reversal:
+
+```text
+interest_reversal = originally_settled_dispute_interest - corrected_dispute_interest
+interest_reversal = 18,500 - 14,200 = 4,300
+```
+
+Correct treatment:
+
+- preserve original settlement, corrected settlement date, interest convention, legal review, reversal approval and cash posting;
+- reverse only the affected interest component while keeping principal settlement closed;
+- label reversal separately from new collateral interest accrual;
+- update counterparty dispute metrics without reopening waived principal unless settlement terms require it;
+- retain both original and corrected interest calculations.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Settlement date is corrected | Interest reversal is calculated from corrected convention. |
+| Principal settlement was final | Principal dispute remains closed. |
+| Reversal lacks approval | Interest adjustment is blocked. |
+| Collateral report is generated | Principal settlement, original interest, corrected interest and reversal are visible. |
+
+## 115. Variance-Swap Extraordinary Market Closure Determination
+
+Scenario:
+
+- A variance swap references an exchange that closes unexpectedly for several trading days.
+- The calculation agent determines the closure is extraordinary and applies contract-specific observation replacement.
+- The adjusted observation count and replacement returns change realized variance.
+
+Extraordinary closure adjustment:
+
+```text
+adjusted_observation_count = scheduled_observation_count - extraordinary_closure_days + replacement_observation_days
+adjusted_observation_count = 252 - 3 + 1 = 250
+
+adjusted_realized_variance = adjusted_sum_squared_log_returns x annualization_factor / adjusted_observation_count
+adjusted_realized_variance = 0.0460 x 252 / 250 = 0.046368
+```
+
+Correct treatment:
+
+- preserve exchange closure notice, extraordinary closure determination, contract rule, replacement observation method, calculation-agent confirmation and settlement version;
+- distinguish extraordinary closure determination from ordinary holiday-market disruption;
+- version realized variance, settlement estimate and final cashflow calculation;
+- show affected observation days and replacement logic in valuation audit;
+- block final settlement until calculation-agent determination is accepted.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Closure is determined extraordinary | Contract-specific replacement logic is applied. |
+| Determination is missing | Settlement remains provisional or source-limited. |
+| Replacement observation changes result | Realized variance and settlement version are recalculated. |
+| Client report is generated | Extraordinary closure, adjusted count and calculation basis are explainable. |
