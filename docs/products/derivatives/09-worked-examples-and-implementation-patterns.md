@@ -2875,7 +2875,223 @@ QA assertions:
 | Cure period remains open | Close-out state is pending, not final. |
 | Rating source is stale | Trigger is source-limited and escalated for confirmation. |
 
-## 89. Advisory And Mandate Checklist
+## 89. Option Expiry Cut-Off Dispute
+
+Scenario:
+
+- A client submits a do-not-exercise instruction for listed options close to expiry.
+- Broker cut-off is 16:00.
+- Client instruction timestamp is 16:07.
+- The option is in-the-money by USD 1.25.
+- Contract multiplier is 100 and open contracts are 20.
+
+Disputed exercise value:
+
+```text
+gross_intrinsic_value = intrinsic_value_per_unit x multiplier x contracts
+gross_intrinsic_value = 1.25 x 100 x 20 = 2,500
+instruction_late = instruction_timestamp > broker_cutoff
+```
+
+Correct treatment:
+
+- preserve exchange rule, broker cut-off, client instruction timestamp, account authority, option moneyness and clearing confirmation;
+- distinguish economic exercise value from valid instruction status;
+- do not reverse exercise or expiry solely from client intent when the instruction missed the governing cut-off;
+- route dispute, compensation or exception workflow separately from official clearing outcome;
+- keep final exercised, expired and disputed quantities reconciled to opening contracts.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Instruction arrives after broker cut-off | Official outcome follows exchange/broker evidence unless exception is approved. |
+| Option is in the money | Intrinsic value is calculated but does not override cut-off validity. |
+| Broker accepts late instruction | Exception evidence is stored with final outcome. |
+| Client report is generated | Economic value, instruction state and clearing result are distinct. |
+
+## 90. Cleared Margin Intraday Add-On
+
+Scenario:
+
+- A clearing broker issues an intraday margin add-on after market volatility rises.
+- Opening initial margin is USD 450,000.
+- Daily variation margin debit is USD 75,000.
+- Intraday add-on is USD 120,000.
+- Available liquidity is USD 500,000.
+
+Liquidity demand:
+
+```text
+total_same_day_margin_cash = variation_margin_debit + intraday_add_on
+total_same_day_margin_cash = 75,000 + 120,000 = 195,000
+liquidity_after_margin = available_liquidity - total_same_day_margin_cash
+liquidity_after_margin = 500,000 - 195,000 = 305,000
+```
+
+Correct treatment:
+
+- preserve clearing-broker call, timestamp, affected contracts, initial margin, variation margin, intraday add-on and due time;
+- separate intraday add-on from initial margin model change and daily variation margin;
+- reserve same-day liquidity and escalate shortfall before due time;
+- keep add-on release or continuation evidence when the market normalizes;
+- report margin cashflows outside investment P&L while preserving liquidity impact.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Intraday add-on arrives | Same-day liquidity requirement updates with broker evidence. |
+| Add-on is later released | Release is linked to original call and broker confirmation. |
+| Available liquidity is insufficient | Funding escalation opens before margin due time. |
+| Margin report is generated | Initial margin, variation margin and intraday add-on are separated. |
+
+## 91. Synthetic Financing Rate Reset
+
+Scenario:
+
+- A total return swap financing leg resets monthly.
+- Prior financing rate is 5.10%.
+- New financing rate is 5.55%.
+- Financing notional is USD 4,000,000.
+- Accrual period is 30 days on a 360-day basis.
+
+Financing cost delta:
+
+```text
+rate_delta = new_financing_rate - prior_financing_rate
+rate_delta = 5.55% - 5.10% = 0.45%
+financing_cost_delta = notional x rate_delta x days / basis
+financing_cost_delta = 4,000,000 x 0.45% x 30 / 360 = 1,500
+```
+
+Correct treatment:
+
+- preserve reset notice, benchmark fixing, spread, prior rate, new rate, notional, day count and effective date;
+- separate synthetic financing cost from underlying asset total return;
+- update accrual, projected cashflows, performance attribution and client explain packs from the reset date;
+- block unsupported reset when fixing, spread or day-count evidence is missing;
+- keep historical financing accruals on prior rates unless a restatement source arrives.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| New reset is confirmed | Future financing accrual uses the new rate from effective date. |
+| Fixing source is missing | Financing projection is source-limited. |
+| Prior period is closed | Historical financing remains unchanged unless corrected. |
+| Attribution report is generated | Financing cost and asset return are distinct. |
+
+## 92. Collateral Currency Substitution FX Haircut
+
+Scenario:
+
+- A client substitutes USD collateral with CHF collateral under a CSA.
+- Required collateral is USD 2,000,000.
+- Proposed CHF collateral is CHF 1,900,000.
+- CHF/USD FX rate is 1.1200.
+- CSA FX mismatch haircut is 8.00%.
+
+Haircut-adjusted value:
+
+```text
+usd_equivalent = chf_collateral x fx_rate
+usd_equivalent = 1,900,000 x 1.1200 = 2,128,000
+haircut_adjusted_value = usd_equivalent x (1 - fx_mismatch_haircut)
+haircut_adjusted_value = 2,128,000 x 92.00% = 1,957,760
+substitution_shortfall = required_collateral - haircut_adjusted_value
+substitution_shortfall = 2,000,000 - 1,957,760 = 42,240
+```
+
+Correct treatment:
+
+- preserve CSA terms, collateral currency, exposure currency, FX source, haircut schedule, substitution request and release instruction;
+- apply FX mismatch haircut before releasing existing collateral;
+- separate gross translated value, haircut-adjusted value and residual shortfall;
+- route shortfall to top-up, partial release, rejection or exception workflow;
+- label stale FX or haircut inputs as source-limited.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Replacement value is short after haircut | Existing collateral release is blocked or partial. |
+| FX source is stale | Substitution valuation is source-limited. |
+| Top-up arrives | Shortfall recalculates before release. |
+| Collateral report is generated | Gross value, haircut and shortfall are separately visible. |
+
+## 93. Portfolio Greeks Stale-Source Lock
+
+Scenario:
+
+- Portfolio-level Greeks are required for a derivatives risk report.
+- Current date is T.
+- Equity option delta file is from T.
+- FX option vega file is from T-3.
+- Freshness threshold is one business day.
+
+Coverage state:
+
+```text
+stale_by_days = report_date - source_date
+fx_vega_stale_by_days = 3
+greeks_report_allowed = all_required_sources_within_freshness_threshold
+greeks_report_allowed = false
+```
+
+Correct treatment:
+
+- preserve each sensitivity source, timestamp, product class, risk factor, freshness threshold and coverage flag;
+- aggregate only current compatible sensitivities for official risk reports;
+- label partial coverage when stale or missing sensitivities affect some product classes;
+- block mandate or suitability conclusions that require complete Greeks;
+- keep stale-source lock evidence for QA, operations and data-provider escalation.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| One required source is stale | Complete portfolio Greeks report is blocked or labelled partial. |
+| Risk report allows partial coverage | Missing/stale product classes are listed explicitly. |
+| Fresh source arrives | Aggregation recalculates with new timestamp. |
+| Mandate check requires full Greeks | Suitability conclusion remains blocked until complete. |
+
+## 94. Derivative Client Consent Remediation
+
+Scenario:
+
+- A client holds an OTC derivative that requires renewed complex-product consent.
+- Consent expired 12 days ago.
+- Existing position remains open.
+- New trades and lifecycle elections require valid consent.
+- Close-out is permitted for risk reduction.
+
+Consent state:
+
+```text
+consent_expired = current_date > consent_expiry_date
+new_trade_allowed = not consent_expired and product_authorized
+risk_reducing_closeout_allowed = consent_expired and closeout_reduces_risk
+```
+
+Correct treatment:
+
+- preserve consent version, expiry date, product scope, client classification, remediation task and permitted action set;
+- allow governed risk-reducing actions where policy permits while blocking new risk-increasing trades;
+- route renewal, client outreach, advisor attestation and escalation with ageing;
+- keep consent state visible in advisory, DPM, order entry, lifecycle elections and reporting;
+- avoid closing existing exposure automatically without client authority and risk review.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Consent is expired | New derivative trade is blocked or escalated. |
+| Close-out reduces risk | Action can proceed only under source-backed policy. |
+| Renewal is completed | Product authorization updates from renewed consent version. |
+| Advisory proposal is generated | Consent remediation state is visible before recommendation. |
+
+## 95. Advisory And Mandate Checklist
 
 Before using derivatives in advisory or DPM workflows, check:
 
@@ -2890,7 +3106,7 @@ Before using derivatives in advisory or DPM workflows, check:
 | Authority | Who may approve trade, exercise, close-out, collateral movement, or unwind? |
 | Reporting | Which client/advisor labels and warnings are required? |
 
-## 90. Current Support Boundary And Candidate Extensions
+## 96. Current Support Boundary And Candidate Extensions
 
 | Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
 |---|---|---|
@@ -2901,7 +3117,7 @@ Before using derivatives in advisory or DPM workflows, check:
 | Lifecycle events | expiry, exercise, assignment, reset, fixing, settlement, novation, compression, clearing, porting, barrier events and notional exchanges when sourced | automated OTC confirmation matching, lifecycle replay engine and event generation |
 | Reporting | market value, exposure, source date, stale/unsupported labels, hedge overlay split, strategy grouping and clearing state where sourced | advanced hedge-effectiveness reporting and multi-factor attribution |
 
-## 91. Regression Test Pack
+## 97. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -2997,3 +3213,9 @@ Minimum release-gate scenarios:
 90. Swap unwind partial termination closes only the terminated notional and keeps residual swap exposure, MTM and collateral lineage intact.
 91. Exchange outage trade bust reverses cancelled execution, opens replacement exposure from source confirmation and separates compensation claims from P&L.
 92. Counterparty downgrade close-out trigger preserves rating evidence, CSA trigger terms, cure period, collateral call and close-out election state.
+93. Option expiry cut-off dispute separates economic moneyness, instruction timing and final clearing outcome.
+94. Cleared margin intraday add-on separates initial margin, variation margin, add-on liquidity call and release evidence.
+95. Synthetic financing rate reset updates financing accrual from source-backed reset terms without changing underlying asset return.
+96. Collateral currency substitution FX haircut applies FX mismatch haircut before releasing existing collateral.
+97. Portfolio Greeks stale-source lock blocks or labels incomplete risk reports when required sensitivities are stale.
+98. Derivative client consent remediation blocks risk-increasing actions while preserving permitted risk-reducing workflows.
