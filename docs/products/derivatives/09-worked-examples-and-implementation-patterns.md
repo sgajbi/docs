@@ -243,7 +243,205 @@ Implementation controls:
 - cash settlement must reconcile to dealer/custodian notice;
 - client reporting must explain reference entity, notional, recovery basis, and settlement status.
 
-## 9. Advisory And Mandate Checklist
+## 9. Multi-Leg Option Strategy: Bull Call Spread
+
+Scenario:
+
+- Client buys 10 call contracts with strike 100 for premium 8.
+- Client sells 10 call contracts with strike 110 for premium 3.
+- Contract size: 100 shares.
+- Net premium paid: 10 x 100 x (8 - 3) = 5,000.
+
+Payoff at expiry:
+
+| Underlying at expiry | Long call payoff | Short call payoff | Net payoff before premium | Net P&L after premium |
+|---:|---:|---:|---:|---:|
+| 95 | 0 | 0 | 0 | -5,000 |
+| 105 | 5,000 | 0 | 5,000 | 0 |
+| 115 | 15,000 | -5,000 | 10,000 | 5,000 |
+
+Implementation treatment:
+
+- store each option leg separately with its own contract id, direction, strike, expiry, premium, Greek set, lifecycle state, and exercise/assignment outcome;
+- store strategy grouping as an analytical relationship, not as a replacement for legal contract positions;
+- calculate maximum loss, maximum gain and breakeven at strategy level;
+- apply mandate checks to both individual legs and combined strategy exposure.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| One leg is missing | Strategy-level payoff is unavailable or labelled incomplete. |
+| Expiry closes both legs | Long and short contracts close with correct intrinsic value or assignment behavior. |
+| Client report shows exposure | Report includes leg-level holdings and strategy-level payoff explanation. |
+| Mandate allows long calls but not short calls | Strategy fails unless covered spread permission exists. |
+
+## 10. Hedge Effectiveness For An FX Forward Overlay
+
+Scenario:
+
+- Portfolio holds EUR assets worth EUR 1,000,000.
+- Client sells EUR 800,000 forward against USD.
+- EUR asset value falls by USD 40,000 from FX movement.
+- FX forward gains USD 32,000 over the same period.
+
+Simplified effectiveness:
+
+```text
+hedge ratio = hedged notional / exposure notional
+hedge ratio = 800,000 / 1,000,000 = 80%
+
+offset ratio = hedge gain / hedged exposure loss
+offset ratio = 32,000 / 40,000 = 80%
+```
+
+Reporting treatment:
+
+| Area | Correct treatment |
+|---|---|
+| Exposure | Show gross EUR exposure, hedged notional and residual unhedged exposure. |
+| Performance | Separate asset local return, FX translation effect and hedge P&L. |
+| Mandate | Validate hedge ratio, permitted instruments, tenor and counterparty. |
+| Advisory | Explain that hedge reduces currency exposure but can also reduce upside. |
+| QA | Match hedge result to forward valuation source and underlying exposure source. |
+
+## 11. OTC Novation And Compression
+
+Scenario:
+
+An OTC swap with Counterparty A is novated to Counterparty B. Later, two offsetting swaps are compressed into one smaller residual contract.
+
+Correct lifecycle:
+
+```text
+original contract -> novation consent -> close old counterparty exposure -> open replacement contract -> preserve valuation and collateral lineage
+
+offsetting contracts -> compression proposal -> source confirmation -> close replaced contracts -> create residual contract or zero position
+```
+
+Implementation treatment:
+
+| Event | Required data |
+|---|---|
+| Novation | old counterparty, new counterparty, consent date, effective date, transfer value, collateral treatment. |
+| Compression | original contracts, compression group id, replacement notional, termination cashflow, effective date. |
+| Reporting | contract lineage, counterparty exposure before/after, realized termination amount and residual exposure. |
+| Risk | counterparty, DV01, notional and collateral exposure recalculate from new contract set. |
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Novation lacks consent evidence | Contract owner cannot be changed automatically. |
+| Collateral balance transfers | Collateral movement is linked to novation event. |
+| Compression closes contracts | Old contracts are closed with lineage to replacement or termination. |
+| Risk report runs after event | Counterparty and notional exposure do not double count old and new contracts. |
+
+## 12. Central Clearing And Variation Margin
+
+Scenario:
+
+An OTC interest-rate swap is centrally cleared. Initial margin is posted to the clearing broker, and variation margin settles daily.
+
+| Attribute | Value |
+|---|---:|
+| Cleared swap notional | 20,000,000 |
+| Initial margin posted | 450,000 |
+| Daily mark-to-market change | 18,000 |
+| Variation margin received | 18,000 |
+
+Correct treatment:
+
+| Item | Treatment |
+|---|---|
+| Cleared contract | Legal contract remains a derivative position with clearing broker/CCP references. |
+| Initial margin | Restricted collateral, not investment cost. |
+| Variation margin | Daily cash settlement of derivative P&L according to clearing rules. |
+| Counterparty exposure | Counterparty risk shifts from bilateral dealer exposure to clearing structure. |
+| Reporting | Show notional, market value, margin, collateral, cleared status and source dates separately. |
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Clearing broker margin file is stale | Margin/collateral report is stale or blocked. |
+| Variation margin posts | Cash changes and derivative P&L classification reconciles to clearing statement. |
+| Initial margin changes | Collateral restriction updates without treating it as realized loss. |
+| Contract moves from bilateral to cleared | Counterparty and CSA/clearing metadata update with lineage. |
+
+## 13. Collateral Optimization Under A CSA
+
+Scenario:
+
+A bilateral OTC portfolio requires collateral. Eligible collateral includes USD cash and government bonds with haircuts.
+
+| Collateral type | Available market value | Haircut | Lending value |
+|---|---:|---:|---:|
+| USD cash | 300,000 | 0% | 300,000 |
+| Government bonds | 500,000 | 5% | 475,000 |
+
+Collateral requirement: 620,000.
+
+Simplified calculation:
+
+```text
+total eligible lending value = 300,000 + 475,000 = 775,000
+surplus after requirement = 775,000 - 620,000 = 155,000
+```
+
+Implementation treatment:
+
+- eligible collateral rules come from the CSA or margin agreement;
+- haircut, currency, concentration, substitution and settlement timing must be source-backed;
+- optimization should preserve liquidity buffers and mandate restrictions;
+- reporting should show pledged collateral, free collateral and substitution candidates separately.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Bond price is stale | Bond collateral lending value is stale or excluded. |
+| Currency haircut applies | Lending value uses currency-adjusted haircut. |
+| Collateral substitution is requested | Old pledge is released only after replacement collateral is accepted. |
+| Client liquidity need conflicts | Optimization respects cash buffer and mandate priority. |
+
+## 14. Portfolio Greeks Aggregation
+
+Scenario:
+
+A portfolio holds option positions on the same underlying. Risk reporting needs aggregate delta, gamma and vega.
+
+| Position | Contracts | Multiplier | Delta | Gamma | Vega |
+|---|---:|---:|---:|---:|---:|
+| Long call | 20 | 100 | 0.55 | 0.030 | 0.12 |
+| Short put | -10 | 100 | -0.35 | 0.025 | 0.10 |
+
+Simplified aggregation:
+
+```text
+aggregate delta units = sum(contracts x multiplier x delta)
+long call delta = 20 x 100 x 0.55 = 1,100
+short put delta = -10 x 100 x -0.35 = 350
+aggregate delta units = 1,450
+
+aggregate gamma units = 20 x 100 x 0.030 + (-10) x 100 x 0.025 = 35
+aggregate vega units = 20 x 100 x 0.12 + (-10) x 100 x 0.10 = 140
+```
+
+Correct treatment:
+
+Aggregate Greeks require consistent underlying, valuation date, model source, multiplier and sign convention. Reports should show stale or partial coverage when any position lacks current sensitivities.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| One leg has stale Greeks | Aggregate Greek is stale, partial or blocked by policy. |
+| Underlyings differ | Aggregation is grouped by underlying and risk factor. |
+| Multiplier changes after corporate action | Greek aggregation uses adjusted contract multiplier. |
+| Client report shows exposure | Delta-equivalent exposure is labelled separately from market value. |
+
+## 15. Advisory And Mandate Checklist
 
 Before using derivatives in advisory or DPM workflows, check:
 
@@ -258,18 +456,18 @@ Before using derivatives in advisory or DPM workflows, check:
 | Authority | Who may approve trade, exercise, close-out, collateral movement, or unwind? |
 | Reporting | Which client/advisor labels and warnings are required? |
 
-## 10. Current Support Boundary And Candidate Extensions
+## 16. Current Support Boundary And Candidate Extensions
 
 | Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
 |---|---|---|
-| Contract position | contract id, notional, quantity, underlying, expiry, counterparty, market value | multi-leg strategy decomposition and lifecycle replay |
-| Exposure | notional, delta-equivalent, DV01/CS01 where supplied | central cross-product exposure engine |
-| Margin/collateral | broker/dealer margin postings and collateral balances | full margin simulation and collateral optimization |
+| Contract position | contract id, notional, quantity, underlying, expiry, counterparty, market value, leg grouping where sourced | advanced strategy decomposition and scenario replay |
+| Exposure | notional, delta-equivalent, DV01/CS01 where supplied | central cross-product exposure engine and strategy-level attribution |
+| Margin/collateral | broker/dealer margin postings and collateral balances | full margin simulation, optimization and substitution workflow |
 | Valuation | vendor/dealer/exchange values with source timestamps | independent model valuation with explain and calibration |
-| Lifecycle events | expiry, exercise, assignment, reset, fixing, settlement when sourced | automated OTC confirmation matching and event generation |
-| Reporting | market value, exposure, source date, stale/unsupported labels | hedge-effectiveness reporting and strategy-level attribution |
+| Lifecycle events | expiry, exercise, assignment, reset, fixing, settlement, novation, compression and clearing when sourced | automated OTC confirmation matching and event generation |
+| Reporting | market value, exposure, source date, stale/unsupported labels, hedge overlay split where sourced | advanced hedge-effectiveness reporting and multi-factor attribution |
 
-## 11. Regression Test Pack
+## 17. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -285,3 +483,9 @@ Minimum release-gate scenarios:
 10. CDS credit event produces controlled settlement workflow.
 11. Stale valuation blocks client-ready reporting or labels degraded state.
 12. Missing Greek/exposure input prevents unsupported mandate conclusion.
+13. Bull call spread reports leg-level holdings and strategy payoff without losing legal contract positions.
+14. FX hedge effectiveness separates underlying FX loss, hedge P&L and residual exposure.
+15. OTC novation/compression preserves contract lineage and prevents double-counted counterparty exposure.
+16. Cleared swap margin distinguishes initial margin from daily variation margin.
+17. Collateral optimization applies CSA eligibility, haircut, currency and liquidity constraints.
+18. Portfolio Greeks aggregate only compatible, current sensitivities and label partial coverage.

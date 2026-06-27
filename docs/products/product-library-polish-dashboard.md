@@ -40,7 +40,7 @@ Every product area should be reviewed across these dimensions:
 | Client, account, portfolio and relationship master data | Strong | Client hierarchy, accounts, portfolios, households, beneficial ownership, mandates, booking centres and access control. | Joint accounts, EAM relationships, trust/company structures, closed-account reporting and advisor coverage changes. |
 | Commodities, precious metals and real assets | Strong | Physical metals, metal accounts, commodity ETPs, derivatives, structured exposure, collateral and unit controls. | Storage fees, paid-in-kind metal fees, commodity option exercise, warehouse receipts and index roll yield. |
 | Data governance, quality, lineage and controls | Strong | Source ownership, golden copy, lineage, reconciliation, quality rules, certification, migration and audit evidence. | Quality-score thresholding, lineage graph export, report certification, event replay and source outage fallback. |
-| Derivatives | Strong | Options, futures, forwards, swaps, CDS, Greeks, margin, collateral, advisory controls and lifecycle events. | Multi-leg strategies, hedge effectiveness, OTC novation, compression, central clearing and portfolio Greeks. |
+| Derivatives | Strong | Options, futures, forwards, swaps, CDS, Greeks, margin, collateral, advisory controls, lifecycle events, multi-leg strategies, hedge effectiveness, OTC novation/compression, central clearing, collateral optimization and portfolio Greeks. | Variance swaps, barrier options, cross-currency swaps, option exercise windows, collateral disputes, clearing-broker default and strategy-level attribution. |
 | Entitlements, digital channels and advisor workbench | Strong | RBAC/ABAC, relationship-based access, delegation, advisor workbench, digital channels, workflow and audit. | Legal delegate journeys, EAM access, family-office portals, mobile step-up, consent expiry and certification campaigns. |
 | Equities | Strong | Trading, settlement, corporate actions, dividends, cost basis, P&L, performance, risk and market operations. | Spin-off cost allocation, merger consideration, manufactured dividends, short-sale margin and restricted-list controls. |
 | Funds | Strong | Fund taxonomy, share classes, orders, NAV, fees, distributions, look-through, private fund flows, gates, equalization, share-class conversion, fund mergers, notice-period holdbacks, transfer-agent rejects and fund-of-funds look-through. | Fee equalization after partial redemption, performance-fee crystallization, in-specie transfers, custody re-registration, suspension reopenings and stale look-through override expiry. |
@@ -83,7 +83,7 @@ The next useful enrichment work should prioritize:
 1. overdraft pricing tiers, intraday liquidity restrictions, payment cut-off failures, stress escalation and nostro reconciliation,
 2. sinkable bond, make-whole call, distressed exchange and hedged bond attribution examples,
 3. fund fee equalization after partial redemption, performance-fee crystallization, in-specie transfers and suspension reopenings,
-4. multi-leg options, hedge effectiveness, OTC lifecycle and collateral optimization,
+4. variance swaps, barrier options, cross-currency swaps, collateral disputes and strategy-level attribution,
 5. property-level real estate and infrastructure operating detail,
 6. tax and regulatory report-output examples,
 7. trade lifecycle corrections, income reversals and settlement break closure,

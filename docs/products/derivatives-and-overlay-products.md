@@ -10,7 +10,7 @@ This page connects derivatives knowledge to reusable private-banking platform de
 
 ## Practical Worked Examples
 
-Use [`derivatives/09-worked-examples-and-implementation-patterns.md`](derivatives/09-worked-examples-and-implementation-patterns.md) for concrete examples covering option purchase, covered-call assignment, futures variation margin, FX forward hedge settlement, NDF fixing, interest-rate swap resets, CDS credit events, exposure lenses, support boundaries and regression tests.
+Use [`derivatives/09-worked-examples-and-implementation-patterns.md`](derivatives/09-worked-examples-and-implementation-patterns.md) for concrete examples covering option purchase, covered-call assignment, futures variation margin, FX forward hedge settlement, NDF fixing, interest-rate swap resets, CDS credit events, multi-leg option strategies, hedge effectiveness, OTC novation/compression, central clearing, collateral optimization, portfolio Greeks, exposure lenses, support boundaries and regression tests.
 
 ## Core Derivatives Platform Distinctions
 
@@ -24,6 +24,17 @@ Use [`derivatives/09-worked-examples-and-implementation-patterns.md`](derivative
 | Risk measures | Notional, delta-equivalent, beta-adjusted exposure, Greeks, DV01, CS01, VaR, stress loss, counterparty exposure, and concentration serve different purposes. |
 | Advisory and mandate controls | Derivatives require eligibility, product knowledge, leverage, hedging purpose, exposure limits, liquidity, complexity, and suitability controls. |
 
+## Derivatives Edge Cases To Model Explicitly
+
+| Case | Platform Treatment |
+|---|---|
+| Multi-leg option strategy | Store legal option legs separately and add strategy grouping for payoff, limits, reporting and analytics. |
+| Hedge effectiveness | Link hedge instrument, hedged exposure, period, valuation source and residual exposure; separate asset return, hedge P&L and unhedged risk. |
+| OTC novation and compression | Preserve contract lineage, consent evidence, counterparty exposure before/after, termination cashflow and replacement contract terms. |
+| Central clearing | Distinguish cleared contract, clearing broker/CCP metadata, initial margin, variation margin and counterparty-risk posture. |
+| Collateral optimization | Apply CSA eligibility, haircut, currency, concentration, substitution and liquidity-buffer rules before pledging collateral. |
+| Portfolio Greeks | Aggregate only compatible sensitivities with consistent underlying, multiplier, valuation date, model source and sign convention. |
+
 ## Questions To Ask Before Building A Derivatives Feature
 
 1. Is this an exchange-traded derivative, OTC derivative, embedded derivative, hedge overlay, structured-product component, or reporting-only exposure?
@@ -34,6 +45,7 @@ Use [`derivatives/09-worked-examples-and-implementation-patterns.md`](derivative
 6. Who owns confirmation, valuation model, market data, fixing, margin, collateral, and counterparty data?
 7. How does the platform distinguish hedging, income generation, leverage, speculative exposure, and efficient portfolio management?
 8. What should happen when valuation, fixing, market data, margin, collateral, or counterparty data is stale or unavailable?
+9. Does the workflow require legal contract processing, strategy-level analytics, hedge-overlay reporting, collateral operations, or all of them?
 
 ## API And UI Implications
 
@@ -51,7 +63,8 @@ Derivative APIs and UI should make these states explicit:
 10. counterparty and clearing posture,
 11. advisory eligibility and mandate limit posture,
 12. hedge or overlay purpose where formally recorded,
-13. unsupported states and blocked capabilities.
+13. unsupported states and blocked capabilities,
+14. strategy grouping, hedge link, novation/compression lineage, clearing status and collateral eligibility where applicable.
 
 ## QA Scenarios To Preserve
 
@@ -68,4 +81,10 @@ Derivative APIs and UI should make these states explicit:
 11. stale volatility, curve, FX, or fixing input,
 12. counterparty exposure limit breach,
 13. mandate leverage or derivative eligibility breach,
-14. structured-note embedded derivative displayed as terms, not client-held derivative position.
+14. structured-note embedded derivative displayed as terms, not client-held derivative position,
+15. multi-leg option strategy payoff and leg-level lifecycle,
+16. hedge-effectiveness reporting across hedged exposure and hedge instrument,
+17. OTC novation/compression lineage and counterparty exposure recalculation,
+18. central clearing initial margin versus variation margin treatment,
+19. CSA collateral optimization and substitution workflow,
+20. portfolio Greek aggregation with stale or partial sensitivities.
