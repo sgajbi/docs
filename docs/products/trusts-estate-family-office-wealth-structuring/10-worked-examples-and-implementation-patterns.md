@@ -1738,7 +1738,245 @@ QA assertions:
 | Override expires | Address returns to default masking. |
 | Audit is requested | Access and delivery of unmasked address are traceable. |
 
-## 56. Regression Test Pack
+## 56. Protector Indemnity Reserve Release Dispute
+
+Scenario:
+
+- A protector indemnity reserve was retained after a disputed legal claim.
+- The protector requests release of the unused reserve after approved costs are paid.
+- The trustee disputes part of the release because an appeal period is still open.
+
+| Component | Amount |
+|---|---:|
+| Original retained reserve | 80,000 |
+| Approved indemnity paid | 72,000 |
+| Protector requested release | 8,000 |
+| Trustee-disputed release | 3,000 |
+
+Release amount:
+
+```text
+potential_reserve_release = original_retained_reserve - approved_indemnity_paid
+potential_reserve_release = 80,000 - 72,000 = 8,000
+
+undisputed_release_amount = potential_reserve_release - trustee_disputed_release
+undisputed_release_amount = 8,000 - 3,000 = 5,000
+```
+
+Correct workflow:
+
+- preserve indemnity clause, approved payment, reserve ledger, protector release request, appeal-period evidence and trustee decision;
+- release only undisputed reserve amounts until appeal exposure is resolved;
+- keep reserve release separate from beneficiary distribution and trustee fee treatment;
+- show disputed reserve in closure and liquidity reporting;
+- avoid treating payment of approved costs as automatic release of all remaining reserve.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Appeal period remains open | Disputed reserve stays restricted. |
+| Trustee approves partial release | Only undisputed release is made available. |
+| Appeal period closes | Remaining reserve is released or retained from final evidence. |
+| Report is generated | Original reserve, paid costs, released amount and disputed reserve reconcile. |
+
+## 57. Family-Office Co-Investment Overcommitment Control
+
+Scenario:
+
+- A family office approves a co-investment that shares liquidity headroom with existing private-market commitments.
+- The proposed allocation would exceed the family charter overcommitment limit unless an excluded sleeve is formally approved.
+
+| Attribute | Value |
+|---|---:|
+| Existing commitments | 7,800,000 |
+| Proposed co-investment | 1,400,000 |
+| Maximum allowed commitments | 9,000,000 |
+| Excluded sleeve approved | 300,000 |
+
+Overcommitment amount:
+
+```text
+adjusted_commitments_after_exclusion = existing_commitments + proposed_co_investment - excluded_sleeve_approved
+adjusted_commitments_after_exclusion = 7,800,000 + 1,400,000 - 300,000 = 8,900,000
+
+remaining_commitment_headroom = maximum_allowed_commitments - adjusted_commitments_after_exclusion
+remaining_commitment_headroom = 9,000,000 - 8,900,000 = 100,000
+```
+
+Correct workflow:
+
+- preserve family charter limit, investment memo, co-investment terms, excluded sleeve approval, liquidity reserve and committee vote;
+- test overcommitment before approving the co-investment;
+- separate commitment approval from capital-call funding;
+- block or escalate if adjusted commitments exceed the approved limit;
+- retain residual headroom for future commitment planning.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Proposed co-investment exceeds limit before exclusion | Approval requires valid exclusion or escalation. |
+| Excluded sleeve is approved | Commitment test uses adjusted exposure. |
+| Capital call arrives later | Funding is tested separately from commitment approval. |
+| Report is generated | Existing commitments, proposed commitment, exclusions and headroom are visible. |
+
+## 58. Estate In-Kind Equalization Cash Shortfall
+
+Scenario:
+
+- An estate distributes concentrated securities in kind.
+- Beneficiary allocations require equalization cash because securities are indivisible.
+- The estate liquidity reserve is insufficient to fund the equalization amount.
+
+| Attribute | Value |
+|---|---:|
+| Required equalization cash | 85,000 |
+| Available estate cash after reserves | 52,000 |
+| Equalization shortfall | 33,000 |
+| Restricted assets excluded | 120,000 |
+
+Equalization shortfall:
+
+```text
+equalization_cash_shortfall = required_equalization_cash - available_estate_cash_after_reserves
+equalization_cash_shortfall = 85,000 - 52,000 = 33,000
+```
+
+Correct workflow:
+
+- preserve executor instruction, in-kind allocation schedule, reserve policy, restricted-asset list, equalization calculation and beneficiary approval;
+- transfer only supportable in-kind assets while equalization cash remains unresolved;
+- route shortfall to sale, reserve release, beneficiary waiver or revised allocation decision;
+- keep equalization cash separate from estate expenses and beneficiary distributions;
+- avoid reporting unequal distributions as final while shortfall is open.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Equalization cash exceeds available estate cash | Shortfall is opened. |
+| Beneficiary waiver is approved | Equalization obligation updates from waiver evidence. |
+| Asset sale funds equalization | Cash settlement links to sale and allocation schedule. |
+| Estate report is generated | In-kind values, equalization cash and shortfall are distinct. |
+
+## 59. Foundation Grant Restriction Breach Remediation
+
+Scenario:
+
+- A foundation grant recipient breaches a purpose restriction.
+- The foundation council approves remediation instead of immediate clawback.
+- The remediated amount must be tracked separately from approved spend and unresolved breach exposure.
+
+| Component | Amount |
+|---|---:|
+| Original grant | 400,000 |
+| Restricted-purpose breach amount | 90,000 |
+| Remediation accepted | 55,000 |
+| Unresolved breach exposure | 35,000 |
+
+Remediation residual:
+
+```text
+unresolved_breach_exposure = restricted_purpose_breach_amount - remediation_accepted
+unresolved_breach_exposure = 90,000 - 55,000 = 35,000
+```
+
+Correct workflow:
+
+- preserve grant agreement, purpose restriction, breach evidence, recipient remediation plan, council decision and monitoring owner;
+- separate approved spend, accepted remediation, unresolved breach and clawback exposure;
+- keep unresolved exposure out of available foundation cash until recovered or waived;
+- track remediation deadlines and evidence submissions;
+- avoid closing the breach solely because a remediation plan was proposed.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Remediation is approved | Accepted remediation reduces breach exposure. |
+| Remediation is incomplete | Residual breach remains open. |
+| Clawback is triggered later | Claim links to unresolved breach evidence. |
+| Report is generated | Grant, breach, remediation and residual exposure reconcile. |
+
+## 60. Private-Trust-Company Director Resignation Authority Gap
+
+Scenario:
+
+- A private trust company director resigns before a pending restructuring approval is completed.
+- The board still meets headcount requirements but loses a required specialist signatory.
+- Pending approvals must be revalidated against the post-resignation authority matrix.
+
+| Attribute | Value |
+|---|---:|
+| Required signatories | 3 |
+| Valid signatories after resignation | 2 |
+| Pending approvals affected | 4 |
+| Interim delegate appointments | 1 |
+
+Authority gap:
+
+```text
+signatory_shortfall = required_signatories - valid_signatories_after_resignation
+signatory_shortfall = 3 - 2 = 1
+```
+
+Correct workflow:
+
+- preserve resignation notice, board register, authority matrix, pending approvals, delegate appointment and effective date;
+- suspend affected approvals until the authority gap is cured;
+- distinguish quorum sufficiency from specialist signatory sufficiency;
+- revalidate approvals signed before and after the resignation effective date;
+- avoid carrying forward stale director authority on pending actions.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Director resigns before approval completion | Pending approvals are revalidated. |
+| Board quorum remains valid | Specialist signatory gap is still flagged. |
+| Interim delegate is appointed | Authority gap closes only for delegated scope. |
+| Approval report is generated | Resignation, authority gap and pending approval impact are visible. |
+
+## 61. Beneficiary Contact-Data Redaction Appeal
+
+Scenario:
+
+- A beneficiary appeals redaction of contact data in a family-office consolidated report.
+- The trustee approves email disclosure for coordination but denies address and phone disclosure.
+- Reporting must apply field-level redaction, not all-or-nothing access.
+
+| Attribute | Value |
+|---|---:|
+| Contact fields requested | 3 |
+| Fields approved for disclosure | 1 |
+| Fields remaining redacted | 2 |
+
+Redaction outcome:
+
+```text
+remaining_redacted_fields = contact_fields_requested - fields_approved_for_disclosure
+remaining_redacted_fields = 3 - 1 = 2
+```
+
+Correct workflow:
+
+- preserve redaction request, trustee decision, approved fields, denied fields, purpose, recipients and expiry;
+- disclose only approved contact fields for the approved report or workflow;
+- keep denied fields masked in consolidated reports and exports;
+- retain audit evidence for every unmasked field delivery;
+- avoid treating approval for one contact field as consent to disclose all contact data.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Field-level approval is partial | Only approved fields are unmasked. |
+| Report is outside approved purpose | All restricted fields remain masked. |
+| Approval expires | Fields return to default redaction. |
+| Audit is requested | Delivered fields, recipients and purpose are traceable. |
+
+## 62. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -1797,3 +2035,9 @@ Minimum release-gate scenarios:
 53. Foundation grant clawbacks separate approved spend, returned cash, remaining claim and dispute state.
 54. Private-trust-company director indemnity reserves reduce distributable cash until release evidence exists.
 55. Beneficiary address confidentiality overrides unmask only trustee-approved report scope and preserve audit evidence.
+56. Protector indemnity reserve release disputes keep appeal-period reserves restricted until trustee approval exists.
+57. Family-office co-investment overcommitment controls test adjusted headroom before commitment approval.
+58. Estate in-kind equalization cash shortfalls block final distribution until funded, waived or reallocated.
+59. Foundation grant restriction breach remediation tracks accepted remediation separately from residual breach exposure.
+60. Private-trust-company director resignation authority gaps revalidate pending approvals against the current authority matrix.
+61. Beneficiary contact-data redaction appeals apply field-level disclosure and preserve masking outside approved scope.
