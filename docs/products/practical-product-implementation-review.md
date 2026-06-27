@@ -100,20 +100,23 @@ Use these as future roadmap candidates when they are not already implementation-
 
 ## Product Example Expansion Backlog
 
-Add worked examples in this order when deepening the packs:
+Use [`product-worked-example-index.md`](product-worked-example-index.md) for the current index of local and cross-product examples. When deepening the packs, prioritize gaps that still lack numeric treatment, degraded-state behavior, report labels, and source-owner promotion requirements.
 
-1. **Cash, deposits, money market and FX:** unsettled sell proceeds; fixed deposit maturity and breakage; T-bill purchase and maturity; MMF redemption gate; FX spot funding; FX forward hedge; NDF fixing and net settlement.
-2. **Bonds:** callable corporate bond with yield-to-worst; floater with reset date; amortising bond; default and recovery example.
-3. **Commodities, precious metals and real assets:** physical gold purchase/sale; allocated versus unallocated metal account; storage fee; futures margin and roll; ETN issuer downgrade; pledged gold haircut; commodity-linked note observation.
-4. **Equities:** cash dividend with withholding tax; rights issue; stock split; spin-off; partial sale with tax lots.
-5. **Funds:** amount-based subscription; unit-based redemption; ETF trade; reinvested distribution; redemption gate; stale NAV report.
-6. **Insurance and annuities:** ILP premium, charges and sub-fund units; whole-life surrender quote; policy loan; missed premium and lapse; death claim; fixed annuity payout schedule.
-7. **Loans, Lombard, margin and collateral:** simple Lombard availability; in-flight order reservation; price-fall margin call; FX haircut; collateral substitution; forced liquidation.
-8. **Private markets:** commitment plus capital calls; distribution split; NAV restatement; secondary purchase; in-kind distribution; capital-call stress.
-9. **Real estate, REITs and infrastructure:** listed REIT distribution; REIT corporate action; private real estate capital call; appraisal restatement; infrastructure fund distribution; redemption queue.
-10. **Derivatives:** protective put; covered call; FX forward hedge; interest-rate swap cashflow; futures margin; CDS credit event.
-11. **Structured products:** autocallable note path; reverse convertible physical settlement; DCI alternate-currency redemption; accumulator knock-out; CLN credit event.
-12. **Structured notes:** fixed coupon note; worst-of autocallable; range accrual; equity-linked note with delivered shares; credit-linked note write-down.
+Recent cross-product examples already cover unsettled sell proceeds, callable yield-to-worst, dividends with withholding, fund redemption gates, Lombard availability, private-market capital calls, FX forwards, autocallables, physical delivery, rebalance funding, pledged gold, ILP surrender, REIT income, TWR, attribution, model rollout, advisory consent, outcome review, bond downgrade collateral impact, fund cut-offs, rights issues, futures variation margin, missing structured-product observations, private-market NAV restatement, family-office consolidated reporting, floating-rate resets, Treasury bill discount yield, repo collateral, fund swing pricing, side pockets, equity tender offers, participating-policy bonuses, assignment release, and structured deposits.
+
+Next high-value examples:
+
+1. **Cash, deposits, money market and FX:** multi-currency buying power, overdraft funding, negative interest, failed FX settlement, cash sweep treatment.
+2. **Bonds:** inflation-linked uplift, amortising bond, convertible bond, asset-backed prepayment, tax-lot reporting, multi-currency bond performance.
+3. **Commodities, precious metals and real assets:** storage-fee accrual, metal paid-in-kind fees, commodity option exercise, warehouse receipt, natural-resource fund look-through, commodity index roll yield.
+4. **Equities:** spin-off cost allocation, merger consideration, manufactured dividends, short-sale margin, restricted-list enforcement, IPO allocation.
+5. **Funds:** equalization, share-class conversion, fund merger, notice periods, holdbacks, transfer-agent rejects, fund-of-funds look-through.
+6. **Insurance and annuities:** indexed annuity crediting, variable annuity rider guarantees, premium holidays, reinstatement underwriting, cross-border beneficiary restrictions.
+7. **Loans, Lombard, margin and collateral:** multi-currency facilities, structured credit covenants, rehypothecation constraints, pledged insurance policies, private-market NAV lending, short-option margin.
+8. **Private markets:** co-investments, continuation vehicles, private credit covenant breaches, in-kind distributions, side pockets, capital-call forecasting, vintage-year pacing.
+9. **Real estate, REITs and infrastructure:** property-level debt maturity ladders, tenant concentration, occupancy changes, lease expiry, concession renewal, renewable power-price exposure.
+10. **Derivatives:** multi-leg option strategies, hedge effectiveness, collateral optimization, OTC novation/compression, central clearing, portfolio Greeks aggregation.
+11. **Structured products and notes:** structured funds, OTC bespoke trades, secondary-market unwind, corporate-action adjustments, scenario-model validation, range accruals, issuer default after coupon accrual, partial secondary sale.
 
 Each worked example should include:
 

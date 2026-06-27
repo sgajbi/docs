@@ -59,10 +59,11 @@ Use the following product-neutral posture when writing product docs, requirement
 ## How To Use This Map
 
 1. Start with the product pack and companion map.
-2. Check whether the requested feature is generic, source-backed, support-limited, or future candidate.
-3. Add the source owner, calculation method, degraded state, report output, and QA scenario before calling the feature supported.
-4. When a capability is not yet supportable, write the candidate extension and promotion requirements.
-5. Keep user-facing docs clear about partial, stale, missing, unsupported, restricted, or estimated states.
+2. Use [`product-implementation-evidence-review-guide.md`](product-implementation-evidence-review-guide.md) when translating app READMEs, API contracts, validation evidence, UI proof, report payloads, or runbooks into neutral product guidance.
+3. Check whether the requested feature is generic, source-backed, support-limited, or future candidate.
+4. Add the source owner, calculation method, degraded state, report output, and QA scenario before calling the feature supported.
+5. When a capability is not yet supportable, write the candidate extension and promotion requirements.
+6. Keep user-facing docs clear about partial, stale, missing, unsupported, restricted, or estimated states.
 
 ## Disclaimer
 

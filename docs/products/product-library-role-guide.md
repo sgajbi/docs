@@ -11,6 +11,7 @@ Use it when the question is not "which product is this?" but "what should I read
 | Understand a product family | The relevant product pack README under [`docs/products/`](README.md#product-packs). |
 | Find practical examples | [`product-worked-example-index.md`](product-worked-example-index.md). |
 | Understand support boundaries | [`product-capability-boundary-matrix.md`](product-capability-boundary-matrix.md) and [`implementation-backed-capability-map.md`](implementation-backed-capability-map.md). |
+| Translate implementation evidence into product docs | [`product-implementation-evidence-review-guide.md`](product-implementation-evidence-review-guide.md). |
 | Check source ownership and report dependencies | [`source-ownership-calculation-reporting-matrix.md`](source-ownership-calculation-reporting-matrix.md). |
 | Build QA coverage | [`product-qa-regression-matrix.md`](product-qa-regression-matrix.md) and each product pack's local worked-example file. |
 | Review or polish a product document | [`product-documentation-review-rubric.md`](product-documentation-review-rubric.md). |
@@ -164,6 +165,7 @@ Use this path when deciding whether to add or extend product capability.
 | Current coverage | [`product-knowledge-coverage-matrix.md`](product-knowledge-coverage-matrix.md). | Gap statement and affected product families. |
 | Support boundary | [`product-capability-boundary-matrix.md`](product-capability-boundary-matrix.md). | Current support, source-backed extension, support-limited state or future candidate. |
 | Evidence needed | [`implementation-backed-capability-map.md`](implementation-backed-capability-map.md). | Required source contracts, methodology, UI/API behavior, controls and QA evidence. |
+| Implementation evidence review | [`product-implementation-evidence-review-guide.md`](product-implementation-evidence-review-guide.md). | Neutral support claim, evidence class, source owner, supportability state and promotion requirements. |
 | Examples | [`product-worked-example-index.md`](product-worked-example-index.md). | Worked example and acceptance scenario for the candidate capability. |
 
 Promotion checklist:
