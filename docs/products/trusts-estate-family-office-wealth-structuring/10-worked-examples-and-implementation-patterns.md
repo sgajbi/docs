@@ -1039,7 +1039,229 @@ QA assertions:
 | Reallocation is approved | Impacted branches/entities receive versioned allocation updates. |
 | Report is generated | Accepted and disputed costs are labelled by policy and recipient authority. |
 
-## 38. Regression Test Pack
+## 38. Reserved Investment Powers After Incapacity
+
+Scenario:
+
+- A settlor reserved investment powers while capable.
+- A medical incapacity event is recorded.
+- The governing documents specify that reserved powers suspend on incapacity and trustee authority resumes for investment decisions.
+
+| Attribute | Value |
+|---|---|
+| Reserved power scope | Investment direction |
+| Incapacity evidence | Received |
+| Trustee fallback authority | Active |
+| Pending investment instructions | 3 |
+
+Authority result:
+
+```text
+settlor_investment_authority_active = reserved_power_active and incapacity_status != confirmed
+pending_instructions_requiring_review = 3
+```
+
+Correct workflow:
+
+- preserve reserved-power clause, capacity evidence, effective date, legal review, trustee fallback authority and impacted pending instructions;
+- suspend new settlor-directed investment instructions after confirmed incapacity when the document requires it;
+- re-route pending instructions to trustee or committee approval rather than silently cancelling them;
+- keep reporting labels clear: ownership does not change, but decision authority does.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Incapacity is confirmed | Reserved investment authority is suspended from the effective date. |
+| Pending instruction predates incapacity | Review workflow determines whether it remains valid. |
+| Advisor attempts new settlor-directed order | Order is blocked or routed to trustee authority. |
+| Governance report is generated | Authority history and incapacity evidence are effective-dated. |
+
+## 39. Letter-Of-Wishes Disclosure Dispute
+
+Scenario:
+
+- A beneficiary asks to see the letter of wishes.
+- The trustee has discretion over disclosure and another beneficiary contests release.
+- The platform must preserve the request, dispute and trustee decision without exposing restricted content.
+
+| Attribute | Value |
+|---|---|
+| Disclosure request | Open |
+| Objecting beneficiary | 1 |
+| Trustee decision | Pending |
+| Restricted document sections | 4 |
+
+Disclosure control:
+
+```text
+disclosure_allowed = trustee_decision == approved and recipient_scope_allows_document
+restricted_sections_withheld = 4
+```
+
+Correct workflow:
+
+- preserve requestor, requested document, objection, trustee decision owner, confidentiality scope and legal review state;
+- avoid granting report access or document visibility before approved disclosure scope is recorded;
+- support partial disclosure or summary-only disclosure where policy permits;
+- track the dispute separately from financial entitlement, distribution rights and investment authority.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Disclosure decision is pending | Document is not visible to the requesting beneficiary. |
+| Trustee approves partial disclosure | Only approved sections or summary are visible. |
+| Objection is recorded | Dispute evidence remains linked to the decision. |
+| Beneficiary report is generated | Report does not reveal restricted letter-of-wishes content. |
+
+## 40. Trust-To-Company Asset Transfer
+
+Scenario:
+
+- A trust transfers an investment asset to a family holding company.
+- The economic owner changes from trust account to company account, but beneficial ownership and reporting group continuity need to be preserved.
+
+| Attribute | Value |
+|---|---:|
+| Asset market value | 2,400,000 |
+| Transfer consideration | 0 |
+| Trust reporting value after transfer | 0 |
+| Holding company reporting value after transfer | 2,400,000 |
+
+Reporting movement:
+
+```text
+entity_level_transfer_value = 2,400,000
+consolidated_family_group_change = 0
+```
+
+Correct workflow:
+
+- preserve trustee approval, company board approval, transfer deed, valuation basis, effective date and beneficial-owner linkage;
+- book the asset movement as a transfer, contribution or restructuring event according to source evidence, not as a market sale unless consideration exists;
+- update entity-level holdings while preserving consolidated family-office continuity where the reporting perimeter includes both entities;
+- trigger tax, pledge, suitability and restriction impact review before client-ready reporting.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Asset moves from trust to company | Trust and company positions update with transfer lineage. |
+| Consolidated family report includes both entities | Group exposure is not double counted or shown as realized sale proceeds. |
+| Approval evidence is missing | Transfer remains pending or support-limited. |
+| Asset was pledged | Pledge release or substitution workflow is required before transfer completion. |
+
+## 41. Protector Conflict Recusal
+
+Scenario:
+
+- A protector must consent to a distribution but has a declared conflict because the distribution benefits a related person.
+- The governing document allows alternate protector or trustee committee consent after recusal.
+
+| Attribute | Value |
+|---|---|
+| Protector consent required | Yes |
+| Conflict declared | Yes |
+| Alternate consent route | Trustee committee |
+| Distribution amount | 250,000 |
+
+Recusal control:
+
+```text
+protector_vote_eligible = consent_required and conflict_declared == false
+alternate_route_required = consent_required and conflict_declared == true
+```
+
+Correct workflow:
+
+- preserve conflict declaration, affected transaction, recusal rule, alternate authority and consent evidence;
+- prevent the conflicted protector from approving or vetoing the scoped transaction when recusal applies;
+- route approval to alternate authority only within the permitted scope;
+- keep unrelated protector rights active when the conflict is transaction-specific.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Conflict is declared | Protector is removed from approval for the scoped transaction. |
+| Alternate route is permitted | Workflow routes to trustee committee or alternate protector. |
+| Conflicted protector attempts approval | Approval is rejected and audited. |
+| Unrelated action is submitted | Protector authority is evaluated independently. |
+
+## 42. Family-Office Service-Level Chargeback
+
+Scenario:
+
+- A family office charges branches for advisory, reporting and administration services.
+- One branch has a premium reporting SLA and another receives only basic administration.
+
+| Branch/entity | Service tier | Charge base | Charge |
+|---|---|---:|---:|
+| Branch A | Premium reporting | 1,800,000 | 18,000 |
+| Branch B | Basic administration | 1,200,000 | 6,000 |
+| Holding company | Shared governance | 2,000,000 | 10,000 |
+
+Chargeback rate:
+
+```text
+branch_a_rate = 18,000 / 1,800,000 = 1.00%
+branch_b_rate = 6,000 / 1,200,000 = 0.50%
+```
+
+Correct workflow:
+
+- preserve service catalogue, SLA tier, charge basis, allocation run, approval and dispute state;
+- separate advisory, reporting, administration and governance service categories;
+- prevent one branch's premium service cost from being allocated to branches that did not receive the service;
+- expose chargeback calculation, allocation basis and recipient authority in family-office reports.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Branch has premium SLA | Premium charge rate applies only to that branch. |
+| Service tier evidence is missing | Chargeback remains provisional or blocked. |
+| Branch disputes charge | Disputed charge is separated from accepted charge. |
+| Consolidated report is generated | Chargebacks are visible only to authorized recipients. |
+
+## 43. Estate Liquidity Reserve Release
+
+Scenario:
+
+- An estate retains a liquidity reserve for tax, legal fees and final expenses.
+- After obligations are settled, part of the reserve can be released to beneficiaries.
+
+| Reserve component | Reserved | Settled | Remaining |
+|---|---:|---:|---:|
+| Tax reserve | 400,000 | 320,000 | 80,000 |
+| Legal fees | 120,000 | 95,000 | 25,000 |
+| Final expenses | 60,000 | 40,000 | 20,000 |
+
+Release amount:
+
+```text
+remaining_reserve = 80,000 + 25,000 + 20,000 = 125,000
+approved_release = remaining_reserve - retained_contingency
+```
+
+Correct workflow:
+
+- preserve reserve policy, estate administrator approval, settled obligations, retained contingency and beneficiary allocation;
+- release reserve only after required obligations are settled or formally reduced;
+- distinguish estate cash reserve release from investment income, trust distribution and inheritance-tax estimate;
+- update beneficiary statements with approved release, retained reserve and remaining estate obligations.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Tax obligation remains unsettled | Reserve release is blocked or reduced. |
+| Administrator approves partial release | Beneficiary allocation uses approved release amount only. |
+| Retained contingency changes | Release amount recalculates with evidence. |
+| Final estate report is generated | Settled obligations, retained reserve and released cash are separate. |
+
+## 44. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -1080,3 +1302,9 @@ Minimum release-gate scenarios:
 35. Private-trust-company board changes recalculate quorum, signing authority and pending approval validity.
 36. Beneficiary consent campaigns distinguish consent-required, notice-only and represented beneficiaries.
 37. Family-office expense allocation disputes separate accepted, disputed and reallocated cost amounts.
+38. Reserved investment powers after incapacity suspend settlor-directed investment authority and re-route pending instructions.
+39. Letter-of-wishes disclosure disputes preserve trustee disclosure decisions without exposing restricted content.
+40. Trust-to-company asset transfers update entity-level holdings while preserving consolidated reporting continuity.
+41. Protector conflict recusal removes conflicted protector approval for scoped transactions and routes permitted alternate authority.
+42. Family-office service-level chargebacks apply service-tier-specific allocation and preserve dispute evidence.
+43. Estate liquidity reserve releases separate settled obligations, retained contingency and approved beneficiary release.
