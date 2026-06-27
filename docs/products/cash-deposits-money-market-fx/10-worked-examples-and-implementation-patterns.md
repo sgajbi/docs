@@ -5193,3 +5193,239 @@ sla_breach_days = max(0, 5 - 2) = 3
 | Owner changes | Assignment history and due date remain auditable. |
 | Remediation evidence is missing | Breach cannot close. |
 | Dashboard is generated | Breach amount, age, SLA status and owner are visible. |
+
+## Example 128. Sweep cancellation compensation claim
+
+### Scenario
+
+A sweep cancellation missed the fund cut-off because of an operational delay. The client incurred overdraft interest to fund a payment that would otherwise have been covered by the cancelled sweep. A compensation claim is raised.
+
+| Attribute | Value |
+|---|---:|
+| Payment funded by overdraft | 520,000 |
+| Approved compensation rate | 4.20% |
+| Delay period | 2 days |
+| Day-count basis | 360 |
+
+### Compensation amount
+
+```text
+compensation_amount = delayed_funding_amount x approved_rate x delay_days / day_count_basis
+compensation_amount = 520,000 x 4.20% x 2 / 360 = 121.33
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve sweep cancellation request, cut-off evidence, operational delay reason, overdraft charge and compensation approval. |
+| Cash | Post compensation separately from interest income, investment return and sweep redemption cash. |
+| Operations | Link claim to the missed cancellation incident and root-cause owner. |
+| Reporting | Explain compensation as operational remediation, not yield or market performance. |
+| Controls | Require approved compensation basis before posting client credit. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Delay causes overdraft funding | Compensation amount is calculated from approved rate and delay period. |
+| Compensation is approved | Client credit links to incident and approval evidence. |
+| Compensation is rejected | Claim closes without creating cash credit. |
+| Statement is generated | Operational compensation is labelled separately from investment income. |
+
+## Example 129. Deposit insurer interim payout adjustment
+
+### Scenario
+
+A deposit insurer makes an interim payout before final protected compensation is determined. A later adjustment increases the payout after final account reconciliation.
+
+| Attribute | Value |
+|---|---:|
+| Final protected payout | 250,000 |
+| Interim payout received | 210,000 |
+| Additional payout receivable | 40,000 |
+| Unprotected balance | 170,000 |
+
+### Additional receivable
+
+```text
+additional_payout_receivable = final_protected_payout - interim_payout_received
+additional_payout_receivable = 250,000 - 210,000 = 40,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve interim payout notice, final determination, insurer reconciliation, payment date and residual claim state. |
+| Cash | Book interim cash when received and keep additional payout as receivable until settled. |
+| Reporting | Separate interim received cash, final protected amount, additional receivable and unprotected recovery exposure. |
+| Performance | Avoid classifying payout adjustment as market return. |
+| Controls | Reconcile final protected amount to depositor identity and scheme rules. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Interim payout is received | Ledger cash increases only by received amount. |
+| Final payout is higher | Additional receivable is created with insurer evidence. |
+| Final payout is lower | Overpayment recovery or reversal workflow opens. |
+| Client report is generated | Interim, final and unprotected amounts remain distinct. |
+
+## Example 130. FX hedge allocation reversal approval
+
+### Scenario
+
+A previously approved FX hedge cost override is reversed after review. The reversal reallocates cost back to policy weights and must preserve the original override and approval trail.
+
+| Attribute | Value |
+|---|---:|
+| Original override cost charged | 9,600 |
+| Policy-weight cost | 6,000 |
+| Reversal credit | 3,600 |
+| Reversal status | Approved |
+
+### Reversal amount
+
+```text
+reversal_credit = original_override_cost_charged - policy_weight_cost
+reversal_credit = 9,600 - 6,000 = 3,600
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve original override, review decision, reversal approval, affected accounts, posting date and reason code. |
+| Cash | Post reversal as linked adjustment, not as unrelated FX gain. |
+| Performance | Restate or adjust performance according to policy and statement delivery state. |
+| Advisory | Explain reversal where prior client reporting showed the overridden allocation. |
+| Controls | Require evidence that all affected accounts are updated consistently. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Override reversal is approved | Reversal credit is calculated and linked to original override. |
+| Prior statement was delivered | Correction or restatement workflow opens. |
+| Only one account is reversed | Cross-account balancing check fails. |
+| Performance report is generated | Original override and reversal are explainable. |
+
+## Example 131. PSP reserve write-off decision
+
+### Scenario
+
+A long-aged PSP reserve dispute is resolved against the client. The reserve is written off after provider evidence confirms the holdback will not be released.
+
+| Attribute | Value |
+|---|---:|
+| Disputed aged reserve | 44,000 |
+| Provider accepted release | 0 |
+| Approved write-off | 44,000 |
+| Reserve age | 180 days |
+
+### Write-off amount
+
+```text
+psp_reserve_write_off = disputed_aged_reserve - provider_accepted_release
+psp_reserve_write_off = 44,000 - 0 = 44,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve PSP decision, reserve ageing report, dispute correspondence, write-off approval and accounting reason. |
+| Cash | Remove restricted receivable through approved write-off, not by silently reducing ledger cash. |
+| Performance | Classify write-off consistently as operational loss, fee, adjustment or client charge according to policy. |
+| Reporting | Explain write-off and stop showing the reserve as expected liquidity. |
+| Controls | Require independent approval for material reserve write-offs. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Provider denies release | Write-off amount is calculated from disputed reserve less accepted release. |
+| Approval is missing | Write-off remains blocked. |
+| Reserve was previously reported | Correction or explanation is produced. |
+| Liquidity report is generated | Written-off reserve no longer appears as receivable or available cash. |
+
+## Example 132. Projected-cash warning delivery bounceback
+
+### Scenario
+
+A projected-cash warning is generated correctly, but the statement delivery bounces for one client channel. The warning must remain pending delivery and should not be marked as communicated.
+
+| Attribute | Value |
+|---|---:|
+| Projected cash shown | 1,250,000 |
+| Settled available cash | 760,000 |
+| Unsettled component | 490,000 |
+| Delivery state | Bounced |
+
+### Pending warning exposure
+
+```text
+undelivered_warning_exposure = projected_cash_shown - settled_available_cash
+undelivered_warning_exposure = 1,250,000 - 760,000 = 490,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve statement version, warning text, delivery channel, bounce reason, retry plan and delivery owner. |
+| Reporting | Keep warning delivery state pending until successful delivery or approved alternate communication. |
+| Client experience | Retry or route through alternate channel where warning is material to cash availability. |
+| Controls | Do not mark disclosure as delivered solely because the statement was generated. |
+| QA | Test disclosure lifecycle through generation, delivery, bounce, retry and acknowledgement states. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Statement generation succeeds | Warning is created with statement version. |
+| Delivery bounces | Disclosure remains pending delivery. |
+| Alternate delivery succeeds | Delivery state closes with channel evidence. |
+| Compliance report is generated | Generated, bounced and delivered warning states are distinct. |
+
+## Example 133. Liquidity-waiver breach recurrence monitoring
+
+### Scenario
+
+A client portfolio repeatedly breaches liquidity-waiver limits after remediation. The latest breach is small, but recurrence indicates a structural cash-management problem.
+
+| Attribute | Value |
+|---|---:|
+| Breaches in lookback period | 4 |
+| Recurrence threshold | 3 |
+| Latest breach amount | 60,000 |
+| Lookback period | 90 days |
+
+### Recurrence flag
+
+```text
+recurrence_excess = breaches_in_lookback_period - recurrence_threshold
+recurrence_excess = 4 - 3 = 1
+
+recurrence_review_required = breaches_in_lookback_period > recurrence_threshold
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve waiver ids, breach dates, remediation actions, recurrence threshold, current breach amount and review owner. |
+| DPM | Review mandate cash floor, spending pattern, sweep policy and client-specific liquidity assumptions. |
+| Operations | Escalate recurring breaches to structural remediation instead of one-off exception handling. |
+| Reporting | Show recurrence count and latest breach separately. |
+| Controls | Require recurrence review before approving further waiver renewals. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Breach count exceeds threshold | Recurrence review is required. |
+| Latest breach is small | Recurrence flag still opens if count threshold is breached. |
+| Review action is completed | Future waiver renewal references recurrence review outcome. |
+| Dashboard is generated | Count, threshold, latest breach and owner are visible. |
