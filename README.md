@@ -33,6 +33,7 @@ This repo is organized so new document sets can be added without turning the roo
 | Map | Purpose |
 |---|---|
 | [`docs/products/cash-deposits-money-market-and-fx.md`](docs/products/cash-deposits-money-market-and-fx.md) | Product and platform-design map for cash, deposits, money market instruments, money market funds, FX, liquidity, buying power, settlement, and reporting. |
+| [`docs/products/cross-product-worked-examples.md`](docs/products/cross-product-worked-examples.md) | Worked examples across cash, bonds, equities, funds, lending, private markets, derivatives, structured products, and rebalance funding constraints. |
 | [`docs/products/derivatives-and-overlay-products.md`](docs/products/derivatives-and-overlay-products.md) | Product and platform-design map for derivatives, hedging overlays, exposure, Greeks, margin, collateral, lifecycle events, and mandate controls. |
 | [`docs/products/direct-equities-and-market-operations.md`](docs/products/direct-equities-and-market-operations.md) | Product and platform-design map for direct equities, trading, settlement, corporate actions, P&L, risk, and market operations. |
 | [`docs/products/fixed-income-and-structured-products.md`](docs/products/fixed-income-and-structured-products.md) | Product and platform-design comparison for bonds and structured notes. |

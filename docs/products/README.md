@@ -23,6 +23,7 @@ Each product family should have its own folder with a local `README.md`, a clear
 | Map | Purpose |
 |---|---|
 | [`cash-deposits-money-market-and-fx.md`](cash-deposits-money-market-and-fx.md) | Captures reusable platform-design distinctions for currency cash, settlement, available cash, deposits, money market products, FX, liquidity, buying power, and reporting. |
+| [`cross-product-worked-examples.md`](cross-product-worked-examples.md) | Provides practical worked examples across product families with lifecycle, calculations, reporting, QA, and implementation boundaries. |
 | [`derivatives-and-overlay-products.md`](derivatives-and-overlay-products.md) | Captures reusable platform-design distinctions for derivatives, overlays, exposure, lifecycle events, margin, collateral, advisory, and mandate controls. |
 | [`direct-equities-and-market-operations.md`](direct-equities-and-market-operations.md) | Captures reusable platform-design distinctions for direct equities, trading, corporate actions, P&L, risk, and market operations. |
 | [`fixed-income-and-structured-products.md`](fixed-income-and-structured-products.md) | Compares bonds and structured notes and captures reusable platform-design distinctions across fixed income and structured products. |

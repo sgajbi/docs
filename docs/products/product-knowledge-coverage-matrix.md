@@ -20,6 +20,7 @@ This matrix tracks the current product-library coverage and where enrichment sho
 
 | Reference | Use |
 |---|---|
+| [`cross-product-worked-examples.md`](cross-product-worked-examples.md) | Practical examples for lifecycle, transactions, cashflows, calculations, reporting, QA, and implementation boundaries across product families. |
 | [`practical-product-implementation-review.md`](practical-product-implementation-review.md) | Cross-product checklist for examples, payoff behavior, cashflows, valuation, analytics, advisory, mandate, reporting, QA, implementation boundaries, and candidate extensions. |
 | [`../reference/private-banking-platform-knowledge-map.md`](../reference/private-banking-platform-knowledge-map.md) | General project checklist for source ownership, API design, UI design, and documentation design. |
 | [`../reference/wealth-product-framework/`](../reference/wealth-product-framework/README.md) | Cross-product canonical position, transaction, advisory, mandate, analytics, reporting, and quality-standard material. |
