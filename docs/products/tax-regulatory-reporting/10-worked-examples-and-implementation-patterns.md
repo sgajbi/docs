@@ -1574,7 +1574,216 @@ QA assertions:
 | Prior report was delivered before recertification | Delivery evidence remains but does not imply ongoing access. |
 | Scheduled delivery uses old recipient list | Batch is blocked or recalculated against current entitlement state. |
 
-## 52. Advisory And Reporting Boundary
+## 52. Tax-Report Delivery Bounceback
+
+Scenario:
+
+A year-end tax-report batch is generated for electronic delivery. Several recipient emails bounce after generation, and only some are corrected before the delivery deadline.
+
+| Attribute | Value |
+|---|---:|
+| Reports generated | 120 |
+| Electronic deliveries attempted | 120 |
+| Bounced deliveries | 9 |
+| Corrected before deadline | 6 |
+
+Unresolved bounceback count:
+
+```text
+unresolved_bouncebacks = bounced_deliveries - corrected_before_deadline
+unresolved_bouncebacks = 9 - 6 = 3
+```
+
+Correct treatment:
+
+- preserve report version, delivery batch, recipient entitlement, bounce reason, correction timestamp and final delivery state;
+- avoid marking a report as delivered when the delivery channel failed;
+- keep generated report evidence separate from successful client delivery evidence;
+- open remediation for unresolved bouncebacks and suppress duplicate blind resends without address correction.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Delivery bounces | Report remains generated but not delivered for that recipient. |
+| Address is corrected | Redelivery uses the corrected contact and preserves bounce lineage. |
+| Deadline passes unresolved | Exception remains open with report version and recipient scope. |
+
+## 53. Beneficial-Owner Evidence Expiry
+
+Scenario:
+
+A trust-owned account has beneficial-owner evidence that expires before tax-report generation. Some owner documentation is refreshed, but a material owner remains expired.
+
+| Attribute | Value |
+|---|---:|
+| Entity value in scope | 10,000,000 |
+| Documented active owner value | 7,000,000 |
+| Expired owner value | 2,000,000 |
+| De minimis threshold | 5% |
+
+Expired evidence coverage:
+
+```text
+expired_owner_coverage = 2,000,000 / 10,000,000 = 20%
+active_owner_coverage = 7,000,000 / 10,000,000 = 70%
+```
+
+Correct treatment:
+
+- preserve ownership hierarchy, owner documentation, expiry date, outreach state, reviewer decision and report materiality rule;
+- block or label beneficial-owner reporting when expired evidence is material;
+- avoid replacing expired evidence with stale prior values without explicit review;
+- keep reporting recipient entitlement separate from beneficial-owner evidence validity.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Expired evidence exceeds threshold | Final owner reporting is blocked or exception-labelled. |
+| Evidence is refreshed | Coverage recalculates from effective date and approved document version. |
+| Recipient remains entitled | Delivery entitlement does not override owner evidence expiry. |
+
+## 54. Amended Filing Cancellation Window
+
+Scenario:
+
+An amended regulatory filing is prepared, then a late source correction arrives before the cancellation cut-off. The amendment must be cancelled and replaced instead of sent alongside the newer file.
+
+| Attribute | Value |
+|---|---:|
+| Original filed records | 10,000 |
+| Amendment records prepared | 120 |
+| Records cancelled before cut-off | 120 |
+| Replacement amendment records | 145 |
+
+Active amended record count:
+
+```text
+active_amended_records = amendment_records_prepared - records_cancelled_before_cutoff + replacement_amendment_records
+active_amended_records = 120 - 120 + 145 = 145
+```
+
+Correct treatment:
+
+- preserve original filing, prepared amendment, cancellation approval, cut-off timestamp, replacement file and regulator acknowledgement state;
+- ensure cancelled amendment files cannot be delivered or resent as active output;
+- sequence the replacement amendment after source validation and approval;
+- keep client restatement impact aligned with the active regulatory version.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Amendment is cancelled before cut-off | Cancelled file is retained as evidence but removed from active delivery. |
+| Replacement is approved | Only replacement amendment proceeds to submission. |
+| Cancellation is attempted after cut-off | Workflow escalates instead of silently withdrawing submitted output. |
+
+## 55. Multi-Custodian Income Reconciliation
+
+Scenario:
+
+A consolidated tax pack combines income from two custodians. One custodian sends a corrected income file after the first reconciliation run.
+
+| Source | Gross income | Withholding |
+|---|---:|---:|
+| Custodian A | 80,000 | 12,000 |
+| Custodian B original | 45,000 | 6,750 |
+| Custodian B corrected | 48,000 | 7,200 |
+
+Correction impact:
+
+```text
+gross_income_delta = 48,000 - 45,000 = 3,000
+withholding_delta = 7,200 - 6,750 = 450
+corrected_net_income_delta = 3,000 - 450 = 2,550
+```
+
+Correct treatment:
+
+- preserve both custodian files, source timestamps, correction reason, reconciliation run and report version impacted;
+- reconcile source totals to report totals before final delivery;
+- generate a correction or restatement when the report was already delivered;
+- avoid overwriting the original custodian file without retaining lineage.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Corrected custodian file arrives pre-delivery | Report output updates and original source remains retained. |
+| Corrected file arrives post-delivery | Restatement workflow identifies changed fields and recipients. |
+| Source totals do not reconcile | Final client-ready output is blocked or exception-labelled. |
+
+## 56. Tax Voucher Language Localization
+
+Scenario:
+
+A booking centre must deliver tax vouchers in the client's preferred language. One language template is missing for a subset of recipients.
+
+| Language | Required vouchers | Available template |
+|---|---:|---|
+| English | 60 | Yes |
+| German | 25 | Yes |
+| French | 15 | No |
+
+Suppressed vouchers:
+
+```text
+suppressed_due_to_missing_template = 15
+deliverable_vouchers = 60 + 25 = 85
+```
+
+Correct treatment:
+
+- preserve voucher source data, language preference, template version, translation approval and delivery state;
+- deliver only approved language/template combinations;
+- suppress or route exception handling for missing localized templates;
+- avoid delivering an alternate language unless client preference, regulation and entitlement rules allow it.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Required template exists | Voucher can be rendered and delivered with version evidence. |
+| Required template is missing | Voucher is suppressed or exceptioned, not silently delivered in another language. |
+| Template is approved later | Delivery resumes from approved template version and source data. |
+
+## 57. Withholding Reclaim Appeal Evidence
+
+Scenario:
+
+A withholding reclaim is denied. The tax operations team files an appeal with additional documentation, but the appeal remains pending at report close.
+
+| Attribute | Value |
+|---|---:|
+| Original expected reclaim | 18,000 |
+| Reclaim denied | 18,000 |
+| Appeal filing fee | 500 |
+| Appeal amount accepted for review | 12,000 |
+
+Appeal exposure:
+
+```text
+net_appeal_amount_under_review = 12,000 - 500 = 11,500
+denied_amount_not_under_review = 18,000 - 12,000 = 6,000
+```
+
+Correct treatment:
+
+- preserve original reclaim, denial notice, appeal filing, additional evidence, fee, appeal amount and authority acknowledgement;
+- reverse or label expected reclaim availability after denial;
+- track appeal amount under review separately from received cash;
+- avoid recognizing refund cash until authority payment evidence is received.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Reclaim is denied | Expected reclaim is removed from available cash and denial evidence is linked. |
+| Appeal is filed | Appeal exposure is tracked separately from cash and original denial. |
+| Appeal remains pending | Report labels status as pending and does not book refund income. |
+
+## 58. Advisory And Reporting Boundary
 
 | Activity | Platform can support | Platform should not imply |
 |---|---|---|
@@ -1584,7 +1793,7 @@ QA assertions:
 | show reportable event | configured reporting regime | universal reporting obligation |
 | simulate rebalance tax impact | estimated gains/losses under assumptions | advice to execute for tax reasons |
 
-## 53. Current Support Boundary And Candidate Extensions
+## 59. Current Support Boundary And Candidate Extensions
 
 | Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
 |---|---|---|
@@ -1599,9 +1808,10 @@ QA assertions:
 | Late classifications | estimated/final tax breakdown, received date and impact assessment where sourced | automated late-breakdown correction and client-notice orchestration |
 | Cross-border controls | residency changes, documentation pools, method-specific output and filing status where sourced | full jurisdiction-specific tax-rule engine and regulator integration |
 | Conflicts and cancellations | conflicting self-certifications, look-through gaps, cancelled filing versions, denied reclaims, classification overrides and restatement notices where source-backed | automated regulator workflow orchestration and legal interpretation |
-| Delivery and remediation controls | duplicate voucher suppression, blackout states, entity classification remediation, treaty-document ageing, pool variance remediation, multi-jurisdiction delivery controls, correction sequencing, archive retention, consent withdrawal, acknowledgement timeout and entitlement recertification where source-backed | automated tax authority workflow orchestration, jurisdiction-specific legal interpretation and client-specific tax advice |
+| Delivery and remediation controls | duplicate voucher suppression, blackout states, entity classification remediation, treaty-document ageing, pool variance remediation, multi-jurisdiction delivery controls, correction sequencing, archive retention, consent withdrawal, acknowledgement timeout, entitlement recertification, delivery bouncebacks, localized voucher templates, evidence expiry and cancellation windows where source-backed | automated tax authority workflow orchestration, jurisdiction-specific legal interpretation and client-specific tax advice |
+| Multi-source tax operations | custodian-source reconciliation, correction deltas, reclaim appeal status, denial evidence and source-file lineage where source-backed | fully automated custodian dispute management or tax authority workflow integration |
 
-## 54. Regression Test Pack
+## 60. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -1657,3 +1867,9 @@ Minimum release-gate scenarios:
 50. Regulator acknowledgement timeout creates pending-acknowledgement evidence without duplicate blind resubmission.
 51. Late issuer reclassification restates classification and basis treatment without duplicating the cash event.
 52. Tax-report entitlement recertification removes future access and scheduled delivery for recipients not recertified.
+53. Tax-report delivery bounceback keeps generated report evidence separate from successful recipient delivery evidence.
+54. Beneficial-owner evidence expiry blocks or labels final owner reporting when expired evidence is material.
+55. Amended filing cancellation windows preserve cancelled and replacement filing lineage without active duplicate output.
+56. Multi-custodian income reconciliation preserves source files, correction deltas, report impact and restatement workflow.
+57. Tax voucher localization suppresses missing-template deliveries instead of silently delivering an unauthorized language.
+58. Withholding reclaim appeal evidence separates denied reclaim, appeal amount, fees, pending status and received cash.
