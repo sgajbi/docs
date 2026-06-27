@@ -2033,3 +2033,238 @@ beneficiary_address_share = 8 / 18 = 44.44%
 | Payment has multiple repair reasons | Primary and contributing reasons are captured without double counting total repaired payments. |
 | Standing instruction is corrected | Future payments use updated instruction and repair rate should improve. |
 | Sanctions false positive occurs | Case is classified separately from data-quality repair. |
+
+## Example 50. Money-market fund liquidity fee activation
+
+### Scenario
+
+A money-market fund applies a liquidity fee after same-day redemption pressure exceeds the fund's configured threshold. The platform must calculate expected proceeds from confirmed fund terms, preserve the fee as a separate economic component and avoid presenting gross redemption value as available liquidity.
+
+| Attribute | Value |
+|---|---:|
+| Redeemed units | 1,000,000 |
+| NAV per unit | 1.0000 |
+| Liquidity fee rate | 0.75% |
+| Gross redemption value | 1,000,000.00 |
+
+### Proceeds calculation
+
+```text
+liquidity_fee = 1,000,000.00 x 0.75% = 7,500.00
+net_redemption_proceeds = 1,000,000.00 - 7,500.00 = 992,500.00
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Position lifecycle | Reduce money-market fund units from the confirmed redemption date and settlement state. |
+| Cash projection | Project net proceeds only; do not treat the fee amount as available cash. |
+| Performance | Classify the fee separately from market performance and ordinary income. |
+| Client reporting | Label the fee as liquidity fee or redemption fee according to fund documentation. |
+| Operations | Preserve fund notice, fee activation time, threshold rule, NAV, settlement date and transfer-agent confirmation. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Liquidity fee is active | Net proceeds reflect fee deduction. |
+| Fee activation notice is missing | Redemption remains source-limited or exceptioned. |
+| Client liquidity view is generated | Available liquidity uses net proceeds, not gross redemption value. |
+| Fund later reverses the fee | Cash projection and fee transaction are reversed with audit lineage. |
+
+## Example 51. Repo collateral substitution failure
+
+### Scenario
+
+A client-funded repo position allows collateral substitution, but the proposed replacement securities fail eligibility because the haircut-adjusted value is insufficient. Treasury and collateral operations must keep the existing collateral in place until substitution is approved and settled.
+
+| Attribute | Value |
+|---|---:|
+| Repo cash amount | 2,000,000 |
+| Required collateral coverage | 102.00% |
+| Required collateral value | 2,040,000 |
+| Replacement market value | 2,100,000 |
+| Replacement haircut | 5.00% |
+
+### Eligibility calculation
+
+```text
+haircut_adjusted_replacement_value = 2,100,000 x (1 - 5.00%) = 1,995,000
+collateral_shortfall = 2,040,000 - 1,995,000 = 45,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Repo lifecycle | Keep original collateral attached until substitution is approved and settled. |
+| Collateral analytics | Show proposed replacement value, haircut-adjusted value and shortfall separately. |
+| Availability | Do not release original collateral when replacement collateral is short. |
+| Operations | Preserve substitution request, eligibility policy, haircut source, approval state and settlement state. |
+| Reporting | Explain failed substitution as collateral eligibility failure, not repo default. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Replacement collateral is insufficient | Substitution is rejected or held pending top-up. |
+| Original collateral release is requested | Release is blocked until replacement settlement is confirmed. |
+| Haircut policy changes | Eligibility recalculates from effective-dated haircut policy. |
+| Client report is generated | Report distinguishes existing collateral, proposed replacement and failed substitution. |
+
+## Example 52. Intraday nostro forecast variance
+
+### Scenario
+
+Treasury forecasts intraday cash availability using expected nostro inflows and outflows. A delayed correspondent-bank credit creates a forecast variance that affects same-day payment release capacity.
+
+| Item | Forecast | Actual |
+|---|---:|---:|
+| Opening nostro balance | 1,250,000 | 1,250,000 |
+| Expected incoming credits | 900,000 | 600,000 |
+| Expected outgoing payments | 1,500,000 | 1,500,000 |
+| Operating buffer | 150,000 | 150,000 |
+
+### Capacity impact
+
+```text
+forecast_release_capacity = 1,250,000 + 900,000 - 150,000 = 2,000,000
+actual_release_capacity = 1,250,000 + 600,000 - 150,000 = 1,700,000
+capacity_variance = 1,700,000 - 2,000,000 = -300,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Payment release | Recalculate release capacity when expected credits miss the cut-off. |
+| Forecasting | Separate forecast variance from realized nostro balance and unsettled items. |
+| Operations | Track correspondent bank, value date, cut-off, delayed credit reason and expected resolution. |
+| Risk | Escalate material negative variance before releasing lower-priority payments. |
+| Reporting | Show forecast, actual and variance rather than only the ending balance. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Expected inflow is delayed | Same-day release capacity decreases by delayed amount. |
+| Lower-priority payment is queued | Queue explains capacity variance and cut-off impact. |
+| Credit arrives after cut-off | Payment capacity updates from actual receipt timestamp. |
+| Treasury dashboard is generated | Forecast, actual, variance and reason code are visible. |
+
+## Example 53. Correspondent-bank fee dispute
+
+### Scenario
+
+A cross-border payment settles, but the correspondent bank deducts a fee that exceeds the agreed schedule. The platform must separate client cash movement, external bank fee, disputed amount and potential reimbursement.
+
+| Attribute | Value |
+|---|---:|
+| Payment principal | 250,000 |
+| Contracted correspondent fee | 35 |
+| Deducted correspondent fee | 95 |
+| Excess fee under dispute | 60 |
+
+### Dispute amount
+
+```text
+excess_fee = deducted_fee - contracted_fee
+excess_fee = 95 - 35 = 60
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Cash accounting | Post actual cash settlement and fee deduction from bank confirmation. |
+| Fee control | Track contracted fee, deducted fee and disputed excess separately. |
+| Client experience | Do not promise reimbursement until dispute outcome is confirmed. |
+| Operations | Preserve payment instruction, correspondent fee schedule, SWIFT/bank confirmation, claim id and resolution state. |
+| Reporting | Label disputed fee state clearly in operational reports and client-service workflow. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Deducted fee exceeds schedule | Excess amount is flagged as fee dispute. |
+| Dispute is approved for reimbursement | Reimbursement is posted separately from original payment. |
+| Fee schedule is missing | Fee validation is exceptioned rather than assumed. |
+| Client statement is generated | Actual deducted fee and later reimbursement remain traceable. |
+
+## Example 54. Account-level reserve optimization
+
+### Scenario
+
+An advisor wants to invest excess operating cash, but each account must retain a reserve for expected fees, tax payments and upcoming settlement obligations. Optimization should maximize investable cash without breaching account-level reserves.
+
+| Account | Cash | Required reserve | Upcoming settlement | Investable cash |
+|---|---:|---:|---:|---:|
+| Account A | 900,000 | 150,000 | 200,000 | 550,000 |
+| Account B | 300,000 | 125,000 | 250,000 | 0 |
+| Account C | 500,000 | 100,000 | 50,000 | 350,000 |
+
+### Investable amount
+
+```text
+account_investable = max(0, cash - required_reserve - upcoming_settlement)
+total_investable = 550,000 + 0 + 350,000 = 900,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Portfolio modelling | Calculate reserve by account before any consolidated family or relationship view. |
+| Advisory workflow | Surface non-investable cash caused by reserves or settlement obligations. |
+| DPM | Preserve reserve policy and mandate-level cash floor before trade generation. |
+| Reporting | Show cash, reserve, upcoming obligations and investable cash as distinct figures. |
+| Controls | Require effective-dated reserve rules and settlement obligation sources. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Account has cash but reserve shortfall | Investable cash floors at zero. |
+| Settlement obligation changes | Investable amount recalculates from updated obligation. |
+| Consolidated view is generated | Consolidated investable cash reconciles to account-level calculation. |
+| Advisor attempts full-cash investment | Pre-trade check blocks use of reserved cash. |
+
+## Example 55. FX settlement netting exception
+
+### Scenario
+
+Several same-currency FX settlements are eligible for netting, but one trade is excluded because the counterparty settlement instruction changed after the netting cut-off. Netting must use eligible trades only and keep the excluded trade separately monitored.
+
+| Trade | Direction | Amount | Netting eligible |
+|---|---|---:|---|
+| FX-1 | Receive USD | 1,200,000 | Yes |
+| FX-2 | Pay USD | 850,000 | Yes |
+| FX-3 | Pay USD | 200,000 | No |
+
+### Net settlement
+
+```text
+eligible_net_usd = 1,200,000 - 850,000 = receive 350,000
+excluded_pay_usd = 200,000
+gross_liquidity_need_if_excluded_pay_fails = 200,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Settlement | Net only trades that meet counterparty, SSI, cut-off and value-date eligibility. |
+| Liquidity | Reserve liquidity for excluded gross-settled trades until settlement confirmation. |
+| Operations | Preserve netting set id, eligibility reason, SSI change timestamp, cut-off and settlement status. |
+| Risk | Escalate excluded high-value trades that create liquidity or settlement-fail exposure. |
+| Reporting | Show netted trades and excluded exceptions separately. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Trade misses netting cut-off | Trade is excluded from net settlement calculation. |
+| SSI changes after cut-off | Exception reason is captured and gross settlement is monitored. |
+| Netted settlement completes | Eligible net amount is closed without closing excluded trade. |
+| Operations dashboard is generated | Netting set, excluded trade and liquidity reserve are visible. |
