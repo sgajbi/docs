@@ -1606,6 +1606,225 @@ Rounded contract count, execution timing and residual DV01 should be recorded.
 | Margin increases during roll | Collateral and cash availability are updated. |
 | Benchmark duration changes during roll | Target hedge amount recalculates before final execution. |
 
+## Example 40. Bond repo margin call after haircut increase
+
+### Scenario
+
+A client funds a bond position through repo. The bond price falls and the repo counterparty increases the haircut, creating a cash margin call.
+
+| Attribute | Before | After |
+|---|---:|---:|
+| Bond dirty value | 1,000,000 | 940,000 |
+| Repo haircut | 5% | 8% |
+| Repo cash advanced | 950,000 | 950,000 |
+
+### Margin calculation
+
+```text
+new_max_repo_cash = 940,000 x (1 - 8%) = 864,800
+margin_call = 950,000 - 864,800 = 85,200
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Cash | Margin call is a financing/collateral cash requirement, not bond investment loss by itself. |
+| Position | Bond nominal remains unchanged unless collateral is liquidated or repo unwind occurs. |
+| Risk | Track bond issuer risk, repo counterparty risk, haircut risk and liquidity risk separately. |
+| Advisory | Explain leverage, forced-sale risk and cash buffer impact. |
+| Reporting | Show bond value, repo liability, margin call, funding cost and net equity. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Haircut increases | Repo availability recalculates and margin call opens. |
+| Client has insufficient cash | Cure workflow, collateral substitution or unwind path opens. |
+| Bond price recovers before cure | Margin call recalculates with source timestamp and counterparty rules. |
+| Report shows only bond P&L | QA fails because financing margin call is hidden. |
+
+## Example 41. Callable make-whole dispute
+
+### Scenario
+
+An issuer calls a bond using a make-whole formula. The custodian and issuer notice disagree on the make-whole spread input.
+
+| Attribute | Issuer notice | Custodian calculation |
+|---|---:|---:|
+| Nominal | 500,000 | 500,000 |
+| Make-whole price | 103.25 | 102.90 |
+| Accrued interest per 100 | 1.10 | 1.10 |
+
+### Cash difference
+
+```text
+issuer_total = 500,000 x (103.25 + 1.10) / 100 = 521,750
+custodian_total = 500,000 x (102.90 + 1.10) / 100 = 520,000
+dispute_amount = 1,750
+```
+
+### Correct treatment
+
+- do not close the dispute by overwriting the make-whole input;
+- preserve issuer notice, custodian calculation, source timestamp, curve/spread input and dispute owner;
+- separate principal redemption, make-whole premium and accrued interest;
+- label client-ready cash projection as disputed until authoritative confirmation arrives.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Make-whole sources disagree | Redemption cash is disputed or provisional. |
+| Accrued interest agrees but premium differs | Accrued interest and make-whole premium remain separate. |
+| Final cash settles at custodian amount | Difference is resolved with event lineage. |
+| Historical projection is rerun | Uses the provisional/disputed state effective on that date. |
+
+## Example 42. Benchmark-index bond removal
+
+### Scenario
+
+A bond is removed from a benchmark index after a downgrade below index eligibility criteria. A benchmark-aware mandate still holds the bond.
+
+| Attribute | Value |
+|---|---:|
+| Portfolio bond market value | 750,000 |
+| Portfolio market value | 15,000,000 |
+| Prior benchmark weight | 1.20% |
+| New benchmark weight | 0.00% |
+
+### Active exposure
+
+```text
+portfolio_weight = 750,000 / 15,000,000 = 5.00%
+active_weight_after_removal = 5.00% - 0.00% = 5.00%
+```
+
+### Correct treatment
+
+- preserve benchmark effective date, removal reason, provider and source file;
+- separate issuer downgrade, index removal and portfolio trading decision;
+- recalculate active weight, tracking risk, mandate drift and turnover impact;
+- avoid treating index removal as a bond sale or default event.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Benchmark provider removes bond | Benchmark constituent weight goes to zero from effective date. |
+| Portfolio still holds bond | Active exposure increases and mandate review may open. |
+| Index file is late | Benchmark-relative analytics are labelled stale/source-limited. |
+| Historical attribution is rerun | Uses effective-dated benchmark membership. |
+
+## Example 43. Post-default restructuring package
+
+### Scenario
+
+A defaulted bond restructures into a new note, cash recovery and equity warrants.
+
+| Attribute | Value |
+|---|---:|
+| Old defaulted bond nominal | 1,000,000 |
+| New note nominal received | 600,000 |
+| New note clean price | 72.00 |
+| Cash recovery | 80,000 |
+| Warrant estimated value | 25,000 |
+
+### Package value
+
+```text
+new_note_value = 600,000 x 72 / 100 = 432,000
+package_value = 432,000 + 80,000 + 25,000 = 537,000
+```
+
+### Correct treatment
+
+- close or reduce old defaulted bond only after restructuring effective date and source confirmation;
+- create new instruments only after identifiers and terms are known;
+- separate cash recovery, new debt value, equity/warrant value and realized loss treatment;
+- preserve tax/accounting treatment and source lineage for each package component.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| New note identifier is missing | New security position is not finalized. |
+| Warrant value is estimated | Valuation is labelled estimated/source-limited. |
+| Cash recovery settles later | Cash receivable remains pending until settlement confirmation. |
+| Old bond remains in portfolio after effective restructuring | Residual defaulted position is flagged for reconciliation. |
+
+## Example 44. Portfolio-level spread hedge overlay
+
+### Scenario
+
+A portfolio uses a credit index derivative to hedge spread exposure on a corporate bond sleeve.
+
+| Attribute | Value |
+|---|---:|
+| Bond sleeve CS01 | 18,000 |
+| Target hedge ratio | 60% |
+| Credit index CS01 per contract | 450 |
+
+### Hedge sizing
+
+```text
+target_hedge_cs01 = 18,000 x 60% = 10,800
+contracts_needed = 10,800 / 450 = 24
+```
+
+### Correct treatment
+
+- keep legal bond positions and derivative hedge positions separate;
+- link hedge intent, hedge ratio, eligible sleeve and effective date;
+- report gross bond spread exposure, hedge CS01 and residual CS01;
+- separate bond carry and spread return from derivative hedge P&L.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Bond sleeve CS01 changes | Hedge target recalculates from current sensitivity. |
+| Hedge link is missing | Derivative P&L remains separate and hedge report is incomplete. |
+| Hedge exceeds mandate derivative limit | Order is blocked or escalated. |
+| Credit index rolls | Old and new hedge exposure are measured through roll window. |
+
+## Example 45. Odd-lot liquidity discount
+
+### Scenario
+
+A client holds a small odd-lot bond position. Market data provides an institutional round-lot price, but the executable quote for the small position is lower.
+
+| Attribute | Value |
+|---|---:|
+| Nominal held | 75,000 |
+| Round-lot mid price | 98.20 |
+| Odd-lot executable bid | 97.10 |
+| Price difference | 1.10 points |
+
+### Valuation impact
+
+```text
+round_lot_value = 75,000 x 98.20 / 100 = 73,650
+odd_lot_exit_value = 75,000 x 97.10 / 100 = 72,825
+liquidity_discount = 825
+```
+
+### Correct treatment
+
+- distinguish accounting valuation basis from executable liquidity estimate;
+- label odd-lot liquidity discount as liquidity/execution analytics unless valuation policy adopts it;
+- preserve quote size, source, timestamp and tradability state;
+- avoid promising exit value from stale or non-firm quotes.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Position is below round-lot size | Liquidity analytics can apply odd-lot discount. |
+| Executable quote is stale | Exit value is labelled stale or unavailable. |
+| Client report uses mid price | Report should not imply same price is executable for odd lot. |
+| Sale executes at odd-lot bid | Realized proceeds use actual execution, not prior mid valuation. |
+
 ## Implementation-backed capability lens
 
 When reviewing whether a platform truly supports bonds, use these evidence questions:
