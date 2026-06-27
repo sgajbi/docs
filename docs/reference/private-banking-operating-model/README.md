@@ -56,9 +56,10 @@ This pack should be used with:
 12. [`../../products/data-governance-quality-lineage-controls/`](../../products/data-governance-quality-lineage-controls/README.md)
 13. [`../../products/portfolio-reporting-statement-client-experience/`](../../products/portfolio-reporting-statement-client-experience/README.md)
 14. [`../../products/client-account-portfolio-master-data/`](../../products/client-account-portfolio-master-data/README.md)
-15. [`../../products/lending-collateral-and-buying-power.md`](../../products/lending-collateral-and-buying-power.md)
-16. [`../../products/direct-equities-and-market-operations.md`](../../products/direct-equities-and-market-operations.md)
-17. [`../private-banking-platform-knowledge-map.md`](../private-banking-platform-knowledge-map.md)
+15. [`../../products/entitlements-digital-channels-advisor-workbench/`](../../products/entitlements-digital-channels-advisor-workbench/README.md)
+16. [`../../products/lending-collateral-and-buying-power.md`](../../products/lending-collateral-and-buying-power.md)
+17. [`../../products/direct-equities-and-market-operations.md`](../../products/direct-equities-and-market-operations.md)
+18. [`../private-banking-platform-knowledge-map.md`](../private-banking-platform-knowledge-map.md)
 
 ## Migration Standard
 
