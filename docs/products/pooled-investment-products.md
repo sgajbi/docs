@@ -25,6 +25,17 @@ This page connects fund-related product knowledge to reusable private-banking pl
 
 For deeper private-market implementation guidance, use [`private-markets-and-alternatives.md`](private-markets-and-alternatives.md).
 
+## Fund Lifecycle Edge Cases
+
+| Case | Platform Treatment |
+|---|---|
+| Equalization | Preserve administrator-confirmed equalization credit/debit, series accounting, performance-fee basis and source date separately from cash movement. |
+| Share-class conversion | Link old and new share-class positions through a conversion event; preserve cost, tax, performance and eligibility treatment according to policy. |
+| Fund merger | Treat as a source-confirmed lifecycle event with exchange ratio, receiving instrument, effective date and cash in lieu, not as an ordinary client redemption. |
+| Notice period and holdback | Separate submitted redemption, notice window, initial cash payout, pending holdback and final audit adjustment. |
+| Transfer-agent rejection | Do not create units from an unconfirmed order; release or reclassify reserved cash with rejection reason and resubmission lineage. |
+| Fund-of-funds look-through | Calculate effective coverage across layers and show unmapped residual exposure instead of implying complete transparency. |
+
 ## Core Platform Distinctions
 
 | Concept | Project Implication |
@@ -49,6 +60,7 @@ For deeper private-market implementation guidance, use [`private-markets-and-alt
 8. Are fees explicit transaction legs or embedded in net amount/NAV?
 9. Are there liquidity constraints that should block or warn before order placement?
 10. What should the system show when NAV, look-through, or fund status is stale or unavailable?
+11. Does the event change the legal share class, the economic exposure, the order state, the cash state, or only the analytical look-through?
 
 ## API And UI Implications
 
@@ -63,7 +75,8 @@ Fund APIs and UI should make these states explicit:
 7. available units after pending orders,
 8. lockup, gate, suspension, or side-pocket posture,
 9. look-through availability and source,
-10. suitability and reporting restrictions.
+10. suitability and reporting restrictions,
+11. equalization, conversion, merger, holdback, rejection and lifecycle-event lineage where applicable.
 
 ## QA Scenarios To Preserve
 
@@ -78,4 +91,8 @@ Fund APIs and UI should make these states explicit:
 9. redemption gate,
 10. private fund capital call and distribution,
 11. fund split or merger,
-12. look-through unavailable, partial, stale, and ready states.
+12. look-through unavailable, partial, stale, and ready states,
+13. share-class conversion with fee, tax and cost-basis policy,
+14. transfer-agent rejection and cash reservation release,
+15. notice-period redemption with holdback and final adjustment,
+16. multi-level fund-of-funds look-through with unmapped residual exposure.

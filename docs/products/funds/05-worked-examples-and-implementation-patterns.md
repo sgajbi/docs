@@ -336,3 +336,213 @@ A fund administrator restates last month's NAV from 10.00 to 9.85 after reports 
 | Confirmed subscription used old NAV | Transaction correction workflow is evaluated. |
 | Client report was published | Restatement decision is documented. |
 | Performance changes | Recalculation lineage identifies NAV correction as cause. |
+
+## Example 11. Hedge fund equalization credit
+
+### Scenario
+
+A client subscribes to a hedge fund after the fund has accrued performance fees. The fund applies an equalization credit so the new investor is not charged for performance generated before entry.
+
+| Attribute | Value |
+|---|---:|
+| Subscription amount | 500,000 |
+| Dealing NAV before equalization | 125.00 |
+| Equalization credit per unit | 1.20 |
+| Confirmed units | 4,000.0000 |
+
+### Calculation
+
+```text
+gross units = subscription amount / dealing NAV
+gross units = 500,000 / 125.00 = 4,000.0000
+
+equalization credit = units x credit per unit
+equalization credit = 4,000.0000 x 1.20 = 4,800
+
+effective entry economics = subscription amount + equalization credit disclosure
+```
+
+### Correct treatment
+
+The equalization amount is not an additional cash deposit unless the fund administrator confirms cash movement. It is an economic adjustment used for fair performance-fee allocation. Reporting should show the confirmed units, NAV, equalization credit, administrator source date and fee basis.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Equalization data is missing | Subscription is booked but equalization reporting is labelled incomplete. |
+| Fund uses series accounting instead | Series/lot is modelled explicitly rather than forcing equalization credit. |
+| Performance fee crystallizes later | Equalization treatment reconciles to administrator statement. |
+| Client exits before crystallization | Redemption proceeds follow administrator equalization calculation. |
+
+## Example 12. Share-class conversion
+
+### Scenario
+
+A client converts from an accumulating USD share class to a distributing USD share class of the same fund. The conversion should not be treated as a market sale and repurchase unless tax/accounting policy requires that treatment.
+
+| Attribute | Old class | New class |
+|---|---:|---:|
+| Units before conversion | 10,000.0000 | - |
+| NAV | 15.00 | 12.00 |
+| Market value | 150,000 | 150,000 |
+| Conversion fee | 300 | - |
+
+### Calculation
+
+```text
+net conversion value = old units x old NAV - conversion fee
+net conversion value = 10,000 x 15.00 - 300 = 149,700
+
+new units = net conversion value / new class NAV
+new units = 149,700 / 12.00 = 12,475.0000
+```
+
+### Correct treatment
+
+The platform should close or reduce the old share class and open the new share class with lineage to the conversion event. Cost basis, performance break, fees and tax treatment depend on jurisdiction and policy, so the conversion event must preserve source terms and not silently look like ordinary trading.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| New class eligibility fails | Conversion is blocked before order submission. |
+| Conversion fee applies | Fee is posted separately and included in cost/performance policy. |
+| Currency differs | FX treatment and settlement legs are explicit. |
+| Tax policy treats conversion as disposal | Realized gain/loss workflow is triggered with source policy. |
+
+## Example 13. Fund merger and unit exchange
+
+### Scenario
+
+A fund merges into another fund. Client holdings in the old fund are exchanged for units in the receiving fund using an administrator-confirmed exchange ratio.
+
+| Attribute | Value |
+|---|---:|
+| Old fund units | 8,000.0000 |
+| Exchange ratio | 0.7425 new units per old unit |
+| Cash in lieu | 35 |
+
+### Calculation
+
+```text
+new fund units = old fund units x exchange ratio
+new fund units = 8,000.0000 x 0.7425 = 5,940.0000
+
+cash in lieu = 35
+```
+
+### Correct treatment
+
+The old position closes through a corporate-action-style fund merger event, not through a client-initiated redemption. The new fund inherits appropriate cost, holding-period and performance lineage according to accounting and tax policy. Reporting should explain the event, new fund identity, exchange ratio, effective date and any cash in lieu.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Exchange ratio is missing | Merger cannot create new units automatically. |
+| Receiving fund is not in instrument master | Event is held in exception state until instrument setup is complete. |
+| Cash in lieu is present | Cash is posted separately from new units. |
+| Old fund had pending orders | Pending orders are cancelled, transferred or reviewed according to administrator notice. |
+
+## Example 14. Notice-period redemption with holdback
+
+### Scenario
+
+A hedge fund requires 45 days' notice and pays 90% of redemption proceeds on settlement, with 10% held back until audit completion.
+
+| Attribute | Value |
+|---|---:|
+| Redemption request value | 200,000 |
+| Initial payout percentage | 90% |
+| Holdback percentage | 10% |
+| Notice period | 45 days |
+
+### Calculation
+
+```text
+initial payout = redemption value x initial payout percentage
+initial payout = 200,000 x 90% = 180,000
+
+holdback receivable = redemption value x holdback percentage
+holdback receivable = 200,000 x 10% = 20,000
+```
+
+### Correct treatment
+
+During notice period, the holding remains invested unless fund terms state otherwise. After settlement, cash received, pending holdback receivable, residual units and final audit adjustment should be visible separately. The holdback is not immediately available cash.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Notice submitted after deadline | Redemption moves to next dealing window. |
+| Initial payout arrives | Cash is posted and holdback remains receivable/pending. |
+| Final holdback differs from estimate | Adjustment preserves original estimate and final source amount. |
+| Client requests full withdrawal | Reporting explains notice period, holdback and unavailable amount. |
+
+## Example 15. Transfer-agent rejection
+
+### Scenario
+
+A fund subscription is submitted before cut-off, but the transfer agent rejects it because required documentation is incomplete.
+
+| Attribute | Value |
+|---|---:|
+| Submitted subscription amount | 100,000 |
+| Cash reserved | 100,000 |
+| Expected dealing date | 2026-07-01 |
+| Rejection reason | Documentation incomplete |
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Order submitted | Reserve cash and show pending order. |
+| Rejection received | Cancel or reject order with transfer-agent reason and timestamp. |
+| Cash release | Release reserved cash unless policy keeps it blocked for resubmission. |
+| Client/advisor action | Request missing documentation or create corrected order. |
+| Reporting | Do not show fund units or exposure from rejected order. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Transfer-agent rejection arrives after expected dealing date | Pending units are never created without confirmation. |
+| Cash was reserved | Reservation is released or reclassified with audit trail. |
+| Advisor resubmits order | New order links to rejected order but has its own lifecycle. |
+| Rejection reason is missing | Exception queue requires manual classification before closure. |
+
+## Example 16. Multi-level fund-of-funds look-through
+
+### Scenario
+
+A fund-of-funds provides look-through to two underlying funds. Each underlying fund provides only partial holdings coverage.
+
+| Layer | Weight | Look-through coverage |
+|---|---:|---:|
+| Underlying Fund A | 60% | 80% |
+| Underlying Fund B | 40% | 50% |
+
+### Calculation
+
+```text
+effective coverage from Fund A = 60% x 80% = 48%
+effective coverage from Fund B = 40% x 50% = 20%
+
+total look-through coverage = 48% + 20% = 68%
+unmapped exposure = 100% - 68% = 32%
+```
+
+### Correct treatment
+
+Portfolio exposure should show both mapped look-through and unmapped residual exposure. Risk, sector, geography, issuer and ESG analytics should not present partial coverage as complete. The source date and coverage level should be visible at each level.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Underlying file is stale | Coverage for that layer is stale or excluded by policy. |
+| Fund A holds Fund B | Circular or duplicate exposure is detected and controlled. |
+| Residual exposure remains | Reports show unmapped percentage rather than suppressing it. |
+| Underlying security identifier is missing | Exposure maps to unknown bucket with source exception. |

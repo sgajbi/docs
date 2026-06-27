@@ -43,7 +43,7 @@ Every product area should be reviewed across these dimensions:
 | Derivatives | Strong | Options, futures, forwards, swaps, CDS, Greeks, margin, collateral, advisory controls and lifecycle events. | Multi-leg strategies, hedge effectiveness, OTC novation, compression, central clearing and portfolio Greeks. |
 | Entitlements, digital channels and advisor workbench | Strong | RBAC/ABAC, relationship-based access, delegation, advisor workbench, digital channels, workflow and audit. | Legal delegate journeys, EAM access, family-office portals, mobile step-up, consent expiry and certification campaigns. |
 | Equities | Strong | Trading, settlement, corporate actions, dividends, cost basis, P&L, performance, risk and market operations. | Spin-off cost allocation, merger consideration, manufactured dividends, short-sale margin and restricted-list controls. |
-| Funds | Strong | Fund taxonomy, share classes, orders, NAV, fees, distributions, look-through, private fund flows and gates. | Equalization, share-class conversion, fund mergers, notice periods, holdbacks, transfer-agent rejects and fund-of-funds look-through. |
+| Funds | Strong | Fund taxonomy, share classes, orders, NAV, fees, distributions, look-through, private fund flows, gates, equalization, share-class conversion, fund mergers, notice-period holdbacks, transfer-agent rejects and fund-of-funds look-through. | Fee equalization after partial redemption, performance-fee crystallization, in-specie transfers, custody re-registration, suspension reopenings and stale look-through override expiry. |
 | Insurance and annuities | Strong | Policy contracts, ILPs, protection, annuities, premiums, claims, surrender, loans, beneficiaries and reporting labels. | Indexed annuity crediting, variable annuity riders, premium holidays, reinstatement and cross-border beneficiary restrictions. |
 | Investment accounting and ledger | Strong | Books of record, transaction legs, lots, accruals, fees, withholding, cost basis, P&L, FX and audit lineage. | Multi-book accounting, amortized cost, tax-lot elections, fee rebates, statement corrections and derivative collateral postings. |
 | Loans, Lombard, margin and collateral | Strong | Credit lines, pledges, cross-pledging, LTV, haircuts, buying power, margin calls, liquidation and collateral controls. | Multi-currency facilities, structured covenants, rehypothecation constraints, pledged policies and private-market NAV lending. |
@@ -82,7 +82,7 @@ The next useful enrichment work should prioritize:
 
 1. overdraft pricing tiers, intraday liquidity restrictions, payment cut-off failures, stress escalation and nostro reconciliation,
 2. sinkable bond, make-whole call, distressed exchange and hedged bond attribution examples,
-3. fund equalization, share-class conversion, fund mergers and transfer-agent rejects,
+3. fund fee equalization after partial redemption, performance-fee crystallization, in-specie transfers and suspension reopenings,
 4. multi-leg options, hedge effectiveness, OTC lifecycle and collateral optimization,
 5. property-level real estate and infrastructure operating detail,
 6. tax and regulatory report-output examples,
