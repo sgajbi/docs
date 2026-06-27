@@ -12,7 +12,7 @@ Real estate and infrastructure are wrapper-sensitive product families. A listed 
 
 ## Practical Worked Examples
 
-Use [`real-estate-reits-infrastructure/10-worked-examples-and-implementation-patterns.md`](real-estate-reits-infrastructure/10-worked-examples-and-implementation-patterns.md) for concrete examples covering listed REIT distributions, rights issues, private real estate capital calls, appraisal restatements, infrastructure fund distributions, redemption queues, direct property valuation, leverage analytics, support boundaries and regression tests.
+Use [`real-estate-reits-infrastructure/10-worked-examples-and-implementation-patterns.md`](real-estate-reits-infrastructure/10-worked-examples-and-implementation-patterns.md) for concrete examples covering listed REIT distributions, rights issues, private real estate capital calls, appraisal restatements, infrastructure fund distributions, redemption queues, direct property valuation, leverage analytics, property-level debt maturity, tenant concentration, occupancy changes, lease expiry, concession renewal, renewable power-price exposure, direct-property ownership transfers, support boundaries and regression tests.
 
 ## Platform Design Distinctions
 
@@ -54,6 +54,18 @@ Control Layer
 
 Do not classify every real-asset product as private markets or every REIT as generic equity. The wrapper controls transactions and settlement; the economic exposure controls allocation, risk, suitability, and reporting.
 
+## Operating Metrics To Treat As Source-Backed Analytics
+
+| Metric | Why It Matters |
+|---|---|
+| Property-level debt maturity | Refinancing risk, rate sensitivity, covenant risk and distribution sustainability can differ materially by property and debt facility. |
+| Tenant concentration | A small number of tenants can drive income risk even when the property value looks diversified. |
+| Occupancy | Vacancy changes are operating metrics that affect income projections and valuation assumptions before they become cash transactions. |
+| Lease expiry / WALE | Near-term lease expiries can affect renewal risk, rent reversion, vacancy and income stability. |
+| Infrastructure concession term | Concession expiry and renewal uncertainty affect valuation horizon, regulatory exposure and projected cashflows. |
+| Contracted versus merchant revenue | Renewable and infrastructure revenue may mix stable contracted cashflows with market-price exposure. |
+| Direct ownership percentage | Ownership changes affect reportable value, authority, beneficial ownership, access control, tax and collateral eligibility. |
+
 ## Source Ownership Questions
 
 Before building or changing a feature, identify the source of truth for:
@@ -67,6 +79,9 @@ Before building or changing a feature, identify the source of truth for:
 | NAV, appraisal and valuation date | Fund administrator, manager report, appraiser, valuation committee, custodian statement. |
 | Distributions and income split | Issuer notice, fund administrator, custodian, tax statement, cash ledger. |
 | Leverage and financing metrics | Manager report, property/fund reporting, lender statement, internal enrichment. |
+| Tenant, occupancy and lease metrics | Manager report, property manager, annual report, appraiser, lease schedule, data vendor. |
+| Concession and offtake terms | Manager report, concession agreement, regulatory filing, project document, offtake contract. |
+| Direct ownership and transfer evidence | Title record, trust/company document, legal agreement, administrator file, custody/legal record. |
 | Liquidity and redemption terms | Offering document, fund terms, exchange liquidity data, manager notice, side letter. |
 | Collateral eligibility and haircut | Credit policy, collateral system, product master, risk engine, manual override register. |
 
@@ -83,6 +98,7 @@ APIs should expose:
 5. private-fund commitment, paid-in, unfunded, NAV, capital calls, and distributions where applicable,
 6. corporate-action, redemption, gate, queue, suspension, appraisal, and restatement lifecycle states,
 7. collateral eligibility, haircut, pledged amount, and availability where used for lending.
+8. occupancy, lease expiry, concession expiry, contracted/merchant revenue split and ownership percentage where source-backed.
 
 UIs should make these states visible:
 
@@ -92,7 +108,8 @@ UIs should make these states visible:
 4. leverage and refinancing risk affect both income and valuation,
 5. liquidity differs by wrapper, exchange volume, lock-up, gate, queue, or transfer restriction,
 6. infrastructure cashflows may depend on regulation, concession, offtake, inflation linkage, or project lifecycle,
-7. source coverage is partial when look-through sector/geography is unavailable.
+7. source coverage is partial when look-through sector/geography is unavailable,
+8. property operating metrics are analytics with source dates, not accounting transactions unless a cash event occurs.
 
 ## QA Scenarios
 
@@ -107,7 +124,10 @@ High-value scenarios:
 7. redemption queue or gate prevents expected cash from appearing as available cash,
 8. appraised direct property value is labelled as appraisal-based rather than market-traded,
 9. leverage increase affects risk reporting and collateral eligibility,
-10. missing look-through data marks sector/geography analytics partial instead of inferring false exposure.
+10. missing look-through data marks sector/geography analytics partial instead of inferring false exposure,
+11. property-level debt maturity, tenant concentration, occupancy and lease expiry analytics carry source dates and partial-coverage labels,
+12. infrastructure concession renewal and renewable power-price exposure distinguish contracted terms from assumptions,
+13. direct-property ownership transfer changes ownership percentage without duplicating reportable value.
 
 ## Useful Project Workflows
 

@@ -195,7 +195,194 @@ Analytics implication:
 - reporting should not describe REIT distribution yield as bond coupon;
 - mandate risk should include sector/geography/gearing and interest-rate sensitivity where available.
 
-## 10. Advisory And Mandate Checklist
+## 10. Property-Level Debt Maturity Ladder
+
+Scenario:
+
+- A property vehicle owns three assets.
+- Property-level debt is financed through separate loans.
+- Refinancing risk matters because interest rates have risen.
+
+| Property | Debt balance | Maturity | Interest rate |
+|---|---:|---|---:|
+| Office Tower A | 20,000,000 | 2027 | 3.20% |
+| Retail Centre B | 15,000,000 | 2029 | 4.10% |
+| Logistics Park C | 25,000,000 | 2031 | 4.50% |
+
+Debt maturity view:
+
+| Bucket | Debt balance | Portfolio share |
+|---|---:|---:|
+| 0 to 2 years | 20,000,000 | 33.3% |
+| 3 to 5 years | 15,000,000 | 25.0% |
+| 6+ years | 25,000,000 | 41.7% |
+
+Reporting treatment:
+
+- show debt maturity as property-level operating risk, not client loan exposure unless the client is directly liable;
+- include floating/fixed-rate split and hedging where source-backed;
+- label missing loan maturity or covenant data as incomplete;
+- connect refinancing risk to income sustainability and valuation sensitivity.
+
+## 11. Tenant Concentration
+
+Scenario:
+
+A property fund reports rental income concentration by tenant.
+
+| Tenant | Annual rent |
+|---|---:|
+| Tenant A | 4,000,000 |
+| Tenant B | 2,500,000 |
+| Tenant C | 1,500,000 |
+| Other tenants | 12,000,000 |
+
+Calculation:
+
+```text
+total annual rent = 20,000,000
+top tenant concentration = 4,000,000 / 20,000,000 = 20.0%
+top three tenant concentration = (4,000,000 + 2,500,000 + 1,500,000) / 20,000,000 = 40.0%
+```
+
+Platform treatment:
+
+- source tenant concentration from manager/property reports;
+- classify concentration by tenant, sector, lease expiry and geography where available;
+- use concentration in risk and mandate monitoring, not as accounting position data;
+- hide or aggregate tenant names where confidentiality restrictions apply.
+
+## 12. Occupancy Change And Income Impact
+
+Scenario:
+
+Occupancy falls from 95% to 88% in a property portfolio with potential gross rent of 30,000,000.
+
+Calculation:
+
+```text
+prior occupied rent base = 30,000,000 x 95% = 28,500,000
+current occupied rent base = 30,000,000 x 88% = 26,400,000
+estimated annual rent reduction = 2,100,000
+```
+
+Reporting and analytics:
+
+- occupancy is an operating metric, not a cash transaction by itself;
+- income projections, valuation assumptions and distribution sustainability may change;
+- valuation impact should be source-backed by appraisal, manager estimate or analyst model;
+- report occupancy date and source quality.
+
+## 13. Lease Expiry And Weighted Average Lease Expiry
+
+Scenario:
+
+A REIT reports lease expiries for three properties.
+
+| Lease group | Annual rent | Years to expiry |
+|---|---:|---:|
+| Group A | 6,000,000 | 1 |
+| Group B | 9,000,000 | 3 |
+| Group C | 5,000,000 | 6 |
+
+Calculation:
+
+```text
+WALE = sum(annual rent x years to expiry) / total annual rent
+WALE = (6,000,000 x 1 + 9,000,000 x 3 + 5,000,000 x 6) / 20,000,000
+WALE = 3.15 years
+```
+
+Correct treatment:
+
+- disclose whether WALE is based on rent, area or another basis;
+- connect near-term lease expiries to vacancy, renewal, rent reversion and valuation risk;
+- use lease expiry buckets in DPM concentration and income-risk review where source-backed;
+- label stale lease data before using it in client-ready reporting.
+
+## 14. Infrastructure Concession Renewal
+
+Scenario:
+
+An infrastructure fund owns a toll-road concession expiring in eight years. Renewal is possible but not guaranteed.
+
+| Attribute | Value |
+|---|---|
+| Remaining concession term | 8 years |
+| Revenue model | Regulated toll revenue |
+| Inflation linkage | Partial |
+| Renewal status | Not yet confirmed |
+
+Platform treatment:
+
+- store concession expiry as an operating-risk field, not as a security maturity unless the instrument legally matures;
+- distinguish contractual cashflow period from valuation assumption;
+- report renewal uncertainty and regulatory dependency;
+- avoid treating projected post-renewal cashflows as guaranteed income.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Renewal is unconfirmed | Reporting labels post-expiry assumptions as projected/uncertain. |
+| Regulator changes tariff rules | Valuation and income assumptions carry source and effective date. |
+| Concession expires | Exposure, valuation and income projections update from source event. |
+
+## 15. Renewable Power-Price Exposure
+
+Scenario:
+
+An infrastructure vehicle owns renewable assets with part of generation under fixed power-purchase agreements and part exposed to merchant power prices.
+
+| Revenue type | Share of expected revenue |
+|---|---:|
+| Fixed PPA | 70% |
+| Merchant power price | 30% |
+
+Risk treatment:
+
+| Area | Correct treatment |
+|---|---|
+| Income stability | Fixed PPA portion is more contracted, subject to counterparty and contract terms. |
+| Market exposure | Merchant portion is sensitive to power prices, curtailment and production volume. |
+| Inflation | Indexation applies only if contract terms support it. |
+| Reporting | Do not describe all renewable revenue as stable contracted income. |
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| PPA counterparty rating changes | Counterparty risk and income-quality labels update. |
+| Merchant price source is stale | Revenue sensitivity is stale or blocked. |
+| Production volume is missing | Power-price exposure is labelled partial. |
+
+## 16. Direct-Property Ownership Transfer
+
+Scenario:
+
+A family holding company transfers a 40% ownership interest in a direct property to a trust.
+
+| Attribute | Before | After |
+|---|---:|---:|
+| Holding company ownership | 100% | 60% |
+| Trust ownership | 0% | 40% |
+| Appraised property value | 5,000,000 | 5,000,000 |
+
+Calculation:
+
+```text
+trust reportable value = 5,000,000 x 40% = 2,000,000
+holding company reportable value = 5,000,000 x 60% = 3,000,000
+```
+
+Implementation treatment:
+
+- transfer requires legal document, effective date, ownership percentage and valuation basis;
+- do not duplicate 100% property value in both owner hierarchies;
+- preserve historical reporting lineage before and after transfer;
+- access control, beneficial ownership, tax reporting and collateral eligibility may change.
+
+## 17. Advisory And Mandate Checklist
 
 | Dimension | Required question |
 |---|---|
@@ -208,17 +395,17 @@ Analytics implication:
 | DPM mandate | allowed wrapper, illiquid allocation, income target, leverage limit, concentration cap? |
 | Reporting | legal holding, economic exposure, income classification, valuation date and liquidity label? |
 
-## 11. Current Support Boundary And Candidate Extensions
+## 18. Current Support Boundary And Candidate Extensions
 
 | Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
 |---|---|---|
-| Listed REIT | security position, trades, price, distributions, corporate actions | property-sector look-through and gearing analytics |
-| Private real estate fund | commitment, calls, NAV, distributions, valuation date | appraisal restatement workflow and liquidity queue simulation |
-| Direct property | ownership record, appraisal value, source date, documents | document-backed ownership graph and property-level cashflow model |
-| Infrastructure exposure | fund/security/private fund position and sector tags | concession, inflation-linkage and regulatory-risk analytics |
-| Reporting | wrapper, exposure, value, income, source date, liquidity label | consolidated real-asset income and stress dashboard |
+| Listed REIT | security position, trades, price, distributions, corporate actions, gearing where sourced | property-sector look-through and detailed operating-metric analytics |
+| Private real estate fund | commitment, calls, NAV, distributions, valuation date, queues and holdbacks where sourced | advanced liquidity queue simulation and manager-level stress modelling |
+| Direct property | ownership record, appraisal value, source date, documents, ownership percentage | document-backed ownership graph and property-level cashflow model |
+| Infrastructure exposure | fund/security/private fund position, sector tags, concession and revenue model where sourced | advanced concession, inflation-linkage, offtake and regulatory-risk analytics |
+| Reporting | wrapper, exposure, value, income, source date, liquidity label, operating metrics where sourced | consolidated real-asset income and stress dashboard |
 
-## 12. Regression Test Pack
+## 19. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -232,3 +419,10 @@ Minimum release-gate scenarios:
 8. Stale appraisal or NAV labels report output degraded.
 9. REIT leverage/rate sensitivity appears as analytics, not as bond duration.
 10. Missing look-through source prevents unsupported property-sector allocation claims.
+11. Property-level debt maturity ladder labels missing loan and covenant data.
+12. Tenant concentration calculates top-tenant and top-three exposure with confidentiality controls.
+13. Occupancy change updates analytics without booking a cash transaction.
+14. Lease expiry WALE states basis and source date.
+15. Infrastructure concession renewal separates legal term, valuation assumption and projected cashflow.
+16. Renewable power-price exposure separates contracted and merchant revenue.
+17. Direct-property ownership transfer updates ownership hierarchy without duplicating value.

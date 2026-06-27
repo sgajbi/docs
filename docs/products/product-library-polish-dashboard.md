@@ -53,7 +53,7 @@ Every product area should be reviewed across these dimensions:
 | Portfolio reporting and client experience | Strong | Statements, reviews, report datasets, holdings, activity, cashflows, income, risk, exceptions, PDF rendering and delivery. | Multilingual statements, family-office consolidated reports, commentary workflows, report entitlements and correction notices. |
 | Private markets | Strong | Commitments, capital calls, distributions, NAV lag, multiples, IRR, gates, restatements, secondaries and liquidity. | Co-investments, continuation vehicles, covenant breaches, in-kind distributions, side pockets and capital-call forecasting. |
 | Product governance, APU and target market | Strong | Due diligence, approved universe, target market, eligibility, complexity, liquidity, lifecycle review and pre-trade integration. | Numeric rule scoring, disclosure expiry, suspension impact and historical audit replay across booking centres. |
-| Real estate, REITs and infrastructure | Strong | Listed REITs, private real estate, direct property, infrastructure funds, income, valuation, liquidity and leverage analytics. | Property-level debt maturity, tenant concentration, occupancy, lease expiry, concession renewal and direct ownership transfers. |
+| Real estate, REITs and infrastructure | Strong | Listed REITs, private real estate, direct property, infrastructure funds, income, valuation, liquidity, leverage analytics, property-level debt maturity, tenant concentration, occupancy, lease expiry, concession renewal, renewable power-price exposure and direct ownership transfers. | Development projects, construction drawdowns, rent-free periods, capex reserves, property sale completion, valuation committee overrides and infrastructure revenue clawbacks. |
 | Structured products | Strong | Payoff building blocks, wrappers, underlyings, lifecycle events, valuation, scenario analytics, advisory controls and QA. | Structured funds, bespoke OTC trades, secondary-market unwind, corporate-action adjustments and scenario-model validation. |
 | Structured notes | Strong | Note wrappers, barriers, autocalls, coupon behavior, credit-linked notes, dual currency notes and physical settlement. | Range accrual notes, participation notes, issuer default after accrual, partial secondary sale and tax lots after delivery. |
 | Tax, regulatory reporting and cross-border reporting | Strong | Income classification, withholding, tax lots, cost basis, CRS/FATCA/QI concepts, client reporting and controls. | Jurisdiction-specific configuration, report outputs, amended filings, withholding reclaims and beneficial-owner reporting. |
@@ -84,7 +84,7 @@ The next useful enrichment work should prioritize:
 2. sinkable bond, make-whole call, distressed exchange and hedged bond attribution examples,
 3. fund fee equalization after partial redemption, performance-fee crystallization, in-specie transfers and suspension reopenings,
 4. variance swaps, barrier options, cross-currency swaps, collateral disputes and strategy-level attribution,
-5. property-level real estate and infrastructure operating detail,
+5. real estate development projects, construction drawdowns, capex reserves and property sale completion,
 6. tax and regulatory report-output examples,
 7. trade lifecycle corrections, income reversals and settlement break closure,
 8. wealth-structuring authority changes, protector vetoes and foundation council changes.
