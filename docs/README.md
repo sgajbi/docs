@@ -14,4 +14,5 @@ This folder contains authored documentation grouped by use.
 | Map | Use |
 |---|---|
 | [`products/fixed-income-and-structured-products.md`](products/fixed-income-and-structured-products.md) | Compare bonds and structured notes for product modelling, valuation, risk, lifecycle, and platform design. |
+| [`products/pooled-investment-products.md`](products/pooled-investment-products.md) | Apply fund and pooled-vehicle knowledge to product master, orders, NAV, fees, look-through, performance, and reporting work. |
 | [`reference/private-banking-platform-knowledge-map.md`](reference/private-banking-platform-knowledge-map.md) | Reusable project checklist for instrument, transaction, position, valuation, risk, advisory, reporting, API, UI, and documentation work. |

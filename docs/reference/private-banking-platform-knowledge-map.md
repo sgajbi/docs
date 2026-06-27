@@ -1,6 +1,6 @@
 # Private Banking Platform Knowledge Map
 
-This map turns product notes into reusable project knowledge for wealth-management and private-banking platform work.
+This map turns product reference material into reusable project knowledge for wealth-management and private-banking platform work.
 
 ## Core Domains
 
@@ -16,6 +16,14 @@ This map turns product notes into reusable project knowledge for wealth-manageme
 | Reporting | Income, P&L, performance, exposure, cashflow schedule, maturity ladder, risk concentration. | Client and management reporting must reconcile to source data and business meaning. |
 | Operations | Reconciliation, stale prices, failed lifecycle events, corrections, manual overrides, audit trail. | Production trust depends on supportability and exception handling. |
 
+## Product-Specific Modelling Reminders
+
+| Product Area | Modelling Reminder |
+|---|---|
+| Bonds | Separate clean price, dirty value, accrued interest, yield, duration, spread, call/put schedules, and credit events. |
+| Funds | Separate legal fund units from look-through exposure; model NAV, share class, dealing terms, distributions, fees, gates, suspensions, and pending orders explicitly. |
+| Structured notes | Separate legal note position from embedded derivative terms; model barriers, observations, autocalls, payoff terms, physical settlement, and issuer risk explicitly. |
+
 ## Source-Ownership Questions
 
 Use these before designing APIs or UI:
@@ -28,8 +36,9 @@ Use these before designing APIs or UI:
 6. Who owns performance methodology?
 7. Who owns advisory suitability and proposal state?
 8. Who owns reporting, rendering, archive, and legal evidence?
-9. Which data is source truth, derived view, cached projection, or user-entered override?
-10. How does the system fail closed when the source owner cannot provide evidence?
+9. Who owns fund NAV, share-class terms, dealing status, fees, distributions, and look-through files?
+10. Which data is source truth, derived view, cached projection, or user-entered override?
+11. How does the system fail closed when the source owner cannot provide evidence?
 
 ## API Design Checklist
 
