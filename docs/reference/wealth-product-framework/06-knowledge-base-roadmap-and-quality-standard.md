@@ -50,19 +50,20 @@ Covered product packs now include:
 3. funds and pooled investment products,
 4. equities and market operations,
 5. derivatives and overlay products,
-6. cash, deposits, money market and FX,
-7. structured products,
-8. alternatives and private markets,
-9. loans, Lombard lending, margin, collateral and buying power.
+6. commodities, precious metals and real assets,
+7. cash, deposits, money market and FX,
+8. structured products,
+9. alternatives and private markets,
+10. insurance and annuity products,
+11. loans, Lombard lending, margin, collateral and buying power,
+12. real estate, REITs and infrastructure products.
 
 Potential future packs:
 
-1. commodities and precious metals,
-2. insurance-linked and annuity products,
-3. mandates and advisory workflows,
-4. client reporting and portfolio review methodology,
-5. performance, attribution, risk and concentration methodology,
-6. source-data and market-data governance.
+1. mandates and advisory workflows,
+2. client reporting and portfolio review methodology,
+3. performance, attribution, risk and concentration methodology,
+4. source-data and market-data governance.
 
 ## 5. Knowledge base design principle
 

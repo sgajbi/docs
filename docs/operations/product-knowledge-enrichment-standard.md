@@ -40,6 +40,7 @@ For each product pack, add or strengthen these areas when useful:
 | Practitioner explanations | Questions and answers for stakeholder conversations, product reviews, and project handoffs. |
 | Cross-product comparisons | Similarities and differences versus adjacent products. |
 | Worked examples | Product terms, timeline, transactions, cashflows, valuation, risk, reporting, QA, and implementation boundary. |
+| Source and calculation matrix | Source owner, dependent calculations, data-quality states, reporting outputs, QA controls, and unsupported boundaries. |
 
 ## Where To Add Enrichment
 
@@ -48,8 +49,9 @@ Prefer this order:
 1. Product pack README for purpose, reading order, provenance, and high-level notes.
 2. Product-area map under `docs/products/` when the guidance applies across the product family.
 3. Cross-product review under `docs/products/practical-product-implementation-review.md` when the guidance applies across many product families.
-4. Cross-product reference under `docs/reference/` when the guidance applies to multiple product families.
-5. Imported source file only when the source wording is unprofessional, narrow, stale, or unclear.
+4. Source/calculation/reporting guidance under `docs/products/source-ownership-calculation-reporting-matrix.md` when the change affects implementation ownership, calculations, reporting, QA, or degraded states.
+5. Cross-product reference under `docs/reference/` when the guidance applies to multiple product families.
+6. Imported source file only when the source wording is unprofessional, narrow, stale, or unclear.
 
 Do not overload imported source files with broad platform commentary when a separate map would be clearer.
 
@@ -95,6 +97,7 @@ Before committing a product-pack update, check:
 11. Does the root/product/reference index point to the new material?
 12. Is the coverage matrix updated if the product library changed?
 13. Does the practical product implementation review need a new example, capability boundary, or candidate extension?
+14. Does the source-ownership/calculation/reporting matrix need a new source truth, calculation dependency, data-quality state, or QA scenario?
 
 ## Ongoing Improvement Principle
 

@@ -315,6 +315,89 @@ Shortfall = 40,000
 | QA | Validate ledger cash, available cash, reserved cash, pledge reserve, and proposed order funding. |
 | Boundary | Do not let a portfolio-construction view override source-owned cash and collateral limits. |
 
+## Example 11: Precious Metal Exposure And Collateral
+
+| Dimension | Example |
+|---|---|
+| Product families | Commodities, precious metals and real assets; lending/collateral |
+| Client objective | Hold gold exposure and use part of it as Lombard collateral. |
+| Product terms | 100 troy oz allocated gold account; price USD 2,300/oz; collateral haircut 25 percent; 40 oz pledged. |
+| Key distinction | Commodity exposure, physical/account holding, and collateral availability are separate views. |
+
+### Calculations
+
+```text
+Gold market value = 100 x 2,300 = 230,000
+Pledged market value = 40 x 2,300 = 92,000
+Lending value = 92,000 x (1 - 25%) = 69,000
+Unpledged quantity = 60 oz
+```
+
+### Reporting And QA
+
+| Area | Expected treatment |
+|---|---|
+| Advisory | Explain custody/provider risk, price volatility, liquidity, unit basis, and collateral haircut. |
+| DPM/mandate | Include gold exposure in commodity allocation and pledged quantity in availability constraints. |
+| Reporting | Show quantity, unit, price source, market value, pledged quantity, available quantity, and lending value. |
+| QA | Validate troy-ounce unit, price unit, FX translation, pledge quantity, haircut, and stale-price block. |
+| Boundary | Do not calculate lending value from total gold quantity when only part is pledged and eligible. |
+
+## Example 12: ILP Policy Value And Surrender
+
+| Dimension | Example |
+|---|---|
+| Product family | Insurance and annuities |
+| Client objective | Hold an investment-linked policy for protection and long-term investment exposure. |
+| Product terms | Annual premium USD 20,000; ILP account value USD 110,000; surrender charge USD 4,000; policy loan USD 15,000; death benefit USD 250,000. |
+| Key distinction | Account value, surrender value, and death benefit are different values with different reporting meanings. |
+
+### Calculations
+
+```text
+Net surrender value = 110,000 - 4,000 - 15,000 = 91,000
+Protection benefit = 250,000
+Investable/account value = 110,000 before surrender and loan adjustments
+```
+
+### Reporting And QA
+
+| Area | Expected treatment |
+|---|---|
+| Advisory | Explain charges, market risk, protection benefit, policy loan impact, surrender consequences, and lapse risk. |
+| DPM/mandate | Treat ILP sub-fund exposure as look-through only when source-backed; do not treat death benefit as investable assets. |
+| Reporting | Show account value, net surrender value, death benefit, loan balance, premium schedule, source date, and guarantee/projection basis separately. |
+| QA | Validate value basis labels, loan deduction, surrender charge, premium status, restricted beneficiary data, and stale insurer quote handling. |
+| Boundary | Do not use death benefit or projected non-guaranteed value as current portfolio market value. |
+
+## Example 13: Listed REIT Income Versus Real-Asset Exposure
+
+| Dimension | Example |
+|---|---|
+| Product families | Real estate, REITs and infrastructure; equities; funds |
+| Client objective | Hold listed REIT exposure for income and real-asset allocation. |
+| Product terms | 10,000 REIT units; market price SGD 2.10; quarterly distribution SGD 0.035 per unit; reported property exposure is 60 percent logistics and 40 percent data centres. |
+| Key distinction | The listed REIT trades like an equity, but allocation and risk reporting need real-estate sector and leverage context. |
+
+### Calculations
+
+```text
+Market value = 10,000 x 2.10 = SGD 21,000
+Gross distribution = 10,000 x 0.035 = SGD 350
+Logistics exposure = 21,000 x 60% = SGD 12,600
+Data centre exposure = 21,000 x 40% = SGD 8,400
+```
+
+### Reporting And QA
+
+| Area | Expected treatment |
+|---|---|
+| Advisory | Explain that distribution yield is variable and affected by rents, occupancy, leverage, refinancing cost, and property cycle. |
+| DPM/mandate | Treat trading, settlement and corporate actions like listed securities, but classify economic exposure as real estate by sector/geography where source-backed. |
+| Reporting | Show listed holding, price, market value, distribution, property-sector exposure, geography, leverage notes, and source date. |
+| QA | Validate market value, distribution entitlement, withholding/tax treatment if relevant, sector look-through, stale source date, and corporate-action handling. |
+| Boundary | Do not infer full property-sector exposure when the manager/index/source file does not provide reliable look-through data. |
+
 ## Example Template
 
 Use this structure when adding deeper examples to product packs:
