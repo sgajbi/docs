@@ -320,7 +320,196 @@ QA assertions:
 | Holding company and trust both request report | Output scope and duplication controls are explicit. |
 | Privacy restriction applies | Sensitive party details are masked or omitted according to entitlement policy. |
 
-## 15. Advisory And Reporting Boundary
+## 15. Tax-Lot Transfer Between Custodians
+
+Scenario:
+
+- Client transfers 300 shares from Custodian A to Custodian B.
+- Custodian A sends position quantity immediately.
+- Cost-basis lots arrive two days later.
+
+Transferred lots:
+
+| Lot | Quantity | Local cost per share | Acquisition date |
+|---|---:|---:|---|
+| Lot 1 | 100 | USD 40.00 | 2024-03-15 |
+| Lot 2 | 200 | USD 52.00 | 2025-08-20 |
+
+Correct treatment:
+
+- do not treat the transfer as a sale when beneficial ownership is unchanged;
+- receive and reconcile position quantity separately from tax-lot history;
+- mark realized-gain reporting as partial until lot history is received;
+- preserve original acquisition dates and cost basis where the source provides them;
+- record custodian source, received date and any missing-lot exception.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Position arrives before lots | Holding can appear, but realized-gain reporting is lot-history incomplete. |
+| Lot quantity does not equal transferred quantity | Transfer remains in reconciliation exception. |
+| Custodian sends average cost only | Report labels method and support limitation. |
+| Subsequent sale occurs before lot history arrives | Realized result is blocked or estimated according to policy. |
+
+## 16. Multi-Currency Realized Gain Basis
+
+Scenario:
+
+A EUR security is bought and sold in EUR for a USD-reporting client. Local gain is positive, but USD gain differs because FX rates changed.
+
+| Attribute | Buy | Sell |
+|---|---:|---:|
+| Local value | EUR 100,000 | EUR 110,000 |
+| EUR/USD FX rate | 1.2000 | 1.0500 |
+| USD value | 120,000 | 115,500 |
+
+Calculation:
+
+```text
+local realized gain = 110,000 - 100,000 = 10,000 EUR
+reporting-currency result = 115,500 - 120,000 = -4,500 USD
+```
+
+Correct treatment:
+
+- local security gain and reporting-currency gain should be explainable separately;
+- tax basis currency must come from jurisdiction/report policy;
+- FX rate source, date policy and rounding should be visible;
+- do not overwrite local economic gain with reporting-currency loss or vice versa.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| FX rate is stale | Reporting-currency gain is stale or blocked. |
+| Jurisdiction requires local basis | Report does not substitute reporting-currency result. |
+| Client statement shows both views | Labels distinguish local gain, FX effect and reporting-currency result. |
+
+## 17. Withholding Pool Reconciliation
+
+Scenario:
+
+A pooled withholding file aggregates tax withheld for multiple clients. The platform must reconcile pool total to allocated client tax amounts.
+
+| Client | Allocated withholding |
+|---|---:|
+| Client A | 300 |
+| Client B | 450 |
+| Client C | 250 |
+
+Pool file withholding total: 1,050.
+
+Calculation:
+
+```text
+allocated total = 300 + 450 + 250 = 1,000
+reconciliation break = 1,050 - 1,000 = 50
+```
+
+Correct treatment:
+
+- pool-level withholding and client-level allocations should both be stored;
+- report output should not be final while material pool breaks remain unresolved;
+- allocation rule, source file, currency and payment date must be traceable;
+- resolved breaks should preserve adjustment reason and approval evidence.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Pool total differs from allocations | Reconciliation break opens. |
+| Break is immaterial by policy | Report can proceed only with exception label and approval. |
+| Allocation changes after report | Correction workflow identifies impacted clients and outputs. |
+
+## 18. Report Delivery Entitlement
+
+Scenario:
+
+A family office requests tax reports for multiple related accounts, but beneficiary visibility differs by entity and document.
+
+| Recipient | Allowed scope |
+|---|---|
+| Trustee | Full trust tax pack |
+| Investment advisor | Holdings and income summary, no beneficiary details |
+| Beneficiary | Distribution statement only |
+
+Correct treatment:
+
+- report delivery should follow role, entity, governing document and effective date;
+- report generation and report delivery are separate controls;
+- restricted sections should be masked or omitted, not merely hidden in the UI;
+- delivery audit should show recipient, version, channel, timestamp and scope.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Recipient lacks entitlement | Delivery is blocked even if report exists. |
+| Entitlement changes mid-period | Delivery follows effective-dated authority. |
+| Report is regenerated | Recipient receives only the authorized version and scope. |
+
+## 19. Client Correction Notice
+
+Scenario:
+
+A corrected tax breakdown changes a prior client tax pack after publication.
+
+| Field | Original | Corrected |
+|---|---:|---:|
+| Fund income | 8,000 | 6,500 |
+| Return of capital | 0 | 1,500 |
+
+Notice requirements:
+
+- identify corrected report version and prior report version;
+- state the source reason without giving personalized tax advice;
+- show impacted fields, period and whether the notice supersedes or supplements the original;
+- include support contact, generation date and approval evidence;
+- retain delivery audit and client/advisor acknowledgement where required.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Correction is material | Notice workflow is triggered according to policy. |
+| Correction is non-material | Decision and approval are recorded. |
+| Recipient entitlement differs | Correction notice follows same delivery controls as the original report. |
+
+## 20. Late Fund Tax-Breakdown Ingestion
+
+Scenario:
+
+A fund pays a distribution in March. At payment time, only an estimated income classification is available. The final tax breakdown arrives in June.
+
+| Classification | Estimated | Final |
+|---|---:|---:|
+| Income | 5,000 | 3,500 |
+| Capital gain | 0 | 1,000 |
+| Return of capital | 0 | 500 |
+
+Correct workflow:
+
+```text
+book distribution with estimated classification -> label report partial -> ingest final breakdown -> compare impact -> correct report output or carry forward according to policy
+```
+
+Controls:
+
+- estimated and final classifications should both be preserved;
+- report labels should show estimated state until final breakdown arrives;
+- late breakdown should trigger impact assessment across income, withholding, cost basis and client statements;
+- final classification source, received date and effective period should be stored.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Final breakdown arrives after report | Correction or next-period disclosure workflow is evaluated. |
+| Final amount differs by category | Income, gain and return-of-capital labels update with lineage. |
+| Final source is missing | Estimated classification remains labelled and not treated as final. |
+
+## 21. Advisory And Reporting Boundary
 
 | Activity | Platform can support | Platform should not imply |
 |---|---|---|
@@ -330,20 +519,21 @@ QA assertions:
 | show reportable event | configured reporting regime | universal reporting obligation |
 | simulate rebalance tax impact | estimated gains/losses under assumptions | advice to execute for tax reasons |
 
-## 16. Current Support Boundary And Candidate Extensions
+## 22. Current Support Boundary And Candidate Extensions
 
 | Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
 |---|---|---|
 | Income and withholding | gross, tax, net, source country, rate, document status | treaty optimization workflow |
-| Tax lots | lot quantity, basis, method, sale depletion | multi-jurisdiction tax-lot engine |
+| Tax lots | lot quantity, basis, method, sale depletion, transferred-lot lineage | multi-jurisdiction tax-lot engine |
 | Corporate actions | source event, entitlement, basis allocation when supplied | automated tax impact classification |
 | Cross-border documentation | residency, FATCA/CRS status, expiry, remediation state, beneficial-owner role where sourced | deeper jurisdiction-specific rule engine |
-| Report output | versioned statement/tax pack with lineage, exception section and calculation version | configurable regulatory filing generator |
-| Corrections | restatement, amended-output workflow and sign-off evidence | automated client notice workflow |
-| Reclaims | expected reclaim, filed status, fees and refund receipt when source-backed | tax authority workflow integration |
-| Ownership reporting | legal owner, beneficial owner, controlling person and reporting recipient where sourced | cross-regime entity classification engine |
+| Report output | versioned statement/tax pack with lineage, exception section, calculation version and delivery entitlement | configurable regulatory filing generator |
+| Corrections | restatement, amended-output workflow, client correction notice and sign-off evidence | automated client notice workflow |
+| Reclaims and pools | expected reclaim, filed status, fees, refund receipt, pool total and allocation reconciliation when source-backed | tax authority workflow integration |
+| Ownership reporting | legal owner, beneficial owner, controlling person, reporting recipient and delivery scope where sourced | cross-regime entity classification engine |
+| Late classifications | estimated/final tax breakdown, received date and impact assessment where sourced | automated late-breakdown correction and client-notice orchestration |
 
-## 17. Regression Test Pack
+## 23. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -362,3 +552,9 @@ Minimum release-gate scenarios:
 13. Amended filing preserves original submission and corrected output.
 14. Withholding reclaim is tracked separately from received cash.
 15. Multi-entity beneficial-owner reporting separates legal owner, beneficial owner, controlling person and report recipient.
+16. Tax-lot transfer preserves ownership continuity while marking realized-gain reporting incomplete until lots reconcile.
+17. Multi-currency realized gain separates local economic result, FX effect and reporting-currency basis.
+18. Withholding pool reconciliation blocks or labels final output when pool and allocation totals break.
+19. Report delivery entitlement prevents unauthorized tax-pack delivery.
+20. Client correction notice identifies prior version, corrected fields, impact period, delivery scope and approval.
+21. Late fund tax-breakdown ingestion preserves estimated and final classifications with correction lineage.

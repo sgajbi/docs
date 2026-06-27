@@ -4,7 +4,7 @@ This map summarizes tax-aware investment reporting, regulatory reporting, client
 
 Use it with the detailed pack in [`tax-regulatory-reporting/`](tax-regulatory-reporting/README.md).
 
-For practical examples, use [`tax-regulatory-reporting/10-worked-examples-and-implementation-patterns.md`](tax-regulatory-reporting/10-worked-examples-and-implementation-patterns.md). It covers dividend withholding, accrued interest, tax lots, corporate-action basis, fund distribution classification, structured-note delivery, documentation expiry, report corrections, jurisdiction-specific rule configuration, report outputs, amended filings, withholding reclaims, and multi-entity beneficial-owner reporting.
+For practical examples, use [`tax-regulatory-reporting/10-worked-examples-and-implementation-patterns.md`](tax-regulatory-reporting/10-worked-examples-and-implementation-patterns.md). It covers dividend withholding, accrued interest, tax lots, corporate-action basis, fund distribution classification, structured-note delivery, documentation expiry, report corrections, jurisdiction-specific rule configuration, report outputs, amended filings, withholding reclaims, multi-entity beneficial-owner reporting, tax-lot transfers, multi-currency realized-gain bases, withholding-pool reconciliation, report delivery entitlements, client correction notices and late fund tax-breakdown ingestion.
 
 ## Core Principle
 
@@ -89,6 +89,9 @@ Any tax-aware or regulatory reporting output should define:
 | Withholding reclaim | Track expected reclaim, filed date, authority status, fees, approved amount, rejected amount, received cash and write-off state separately from original withholding. |
 | Multi-entity beneficial-owner reporting | Keep legal owner, beneficial owner, controlling person, reporting recipient, visibility rules and duplication controls explicit. |
 | Client correction notice | Explain corrected fields, source reason, impacted period and whether output supersedes or supplements prior report. |
+| Report delivery entitlement | Apply role, entity, governing-document and effective-date controls before delivering generated tax packs. |
+| Late tax-breakdown ingestion | Preserve estimated and final classifications, received date, source lineage and correction impact. |
+| Withholding pool reconciliation | Reconcile pool totals to client allocations before final output or record approved exception. |
 
 ## Implementation Guidance
 
@@ -115,6 +118,9 @@ Any tax-aware or regulatory reporting output should define:
 | Trust account report where legal owner and beneficial owner differ. | Wealth structuring, client access, reporting scope. |
 | Amended report after corrected classification. | Tax operations, report versioning, client notice workflow. |
 | Withholding reclaim lifecycle. | Income reporting, operations tracking, cash availability. |
+| Transferred tax lots and multi-currency gain basis. | Custody transfers, cost-basis migration, FX basis reporting. |
+| Withholding pool break and delivery entitlement. | Tax operations, reconciliation, privacy and report delivery controls. |
+| Late fund tax breakdown and correction notice. | Fund reporting, client statements, amended outputs and audit lineage. |
 
 The detailed worked-example file expands these patterns into calculations, controls, support boundaries and regression scenarios.
 
@@ -133,6 +139,11 @@ The detailed worked-example file expands these patterns into calculations, contr
 11. Amended filing preserves prior output and corrected output with approval lineage.
 12. Withholding reclaim is tracked as expected/approved/received rather than available cash.
 13. Multi-entity beneficial-owner reporting avoids duplicate income across legal and beneficial owner scopes.
+14. Transferred tax lots reconcile quantity and basis before realized-gain reporting is final.
+15. Multi-currency gain reporting separates local result, FX effect and reporting-currency result.
+16. Withholding pool totals reconcile to client allocations before final output.
+17. Report delivery entitlement blocks unauthorized recipients and masks restricted sections.
+18. Late fund tax breakdown updates estimated classification with correction lineage.
 
 ## Related Guides
 
