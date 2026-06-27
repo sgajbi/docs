@@ -6,7 +6,7 @@ It is intentionally vendor-neutral. Use it to decide what a platform should repr
 
 ## Cross-Product Review Lens
 
-Use this lens when improving any product document or designing a product feature. For concrete examples, use [`cross-product-worked-examples.md`](cross-product-worked-examples.md).
+Use this lens when improving any product document or designing a product feature. For concrete lifecycle examples, use [`cross-product-worked-examples.md`](cross-product-worked-examples.md). For compact formulas, reporting labels, degraded states, and QA assertions, use [`product-calculation-example-catalog.md`](product-calculation-example-catalog.md).
 
 | Lens | Questions To Answer |
 |---|---|
