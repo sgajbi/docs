@@ -24,16 +24,20 @@ Use it to decide:
 | CI/CD, DevSecOps and release evidence deep dive | [`cicd-devsecops-release-evidence/`](cicd-devsecops-release-evidence/README.md) | Strong deep-dive coverage of CI/CD as evidence production, validation lanes, local checks, PR merge gates, main releasability, quality gates, test gates, contract governance, DevSecOps, workflow security, container/runtime gates, release evidence, branch hygiene, gate promotion and operating playbooks. | Add examples for flaky-check triage, report-only gate ownership, release-evidence manifests, workflow-permission hardening and incident-driven gate improvements. |
 | Observability and SRE | [`06-observability-sre-and-operational-support.md`](06-observability-sre-and-operational-support.md) | Strong coverage of structured logs, metrics, traces, health checks, SLO thinking, incident workflow, runbooks and supportability states. | Add deeper examples for alert design, dashboard review, incident severity classification and error-budget operation. |
 | Observability, SRE and supportability deep dive | [`observability-sre-supportability/`](observability-sre-supportability/README.md) | Strong deep-dive coverage of observability as an operator-facing feature, structured logs, event taxonomy, correlation, metrics and cardinality, tracing, health/readiness, supportability states, dashboards, SLOs, alerting, runbooks, incidents, diagnostics APIs, async worker telemetry, data-product trust telemetry, sensitive-data boundaries, observability tests, CI gates, on-call and maturity. | Add implementation-backed examples for incident command flow, alert route tuning, dashboard acceptance checks, no-sensitive-telemetry gates and supportability-state certification. |
-| Security and sensitive data | [`07-security-configuration-and-sensitive-data.md`](07-security-configuration-and-sensitive-data.md) | Strong coverage of secure configuration, secrets, authorization, sensitive observability, CI security controls, workflow security and evidence filtering. | Add deeper examples for threat modelling, key rotation, privileged access, secure evidence packs and AI/tool-call security. |
+| Security and sensitive data | [`07-security-configuration-and-sensitive-data.md`](07-security-configuration-and-sensitive-data.md) | Strong coverage of secure configuration, secrets, authorization, sensitive observability, CI security controls, workflow security and evidence filtering. | Add deeper examples for key rotation, production-access recertification, security scorecards and control-owner operating cadence. |
+| Security and cyber resilience deep dive | [`security-cyber-resilience/`](security-cyber-resilience/README.md) | Strong deep-dive coverage of security control modelling, threat modelling, IAM, entitlements, object-level authorization, privileged access, sensitive-data handling, secrets, evidence packs, API/application/runtime controls, DevSecOps, supply chain, release gates, detection, incident response, BCP/DR, AI/RAG/tool security, security tests, review checklists and worked examples. | Add implementation-backed examples for key rotation, privileged-access review, cloud policy-as-code violations, ransomware recovery drills, security-scorecard reporting and access-recertification evidence. |
 | Testing, performance and resilience | [`08-testing-performance-and-resilience.md`](08-testing-performance-and-resilience.md) | Strong coverage of test pyramid, meaningful coverage, contract tests, integration tests, E2E tests, performance hygiene, resilience patterns and migration smoke. | Add deeper examples for load-test design, resilience drills, benchmark baselines and test-data design. |
+| Testing, quality engineering and certification deep dive | [`testing-quality-certification/`](testing-quality-certification/README.md) | Strong deep-dive coverage of testing as evidence, quality engineering mindset, test pyramid and portfolio design, risk-based testing, unit/domain/policy/calculation testing, service-layer testing, API/OpenAPI/error behavior testing, data-product and event testing, integration testing, E2E/browser/runtime testing, regression, golden examples, certification sweeps, synthetic fixtures, security testing, observability testing, migration/runtime/deployment testing, performance/resilience/chaos testing, AI/RAG/agent testing, CI lane placement, quality metrics and flakiness governance. | Add implementation-backed examples for certification evidence manifests, flaky-test remediation, golden-case catalogue ownership, browser evidence packs and escaped-defect learning loops. |
 | Worked examples and review checklists | [`09-worked-examples-and-engineering-review-checklists.md`](09-worked-examples-and-engineering-review-checklists.md) | Strong examples for new domain APIs, gateway composition, data-product certification, CI gate promotion, incident review, PR review and new-service readiness. | Add more case studies for migration failure, security incident, performance regression, frontend panel drift and data-product stale state. |
 | Infrastructure and deployment | [`10-infrastructure-containers-and-deployment.md`](10-infrastructure-containers-and-deployment.md) | Strong coverage of runtime environment layers, container design, Dockerfile review, compose, orchestration, deployment strategy, configuration, migrations and evidence. | Add deeper examples for Helm/Kustomize-style deployment review, blue/green rollout, canary monitoring and backup/restore drills. |
 | Runtime infrastructure and Kubernetes deep dive | [`runtime-infrastructure-kubernetes/`](runtime-infrastructure-kubernetes/README.md) | Strong deep-dive coverage of runtime architecture, container images, Docker Compose parity, Kubernetes/OpenShift/AKS concepts, workload types, service addressing, ingress, configuration, secrets, health probes, resources, autoscaling, stateful dependencies, deployment, rollback, runtime security, observability, resilience, DR, cost and platform readiness. | Add examples for Helm/Kustomize review, canary rollout monitoring, workload identity adoption, capacity incident response and backup/restore validation. |
 | Git and knowledge management | [`11-git-release-and-knowledge-management.md`](11-git-release-and-knowledge-management.md) | Strong coverage of Git working model, commit quality, branch hygiene, PR evidence, review discipline, release hygiene, documentation layers and decision records. | Add deeper examples for ADR templates, release notes, branch reconciliation, wiki publication and knowledge-base stewardship. |
+| Git workflow, PR review and release hygiene deep dive | [`git-workflow-release-hygiene/`](git-workflow-release-hygiene/README.md) | Strong deep-dive coverage of Git as delivery memory, branch strategy, commit discipline, change slicing, feature branch delivery, PR structure and evidence, code review responsibilities, ownership routing, CODEOWNERS, merge strategies, protected main, required checks, release tags, changelogs, hotfixes, generated artifacts, documentation truth, post-merge branch cleanup, release-line maintenance, audit traceability and engineering-lead playbooks. | Add implementation-backed examples for branch reconciliation, PR evidence scoring, release-note generation, hotfix postmortems, stale-branch cleanup and CODEOWNERS-sensitive-path reviews. |
 | Technology stack and toolchain | [`12-technology-stack-and-engineering-patterns.md`](12-technology-stack-and-engineering-patterns.md) | Strong coverage of backend APIs, contracts, persistence, clients, frontend, observability, testing, static quality, AI automation, tradeoffs and repository reading. | Add deeper examples for dependency upgrade governance, runtime version policy, library selection criteria and toolchain drift review. |
 | Frontend and experience API supportability | [`13-frontend-experience-api-and-ui-supportability.md`](13-frontend-experience-api-and-ui-supportability.md) | Strong coverage of gateway-first UI delivery, UI state taxonomy, dense banking UI, view models, response shape, component boundaries, browser validation, accessibility and frontend observability. | Add deeper examples for UI regression testing, design-system governance, accessibility audits and dashboard performance budgets. |
 | Engineering leadership learning path | [`14-engineering-leadership-learning-roadmap.md`](14-engineering-leadership-learning-roadmap.md) | Structured roadmap for building technical fluency, delivery judgement, operational depth, architecture review and leadership habits. | Add role-specific curricula for backend leads, frontend leads, platform leads, QA leads and architecture owners. |
 | Performance, scalability, resilience and async work | [`15-performance-scalability-resilience-and-async-work.md`](15-performance-scalability-resilience-and-async-work.md) | Strong coverage of latency budgets, timeouts, retries, back pressure, idempotency, durable async execution, recovery, replay, caching, batching, pagination, performance gates and anti-patterns. | Add worked examples for report generation, portfolio analytics jobs, data ingestion replay, outbox publishing and browser performance budgets. |
+| Performance, scalability, resilience and async engineering deep dive | [`performance-scalability-resilience-async/`](performance-scalability-resilience-async/README.md) | Strong deep-dive coverage of performance mindset, latency, throughput, saturation, capacity, API performance, pagination, filtering, large result sets, timeouts, retries, backoff, jitter, circuit breakers, back-pressure, load shedding, rate limiting, bulkheads, idempotency, concurrency, duplicate prevention, async execution, job state, polling, workers, queues, leasing, dead-letter handling, replay, recovery, caching, materialized views, batching, streaming, database performance, graceful degradation, resource limits, autoscaling, SLOs, performance dashboards, load/stress/soak/chaos testing and recovery playbooks. | Add implementation-backed examples for portfolio analytics jobs, report-generation queues, source ingestion replay, database query tuning, cache invalidation incidents, autoscaling reviews and capacity planning scorecards. |
 | Practitioner review prompts | [`16-practitioner-review-prompts-and-checklists.md`](16-practitioner-review-prompts-and-checklists.md) | Strong reusable prompts for architecture, API, data products, CI/CD, testing, security, observability, production readiness and engineering-lead review. | Add role-specific review packs for backend, frontend, platform, QA, SRE and architecture leadership. |
 | Implementation evidence reading | [`17-implementation-evidence-reading-map.md`](17-implementation-evidence-reading-map.md) | Strong map from neutral concepts to repository evidence areas, file types, repository roles and source-backed implementation patterns. | Add examples of how to convert a repository observation into neutral knowledge-base content. |
 
@@ -68,15 +72,19 @@ The technical knowledge base now has strong coverage for:
 10. observability and SRE supportability,
 11. observability, SRE and operational-supportability depth,
 12. security and sensitive-data handling,
-13. testing, performance and resilience,
-14. infrastructure, containers and deployment,
-15. runtime infrastructure and Kubernetes depth,
-16. Git, release and documentation truth,
-17. technology stack reasoning,
-18. frontend and experience-API supportability,
-19. performance, resilience and async execution depth,
-20. practical engineering review checklists,
-21. implementation evidence reading.
+13. security and cyber-resilience engineering depth,
+14. testing, performance and resilience,
+15. testing, quality engineering and certification depth,
+16. infrastructure, containers and deployment,
+17. runtime infrastructure and Kubernetes depth,
+18. Git, release and documentation truth,
+19. Git workflow, PR review and release hygiene depth,
+20. technology stack reasoning,
+21. frontend and experience-API supportability,
+22. performance, resilience and async execution depth,
+23. performance, scalability, resilience and async engineering deep dive,
+24. practical engineering review checklists,
+25. implementation evidence reading.
 
 ## Next High-Value Slices
 
@@ -84,12 +92,12 @@ Future technical enrichment should prioritize:
 
 1. API backward-compatible change and deprecation case studies,
 2. incident severity, alert design and dashboard review examples,
-3. threat-model and sensitive-evidence-pack examples,
+3. key-rotation, privileged-access and security-scorecard examples,
 4. migration failure and rollback case studies,
 5. frontend panel drift and browser-regression case studies,
 6. dependency upgrade and runtime-version governance,
-7. async report-generation and data-ingestion replay examples,
-8. ADR, release-note and branch-reconciliation templates,
+7. implementation-backed async report-generation and data-ingestion replay examples,
+8. ADR and architecture-decision review templates,
 9. role-specific learning paths for backend, frontend, platform, QA and architecture leads.
 
 ## Maintenance Rule
