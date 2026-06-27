@@ -1940,3 +1940,217 @@ estimated_receivable = 4,000
 | Post-liquidation receivable is estimated | Receivable is labelled estimated and excluded from available cash until confirmed. |
 | Tax-lot history is missing | Realized gain/loss is provisional or blocked according to policy. |
 | Withholding is present | Net cash, gross proceeds and withholding are separately reportable. |
+
+## Example 56. Share-class closure migration
+
+### Scenario
+
+A fund manager closes an old share class and migrates eligible investors into a successor class. The client should not be treated as selling and repurchasing unless the source event is actually a taxable switch or redemption/subscription pair.
+
+| Attribute | Old class | New class |
+|---|---:|---:|
+| Units | 10,000 | 9,850 |
+| NAV | 12.30 | 12.4873 |
+| Market value | 123,000 | 123,000 |
+| Ongoing charge | 1.20% | 0.95% |
+
+### Conversion ratio
+
+```text
+conversion_ratio = old_market_value / new_nav / old_units
+conversion_ratio = 123,000 / 12.4873 / 10,000 = 0.9850
+new_units = 10,000 x 0.9850 = 9,850
+```
+
+### Correct treatment
+
+- preserve closure notice, successor share class, conversion ratio, effective date and tax treatment;
+- create the new share-class position from confirmed conversion terms;
+- carry cost basis and acquisition history only when the event is source-confirmed as non-disposal or tax-continuity;
+- update fees, eligibility, reporting label and product documents from the new class.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Closure conversion is confirmed | Old class closes and new class opens using source conversion ratio. |
+| Tax treatment is missing | Cost-basis continuity is blocked or labelled provisional. |
+| New class has lower fee | Reporting and advisory materials use the new ongoing charge. |
+| Investor is ineligible for successor class | Migration is exceptioned instead of forced. |
+
+## Example 57. Cross-border trailer-fee clean-share conversion
+
+### Scenario
+
+A jurisdiction bans retrocession for a client segment. The platform converts a trailer-paying share class into a clean share class and must separate fund economics, advisory fee changes and client disclosure.
+
+| Attribute | Trailer class | Clean class |
+|---|---:|---:|
+| Units before conversion | 8,000 | n/a |
+| Old NAV | 15.00 | n/a |
+| New NAV | n/a | 14.85 |
+| Trailer rate | 0.50% | 0.00% |
+| Advisory fee change | n/a | +0.30% |
+
+### Converted units
+
+```text
+old_value = 8,000 x 15.00 = 120,000
+new_units = 120,000 / 14.85 = 8,080.8081
+```
+
+### Correct treatment
+
+- preserve regulatory trigger, client segment, old class, clean class, conversion ratio and disclosure evidence;
+- stop trailer-fee accrual from the conversion effective date;
+- create advisory or platform fee changes only from approved fee schedule and client disclosure;
+- do not present the clean class as cheaper without considering external advisory-fee changes.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Clean-share conversion is confirmed | Old class closes and clean class opens from source ratio. |
+| Trailer-fee stop date is reached | Trailer accrual stops from effective date. |
+| Advisory fee schedule is missing | All-in cost comparison is labelled incomplete. |
+| Cross-border eligibility differs | Conversion is blocked or routed to exception workflow. |
+
+## Example 58. Private-fund clawback escrow
+
+### Scenario
+
+A private equity fund returns capital, but part of the distribution is held in escrow for potential clawback. Portfolio reporting must separate received cash from contingent receivable and possible clawback obligation.
+
+| Attribute | Value |
+|---|---:|
+| Gross distribution | 250,000 |
+| Cash released now | 210,000 |
+| Escrow holdback | 40,000 |
+| Potential clawback period | 18 months |
+
+### Cash and escrow split
+
+```text
+cash_received = 210,000
+escrow_receivable = 40,000
+cash_release_percentage = 210,000 / 250,000 = 84.00%
+```
+
+### Correct treatment
+
+- post only released cash as settled cash;
+- track escrow holdback as contingent or restricted receivable according to policy;
+- preserve distribution notice, escrow agreement, clawback period, release conditions and expiry date;
+- avoid counting escrow as available cash, income yield or realized profit until confirmed.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Escrow holdback exists | Settled cash and contingent receivable are separated. |
+| Escrow release is confirmed | Receivable converts to cash from settlement date. |
+| Clawback is triggered | Obligation is recorded with fund notice and approval lineage. |
+| Performance report is generated | Cash distribution, escrow and contingent liability are explainable. |
+
+## Example 59. ETF custom basket rejection
+
+### Scenario
+
+An authorized participant submits a custom ETF creation basket, but the ETF sponsor rejects it because one security breaches concentration and liquidity rules. The client may still trade ETF units, but primary-market basket analytics must not assume the rejected basket is valid.
+
+| Attribute | Value |
+|---|---:|
+| Proposed basket value | 5,000,000 |
+| Rejected security value | 750,000 |
+| Sponsor limit per security | 10.00% |
+| Proposed rejected-security weight | 15.00% |
+
+### Breach amount
+
+```text
+allowed_security_value = 5,000,000 x 10.00% = 500,000
+excess_security_value = 750,000 - 500,000 = 250,000
+```
+
+### Correct treatment
+
+- keep secondary-market ETF holdings separate from rejected primary-market basket workflow;
+- preserve submitted basket, sponsor rejection reason, limit rule, timestamp and revised basket state;
+- do not update look-through or creation/redemption economics from a rejected basket;
+- route basket exception to operations or ETF execution desk before relying on it for liquidity assumptions.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Custom basket is rejected | Basket is not used for confirmed look-through or settlement analytics. |
+| Revised basket is accepted | Analytics update only from accepted basket version. |
+| Client trades ETF on exchange | Trade lifecycle is independent from AP basket rejection. |
+| Liquidity report is generated | Report labels rejected basket state and does not overstate primary-market liquidity. |
+
+## Example 60. Feeder-fund currency-hedged class break
+
+### Scenario
+
+A feeder fund offers currency-hedged share classes. A hedge execution break causes the hedged class NAV to diverge from expected hedged performance. Reporting must distinguish feeder NAV, hedge break, currency exposure and administrator correction.
+
+| Attribute | Value |
+|---|---:|
+| Client units | 6,000 |
+| Expected hedged NAV | 104.20 |
+| Reported NAV | 103.70 |
+| Difference per unit | 0.50 |
+
+### NAV impact
+
+```text
+hedge_break_impact = 6,000 x (104.20 - 103.70) = 3,000
+reported_value = 6,000 x 103.70 = 622,200
+expected_hedged_value = 6,000 x 104.20 = 625,200
+```
+
+### Correct treatment
+
+- use administrator-confirmed NAV for official valuation while preserving hedge-break explanation;
+- track hedge execution break, affected class, correction status and administrator notice;
+- do not overwrite official NAV with expected hedged NAV unless restatement is confirmed;
+- label performance attribution as source-limited when hedge-break data is incomplete.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Hedge break notice is received | NAV impact and class state are tracked separately. |
+| Administrator restates NAV | Historical valuation and performance are versioned with restatement lineage. |
+| No restatement is confirmed | Official valuation remains reported NAV. |
+| Client report is generated | Report explains currency-hedged class break without inventing a cash event. |
+
+## Example 61. Fund board suspension vote
+
+### Scenario
+
+A fund board votes to suspend subscriptions and redemptions after a liquidity event. Existing holdings remain valued under the stated policy, but dealing, liquidity projections and advisory recommendations must reflect the suspension.
+
+| Attribute | Value |
+|---|---|
+| Board vote date | 2026-06-15 |
+| Suspension effective date | 2026-06-16 |
+| Affected activity | Subscriptions and redemptions |
+| Last official NAV | 18.75 |
+| Next review date | 2026-07-15 |
+
+### Correct treatment
+
+- preserve board resolution, effective date, affected dealing activities, NAV policy and review date;
+- block or queue new dealing instructions according to suspension terms;
+- continue valuation only under the disclosed NAV policy and stale/degraded-state rules;
+- show liquidity as suspended rather than low or estimated.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Suspension is effective | New subscription/redemption orders are blocked or queued by policy. |
+| Existing holding is reported | Position remains visible with suspended liquidity state. |
+| NAV is stale after suspension | Valuation is labelled stale or source-limited according to policy. |
+| Board lifts suspension | Dealing state changes only from source-confirmed effective date. |
