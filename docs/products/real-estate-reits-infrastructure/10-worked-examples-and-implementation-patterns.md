@@ -944,7 +944,255 @@ QA assertions:
 | RAB increases but allowed return falls | Analytics show net allowed-return impact, not only asset-base growth. |
 | Appeal succeeds | Historical projections are superseded with lineage. |
 
-## 33. Advisory And Mandate Checklist
+## 33. Ground-Lease Reset
+
+Scenario:
+
+A property is held on a long-term ground lease. The rent resets every ten years based on appraised land value. The reset materially changes property-level distributable income.
+
+| Attribute | Before reset | After reset |
+|---|---:|---:|
+| Annual ground rent | 600,000 | 950,000 |
+| Net operating income before ground rent | 4,800,000 | 4,800,000 |
+| Cap rate | 5.50% | 5.50% |
+
+Calculation:
+
+```text
+noi_after_old_ground_rent = 4,800,000 - 600,000 = 4,200,000
+noi_after_new_ground_rent = 4,800,000 - 950,000 = 3,850,000
+value_impact = (3,850,000 - 4,200,000) / 5.50% = -6,363,636
+```
+
+Treatment:
+
+- separate ground rent from operating expenses and financing costs;
+- preserve reset notice, appraisal basis, effective date, dispute state and lease terms;
+- update income projection, valuation, debt covenant metrics and distribution quality;
+- do not change legal ownership or property quantity because only lease economics changed.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Reset notice is provisional | Valuation impact is labelled provisional. |
+| Reset is disputed | Old and proposed ground-rent bases remain visible. |
+| Report is generated | Income yield explains ground-rent reset impact separately from market movement. |
+
+## 34. Lease Indexation Dispute
+
+Scenario:
+
+A tenant lease includes annual CPI indexation. The landlord and tenant disagree on whether a capped or uncapped CPI rate applies.
+
+| Attribute | Landlord view | Tenant view |
+|---|---:|---:|
+| Current annual rent | 1,200,000 | 1,200,000 |
+| CPI increase | 7.00% | 7.00% |
+| Contractual cap asserted | None | 4.00% |
+
+Calculation:
+
+```text
+landlord_indexed_rent = 1,200,000 x (1 + 7.00%) = 1,284,000
+tenant_indexed_rent = 1,200,000 x (1 + 4.00%) = 1,248,000
+disputed_annual_rent = 36,000
+```
+
+Treatment:
+
+- preserve lease clause, CPI source, cap/floor interpretation, dispute owner and effective date;
+- use accepted rent for cash projection and disputed rent for scenario analysis until resolved;
+- update valuation assumptions only when dispute state and policy allow;
+- avoid booking disputed incremental rent as receivable before entitlement is confirmed.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Cap interpretation is unresolved | Rent forecast is disputed/source-limited. |
+| Tenant pays capped rent | Cash ledger uses paid amount; disputed receivable requires policy support. |
+| Dispute resolves | Lease rent schedule is versioned with lineage. |
+
+## 35. Data-Centre Power Constraint
+
+Scenario:
+
+A data-centre asset has strong leasing demand, but utility connection limits cap rentable capacity until a grid upgrade completes.
+
+| Attribute | Value |
+|---|---:|
+| Built IT load capacity | 40 MW |
+| Utility power currently available | 28 MW |
+| Stabilized rent per MW | 1,100,000 |
+| Expected grid upgrade delay | 18 months |
+
+Calculation:
+
+```text
+power_constrained_capacity = min(40, 28) = 28 MW
+deferred_capacity = 40 - 28 = 12 MW
+deferred_annual_rent_potential = 12 x 1,100,000 = 13,200,000
+```
+
+Treatment:
+
+- distinguish physical completion from power-available leasing capacity;
+- track grid connection agreement, upgrade milestone, capex, tenant commitments and delay risk;
+- update valuation, income ramp, development status and concentration analytics;
+- do not report full stabilized income until power capacity is source-confirmed.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Building is complete but power is constrained | Stabilized income is capped by available MW. |
+| Grid upgrade slips | Income ramp and valuation assumptions update with milestone lineage. |
+| Tenant pre-leases deferred capacity | Lease commitment is separate from current deliverable capacity. |
+
+## 36. Renewable Curtailment
+
+Scenario:
+
+A renewable infrastructure asset is forced to curtail generation because of grid congestion. The offtake contract provides partial compensation.
+
+| Attribute | Value |
+|---|---:|
+| Expected generation | 120,000 MWh |
+| Curtailed generation | 9,000 MWh |
+| Contract price | 72 per MWh |
+| Curtailment compensation | 45 per MWh |
+
+Calculation:
+
+```text
+lost_contract_revenue = 9,000 x 72 = 648,000
+curtailment_compensation = 9,000 x 45 = 405,000
+net_revenue_shortfall = 243,000
+```
+
+Treatment:
+
+- separate generated revenue, curtailed volume, compensation and disputed claims;
+- preserve grid notice, offtake contract, metering file and compensation source;
+- update income quality, debt service coverage and distribution sustainability;
+- distinguish recurring curtailment risk from one-off grid event.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Curtailment is uncompensated | Full lost revenue remains at risk. |
+| Compensation is disputed | Receivable is provisional or blocked by policy. |
+| Curtailment repeats | Asset analytics flag recurring grid constraint. |
+
+## 37. Concession Handback Obligation
+
+Scenario:
+
+An infrastructure concession must hand back the asset in a specified condition at expiry. Independent inspection estimates required lifecycle maintenance before handback.
+
+| Attribute | Value |
+|---|---:|
+| Years to concession expiry | 4 |
+| Estimated handback works | 6,500,000 |
+| Existing lifecycle reserve | 3,200,000 |
+| Annual additional reserve needed | 825,000 |
+
+Calculation:
+
+```text
+reserve_shortfall = 6,500,000 - 3,200,000 = 3,300,000
+annual_additional_reserve = 3,300,000 / 4 = 825,000
+```
+
+Treatment:
+
+- track concession agreement, handback standard, inspection report, reserve policy and expiry date;
+- reduce distributable cash for required reserve build-up where policy requires;
+- update valuation and terminal value assumptions separately from current operating income;
+- preserve whether obligation is fixed, disputed, indexed or contingent.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Inspection report is missing | Handback reserve is estimate-limited. |
+| Reserve shortfall exists | Distributable cash and valuation assumptions reflect required reserve. |
+| Concession is extended | Handback timing and reserve schedule are recalculated with lineage. |
+
+## 38. Brownfield Redevelopment Overrun
+
+Scenario:
+
+A brownfield redevelopment project exceeds budget because of demolition and remediation surprises.
+
+| Attribute | Original | Revised |
+|---|---:|---:|
+| Total budget | 25,000,000 | 31,000,000 |
+| Incurred cost | 10,000,000 | 14,000,000 |
+| Committed unpaid cost | 9,000,000 | 12,000,000 |
+| Contingency reserve | 3,000,000 | 2,000,000 |
+
+Calculation:
+
+```text
+original_headroom = 25,000,000 - 10,000,000 - 9,000,000 - 3,000,000 = 3,000,000
+revised_headroom = 31,000,000 - 14,000,000 - 12,000,000 - 2,000,000 = 3,000,000
+budget_increase = 6,000,000
+```
+
+Treatment:
+
+- distinguish increased approved budget from remaining headroom;
+- track change orders, remediation reports, contractor claims, funding approvals and completion date;
+- update development exposure, liquidity planning, valuation and project risk state;
+- do not treat budget increase as completed value until appraisal or completion evidence supports it.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Revised budget is not approved | Overrun is provisional and escalated. |
+| Funding source is missing | Liquidity/capital-call forecast is incomplete. |
+| Project valuation is reported | Development value labels cost, budget and appraisal basis separately. |
+
+## 39. Direct-Property Co-Owner Dispute
+
+Scenario:
+
+A client owns 60% of a direct property with another family entity. The co-owner disputes a proposed sale and refuses to approve required documents.
+
+| Attribute | Value |
+|---|---:|
+| Appraised property value | 12,000,000 |
+| Client ownership | 60% |
+| Reportable share before dispute discount | 7,200,000 |
+| Liquidity discount under dispute scenario | 12% |
+
+Calculation:
+
+```text
+discounted_reportable_share = 7,200,000 x (1 - 12%) = 6,336,000
+liquidity_discount = 864,000
+```
+
+Treatment:
+
+- preserve legal ownership, co-owner rights, sale authority, dispute state and document status;
+- distinguish valuation of ownership share from liquidity-adjusted exit estimate;
+- block sale-completion workflow until authority and documents are complete;
+- disclose governance/liquidity restriction where material to client reporting.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Co-owner approval is required but missing | Sale cannot complete. |
+| Appraisal remains valid | Value can be reported while liquidity is restricted. |
+| Dispute resolves | Liquidity discount and sale workflow update from effective date. |
+
+## 40. Advisory And Mandate Checklist
 
 | Dimension | Required question |
 |---|---|
@@ -957,7 +1205,7 @@ QA assertions:
 | DPM mandate | allowed wrapper, illiquid allocation, income target, leverage limit, concentration cap? |
 | Reporting | legal holding, economic exposure, income classification, valuation date and liquidity label? |
 
-## 34. Current Support Boundary And Candidate Extensions
+## 41. Current Support Boundary And Candidate Extensions
 
 | Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
 |---|---|---|
@@ -967,7 +1215,7 @@ QA assertions:
 | Infrastructure exposure | fund/security/private fund position, sector tags, concession, revenue model, clawback terms, availability deductions and regulated asset base reset terms where sourced | advanced concession, inflation-linkage, offtake, clawback and regulatory-risk analytics |
 | Reporting | wrapper, exposure, value, income, source date, liquidity label, operating metrics, development state and governance overrides where sourced | consolidated real-asset income and stress dashboard |
 
-## 35. Regression Test Pack
+## 42. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -1004,3 +1252,10 @@ Minimum release-gate scenarios:
 31. Tenant default workout updates rent-at-risk, concentration, valuation assumptions and confidentiality controls.
 32. Infrastructure availability deduction separates payment deduction, remediation cost and dispute state.
 33. Regulated asset base reset separates RAB growth, allowed-return percentage change and regulatory finality.
+34. Ground-lease reset separates lease economics from operating performance, valuation and ownership state.
+35. Lease indexation dispute preserves accepted, disputed and resolved rent schedules with source lineage.
+36. Data-centre power constraint caps deliverable capacity and income before grid upgrade evidence.
+37. Renewable curtailment separates generated revenue, compensation, disputed receivable and recurring grid risk.
+38. Concession handback obligation tracks reserve shortfall, inspection evidence and terminal-value impact.
+39. Brownfield redevelopment overrun separates approved budget, incurred cost, committed cost and valuation basis.
+40. Direct-property co-owner dispute separates ownership value from liquidity-adjusted exit estimate and sale authority.
