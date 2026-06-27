@@ -1179,3 +1179,242 @@ open_actions = 1
 | Evidence is uploaded without reviewer | Attestation remains incomplete. |
 | Control test fails | Incident stays open for corrective action. |
 | All mandatory actions pass | Incident closure includes control evidence and durable runbook links. |
+
+## Example 34. Exchange Fail In Stressed Markets
+
+### Scenario
+
+A listed equity sale fails during a stressed market session. The exchange announces extended settlement processing, the custodian marks the receive-versus-payment instruction as unmatched, and the client needs a clear distinction between market stress, broker action and internal cash availability.
+
+| Attribute | Value |
+|---|---:|
+| Sale quantity | 8,000 |
+| Sale price | 42.50 |
+| Expected proceeds | 340,000 |
+| Estimated buy-in or fail charge | 1,250 |
+| Fail age | 2 days |
+
+### Fail exposure
+
+```text
+expected_sale_proceeds = 8,000 x 42.50 = 340,000
+net_proceeds_at_risk = 340,000 - 1,250 = 338,750
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Fail recognition | Preserve exchange notice, broker status, custodian match state, fail age and affected settlement instruction. |
+| Cash availability | Keep sale proceeds pending or restricted until settlement confirmation. |
+| Exposure | Track buy-in risk, fail charges, market-stress reason and client-impact assessment separately. |
+| Escalation | Escalate ageing fails by market, counterparty, client impact and regulatory penalty risk. |
+| Reporting | Show sold trade, unsettled proceeds, fail reason and expected next action without implying cash is settled. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Exchange declares stressed settlement processing | Fail reason and exchange evidence are preserved. |
+| Custodian instruction is unmatched | Proceeds stay pending and settlement state remains exceptioned. |
+| Buy-in notice arrives | Buy-in exposure updates from source notice. |
+| Client statement is generated | Settled cash and pending sale proceeds are separate. |
+
+## Example 35. Outsourced Middle-Office Handoff Break
+
+### Scenario
+
+An outsourced middle-office provider enriches allocations and sends a handoff file to internal operations. The file omits two allocations, creating a mismatch between broker execution and internal booking readiness.
+
+| Attribute | Value |
+|---|---:|
+| Broker executed trades | 48 |
+| Provider handoff records | 46 |
+| Missing allocations | 2 |
+| Material cash value of missing records | 185,000 |
+
+### Handoff completeness
+
+```text
+handoff_completeness = provider_handoff_records / broker_executed_trades
+handoff_completeness = 46 / 48 = 95.83%
+missing_record_count = 48 - 46 = 2
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Intake control | Reconcile broker executions, provider handoff and internal allocation ids before booking. |
+| Break classification | Classify missing records as provider handoff break, not market settlement fail. |
+| Provider SLA | Preserve provider file id, receipt timestamp, SLA breach state and repair response. |
+| Booking gate | Block or partially book according to policy while missing allocations remain unresolved. |
+| Reporting | Show handoff completeness and impacted trades to operations without exposing unrelated clients. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Provider file omits allocations | Handoff break opens with missing ids and value. |
+| Provider sends repair file | Repair links to original handoff and recalculates completeness. |
+| Booking proceeds under exception | Exception approval and impacted trades are retained. |
+| SLA report is generated | Provider breach is measured separately from internal processing time. |
+
+## Example 36. Partial Cancel/Correct Chain
+
+### Scenario
+
+A trade is partially cancelled and corrected after booking. Only 300 units out of the original 1,000-unit buy are cancelled, while the remaining 700 units receive a corrected commission.
+
+| Attribute | Original | Corrected |
+|---|---:|---:|
+| Quantity | 1,000 | 700 |
+| Price | 25.00 | 25.00 |
+| Commission | 120 | 90 |
+
+### Correction impact
+
+```text
+cancelled_quantity = 1,000 - 700 = 300
+cancelled_consideration = 300 x 25.00 = 7,500
+commission_delta = 90 - 120 = -30
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Lineage | Preserve original trade, partial cancel event, corrected trade and reason code. |
+| Position | Reduce only the cancelled quantity and retain remaining booked quantity. |
+| Cash | Reverse cancelled consideration and adjust commission delta through linked correction postings. |
+| Lots/performance | Update tax lots, cost basis and performance from effective correction date. |
+| Reporting | Show correction chain rather than replacing the original trade silently. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Partial cancel arrives | Only cancelled quantity is reversed. |
+| Commission changes | Fee adjustment posts separately from quantity cancellation. |
+| Report was already delivered | Impact assessment identifies prior report versions. |
+| Replay occurs | Correction chain is idempotent and does not double-cancel. |
+
+## Example 37. Custody Fee Dispute Resolution
+
+### Scenario
+
+A custodian charges a custody fee above the agreed fee schedule. Operations disputes part of the fee and later receives a credit note.
+
+| Attribute | Value |
+|---|---:|
+| Custodian charged fee | 14,800 |
+| Contracted fee | 12,250 |
+| Disputed amount | 2,550 |
+| Credit note received | 2,100 |
+
+### Fee variance
+
+```text
+fee_variance = custodian_charged_fee - contracted_fee
+fee_variance = 14,800 - 12,250 = 2,550
+unresolved_dispute = 2,550 - 2,100 = 450
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Fee ingestion | Preserve custodian invoice, fee period, asset base, tariff and charged amount. |
+| Dispute | Track contracted fee, disputed amount, evidence, owner and due date. |
+| Credit note | Apply credit note to the disputed fee without deleting the original invoice. |
+| Allocation | Allocate final net fee to accounts only after dispute state and policy are clear. |
+| Reporting | Separate gross charge, credit, unresolved dispute and absorbed/pass-through amount. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Charged fee exceeds tariff | Fee dispute opens with variance amount. |
+| Credit note is partial | Unresolved dispute remains open. |
+| Fee is allocated to clients | Allocation uses approved final or provisional policy. |
+| Invoice is corrected | Original and corrected fee versions remain traceable. |
+
+## Example 38. Market-Claim Ageing Dashboard
+
+### Scenario
+
+Market claims arise from record-date and ex-date mismatches across several corporate actions. Operations needs ageing and materiality to prioritize follow-up.
+
+| Age bucket | Claim count | Claim amount |
+|---|---:|---:|
+| 0-5 days | 12 | 18,400 |
+| 6-15 days | 7 | 41,250 |
+| 16+ days | 3 | 76,900 |
+
+### Ageing exposure
+
+```text
+total_claim_amount = 18,400 + 41,250 + 76,900 = 136,550
+aged_claim_amount_16_plus = 76,900
+aged_claim_ratio = 76,900 / 136,550 = 56.32%
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Claim creation | Link claim to corporate action, trade date, record date, counterparty and affected quantity. |
+| Ageing | Age from claim open date or contractual due date according to policy. |
+| Prioritization | Sort by amount, age, counterparty, client impact and approaching limitation date. |
+| Settlement | Close only with cash, reversal, waiver or approved write-off evidence. |
+| Reporting | Dashboard shows ageing, materiality, owner and next action without booking unsupported income. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Claim exceeds ageing threshold | Escalation state and owner update. |
+| Counterparty disputes claim | Claim remains open with dispute reason. |
+| Cash is received | Receivable closes against confirmed cash. |
+| Claim is written off | Write-off requires approval and preserves client-impact review. |
+
+## Example 39. Same-Day Trade Amendment Approval
+
+### Scenario
+
+A same-day amendment changes settlement instructions before market cut-off. The trade is not economically changed, but operations must verify authority, cut-off, downstream repair and audit lineage.
+
+| Attribute | Value |
+|---|---|
+| Original settlement account | Account A |
+| Amended settlement account | Account B |
+| Market cut-off | 16:00 |
+| Amendment request time | 15:25 |
+| Custodian acknowledgement | Pending |
+
+### Cut-off check
+
+```text
+minutes_before_cutoff = 35
+amendment_window_open = amendment_request_time < market_cutoff
+economic_terms_changed = false
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Authority | Validate requester, account authority, segregation rules and maker-checker approval. |
+| Scope | Confirm amendment changes settlement instruction only, not economic trade terms. |
+| Downstream repair | Send amendment to broker, custodian and settlement system with versioned instruction id. |
+| Cut-off | Keep settlement state pending until custodian acknowledgement or approved exception. |
+| Reporting | Show amended settlement route and audit history without duplicating the trade. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Amendment is before cut-off | Workflow opens and routes for approval/acknowledgement. |
+| Authority is missing | Amendment is blocked. |
+| Custodian rejects amendment | Settlement route remains old or exceptioned with rejection evidence. |
+| Economic terms change | Request is treated as correction/cancel-rebook, not settlement amendment. |
