@@ -66,6 +66,14 @@ Use these questions before classifying any product event:
 | Late fee or tax posting | Post fees/taxes as linked transaction legs or adjustments; decide cost-basis and performance treatment by policy. |
 | Performance restatement | Preserve original output, corrected inputs, recalculation result, materiality decision and report/client notice decision. |
 | Reconciliation break closure | Store break components, source evidence, resolution action, tolerance/materiality decision and close/reopen state. |
+| Multi-market allocation | Preserve each fill's market, currency, fee, tax, settlement calendar and account allocation lineage. |
+| Settlement netting | Keep gross trade economics while reconciling to net external cash movement where source rules allow net settlement. |
+| Custody account transfer | Classify as transfer-in/transfer-out, preserve lots where supported, and avoid false sale, purchase, P&L or contribution treatment. |
+| Securities lending recall | Distinguish total holding from deliverable inventory; link recall instruction to loan, sale, corporate-action and settlement status. |
+| Failed corporate-action election | Store requested election separately from accepted source status; book only accepted or default terms. |
+| Nostro cash break | Reconcile by account, currency, amount and value date; restrict downstream availability until break status supports use. |
+| Omnibus sub-account allocation | Reconcile internal sub-account allocations to external omnibus position without exposing other clients' holdings. |
+| Market claim | Link entitlement mismatch to trade, ex-date, record date, custody event and receivable/payable claim workflow. |
 
 ## Cross-Product Event Matrix
 

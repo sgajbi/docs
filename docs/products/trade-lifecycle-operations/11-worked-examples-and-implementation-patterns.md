@@ -435,3 +435,279 @@ Internal cash shows USD 1,000,000 while custodian cash shows USD 997,500. The di
 | Break has multiple causes | Closure stores component-level explanation. |
 | Pending item passes expected date | Break reopens or escalates. |
 | Manual adjustment is used | Adjustment requires reason, approver and source evidence. |
+
+## Example 14. Multi-Market Allocation With Local Charges
+
+### Scenario
+
+A portfolio manager places one approved block order for 12,000 shares of the same issuer. Liquidity is sourced across two trading venues with different currencies, fees and settlement calendars.
+
+| Market | Quantity | Local price | Currency | Local fees and taxes |
+|---|---:|---:|---|---:|
+| Market A | 7,000 | 18.20 | USD | 145 |
+| Market B | 5,000 | 24.70 | SGD | 110 |
+
+| Account | Approved allocation | Filled quantity |
+|---|---:|---:|
+| Account A | 50% | 6,000 |
+| Account B | 30% | 3,600 |
+| Account C | 20% | 2,400 |
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Capture fills | Preserve venue, currency, price, timestamp, broker and local settlement cycle for each fill. |
+| Normalize economics | Convert reporting-currency analytics separately from source local-currency cash settlement. |
+| Allocate fairly | Allocate quantities, consideration, fees and taxes by approved method, with rounding controls. |
+| Validate eligibility | Check market, custody, tax, mandate and restricted-list eligibility at account level. |
+| Book lineage | Link each account allocation back to each execution slice and settlement instruction. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| One market has a different settlement date | Account allocation stores market-specific pending settlement legs. |
+| Local fees are posted only at parent order level | Allocation fails until account-level fee/tax treatment is derived or sourced. |
+| One account is ineligible for Market B | Allocation is blocked, rebalanced or escalated under governed workflow. |
+| Average price is displayed | Weighted price is labelled by market/currency basis, not presented as a single unsupported all-in price. |
+
+## Example 15. Settlement Netting Across Same Value Date
+
+### Scenario
+
+The same account has three USD equity trades settling with the same custodian and broker on the same value date.
+
+| Trade | Direction | Settlement amount |
+|---|---|---:|
+| Trade 1 | Buy | -80,000 |
+| Trade 2 | Sell | 52,000 |
+| Trade 3 | Sell | 21,500 |
+
+### Calculation
+
+```text
+net settlement cash = sum(sell proceeds) - sum(buy consideration)
+net settlement cash = 52,000 + 21,500 - 80,000
+net settlement cash = -6,500
+```
+
+### Correct platform behavior
+
+| Area | Treatment |
+|---|---|
+| Trade economics | Keep all three trades gross for position, lot, tax and performance. |
+| Settlement instruction | Create or receive one net cash settlement instruction if market and custodian rules allow. |
+| Reconciliation | Reconcile gross internal trade legs to net external cash movement. |
+| Reporting | Do not hide gross buys and sells merely because cash settled net. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Net cash equals external statement | Break closes with component-level trade evidence. |
+| One gross trade fails | Netting group is reopened or partially repaired according to source status. |
+| Trades have different value dates | They are not netted unless source explicitly confirms a valid netting arrangement. |
+| Fees arrive separately | Net cash and fee/tax postings remain independently traceable. |
+
+## Example 16. Custody Account Transfer Without Sale
+
+### Scenario
+
+A client moves 3,000 shares from one custody account to another account under the same reporting perimeter. The transfer is free-of-payment and should not be treated as a sale or contribution.
+
+| Attribute | Value |
+|---|---|
+| Source custody account | Account A |
+| Target custody account | Account B |
+| Security quantity | 3,000 |
+| Cash consideration | 0 |
+| Transfer type | Free-of-payment internal custody transfer |
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source account | Position decreases by 3,000 with transfer-out classification. |
+| Target account | Position increases by 3,000 with transfer-in classification. |
+| Cost basis | Original lot basis and acquisition date are preserved if policy and source support it. |
+| Performance | Treated as internal transfer within the reporting perimeter, not investment gain or external cashflow. |
+| Reconciliation | Source and target custody confirmations must both be matched. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Transfer is posted as sell/buy | QA fails because realized P&L and turnover would be overstated. |
+| Target leg arrives before source leg | Temporary in-transit state is visible and reconciled. |
+| Lot details are missing | Transfer remains supportable for position but cost-basis portability is flagged. |
+| Reporting perimeter changes | Classification is re-evaluated as internal transfer, contribution or withdrawal. |
+
+## Example 17. Securities Lending Recall Before Sale
+
+### Scenario
+
+An account owns 10,000 shares, of which 4,000 are on loan. The manager sells 6,000 shares. Operations must recall enough lent shares before settlement.
+
+| Attribute | Value |
+|---|---:|
+| Total position | 10,000 |
+| Lent quantity | 4,000 |
+| Unlent quantity | 6,000 |
+| Sale quantity | 6,000 |
+| Recall required | 0 if only unlent shares are sold; more if lending source restricts availability |
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Availability check | Distinguish total position from available deliverable position. |
+| Recall decision | Determine whether recall is required based on settlement date, lending agreement and inventory source. |
+| Recall instruction | Link recall to sale trade, loan identifier, counterparty and expected return date. |
+| Settlement monitor | Escalate if recall does not complete before security delivery deadline. |
+| Income treatment | Track manufactured dividends or lending fees separately from ordinary dividends. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Sale quantity exceeds deliverable inventory | Trade is blocked, recalled or escalated before settlement fail. |
+| Recall completes late | Settlement fail workflow opens with loan and sale lineage. |
+| Corporate action occurs during loan | Manufactured income or entitlement treatment is explicitly sourced. |
+| Lending fee is received | Fee is classified separately from investment dividend income. |
+
+## Example 18. Failed Corporate-Action Election
+
+### Scenario
+
+A voluntary tender offer allows cash election, stock election or no action. The advisor submits a cash election, but the custodian rejects it because the instruction missed the market deadline.
+
+| Attribute | Value |
+|---|---|
+| Event | Voluntary tender offer |
+| Client instruction | Cash election |
+| Custodian status | Rejected |
+| Rejection reason | After market deadline |
+| Default outcome | No action or default option per event terms |
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Election record | Preserve requested election, timestamp, channel, user and client consent evidence. |
+| Source status | Store custodian acceptance, rejection or pending status separately from internal instruction. |
+| Entitlement | Apply only accepted election or default terms to cash/security postings. |
+| Client service | Trigger exception workflow and explanation when requested outcome cannot be delivered. |
+| Reporting | Show final confirmed outcome, not the failed requested election as if accepted. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Internal election is submitted but source rejects | No elected cash/security posting is created from the rejected instruction. |
+| Default option applies | Entitlement is booked from default terms with rejected-election lineage. |
+| Advisor changes instruction after deadline | Workflow blocks or records late unsupported status. |
+| Client report is produced during pending state | Report labels election as pending or unsupported, not confirmed. |
+
+## Example 19. Nostro Cash Break From Value-Date Mismatch
+
+### Scenario
+
+Internal cash expects a EUR 250,000 credit from an FX settlement on Tuesday. The bank nostro statement shows the credit on Wednesday due to a correspondent-bank delay.
+
+| Item | Amount | Value date |
+|---|---:|---|
+| Internal expected FX credit | 250,000 | Tuesday |
+| Nostro statement credit | 250,000 | Wednesday |
+| Break on Tuesday | 250,000 | Tuesday |
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Detect | Compare expected cash ledger to nostro statement by account, currency and value date. |
+| Classify | Mark as timing break if source confirms matched amount with different value date. |
+| Restrict | Do not make cash available for downstream settlement until availability policy allows. |
+| Resolve | Close break when Wednesday statement confirms receipt or escalate if unmatched. |
+| Evidence | Store statement line, FX confirmation and correspondent-bank reference. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Amount matches but value date differs | Break is classified as timing, not silently ignored. |
+| Client cash availability is requested Tuesday | Availability uses governed policy and pending status. |
+| Credit does not arrive Wednesday | Break escalates from timing to unresolved cash break. |
+| Manual cash adjustment is entered | Adjustment requires evidence and does not replace source reconciliation. |
+
+## Example 20. Omnibus Position With Internal Sub-Account Allocation
+
+### Scenario
+
+A custodian reports one omnibus position of 100,000 fund units. The wealth platform maintains internal sub-account allocations for three clients.
+
+| Client sub-account | Internal units |
+|---|---:|
+| Client A | 40,000 |
+| Client B | 35,000 |
+| Client C | 25,000 |
+| Total internal allocation | 100,000 |
+
+### Control model
+
+| Control | Treatment |
+|---|---|
+| Omnibus reconciliation | Sum internal sub-account units to external custodian omnibus position. |
+| Privacy | Do not expose other sub-account holdings in client-facing views. |
+| Orders | Allocate subscriptions/redemptions to sub-accounts before or after transfer-agent confirmation according to source model. |
+| Fees and distributions | Allocate cash, units, taxes and fees based on confirmed sub-account entitlement. |
+| Break handling | Identify whether break belongs to external omnibus position, internal allocation, price/NAV or pending order. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Internal sum differs from custodian omnibus | Reconciliation break opens at allocation layer. |
+| Client report is generated | Only the client's sub-account holding is visible. |
+| Distribution is posted at omnibus level | Allocation to sub-accounts uses entitlement evidence and rounding policy. |
+| One sub-account order is rejected | Omnibus and internal allocation states remain reconcilable. |
+
+## Example 21. Market Claim After Record-Date Trade
+
+### Scenario
+
+An equity dividend has an ex-date before trade date, but settlement and custodian processing cause the cash to be paid to the wrong party. A market claim is required to move entitlement from seller to buyer or buyer to seller according to market rules.
+
+| Attribute | Value |
+|---|---|
+| Corporate action | Cash dividend |
+| Dividend per share | 0.80 |
+| Affected quantity | 5,000 |
+| Claim amount | 4,000 before tax and fees |
+
+### Calculation
+
+```text
+claim amount = affected quantity x dividend per share
+claim amount = 5,000 x 0.80
+claim amount = 4,000
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Identify entitlement mismatch | Compare trade date, ex-date, record date, settlement date and custody entitlement. |
+| Raise or receive claim | Create market-claim receivable/payable with counterparty, custodian and event lineage. |
+| Book cash movement | Post claim cash only when confirmed or according to controlled accrual policy. |
+| Update income reporting | Attribute income to the economically entitled account, with correction notes when needed. |
+| Reconcile | Close claim only after cash/security movement and source confirmation match. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Dividend is paid to wrong account | Market-claim workflow creates receivable/payable rather than manual income overwrite. |
+| Claim is disputed | Claim remains pending with ageing and escalation. |
+| Tax differs from original dividend | Gross, tax and net claim components are stored separately. |
+| Report was already issued | Restatement or next-period correction decision is recorded. |

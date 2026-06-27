@@ -23,14 +23,6 @@ The earlier product packs explain what the products are. This pack explains how 
 
 The pack is designed for private-banking, wealth-management, DPM, advisory, analytics, reporting and enterprise-platform work.
 
-## Source Provenance
-
-| Source | Details |
-|---|---|
-| Source pack | `C:\Users\Sandeep\Downloads\trade_lifecycle_operations_reference_pack.zip\trade_lifecycle_operations_reference_pack` |
-| Import date | 2026-06-27 |
-| Local treatment | Imported, normalized, de-duplicated for reusable platform and practitioner reference, and indexed into the product knowledge library. |
-
 ## File map
 
 | File | Purpose |
@@ -45,7 +37,7 @@ The pack is designed for private-banking, wealth-management, DPM, advisory, anal
 | `08-advisory-mandate-analytics-reporting-and-client-experience.md` | Advisory, DPM, mandate, analytics and client-reporting impact of operational lifecycle events |
 | `09-platform-architecture-integration-patterns-controls-and-test-scenarios.md` | Platform architecture, integration patterns, idempotency, eventing, controls, QA and production scenarios |
 | `10-glossary-practitioner-reference-and-source-notes.md` | Glossary, practitioner explanations, operating reference and source notes |
-| `11-worked-examples-and-implementation-patterns.md` | Practical examples for partial fills, bond accrued interest, settlement fails, fund cut-offs, corporate-action revisions and lifecycle lineage |
+| `11-worked-examples-and-implementation-patterns.md` | Practical examples for partial fills, bond accrued interest, settlement fails, fund cut-offs, corporate-action revisions, allocation corrections, linked FX settlement, custody transfers, securities lending recalls, failed elections, nostro breaks, omnibus allocations, market claims and lifecycle lineage |
 
 ## Core design principle
 
