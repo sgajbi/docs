@@ -3722,3 +3722,255 @@ release_allowed = limit_excess <= 0 or approved_limit_exception
 | Other flow settles and frees limit | Placement eligibility recalculates from confirmed state. |
 | Exception is approved | Release is scoped by amount, counterparty and expiry. |
 | Treasury report is generated | Limit utilization and exception evidence are traceable. |
+
+## Example 92. Backdated cash-rate correction
+
+### Scenario
+
+A cash-rate table is corrected after client interest has already accrued. The system must post only the delta for the corrected effective period and preserve the original accrual evidence.
+
+| Attribute | Value |
+|---|---:|
+| Eligible average balance | 2,000,000 |
+| Original annual rate | 1.00% |
+| Corrected annual rate | 1.25% |
+| Affected days | 15 |
+| Day-count basis | 360 |
+
+### Correction delta
+
+```text
+incremental_interest = eligible_average_balance x (corrected_rate - original_rate) x affected_days / day_count_basis
+incremental_interest = 2,000,000 x (1.25% - 1.00%) x 15 / 360 = 208.33
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Rate version | Preserve original rate table, corrected rate table, effective dates, approval and correction reason. |
+| Posting | Post only the incremental interest delta unless the accounting policy requires reversal and repost. |
+| Reporting | Show corrected interest as an adjustment with period and rate lineage. |
+| Client impact | Recalculate yield, income and cash statement sections for the affected period. |
+| Audit | Keep original accrual, correction approval and final adjustment linked. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Corrected rate is higher | Incremental credit is calculated from the rate delta and affected days. |
+| Corrected rate is lower | Adjustment creates a debit or reversal workflow according to policy. |
+| Effective dates overlap partially | Only impacted balance periods are recalculated. |
+| Client statement is regenerated | Original accrual and correction delta are explainable. |
+
+## Example 93. Intraday nostro cut-off breach
+
+### Scenario
+
+Payment operations expects a same-day nostro credit before cut-off, but the credit arrives after the release window. A payment cannot rely on the late credit even though end-of-day cash is positive.
+
+| Attribute | Value |
+|---|---:|
+| Payment amount | 1,200,000 |
+| Confirmed nostro cash before cut-off | 900,000 |
+| Expected nostro credit | 500,000 |
+| Credit arrival | After cut-off |
+| Intraday shortfall before cut-off | 300,000 |
+
+### Release capacity
+
+```text
+cutoff_available_cash = confirmed_nostro_cash_before_cutoff
+cutoff_available_cash = 900,000
+
+intraday_shortfall = payment_amount - cutoff_available_cash
+intraday_shortfall = 1,200,000 - 900,000 = 300,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Cut-off state | Preserve payment cut-off, nostro credit timestamp, confirmation source and payment release deadline. |
+| Funding | Do not release same-day payment from post-cut-off credit without approved extension or prefunding. |
+| Liquidity | Escalate shortfall, resize payment, reroute rail or roll value date according to policy. |
+| Reconciliation | Reconcile end-of-day positive cash separately from intraday release capacity. |
+| Reporting | Explain payment delay as cut-off breach, not insufficient end-of-day balance. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Credit arrives after cut-off | Payment release is blocked, rolled or exceptioned. |
+| Approved extension exists | Release uses scoped extension evidence. |
+| End-of-day cash is positive | Intraday breach remains visible for operations review. |
+| Operations report is generated | Cut-off capacity and late credit are distinct. |
+
+## Example 94. Payment beneficiary amendment dispute
+
+### Scenario
+
+A client amends payment beneficiary details after the original payment was approved. The amendment changes settlement risk and requires callback, whitelist and audit validation before release.
+
+| Attribute | Value |
+|---|---:|
+| Payment amount | 250,000 |
+| Original beneficiary approval | Confirmed |
+| Amended beneficiary account | Pending validation |
+| Callback evidence | Missing |
+| Payment cut-off | Open |
+
+### Release control
+
+```text
+amendment_validated = beneficiary_whitelisted and callback_evidence_present and amendment_approved
+payment_release_allowed = funding_available and screening_clear and amendment_validated
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Amendment state | Preserve original instruction, amended beneficiary data, change timestamp, maker/checker and callback state. |
+| Release | Reserve liquidity but block release until amended beneficiary controls pass. |
+| Fraud control | Treat beneficiary amendment as a higher-risk change even when original payment was approved. |
+| Reporting | Show held-for-amendment state separately from screening, funding or cut-off holds. |
+| Audit | Link final payment to amendment approval, callback evidence and whitelist state. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Beneficiary amendment lacks callback | Payment remains held. |
+| Original beneficiary was approved | Original approval does not automatically approve amended details. |
+| Amendment is rejected | Payment returns to repair, cancellation or original-instruction review. |
+| Payment is released | Final beneficiary evidence is traceable. |
+
+## Example 95. Liquidity forecast source outage
+
+### Scenario
+
+The intraday liquidity forecast source is unavailable. Operations must fall back to certified cash with a policy haircut and avoid relying on unconfirmed forecast inflows.
+
+| Attribute | Value |
+|---|---:|
+| Last certified cash | 4,000,000 |
+| Fallback haircut | 30.00% |
+| Same-day payment queue | 3,200,000 |
+| Forecast source status | Outage |
+| Raw forecast inflows | Unavailable |
+
+### Fallback capacity
+
+```text
+fallback_release_capacity = last_certified_cash x (1 - fallback_haircut)
+fallback_release_capacity = 4,000,000 x (1 - 30.00%) = 2,800,000
+
+fallback_shortfall = same_day_payment_queue - fallback_release_capacity
+fallback_shortfall = 3,200,000 - 2,800,000 = 400,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source state | Preserve outage start, affected feed, last certification time, fallback policy and owner. |
+| Liquidity | Use haircut-adjusted certified cash until forecast source recovers or override is approved. |
+| Payments | Prioritize queue by policy and escalate unfunded amount. |
+| Recovery | Reconcile released payments against recovered forecast and actual nostro movements. |
+| Reporting | Label forecast as degraded and show fallback basis. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Forecast source is down | Raw forecast inflows are excluded from release capacity. |
+| Fallback capacity is insufficient | Payment prioritization or escalation opens. |
+| Manual override is approved | Override records approver, amount, expiry and evidence. |
+| Source recovers | Forecast and fallback decisions reconcile to actual cash. |
+
+## Example 96. Treasury rollover concentration exception
+
+### Scenario
+
+A term placement is maturing and treasury proposes to roll it with the same counterparty. The rollover would breach the approved concentration limit even though no new external cash is needed.
+
+| Attribute | Value |
+|---|---:|
+| Existing counterparty exposure | 7,500,000 |
+| Maturing placement to roll | 3,000,000 |
+| Approved counterparty limit | 10,000,000 |
+| Post-rollover exposure | 10,500,000 |
+| Excess over limit | 500,000 |
+
+### Concentration check
+
+```text
+post_rollover_exposure = existing_counterparty_exposure + rollover_amount
+post_rollover_exposure = 7,500,000 + 3,000,000 = 10,500,000
+
+concentration_excess = post_rollover_exposure - approved_counterparty_limit
+concentration_excess = 10,500,000 - 10,000,000 = 500,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Rollover state | Preserve maturity, proposed rollover amount, counterparty limit, exposure snapshot and approval state. |
+| Execution | Block, split, reroute or exception the rollover when post-rollover exposure breaches limit. |
+| Liquidity | Separate concentration control from liquidity availability; maturing cash may still be available for other placements. |
+| Risk | Keep temporary exceptions scoped by counterparty, amount, tenor and expiry. |
+| Reporting | Show rollover breach as concentration exception, not cash settlement failure. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Post-rollover exposure exceeds limit | Rollover is blocked, split, rerouted or exceptioned. |
+| Partial rollover fits limit | Only allowed amount rolls with the same counterparty. |
+| Exception expires | Further rollover or renewal requires fresh approval. |
+| Treasury report is generated | Limit, rollover and exception state are traceable. |
+
+## Example 97. FX cash collateral substitution break
+
+### Scenario
+
+A client requests to substitute USD cash collateral with EUR cash. The EUR collateral must be translated and haircut before existing USD collateral can be released.
+
+| Attribute | Value |
+|---|---:|
+| Required collateral value | USD 1,000,000 |
+| Proposed EUR cash collateral | EUR 900,000 |
+| EUR/USD FX rate | 1.0800 |
+| FX mismatch haircut | 5.00% |
+| Haircut-adjusted collateral value | USD 923,400 |
+
+### Substitution shortfall
+
+```text
+haircut_adjusted_value = eur_collateral x fx_rate x (1 - fx_mismatch_haircut)
+haircut_adjusted_value = 900,000 x 1.0800 x (1 - 5.00%) = 923,400
+
+substitution_shortfall = required_collateral_value - haircut_adjusted_value
+substitution_shortfall = 1,000,000 - 923,400 = 76,600
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Eligibility | Preserve collateral currency, FX source, haircut policy, pledge agreement and substitution request. |
+| Release | Do not release existing USD collateral until replacement value covers requirement after haircut. |
+| Exposure | Keep collateral value, currency mismatch and FX-rate timestamp visible. |
+| Operations | Route shortfall to top-up, partial release, rejection or exception workflow. |
+| Reporting | Explain substitution break as haircut-adjusted collateral shortfall. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Replacement value is below requirement | Existing collateral release is blocked or partial. |
+| FX rate is stale | Substitution valuation is source-limited. |
+| Top-up is posted | Release recalculates after confirmed top-up. |
+| Collateral report is generated | Gross EUR, FX value, haircut and shortfall are distinct. |
