@@ -40,6 +40,13 @@ For deeper private-market implementation guidance, use [`private-markets-and-alt
 | Custody re-registration | Move fund units between custody accounts without creating a sale, redemption or subscription when beneficial ownership is unchanged. |
 | Suspension reopening | Reopen dealing with effective-dated calendar, cap, gate and pending-order treatment from the administrator notice. |
 | Stale look-through override expiry | Use stale holdings only while approved; degrade or block look-through analytics when the override expires. |
+| Cross-border eligibility change | Apply effective-dated subscription, hold and redemption rules by share class, booking centre, client type and channel. |
+| Fund tax-status change | Split income, return of capital, withholding and cost-basis effects by source-backed effective date. |
+| Trailer-fee rebate | Treat rebates as fee economics tied to service model and share class, not as market return or fund income. |
+| Anti-dilution levy dispute | Preserve original levy, dispute evidence, corrected source amount and reporting-restatement decision. |
+| Hard-to-value side-pocket exit | Keep restricted side-pocket valuation history separate from realized proceeds and residual position. |
+| Fund closure distribution | Close fund units only after final administrator/custodian confirmation and block stale ongoing valuation. |
+| Master-feeder restructure | Convert feeder wrapper through a lifecycle event while preserving master exposure and avoiding double-counting. |
 
 ## Core Platform Distinctions
 
@@ -103,4 +110,7 @@ Fund APIs and UI should make these states explicit:
 16. multi-level fund-of-funds look-through with unmapped residual exposure,
 17. performance-fee crystallization and equalization after partial redemption,
 18. in-specie redemption and custody re-registration,
-19. fund suspension reopening and stale look-through override expiry.
+19. fund suspension reopening and stale look-through override expiry,
+20. cross-border eligibility changes and tax-status changes,
+21. trailer-fee rebates and anti-dilution levy disputes,
+22. side-pocket exits, closure distributions and master-feeder restructures.

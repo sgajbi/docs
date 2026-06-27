@@ -27,7 +27,7 @@ The pack focuses on practical financial-product understanding, not legal advice,
 | `02-fund-lifecycle-transactions-and-position-modelling.md` | Explains fund lifecycle, order flow, subscriptions, redemptions, switches, transfers, distributions, reinvestment, corporate actions, transaction types and position modelling. |
 | `03-fund-data-model-nav-valuation-fees-and-risk.md` | Explains common data model, NAV, bid/offer price, clean modelling of fees, valuation sources, income handling, look-through exposure, risk, performance and analytics. |
 | `04-platform-implementation-advisory-and-practitioner-reference.md` | Explains platform implementation patterns, controls, edge cases, suitability/advisory considerations, QA scenarios, practitioner explanations and glossary. |
-| `05-worked-examples-and-implementation-patterns.md` | Provides practical examples for subscriptions, cut-offs, NAV confirmation, redemptions, gates, distributions, share classes, ETFs, look-through, private funds, NAV restatements and QA. |
+| `05-worked-examples-and-implementation-patterns.md` | Provides practical examples for subscriptions, cut-offs, NAV confirmation, redemptions, gates, distributions, share classes, ETFs, look-through, private funds, NAV restatements, equalization, conversions, mergers, re-registration, suspensions, eligibility changes, tax-status changes, rebates, levy disputes, side-pocket exits, closure distributions, master-feeder restructures and QA. |
 
 ---
 

@@ -746,3 +746,243 @@ override valid on 2026-07-05 = false
 | Override expires | Look-through analytics degrade or block according to policy. |
 | New holdings file arrives | Override closes and source date updates. |
 | Override lacks approver or reason | It cannot support client-ready reporting. |
+
+## Example 23. Cross-Border Fund Eligibility Change
+
+### Scenario
+
+A fund share class becomes unavailable for new subscriptions in a booking centre after a distribution-permission change. Existing holdings may be retained, but new purchases and switches into the class are blocked.
+
+| Attribute | Value |
+|---|---|
+| Share class | Global Balanced Fund Class A |
+| Booking centre | Singapore |
+| Eligibility change | New subscriptions blocked |
+| Existing holdings | Hold and redeem allowed |
+| Effective date | 2026-08-01 |
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Product master | Store effective-dated eligibility by share class, booking centre, client type and channel. |
+| Orders | Block subscriptions and switches into the class after the effective date. |
+| Existing positions | Allow hold, redemption or switch out according to notice terms. |
+| Advisory | Explain restriction without implying the fund has become unsuitable for every existing holder. |
+| Reporting | Label restricted-for-new-business status separately from valuation or liquidity state. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| New subscription after effective date | Order is blocked with eligibility reason. |
+| Redemption of existing holding | Order remains allowed if terms permit. |
+| Client type is exempt | Eligibility rule evaluates client type and booking centre. |
+| Rule changes mid-order | Pending order is reviewed against source policy and timestamp. |
+
+## Example 24. Fund Tax-Status Change
+
+### Scenario
+
+A fund changes tax classification for distributions after a regulatory or administrator update. Future distributions must use the new classification, while prior income reports may need review.
+
+| Attribute | Before | After |
+|---|---|---|
+| Distribution classification | Income | Return of capital component introduced |
+| Effective date | Before 2026-07-01 | From 2026-07-01 |
+| Withholding basis | Standard income rate | Split by component |
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source terms | Store effective-dated tax status and distribution component mapping. |
+| Income posting | Split income, capital return, withholding and reclaim fields where source-backed. |
+| Cost basis | Adjust basis when return-of-capital treatment applies under policy. |
+| Reporting | Preserve prior-period classification unless a restatement is required. |
+| Controls | Flag missing component breakdown as support-limited for tax reporting. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Distribution after effective date | Uses updated component classification. |
+| Component breakdown is missing | Report labels tax classification incomplete. |
+| Prior report is affected | Restatement or correction workflow records decision. |
+| Different jurisdictions apply different treatment | Booking-centre and tax-residency rules are separated. |
+
+## Example 25. Trailer-Fee Rebate
+
+### Scenario
+
+A client is entitled to a rebate of trailer fees on a retrocession-free service model. The rebate is calculated from eligible fund holdings and rebate rate.
+
+| Attribute | Value |
+|---|---:|
+| Average eligible holding value | 800,000 |
+| Annual trailer fee rate | 0.30% |
+| Rebate period days | 90 |
+| Day-count basis | 365 |
+
+### Calculation
+
+```text
+rebate = average eligible value x trailer rate x days / basis
+rebate = 800,000 x 0.30% x 90 / 365
+rebate = 591.78
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Eligibility | Confirm share class, client service model, regulatory rule and rebate policy. |
+| Cash | Book rebate cash or receivable only when confirmed by source or policy. |
+| Performance | Classify as fee rebate, not fund income or market return. |
+| Reporting | Show period, rate, eligible holdings and source status. |
+| Controls | Prevent duplicate rebate when already embedded in clean share class pricing. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Client service model changes mid-period | Rebate calculation splits by effective date. |
+| Share class is clean-fee class | No duplicate trailer rebate is created. |
+| Source amount differs from estimate | Estimate is adjusted to confirmed amount with lineage. |
+| Holding has stale valuation | Rebate is labelled estimated or blocked by policy. |
+
+## Example 26. Anti-Dilution Levy Dispute
+
+### Scenario
+
+A fund redemption applies an anti-dilution levy. The client disputes the levy because the fund notice later reports a lower levy rate for the dealing date.
+
+| Attribute | Original | Corrected |
+|---|---:|---:|
+| Redemption value before levy | 250,000 | 250,000 |
+| Levy rate | 1.00% | 0.60% |
+| Levy amount | 2,500 | 1,500 |
+| Cash correction | - | 1,000 |
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Original redemption | Preserve original levy, NAV, dealing date and source. |
+| Dispute | Open exception linked to fund notice, transfer-agent confirmation and client impact. |
+| Correction | Post receivable/cash adjustment when corrected levy is source-confirmed. |
+| Reporting | Explain corrected redemption proceeds and restatement decision. |
+| QA | Ensure levy is not confused with advisor fee or tax withholding. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Corrected levy is lower | Cash adjustment or receivable is created with lineage. |
+| Fund rejects dispute | Original levy remains and dispute closure reason is stored. |
+| Client report was issued | Restatement policy is evaluated. |
+| Levy source is missing | Redemption is labelled incomplete for final fee breakdown. |
+
+## Example 27. Hard-To-Value Side-Pocket Exit
+
+### Scenario
+
+A hedge fund side pocket holds an illiquid asset. The administrator later realizes the asset and distributes partial proceeds to investors.
+
+| Attribute | Value |
+|---|---:|
+| Side-pocket units | 2,000 |
+| Last reported side-pocket NAV | 18.00 |
+| Realized exit proceeds per unit | 12.50 |
+| Cash proceeds | 25,000 |
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Valuation | Preserve stale/estimated valuation history until administrator confirms realization. |
+| Cash | Book realized proceeds as side-pocket distribution, not ordinary fund redemption. |
+| Position | Reduce or close side-pocket units according to administrator notice. |
+| Performance | Separate valuation write-down from realized distribution where methodology supports it. |
+| Reporting | Show restricted side-pocket history, realization amount and residual position. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Side pocket partially realizes | Units and value reduce only for realized portion. |
+| Proceeds differ from last NAV | Performance explains valuation change and cash distribution. |
+| Residual asset remains | Restricted side-pocket position stays open. |
+| Administrator file is missing | No final cash proceeds are inferred. |
+
+## Example 28. Fund Closure Distribution
+
+### Scenario
+
+A fund enters liquidation and pays a final closure distribution after selling remaining assets.
+
+| Attribute | Value |
+|---|---:|
+| Units held | 15,000 |
+| Final liquidation NAV per unit | 7.20 |
+| Closure distribution | 108,000 |
+| Residual units after closure | 0 |
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Lifecycle | Mark fund as closing, liquidation pending, final distribution paid and closed. |
+| Cash | Book final distribution and any residual adjustment separately from ordinary distribution if source classifies it differently. |
+| Position | Close units only after administrator or custodian confirms final event. |
+| Reporting | Explain liquidation status and avoid showing a stale market value after closure. |
+| Controls | Block new orders once closure notice is effective. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Closure notice arrives | New subscriptions are blocked and status updates. |
+| Final cash is paid | Units close and cash posts with closure lineage. |
+| Residual payment follows later | Additional liquidation distribution links to closed fund event. |
+| NAV remains in price feed after closure | Report uses closure state rather than stale ongoing valuation. |
+
+## Example 29. Master-Feeder Restructure
+
+### Scenario
+
+A feeder fund restructures into a new feeder that invests into the same master fund with different fee and liquidity terms.
+
+| Attribute | Old feeder | New feeder |
+|---|---|---|
+| Units | 10,000 | Calculated by exchange ratio |
+| Exchange ratio | - | 0.875 new units per old unit |
+| Fee terms | Legacy | Clean-fee class |
+| Liquidity | Quarterly | Monthly after notice |
+
+### Calculation
+
+```text
+new feeder units = old feeder units x exchange ratio
+new feeder units = 10,000 x 0.875
+new feeder units = 8,750
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Position | Close old feeder and open new feeder through restructure event, not ordinary redemption/subscription. |
+| Look-through | Preserve master-fund exposure while updating feeder wrapper, fees and liquidity terms. |
+| Cost basis | Carry or reset basis according to tax/accounting policy and source terms. |
+| Eligibility | Re-check new feeder eligibility, disclosures and mandate permissions. |
+| Reporting | Explain wrapper change, exchange ratio, effective date and ongoing master exposure. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Exchange ratio is missing | New feeder units are not created automatically. |
+| New feeder fails eligibility | Exception workflow opens before position conversion. |
+| Master exposure is unchanged | Look-through avoids double-counting old and new feeder exposure. |
+| Fee terms change | Reporting and rebate logic use new effective-dated terms. |
