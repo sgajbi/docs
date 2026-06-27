@@ -207,4 +207,3 @@ Before closing a meaningful slice:
 6. release or deployment evidence is retained where relevant,
 7. follow-up backlog is recorded,
 8. remote main contains the durable truth.
-

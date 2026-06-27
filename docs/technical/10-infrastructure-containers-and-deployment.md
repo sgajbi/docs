@@ -193,4 +193,3 @@ Avoid:
 5. Are resource limits and scaling assumptions documented?
 6. Is rollback possible?
 7. Does deployment evidence map to the exact commit?
-
