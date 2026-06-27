@@ -3311,3 +3311,242 @@ currency_election_break = actual_currency != elected_currency
 | Cash arrives in default currency | Distribution is posted with currency-election break. |
 | Repair FX is approved | Currency conversion or claim links to original distribution. |
 | Client report is generated | Expected election and actual received currency are explainable. |
+
+## Example 92. Share-class performance-fee equalization reopener
+
+### Scenario
+
+A fund administrator reopens performance-fee equalization after identifying that a share class used the wrong high-water mark for a subscription series.
+
+| Attribute | Original | Corrected |
+|---|---:|---:|
+| Client units | 15,000 | 15,000 |
+| Original equalization debit per unit | 0.18 | n/a |
+| Corrected equalization debit per unit | n/a | 0.11 |
+| Equalization delta | n/a | 1,050 credit |
+
+### Equalization adjustment
+
+```text
+original_debit = units x original_equalization_debit_per_unit
+original_debit = 15,000 x 0.18 = 2,700
+corrected_debit = units x corrected_equalization_debit_per_unit
+corrected_debit = 15,000 x 0.11 = 1,650
+equalization_credit = original_debit - corrected_debit
+equalization_credit = 2,700 - 1,650 = 1,050
+```
+
+### Correct treatment
+
+- preserve series id, original high-water mark, corrected high-water mark, administrator notice, affected dates and equalization method;
+- post only the equalization delta unless the administrator requires full reversal and repost;
+- keep NAV movement, performance fee, equalization and investor capital-account effects separate;
+- restate affected fee analytics, performance reporting and client explanation packs;
+- prevent cross-series averaging when only one subscription series is affected.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Administrator reopens equalization | Adjustment workflow opens with series-level lineage. |
+| Corrected debit is lower | Client receives equalization credit or capital-account uplift. |
+| Only one series is affected | Other investor series remain unchanged. |
+| Report is regenerated | Original and corrected fee economics are traceable. |
+
+## Example 93. ETF in-kind redemption cash-substitute fee
+
+### Scenario
+
+An ETF in-kind redemption basket cannot deliver one security, so the sponsor applies a cash-substitute fee. The fee reduces net redemption value but does not change client ETF units until redemption is confirmed.
+
+| Attribute | Value |
+|---|---:|
+| Gross basket value | 1,250,000 |
+| Missing security cash substitute | 80,000 |
+| Cash-substitute fee rate | 0.35% |
+| Cash-substitute fee | 280 |
+| Net redemption value | 1,249,720 |
+
+### Fee calculation
+
+```text
+cash_substitute_fee = cash_substitute_amount x cash_substitute_fee_rate
+cash_substitute_fee = 80,000 x 0.35% = 280
+net_redemption_value = gross_basket_value - cash_substitute_fee
+net_redemption_value = 1,250,000 - 280 = 1,249,720
+```
+
+### Correct treatment
+
+- preserve ETF redemption order, basket file, missing security, cash-substitute amount, fee schedule and sponsor confirmation;
+- separate in-kind delivered assets, cash substitute and cash-substitute fee;
+- create delivered-asset holdings only after custodian settlement and instrument setup;
+- avoid treating sponsor fee as market price movement or advisor fee;
+- keep basket exception evidence for ETF liquidity, tracking difference and operational-risk review.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Basket includes cash substitute | Fee calculates from cash-substitute amount and sponsor schedule. |
+| Delivered security setup is missing | Delivered holding remains pending or source-limited. |
+| Redemption is rejected | No units, assets or fees are booked as confirmed. |
+| Client report is generated | Basket value, cash substitute and fee are distinct. |
+
+## Example 94. Private-fund capital-call default remedy
+
+### Scenario
+
+A private fund investor misses a capital-call deadline. The fund terms impose default interest and may suspend voting or distribution rights until cured.
+
+| Attribute | Value |
+|---|---:|
+| Capital call due | 500,000 |
+| Cash received by due date | 420,000 |
+| Default shortfall | 80,000 |
+| Default interest rate | 8.00% |
+| Days overdue | 20 |
+
+### Default interest
+
+```text
+default_shortfall = capital_call_due - cash_received
+default_shortfall = 500,000 - 420,000 = 80,000
+default_interest = default_shortfall x default_interest_rate x days_overdue / 365
+default_interest = 80,000 x 8.00% x 20 / 365 = 350.68
+```
+
+### Correct treatment
+
+- preserve capital-call notice, due date, cash receipt, shortfall, default terms, cure notice and remedy status;
+- keep unpaid commitment, default interest, voting restrictions and distribution restrictions separately visible;
+- do not create additional fund units or capital account value for unfunded call amounts;
+- route advisory, credit, liquidity and operations escalation where client funding is insufficient;
+- restore normal status only after cure cash and administrator confirmation are received.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Call is partially funded | Default shortfall and remedy workflow open. |
+| Cure cash arrives late | Default interest calculates through cure date. |
+| Rights are suspended | Reporting and workflow labels show remedy state. |
+| Capital account report is generated | Paid-in, unfunded, default interest and restrictions are distinct. |
+
+## Example 95. Fund administrator transition break
+
+### Scenario
+
+A fund changes administrator. The old administrator and new administrator report different unit balances during transition.
+
+| Attribute | Old administrator | New administrator |
+|---|---:|---:|
+| Client units | 125,000.000 | 124,998.750 |
+| NAV per unit | 10.42 | 10.42 |
+| Unit break | n/a | -1.250 |
+| Valuation break | n/a | -13.03 |
+
+### Reconciliation break
+
+```text
+unit_break = new_admin_units - old_admin_units
+unit_break = 124,998.750 - 125,000.000 = -1.250
+valuation_break = unit_break x nav_per_unit
+valuation_break = -1.250 x 10.42 = -13.03
+```
+
+### Correct treatment
+
+- preserve old administrator statement, new administrator statement, transition date, cutover population and reconciliation owner;
+- block final migration sign-off until unit, NAV, class and investor-id breaks are explained or approved;
+- avoid synthetic redemption/subscription postings for migration-only reconciliation breaks;
+- keep client reporting source-labelled during transition when official source ownership changes;
+- retain cutover evidence for audit, fee billing, tax lots and performance continuity.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Unit balances differ | Transition reconciliation break opens. |
+| Break is rounding-only and approved | Difference is resolved with tolerance evidence. |
+| Investor id mapping is wrong | Position remains exceptioned until mapping repair. |
+| Report is generated during transition | Source and reconciliation state are visible. |
+
+## Example 96. Liquidation gate waterfall
+
+### Scenario
+
+A fund in liquidation applies a payment waterfall. Senior expenses and holdbacks are paid before investor distributions, and a gate limits first-round cash release.
+
+| Attribute | Value |
+|---|---:|
+| Liquidation cash pool | 10,000,000 |
+| Senior expenses | 600,000 |
+| Litigation holdback | 1,400,000 |
+| Investor distributable pool | 8,000,000 |
+| Client ownership share | 2.50% |
+
+### Investor distribution
+
+```text
+investor_distributable_pool = liquidation_cash_pool - senior_expenses - litigation_holdback
+investor_distributable_pool = 10,000,000 - 600,000 - 1,400,000 = 8,000,000
+client_distribution = investor_distributable_pool x client_ownership_share
+client_distribution = 8,000,000 x 2.50% = 200,000
+```
+
+### Correct treatment
+
+- preserve liquidation notice, waterfall terms, senior expenses, holdback, investor share and administrator distribution statement;
+- separate liquidation proceeds, holdback receivable, expense allocation and remaining residual claim;
+- cancel units only when the liquidation event legally closes the position;
+- keep later holdback releases linked to the original liquidation event;
+- report liquidation status, expected future distributions and uncertainty clearly.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Liquidation waterfall is published | Distribution uses source-backed priority order. |
+| Holdback remains open | Receivable or residual claim remains visible. |
+| Final liquidation notice arrives | Units close only when confirmed. |
+| Client report is generated | Cash received, holdback and residual exposure are distinct. |
+
+## Example 97. ESG exclusion reclassification event
+
+### Scenario
+
+A fund is reclassified because an exclusion screen finds exposure to an issuer that violates the client mandate. The fund remains tradable, but suitability and model-portfolio eligibility change.
+
+| Attribute | Value |
+|---|---:|
+| Fund market value | 750,000 |
+| Controversial issuer exposure | 3.20% |
+| Mandate exclusion threshold | 0.00% |
+| Exposure breaching mandate | 24,000 |
+| Model buy eligibility | Suspended |
+
+### Breach exposure
+
+```text
+excluded_exposure_value = fund_market_value x controversial_issuer_exposure
+excluded_exposure_value = 750,000 x 3.20% = 24,000
+mandate_breach = controversial_issuer_exposure > mandate_exclusion_threshold
+```
+
+### Correct treatment
+
+- preserve ESG data source, exclusion rule, look-through exposure, effective date, classification decision and review owner;
+- separate tradability, approved-universe status, model-portfolio eligibility and client mandate suitability;
+- block new buys or model use where mandate rules require exclusion;
+- keep existing holding action options explicit: hold, sell, transition, exception or client consent;
+- label reports with source date, exposure confidence and remediation state.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Exclusion exposure breaches threshold | Suitability or model-eligibility exception opens. |
+| ESG data is stale | Reclassification remains source-limited. |
+| Client mandate allows exception | Exception captures approval, expiry and rationale. |
+| Advisory proposal is generated | Fund is blocked or warning-labelled for affected mandate. |
