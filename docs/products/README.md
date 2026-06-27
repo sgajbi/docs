@@ -25,6 +25,7 @@ Each product family should have its own folder with a local `README.md`, a clear
 
 | Map | Purpose |
 |---|---|
+| [`advisory-mandate-reporting-decision-guide.md`](advisory-mandate-reporting-decision-guide.md) | Provides cross-product advisory explanation, mandate-control, reporting, QA, and review-failure guidance for covered product families. |
 | [`cash-deposits-money-market-and-fx.md`](cash-deposits-money-market-and-fx.md) | Captures reusable platform-design distinctions for currency cash, settlement, available cash, deposits, money market products, FX, liquidity, buying power, and reporting. |
 | [`commodities-precious-metals-and-real-assets.md`](commodities-precious-metals-and-real-assets.md) | Captures reusable platform-design distinctions for commodities, precious metals, real-asset-linked wrappers, unit controls, exposure, collateral, and reporting. |
 | [`cross-product-worked-examples.md`](cross-product-worked-examples.md) | Provides practical worked examples across product families with lifecycle, calculations, reporting, QA, and implementation boundaries. |

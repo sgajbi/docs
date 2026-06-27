@@ -36,6 +36,7 @@ This repo is organized so new document sets can be added without turning the roo
 | Map | Purpose |
 |---|---|
 | [`docs/products/cash-deposits-money-market-and-fx.md`](docs/products/cash-deposits-money-market-and-fx.md) | Product and platform-design map for cash, deposits, money market instruments, money market funds, FX, liquidity, buying power, settlement, and reporting. |
+| [`docs/products/advisory-mandate-reporting-decision-guide.md`](docs/products/advisory-mandate-reporting-decision-guide.md) | Cross-product decision guide for advisory explanation, mandate controls, reporting requirements, QA evidence, and common review failures. |
 | [`docs/products/commodities-precious-metals-and-real-assets.md`](docs/products/commodities-precious-metals-and-real-assets.md) | Product and platform-design map for commodities, precious metals, real-asset-linked wrappers, unit controls, exposure, collateral, and reporting. |
 | [`docs/products/cross-product-worked-examples.md`](docs/products/cross-product-worked-examples.md) | Worked examples across cash, bonds, commodities, equities, funds, insurance, lending, private markets, real estate, derivatives, structured products, and rebalance funding constraints. |
 | [`docs/products/derivatives-and-overlay-products.md`](docs/products/derivatives-and-overlay-products.md) | Product and platform-design map for derivatives, hedging overlays, exposure, Greeks, margin, collateral, lifecycle events, and mandate controls. |

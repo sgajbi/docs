@@ -21,10 +21,17 @@ This map turns product reference material into reusable project knowledge for we
 | Product Area | Modelling Reminder |
 |---|---|
 | Bonds | Separate clean price, dirty value, accrued interest, yield, duration, spread, call/put schedules, and credit events. |
+| Cash, deposits, money market and FX | Separate ledger, settled, projected, and available cash; model value dates, restrictions, reservations, deposit terms, MMF liquidity, and FX lifecycle explicitly. |
+| Commodities, precious metals and real assets | Separate wrapper, unit, custody/provider, commodity exposure, notional exposure, collateral value, roll/delivery risk, and issuer/counterparty risk. |
 | Derivatives | Separate contract terms, lifecycle events, valuation, notional, exposure, Greeks, margin, collateral, counterparty, and suitability concepts. |
 | Equities | Separate issuer, instrument, listing, trade, settlement, lot, corporate-action, valuation, P&L, risk, and entitlement concepts. |
 | Funds | Separate legal fund units from look-through exposure; model NAV, share class, dealing terms, distributions, fees, gates, suspensions, and pending orders explicitly. |
+| Insurance and annuities | Separate policy contract, roles, coverage, riders, premium obligations, value basis, surrender value, death benefit, guarantees, loans, claims, and privacy restrictions. |
+| Loans, Lombard, margin and collateral | Separate facility, drawdown, exposure, collateral, pledge graph, haircut/LTV, reservations, availability, margin call, and liquidation workflows. |
+| Private markets | Separate commitment, paid-in capital, unfunded commitment, capital calls, distributions, NAV lag, restatement, liquidity terms, and partial-history analytics. |
+| Real estate, REITs and infrastructure | Separate listed/fund/private/direct wrapper behavior from property or infrastructure economic exposure, valuation basis, leverage, income, liquidity, and look-through coverage. |
 | Structured notes | Separate legal note position from embedded derivative terms; model barriers, observations, autocalls, payoff terms, physical settlement, and issuer risk explicitly. |
+| Structured products | Separate wrapper, issuer, payoff formula, underlyings, barriers, observations, scenario outcomes, liquidity limits, and settlement terms. |
 
 ## Source-Ownership Questions
 
@@ -85,3 +92,12 @@ Good project documentation should include:
 9. QA scenarios,
 10. implementation-backed supported features,
 11. known unsupported states and future work.
+
+## Cross-Product Operating Guides
+
+| Guide | Use |
+|---|---|
+| [`../products/advisory-mandate-reporting-decision-guide.md`](../products/advisory-mandate-reporting-decision-guide.md) | Advisory explanation, mandate controls, reporting requirements, QA evidence, and common review failures across product families. |
+| [`../products/product-capability-boundary-matrix.md`](../products/product-capability-boundary-matrix.md) | Generic versus product-specific support boundaries, support-limited states, future candidates, and QA evidence. |
+| [`../products/product-calculation-example-catalog.md`](../products/product-calculation-example-catalog.md) | Compact calculation examples, reporting labels, degraded states, and QA assertions. |
+| [`../products/source-ownership-calculation-reporting-matrix.md`](../products/source-ownership-calculation-reporting-matrix.md) | Source ownership, calculation dependencies, reporting requirements, QA controls, and implementation boundaries. |
