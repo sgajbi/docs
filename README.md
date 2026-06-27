@@ -19,6 +19,7 @@ This repo is organized so new document sets can be added without turning the roo
 | Document Set | Location | Status |
 |---|---|---|
 | Bonds reference pack | [`docs/products/bonds/`](docs/products/bonds/README.md) | Imported from `C:\Users\Sandeep\Downloads\bonds_reference_pack.zip\bonds_reference_pack` on 2026-06-27. |
+| Derivatives reference pack | [`docs/products/derivatives/`](docs/products/derivatives/README.md) | Imported from `C:\Users\Sandeep\Downloads\derivatives_reference_pack.zip\derivatives_reference_pack` on 2026-06-27. |
 | Equities reference pack | [`docs/products/equities/`](docs/products/equities/README.md) | Imported from `C:\Users\Sandeep\Downloads\equities_and_product_kb_expansion.zip\equities_reference_pack` on 2026-06-27. |
 | Funds reference pack | [`docs/products/funds/`](docs/products/funds/README.md) | Imported from `C:\Users\Sandeep\Downloads\funds_reference_pack.zip\funds_reference_pack` on 2026-06-27. |
 | Structured notes reference pack | [`docs/products/structured-notes/`](docs/products/structured-notes/README.md) | Imported from `C:\Users\Sandeep\Downloads\notes_reference_pack` on 2026-06-27. |
@@ -27,6 +28,7 @@ This repo is organized so new document sets can be added without turning the roo
 
 | Map | Purpose |
 |---|---|
+| [`docs/products/derivatives-and-overlay-products.md`](docs/products/derivatives-and-overlay-products.md) | Product and platform-design map for derivatives, hedging overlays, exposure, Greeks, margin, collateral, lifecycle events, and mandate controls. |
 | [`docs/products/direct-equities-and-market-operations.md`](docs/products/direct-equities-and-market-operations.md) | Product and platform-design map for direct equities, trading, settlement, corporate actions, P&L, risk, and market operations. |
 | [`docs/products/fixed-income-and-structured-products.md`](docs/products/fixed-income-and-structured-products.md) | Product and platform-design comparison for bonds and structured notes. |
 | [`docs/products/pooled-investment-products.md`](docs/products/pooled-investment-products.md) | Product and platform-design map for funds, ETFs, fund of funds, hedge funds, and private market funds. |

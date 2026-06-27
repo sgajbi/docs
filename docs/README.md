@@ -13,6 +13,7 @@ This folder contains authored documentation grouped by use.
 
 | Map | Use |
 |---|---|
+| [`products/derivatives-and-overlay-products.md`](products/derivatives-and-overlay-products.md) | Apply derivatives knowledge to options, futures, forwards, swaps, CDS, exposure, margin, collateral, advisory, mandate, and reporting work. |
 | [`products/direct-equities-and-market-operations.md`](products/direct-equities-and-market-operations.md) | Apply direct-equity knowledge to trading, settlement, corporate actions, cost basis, P&L, risk, and market-operations work. |
 | [`products/fixed-income-and-structured-products.md`](products/fixed-income-and-structured-products.md) | Compare bonds and structured notes for product modelling, valuation, risk, lifecycle, and platform design. |
 | [`products/pooled-investment-products.md`](products/pooled-investment-products.md) | Apply fund and pooled-vehicle knowledge to product master, orders, NAV, fees, look-through, performance, and reporting work. |

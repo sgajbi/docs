@@ -21,6 +21,7 @@ This map turns product reference material into reusable project knowledge for we
 | Product Area | Modelling Reminder |
 |---|---|
 | Bonds | Separate clean price, dirty value, accrued interest, yield, duration, spread, call/put schedules, and credit events. |
+| Derivatives | Separate contract terms, lifecycle events, valuation, notional, exposure, Greeks, margin, collateral, counterparty, and suitability concepts. |
 | Equities | Separate issuer, instrument, listing, trade, settlement, lot, corporate-action, valuation, P&L, risk, and entitlement concepts. |
 | Funds | Separate legal fund units from look-through exposure; model NAV, share class, dealing terms, distributions, fees, gates, suspensions, and pending orders explicitly. |
 | Structured notes | Separate legal note position from embedded derivative terms; model barriers, observations, autocalls, payoff terms, physical settlement, and issuer risk explicitly. |
@@ -33,14 +34,15 @@ Use these before designing APIs or UI:
 2. Who owns transaction booking?
 3. Who owns portfolio holdings and positions?
 4. Who owns equity corporate actions, entitlements, elections, lots, cost basis, and listing status?
-5. Who owns valuation and price source selection?
-6. Who owns risk methodology?
-7. Who owns performance methodology?
-8. Who owns advisory suitability and proposal state?
-9. Who owns reporting, rendering, archive, and legal evidence?
-10. Who owns fund NAV, share-class terms, dealing status, fees, distributions, and look-through files?
-11. Which data is source truth, derived view, cached projection, or user-entered override?
-12. How does the system fail closed when the source owner cannot provide evidence?
+5. Who owns derivative contract terms, lifecycle events, fixings, margin, collateral, counterparty, and exposure measures?
+6. Who owns valuation and price source selection?
+7. Who owns risk methodology?
+8. Who owns performance methodology?
+9. Who owns advisory suitability and proposal state?
+10. Who owns reporting, rendering, archive, and legal evidence?
+11. Who owns fund NAV, share-class terms, dealing status, fees, distributions, and look-through files?
+12. Which data is source truth, derived view, cached projection, or user-entered override?
+13. How does the system fail closed when the source owner cannot provide evidence?
 
 ## API Design Checklist
 
