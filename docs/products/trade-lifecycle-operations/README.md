@@ -45,6 +45,7 @@ The pack is designed for private-banking, wealth-management, DPM, advisory, anal
 | `08-advisory-mandate-analytics-reporting-and-client-experience.md` | Advisory, DPM, mandate, analytics and client-reporting impact of operational lifecycle events |
 | `09-platform-architecture-integration-patterns-controls-and-test-scenarios.md` | Platform architecture, integration patterns, idempotency, eventing, controls, QA and production scenarios |
 | `10-glossary-practitioner-reference-and-source-notes.md` | Glossary, practitioner explanations, operating reference and source notes |
+| `11-worked-examples-and-implementation-patterns.md` | Practical examples for partial fills, bond accrued interest, settlement fails, fund cut-offs, corporate-action revisions and lifecycle lineage |
 
 ## Core design principle
 
@@ -82,6 +83,7 @@ Read in this order:
 6. `08` for advisory, mandate, analytics and reporting usage
 7. `09` for build-quality, controls and test scenarios
 8. `10` for glossary, practitioner reference and source notes
+9. `11` for practical implementation examples
 
 ## Important caveat
 

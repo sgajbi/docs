@@ -51,6 +51,7 @@ The Approved Product Universe (APU) is the executable version of product governa
 8. `08-platform-controls-reconciliation-qa-and-audit-scenarios.md`
 9. `09-glossary-practitioner-reference-and-review-checklists.md`
 10. `10-source-notes-and-further-reading.md`
+11. `11-worked-examples-and-implementation-patterns.md`
 
 ## How this pack fits with the previous product packs
 
