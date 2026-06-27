@@ -12,6 +12,7 @@ Use it when the question is not "which product is this?" but "what should I read
 | Find practical examples | [`product-worked-example-index.md`](product-worked-example-index.md). |
 | Understand support boundaries | [`product-capability-boundary-matrix.md`](product-capability-boundary-matrix.md) and [`implementation-backed-capability-map.md`](implementation-backed-capability-map.md). |
 | Translate implementation evidence into product docs | [`product-implementation-evidence-review-guide.md`](product-implementation-evidence-review-guide.md). |
+| Track product polish status | [`product-library-polish-dashboard.md`](product-library-polish-dashboard.md). |
 | Check source ownership and report dependencies | [`source-ownership-calculation-reporting-matrix.md`](source-ownership-calculation-reporting-matrix.md). |
 | Build QA coverage | [`product-qa-regression-matrix.md`](product-qa-regression-matrix.md) and each product pack's local worked-example file. |
 | Review or polish a product document | [`product-documentation-review-rubric.md`](product-documentation-review-rubric.md). |
