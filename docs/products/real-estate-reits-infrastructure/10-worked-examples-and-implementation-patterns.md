@@ -3733,3 +3733,239 @@ QA assertions:
 | Tax classification changes | Tax labels update without cash movement. |
 | Administrator evidence is missing | Corrected tax output is blocked or provisional. |
 | Investor report is generated | Original classification, reversal and corrected tax basis are visible. |
+
+## 109. Property Waiver Duplicate Suppression
+
+Scenario:
+
+A property reviewer waiver expiry breach is reported twice by separate governance feeds. The platform must suppress the duplicate breach event while preserving both feed records for audit and reviewer-independence monitoring.
+
+| Attribute | Value |
+|---|---:|
+| Current appraised value | 24,800,000 |
+| Client ownership share | 1.75% |
+| Duplicate waiver breach feeds | 2 |
+| Active breach events allowed | 1 |
+
+Duplicate suppression:
+
+```text
+suppressed_duplicate_breaches = duplicate_waiver_breach_feeds - active_breach_events_allowed
+suppressed_duplicate_breaches = 2 - 1 = 1
+
+client_governance_limited_value = current_appraised_value x client_ownership_share
+client_governance_limited_value = 24,800,000 x 1.75% = 434,000
+```
+
+Treatment:
+
+- preserve both governance feed records, appraisal id, waiver id, expiry date, reviewer id and suppression decision;
+- keep one active breach event per waiver/appraisal combination;
+- avoid duplicate valuation restrictions, duplicate client notices or duplicate remediation tasks;
+- route mismatched duplicate feed values to governance review;
+- show duplicate-suppressed count in control reporting.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Duplicate breach feed arrives | No second active breach is created. |
+| Duplicate has different expiry date | Event is routed for review instead of suppressed silently. |
+| Report is generated | Active breach and suppressed duplicate evidence are traceable. |
+
+## 110. REIT Restatement Attribution Reversal
+
+Scenario:
+
+A REIT benchmark reinclusion restatement is reversed by the index provider after attribution was rerun. The platform must reverse the benchmark-attribution adjustment without changing portfolio holdings or market value.
+
+| Attribute | Value |
+|---|---:|
+| Restated benchmark exposure | 1,764,000 |
+| Original benchmark exposure | 0 |
+| Portfolio REIT holding value | 1,850,000 |
+| Reversal effective days | 2 |
+
+Attribution reversal:
+
+```text
+benchmark_exposure_reversal = restated_benchmark_exposure - original_benchmark_exposure
+benchmark_exposure_reversal = 1,764,000 - 0 = 1,764,000
+
+active_exposure_after_reversal = portfolio_REIT_holding_value - original_benchmark_exposure
+active_exposure_after_reversal = 1,850,000 - 0 = 1,850,000
+```
+
+Treatment:
+
+- preserve original benchmark file, restatement file, provider reversal notice, attribution rerun and reversal approval;
+- reverse benchmark attribution only for the affected effective dates;
+- keep portfolio holdings, transactions and market valuation unchanged;
+- label performance delta as benchmark restatement reversal rather than investment return;
+- retain original, restated and reversed attribution versions.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Provider reverses benchmark restatement | Attribution restatement is reversed from source-effective date. |
+| Holdings are checked | Portfolio holdings remain unchanged. |
+| Performance report is generated | Original, restated and reversed benchmark versions are visible. |
+
+## 111. Concession Release Reversal Tax Treatment
+
+Scenario:
+
+A concession reserve release reversal changes the tax label on a previously expected distribution. The platform must update tax treatment without creating a new operating cashflow.
+
+| Attribute | Value |
+|---|---:|
+| Prior client approved release | 19,800 |
+| Client release reversal | 5,500 |
+| Taxable distribution previously projected | 19,800 |
+| Revised taxable distribution | 14,300 |
+
+Tax treatment reversal:
+
+```text
+taxable_distribution_reversal = taxable_distribution_previously_projected - revised_taxable_distribution
+taxable_distribution_reversal = 19,800 - 14,300 = 5,500
+
+revised_client_approved_release = prior_client_approved_release - client_release_reversal
+revised_client_approved_release = 19,800 - 5,500 = 14,300
+```
+
+Treatment:
+
+- preserve lender reversal, reserve statement, tax classification rule, prior projection and revised tax output;
+- reduce projected taxable distribution only for source-confirmed reversal amount;
+- keep reserve-account cash and tax classification separate from operating income;
+- block final tax output when tax treatment source evidence is missing;
+- show release, reversal and revised tax label in investor reporting.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Release reversal changes tax label | Taxable distribution projection is reduced. |
+| Cash is not distributed | No new operating cashflow is created. |
+| Investor report is generated | Prior and revised tax treatment are traceable. |
+
+## 112. Renewable Slippage Settlement Clawback
+
+Scenario:
+
+An execution provider claws back part of a renewable hedge slippage claim settlement after discovering that part of the production volume was outside the approved replacement window. The platform must reopen disputed exposure without changing the executed hedge price.
+
+| Attribute | Value |
+|---|---:|
+| Client claim settlement received | 2,000 |
+| Provider clawback amount | 650 |
+| Client original slippage exposure | 3,562.50 |
+| Prior unrecovered slippage | 1,562.50 |
+
+Clawback exposure:
+
+```text
+retained_claim_settlement = client_claim_settlement_received - provider_clawback_amount
+retained_claim_settlement = 2,000 - 650 = 1,350
+
+revised_unrecovered_slippage = client_original_slippage_exposure - retained_claim_settlement
+revised_unrecovered_slippage = 3,562.50 - 1,350 = 2,212.50
+```
+
+Treatment:
+
+- preserve provider settlement, clawback notice, approved replacement window, production evidence and cash reversal;
+- reduce retained settlement by the source-confirmed clawback only;
+- keep executed hedge price unchanged for revenue forecasts;
+- report clawback as claim-settlement correction rather than market price movement;
+- keep reopened slippage exposure until settled, rejected or written off.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Provider clawback arrives | Retained settlement and unrecovered slippage are recalculated. |
+| Hedge forecast is generated | Forecast still uses executed hedge price. |
+| Client report is generated | Settlement, clawback and reopened exposure are separate. |
+
+## 113. Data-Centre Withdrawal Notice Delivery Failure
+
+Scenario:
+
+A data-centre tenant termination withdrawal notice is source-confirmed, but delivery to downstream reporting and advisor workflow fails for some portfolios. The platform must keep lease status updated while blocking completion of the notice-control workflow.
+
+| Attribute | Value |
+|---|---:|
+| Portfolios requiring withdrawal notice update | 42 |
+| Successful notice deliveries | 37 |
+| Failed notice deliveries | 5 |
+| Approved delivery exceptions | 1 |
+
+Unresolved delivery failures:
+
+```text
+unresolved_delivery_failures = failed_notice_deliveries - approved_delivery_exceptions
+unresolved_delivery_failures = 5 - 1 = 4
+
+delivery_completion_rate = successful_notice_deliveries / portfolios_requiring_withdrawal_notice_update
+delivery_completion_rate = 37 / 42 = 88.10%
+```
+
+Treatment:
+
+- preserve tenant withdrawal notice, portfolio impact list, delivery batch, failed recipients, retry evidence and exceptions;
+- update source-effective lease and occupancy state from the confirmed withdrawal;
+- keep notice-control completion separate from lease-state update;
+- block final client-ready reporting where required notice delivery remains unresolved;
+- route failures to advisor workflow and reporting operations.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Withdrawal is source-confirmed | Lease status updates from source-effective date. |
+| Notice delivery fails | Notice-control workflow remains open. |
+| Exception is approved | Only approved exception reduces unresolved failures. |
+| Portfolio report is generated | Delivery state is blocked or labelled according to policy. |
+
+## 114. Recallable Tax Reclassification Amended Statement
+
+Scenario:
+
+A recallable priority reversal tax reclassification requires an amended investor statement. The amendment changes funding and tax labels but does not change the cash funded.
+
+| Attribute | Value |
+|---|---:|
+| Reclassified funding amount | 210,000 |
+| Cash funded | 210,000 |
+| Prior statement recallable basis | 210,000 |
+| Correct commitment-funded basis | 210,000 |
+
+Amended statement check:
+
+```text
+statement_basis_reclassified = prior_statement_recallable_basis
+statement_basis_reclassified = 210,000
+
+cash_change_required = cash_funded - correct_commitment_funded_basis
+cash_change_required = 210,000 - 210,000 = 0
+```
+
+Treatment:
+
+- preserve original statement, administrator tax correction, side-letter reversal, amended statement and delivery evidence;
+- update tax and funding labels without changing cash-funded amount;
+- suppress duplicate active statements after amended version is approved;
+- block final delivery when administrator correction or statement approval is missing;
+- show original and amended statement lineage in investor reporting.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Amended statement is approved | Tax and funding labels are corrected. |
+| Cash amount is unchanged | No cash movement is created. |
+| Prior statement exists | Prior statement is superseded with lineage. |
+| Delivery evidence is missing | Amended output remains blocked or provisional. |
