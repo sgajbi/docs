@@ -5927,3 +5927,255 @@ uncovered_drift = 150,000 - 75,000 = 75,000
 | Model is not revalidated | Old floor remains active but flagged as under review. |
 | New floor is approved | Effective-dated floor updates liquidity and buying-power checks. |
 | Historical report is generated | Prior floor remains unless restatement is explicitly approved. |
+
+## Example 146. Sweep recovery claim appeal reversal
+
+### Scenario
+
+A sweep provider initially rejects part of a recovery claim after an outage. Operations appeals with additional evidence, and the provider reverses the appeal decision by approving a further recovery payment. The platform must link the reversal to the original claim and avoid treating the new cash as investment yield.
+
+| Attribute | Value |
+|---|---:|
+| Original calculated claim | 1,166 |
+| Recovery already received | 1,050 |
+| Appeal reversal approved | 90 |
+| Residual claim tolerance | 25 |
+
+### Appeal reversal
+
+```text
+claim_gap_before_appeal = original_calculated_claim - recovery_already_received
+claim_gap_before_appeal = 1,166 - 1,050 = 116
+
+residual_claim_after_reversal = claim_gap_before_appeal - appeal_reversal_approved
+residual_claim_after_reversal = 116 - 90 = 26
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve original outage case, provider rejection, appeal evidence, reversal approval and settlement reference. |
+| Cash | Book appeal-reversal recovery only after provider settlement. |
+| Performance | Keep reversal recovery outside deposit interest, sweep yield and portfolio contribution. |
+| Reporting | Show the recovery as operational compensation linked to the original sweep outage case. |
+| Controls | Keep residual claim open when the post-reversal residual exceeds tolerance. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Appeal reversal settles | Cash posting links to original claim and appeal reversal evidence. |
+| Residual exceeds tolerance | Case remains open with residual reason. |
+| Residual is within tolerance | Case may close with approved tolerance evidence. |
+| Yield report is generated | Appeal reversal recovery is excluded from sweep yield. |
+
+## Example 147. Deposit insurer hierarchy evidence expiry
+
+### Scenario
+
+A deposit insurer requests updated beneficiary hierarchy evidence before releasing a disputed payout. The prior evidence expires during review. The platform must keep the disputed amount unavailable until valid evidence is received and approved.
+
+| Attribute | Value |
+|---|---:|
+| Disputed insured amount | 80,000 |
+| Evidence validity days | 30 |
+| Days since evidence certification | 45 |
+| Confirmed payout already received | 150,000 |
+
+### Evidence expiry
+
+```text
+evidence_expired_days = days_since_evidence_certification - evidence_validity_days
+evidence_expired_days = 45 - 30 = 15
+
+payout_blocked_by_expired_evidence = disputed_insured_amount
+payout_blocked_by_expired_evidence = 80,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve insurer request, expired evidence version, beneficiary hierarchy records, recertification owner and approval state. |
+| Cash | Confirmed payout remains cash; disputed payout remains unavailable until valid evidence is accepted. |
+| Advisory | Alert the relationship owner when evidence expiry affects liquidity or client communication. |
+| Reporting | Label the amount as evidence-expired disputed protection rather than unprotected loss. |
+| Controls | Block payout reclassification when beneficiary evidence is expired or uncertified. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Evidence expires before payout | Disputed payout remains unavailable. |
+| New evidence is submitted | Reclassification waits for approval or insurer acceptance. |
+| Confirmed payout is reported | Confirmed cash remains separate from disputed payout. |
+| Client report is generated | Evidence-expired amount is labelled distinctly. |
+
+## Example 148. FX hedge remediation approval reversal
+
+### Scenario
+
+An FX hedge allocation remediation was approved, but a later policy review reverses the approval because the wrong allocation policy version was used. The platform must reverse the remediation posting, restore the exception state and avoid changing market FX P&L.
+
+| Attribute | Value |
+|---|---:|
+| Remediation amount previously approved | 1,700 |
+| Amount already posted | 1,700 |
+| Correct policy remediation amount | 600 |
+| Reversal approval threshold | 500 |
+
+### Reversal amount
+
+```text
+remediation_overstatement = remediation_amount_previously_approved - correct_policy_remediation_amount
+remediation_overstatement = 1,700 - 600 = 1,100
+
+amount_requiring_reversal = min(amount_already_posted, remediation_overstatement)
+amount_requiring_reversal = min(1,700, 1,100) = 1,100
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve original remediation approval, policy version error, reversal decision, recalculation and affected accounts. |
+| Accounting | Post a linked reversal or correction entry rather than editing the original remediation evidence. |
+| Performance | Keep reversal outside market FX gain/loss and hedge effectiveness analytics. |
+| Reporting | Explain the adjustment as remediation approval reversal when material. |
+| Controls | Require approval when the reversal amount exceeds the threshold. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Policy version error is confirmed | Reversal workflow opens against the prior remediation case. |
+| Reversal amount exceeds threshold | Approval is required before posting. |
+| Reversal is posted | Original remediation, corrected policy and reversal are linked. |
+| Performance report is generated | Reversal is excluded from market FX P&L. |
+
+## Example 149. PSP recovered-fee clawback
+
+### Scenario
+
+A payment-service provider previously released recovered fees, but later claws back part of the release after a chargeback decision is amended. The platform must reduce the prior recovered-fee allocation without treating the clawback as a new payment expense.
+
+| Attribute | Value |
+|---|---:|
+| Recovered fees previously allocated | 4,800 |
+| Provider clawback notice | 1,250 |
+| Account A prior allocation weight | 55% |
+| Account B prior allocation weight | 45% |
+
+### Clawback allocation
+
+```text
+account_a_clawback = provider_clawback_notice x account_a_prior_allocation_weight
+account_a_clawback = 1,250 x 55% = 687.50
+
+account_b_clawback = provider_clawback_notice x account_b_prior_allocation_weight
+account_b_clawback = 1,250 x 45% = 562.50
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve provider clawback notice, original recovered-fee allocation, chargeback amendment and settlement reference. |
+| Accounting | Reverse recovered-fee allocation by the original allocation policy unless an approved correction exists. |
+| Cash | Reserve or debit only after provider settlement or approved payable recognition. |
+| Reporting | Label clawback as a reversal of recovered PSP fees, not client investment activity. |
+| Controls | Block allocation when prior recovered-fee weights or original recovery evidence are missing. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Clawback notice is received | Prior recovery case is reopened or linked. |
+| Allocation weights are available | Clawback allocates using original approved weights. |
+| Prior evidence is missing | Posting is blocked for investigation. |
+| Statement is generated | Clawback is labelled as recovered-fee reversal. |
+
+## Example 150. Projected-cash waiver expiry breach
+
+### Scenario
+
+An order executes after a projected-cash acknowledgement waiver has expired. The platform must detect the breach, quantify the unsupported projected-cash reliance and route remediation.
+
+| Attribute | Value |
+|---|---:|
+| Projected cash relied upon | 1,250,000 |
+| Settled available cash at execution | 880,000 |
+| Waiver expiry breach days | 2 |
+| Remediation materiality threshold | 100,000 |
+
+### Breach exposure
+
+```text
+unsupported_projected_cash_reliance = projected_cash_relied_upon - settled_available_cash_at_execution
+unsupported_projected_cash_reliance = 1,250,000 - 880,000 = 370,000
+
+material_breach = unsupported_projected_cash_reliance > remediation_materiality_threshold
+material_breach = 370,000 > 100,000 = true
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve order execution timestamp, waiver expiry, projected cash view, settled cash snapshot and acknowledgement state. |
+| Advisory and DPM | Escalate when execution relied on expired waiver evidence. |
+| Cash | Do not retrospectively convert projected cash into settled cash. |
+| Reporting | Show remediation state separately from valid waiver, acknowledged and blocked states. |
+| Controls | Require breach remediation and control-owner review for material exposure. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Execution occurs after waiver expiry | Breach event is created. |
+| Unsupported reliance exceeds threshold | Material remediation workflow opens. |
+| Advisor acknowledgement is added later | Acknowledgement does not erase the breach event. |
+| Control dashboard is generated | Expired-waiver breach remains visible until remediated. |
+
+## Example 151. Liquidity-floor drift override approval
+
+### Scenario
+
+A portfolio has liquidity-floor drift, but an investment committee approves a temporary override because a confirmed cash inflow is due before settlement. The platform must limit the override to the approved amount, horizon and evidence.
+
+| Attribute | Value |
+|---|---:|
+| Uncovered liquidity-floor drift | 75,000 |
+| Confirmed near-term inflow | 60,000 |
+| Override amount approved | 50,000 |
+| Remaining settlement horizon days | 3 |
+
+### Override coverage
+
+```text
+drift_covered_by_override = min(uncovered_liquidity_floor_drift, override_amount_approved, confirmed_near_term_inflow)
+drift_covered_by_override = min(75,000, 50,000, 60,000) = 50,000
+
+residual_uncovered_drift = uncovered_liquidity_floor_drift - drift_covered_by_override
+residual_uncovered_drift = 75,000 - 50,000 = 25,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve model drift evidence, inflow confirmation, committee approval, override amount, expiry and order link. |
+| Portfolio construction | Apply override only to the approved amount and horizon. |
+| Advisory and DPM | Keep residual drift visible for suitability, mandate and buying-power checks. |
+| Reporting | Label override-driven availability as temporary and evidence-backed. |
+| Controls | Expire override automatically when horizon passes, inflow fails or order scope changes. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Override is approved | Only approved amount reduces drift block. |
+| Confirmed inflow is below override | Override coverage is capped by inflow evidence. |
+| Horizon expires before settlement | Override is removed and controls re-evaluate. |
+| Order scope changes | Override requires renewal or reapproval. |
