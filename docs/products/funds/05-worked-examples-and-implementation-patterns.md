@@ -4961,3 +4961,243 @@ total_corrected_interest_allocation = 9,000 + 6,000 = 15,000
 | Corrected allocations sum to accrued interest | Interest allocation closes without residual. |
 | Corrected allocations do not reconcile | Posting is blocked for administrator review. |
 | Liquidity report is generated | Facility principal, interest allocation and reversal remain separate. |
+
+## Example 134. Fund Vote Reversal Duplicate Suppression
+
+### Scenario
+
+A transfer agent sends the same vote exception acceptance reversal twice after a fund proxy-voting account-mapping error. The platform must suppress the duplicate reversal while retaining both files for source-quality evidence.
+
+| Attribute | Value |
+|---|---:|
+| Exception accepted units before reversal | 35,000 |
+| Reversal confirmed units | 20,000 |
+| Duplicate reversal units | 20,000 |
+| Existing reversal event count | 1 |
+
+### Duplicate suppression
+
+```text
+duplicate_reversal_units = duplicate_reversal_units if source_event_id_already_processed else 0
+duplicate_reversal_units = 20,000
+
+additional_reversed_units = 0 when source_event_id_already_processed
+additional_reversed_units = 0
+```
+
+### Correct treatment
+
+- preserve original vote notice, exception acceptance, first reversal, duplicate reversal file and source event id;
+- suppress duplicate reversal units when the source event has already been applied;
+- keep the accepted, reversed, duplicate-suppressed and final accepted unit counts separately traceable;
+- route mismatched duplicate quantities to operations review;
+- prevent final vote reporting from double-reversing valid accepted units.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Duplicate reversal file arrives | No second reversal is posted. |
+| Duplicate file has different units | Exception is raised for source investigation. |
+| Vote report is generated | Final accepted units reconcile once. |
+| Audit evidence is requested | Both source files and suppression decision are visible. |
+
+## Example 135. ETF Expired-Proxy Valuation Override
+
+### Scenario
+
+An ETF basket proxy expires during a market data outage, but a valuation committee approves a short manual override for a subset of the unpriced basket. The platform must cap approved valuation coverage by the override scope and label the remaining exposure.
+
+| Attribute | Value |
+|---|---:|
+| Unpriced basket exposure after proxy expiry | 8,400,000 |
+| Committee override coverage approved | 5,000,000 |
+| ETF units held | 180,000 |
+| Remaining unapproved exposure | 3,400,000 |
+
+### Override coverage
+
+```text
+approved_override_value_per_unit = committee_override_coverage_approved / etf_units_held
+approved_override_value_per_unit = 5,000,000 / 180,000 = 27.78
+
+unapproved_exposure_per_unit = remaining_unapproved_exposure / etf_units_held
+unapproved_exposure_per_unit = 3,400,000 / 180,000 = 18.89
+```
+
+### Correct treatment
+
+- preserve expired proxy, committee override, basket components, approved scope, expiry and valuation timestamp;
+- use override evidence only for approved basket components and approved horizon;
+- label residual unapproved exposure as provisional or blocked for final reporting;
+- keep ETF trading halt, proxy expiry and committee override as separate valuation states;
+- require renewed source evidence before override can be extended.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Override covers part of expired proxy exposure | Approved and unapproved exposures are separated. |
+| Override expires | Approved proxy coverage is removed unless renewed. |
+| Basket components change | Override requires revalidation against new basket. |
+| ETF valuation report is generated | Override amount and residual unapproved exposure are visible. |
+
+## Example 136. MFN Clawback Investor Statement Reversal
+
+### Scenario
+
+A private-fund MFN adjustment clawback was already included in an investor statement. The administrator later reverses the clawback after confirming eligibility evidence. The platform must issue a statement reversal that restores the valid adjustment without duplicating fee remediation.
+
+| Attribute | Value |
+|---|---:|
+| Clawback previously shown on statement | 1,562.50 |
+| Eligibility-restored amount | 1,562.50 |
+| Original valid MFN adjustment | 4,166.67 |
+| Prior remaining valid adjustment | 2,604.17 |
+
+### Statement reversal
+
+```text
+statement_reversal_amount = min(clawback_previously_shown_on_statement, eligibility_restored_amount)
+statement_reversal_amount = min(1,562.50, 1,562.50) = 1,562.50
+
+restored_valid_adjustment = prior_remaining_valid_adjustment + statement_reversal_amount
+restored_valid_adjustment = 2,604.17 + 1,562.50 = 4,166.67
+```
+
+### Correct treatment
+
+- preserve original MFN election, clawback statement, restored eligibility evidence, reversal approval and amended statement version;
+- reverse statement presentation through a linked correction rather than creating a second MFN benefit;
+- keep fee remediation separate from distributions, NAV movement and capital activity;
+- update investor statement lineage and superseded statement references;
+- block delivery if administrator reversal evidence does not match eligibility terms.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Eligibility is restored | Prior clawback statement line is reversed. |
+| Reversal equals prior clawback | Valid adjustment returns to original amount. |
+| Evidence does not reconcile | Statement reversal is blocked for review. |
+| Investor statement is generated | Original, clawback and reversal versions are traceable. |
+
+## Example 137. Expense-Cap Notice Delivery Failure
+
+### Scenario
+
+An expense-cap restatement requires investor notice, but a subset of notices fails delivery because investor contact preferences are stale. The platform must keep the restatement approved while blocking final notice completion until delivery is remediated or exception-approved.
+
+| Attribute | Value |
+|---|---:|
+| Investors requiring notice | 84 |
+| Notices delivered | 79 |
+| Notices failed delivery | 5 |
+| Approved delivery exceptions | 2 |
+
+### Unresolved notice failures
+
+```text
+unresolved_notice_failures = notices_failed_delivery - approved_delivery_exceptions
+unresolved_notice_failures = 5 - 2 = 3
+
+notice_completion_rate = notices_delivered / investors_requiring_notice
+notice_completion_rate = 79 / 84 = 94.05%
+```
+
+### Correct treatment
+
+- preserve restatement approval, notice template, delivery batch, bounced notices, remediation attempts and approved exceptions;
+- keep restatement approval separate from notice delivery completion;
+- block final notice control closure while unresolved delivery failures remain;
+- route stale contact preferences to client data remediation;
+- show delivered, failed, exception-approved and unresolved notice states in operational reporting.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Notices fail delivery | Notice control remains open. |
+| Some exceptions are approved | Only approved exceptions reduce unresolved failures. |
+| Contact data is remediated | Notice can be re-sent with new delivery evidence. |
+| Client-ready report is generated | Delivery gap is blocked or labelled according to policy. |
+
+## Example 138. UCITS Extension Expiry Breach
+
+### Scenario
+
+A UCITS residual breach extension expires before the remaining exposure is cured. The platform must remove extension coverage, reopen escalation and avoid treating the prior extension as active compliance evidence.
+
+| Attribute | Value |
+|---|---:|
+| Extension-approved residual | 300,000 |
+| Residual exposure still open | 280,000 |
+| Days since extension expiry | 2 |
+| Unapproved residual from prior cure | 150,000 |
+
+### Post-expiry breach
+
+```text
+extension_expired_exposure = residual_exposure_still_open
+extension_expired_exposure = 280,000
+
+total_escalated_breach_after_expiry = residual_exposure_still_open + unapproved_residual_from_prior_cure
+total_escalated_breach_after_expiry = 280,000 + 150,000 = 430,000
+```
+
+### Correct treatment
+
+- preserve original breach, partial cure, extension approval, expiry timestamp, residual exposure and escalation owner;
+- remove extension-approved status after expiry;
+- keep residual breach open until cured or freshly approved under policy;
+- alert compliance and portfolio management when post-expiry breach remains material;
+- show original breach, extension, expiry and current residual separately in compliance reporting.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Extension expires before cure | Residual exposure re-enters breach escalation. |
+| Residual exposure changes | Breach recalculates from latest source evidence. |
+| New extension is approved | New extension has fresh scope and expiry. |
+| Compliance report is generated | Expired extension and active breach are separately visible. |
+
+## Example 139. Feeder Interest Reversal Settlement Dispute
+
+### Scenario
+
+A feeder facility interest reallocation reversal is settled, but one investor disputes the settlement because the administrator used the wrong investor weight. The platform must keep the disputed share open while posting the undisputed settlement.
+
+| Attribute | Value |
+|---|---:|
+| Total interest reallocation reversal | 1,500 |
+| Undisputed settlement amount | 1,050 |
+| Disputed investor share | 450 |
+| Administrator corrected total interest | 15,000 |
+
+### Disputed settlement
+
+```text
+settlement_dispute_amount = total_interest_reallocation_reversal - undisputed_settlement_amount
+settlement_dispute_amount = 1,500 - 1,050 = 450
+
+settled_reversal_ratio = undisputed_settlement_amount / total_interest_reallocation_reversal
+settled_reversal_ratio = 1,050 / 1,500 = 70.00%
+```
+
+### Correct treatment
+
+- preserve governing-body reversal, settlement notice, investor dispute, administrator weight file and corrected interest total;
+- post undisputed settlement while keeping disputed investor share open;
+- keep facility interest settlement separate from facility principal, redemption proceeds and fund expenses;
+- prevent investor statements from showing disputed settlement as final;
+- reconcile settled and disputed shares to the total reversal amount.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Partial settlement is undisputed | Undisputed amount posts with settlement evidence. |
+| Investor disputes weight | Disputed share remains open. |
+| Amounts do not reconcile | Posting is blocked for administrator review. |
+| Investor statement is generated | Settled and disputed interest reversal amounts are separated. |
