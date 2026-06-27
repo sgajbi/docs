@@ -4256,3 +4256,213 @@ QA assertions:
 | Official settlement already booked | Official settlement remains unchanged. |
 | Withdrawal lacks source confirmation | Appeal remains open or provisional. |
 | Risk report is generated | Appeal filed, withdrawn and closed states are traceable. |
+
+## 128. Futures Appeal Reversal Invoice Dispute
+
+Scenario:
+
+- A futures delivery quality-grade appeal settlement reversal is invoiced by the exchange.
+- The client disputes the reversal invoice because the second inspection reference does not match the delivered lot.
+- The platform must keep the disputed invoice open without changing delivered quantity or variation margin.
+
+Disputed invoice exposure:
+
+```text
+disputed_invoice_amount = exchange_reversal_invoice_amount - accepted_reversal_amount
+disputed_invoice_amount = 7,500 - 3,000 = 4,500
+
+undisputed_invoice_amount = exchange_reversal_invoice_amount - disputed_invoice_amount
+undisputed_invoice_amount = 7,500 - 4,500 = 3,000
+```
+
+Correct treatment:
+
+- preserve delivery invoice, second inspection, reversal invoice, lot reference, client dispute and exchange acknowledgement;
+- post undisputed invoice amount only when invoice policy allows partial settlement;
+- keep disputed invoice exposure separate from futures variation margin and trading P&L;
+- keep delivered quantity and final delivery lot state unchanged;
+- show invoice dispute state in delivery operations reporting.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Invoice dispute is filed | Disputed invoice amount remains open. |
+| Partial settlement is allowed | Only undisputed invoice amount is posted. |
+| Lot reference mismatches | Dispute remains unresolved until exchange evidence arrives. |
+| Delivery report is generated | Delivered lot, invoice reversal and dispute amount reconcile. |
+
+## 129. Option Waiver Expiry Breach
+
+Scenario:
+
+- A temporary option assignment lot-method waiver expires before final tax-lot evidence arrives.
+- A client tax pack is requested after expiry.
+- The platform must detect the expired waiver and prevent stale waiver evidence from supporting final output.
+
+Expired waiver exposure:
+
+```text
+expired_waiver_days = days_since_waiver_approval - waiver_valid_days
+expired_waiver_days = 14 - 10 = 4
+
+provisional_tax_difference_at_risk = abs(provisional_specific_lot_gain - fallback_fifo_gain)
+provisional_tax_difference_at_risk = abs(29,100 - 32,400) = 3,300
+```
+
+Correct treatment:
+
+- preserve assignment notice, waiver approval, expiry, covered lots, final evidence status and tax-pack request;
+- block final output or label it expired-provisional according to reporting policy;
+- prevent expired waiver from changing cash settlement, premium or underlying position;
+- route overdue evidence to tax operations;
+- keep waiver-expired lots distinct from lots with final evidence.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Waiver expires before final evidence | Expired-waiver breach opens. |
+| Tax pack is requested | Output is blocked or labelled expired-provisional. |
+| Final evidence arrives later | Final tax-lot result supersedes waiver state. |
+| Tax operations report is generated | Expired waiver days and exposed lots are visible. |
+
+## 130. Cleared Swap Interest Ageing Settlement Reversal
+
+Scenario:
+
+- A cleared swap collateral interest claim ages past SLA and is later settled.
+- The clearing member reverses part of the settlement after discovering an interest-rate period mismatch.
+- The platform must reverse only the unsupported settlement amount while keeping the principal transfer closed.
+
+Settlement reversal:
+
+```text
+unsupported_interest_settlement = settled_interest_amount - corrected_interest_amount
+unsupported_interest_settlement = 2,467.50 - 1,980.00 = 487.50
+
+retained_interest_settlement = settled_interest_amount - unsupported_interest_settlement
+retained_interest_settlement = 2,467.50 - 487.50 = 1,980.00
+```
+
+Correct treatment:
+
+- preserve original interest claim, ageing escalation, settlement notice, reversal notice, rate-period evidence and clearing-member response;
+- reverse only unsupported interest settlement;
+- keep collateral principal transfer and account consolidation state unchanged;
+- avoid reporting reversal as swap market P&L;
+- show aged, settled, reversed and retained interest states in collateral operations reporting.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Settlement reversal arrives | Unsupported interest settlement is reversed. |
+| Principal transfer was closed | Principal transfer remains closed. |
+| Rate-period evidence is missing | Reversal remains provisional or blocked. |
+| Collateral report is generated | Aged claim, settlement and reversal reconcile. |
+
+## 131. Volatility Scope Expansion Denial
+
+Scenario:
+
+- A desk requests expansion of a volatility fallback renewal to include structured autocall hedge products.
+- Risk denies the expansion because the fallback vendor mapping has not been validated.
+- The platform must keep the products outside approved valuation scope and avoid silent fallback use.
+
+Denied scope exposure:
+
+```text
+denied_scope_product_count = requested_scope_product_count - approved_scope_product_count
+denied_scope_product_count = 18 - 0 = 18
+
+denied_scope_notional = requested_scope_notional - approved_scope_notional
+denied_scope_notional = 22,000,000 - 0 = 22,000,000
+```
+
+Correct treatment:
+
+- preserve scope expansion request, denied product list, fallback vendor mapping, risk decision and remediation owner;
+- keep denied products blocked or source-limited until validated scope approval exists;
+- separate primary data outage, approved fallback scope and denied expansion scope;
+- prevent downstream Greeks and valuation reports from presenting denied fallback values as approved;
+- route mapping validation to model or market-data governance.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Scope expansion is denied | Requested products remain outside approved fallback scope. |
+| Valuation run includes denied products | Values are blocked or labelled source-limited. |
+| Mapping validation later passes | New approval is required before fallback use. |
+| Risk report is generated | Approved and denied fallback coverage are separate. |
+
+## 132. Collateral Amended-Statement Delivery Failure
+
+Scenario:
+
+- A collateral tax reversal amended statement is generated after tax classification correction.
+- Delivery fails for some clients because the statement package references an expired document envelope.
+- The platform must keep the amended statement approved but delivery-incomplete until remediation.
+
+Delivery failure count:
+
+```text
+undelivered_amended_statements = amended_statements_required - amended_statements_delivered
+undelivered_amended_statements = 42 - 37 = 5
+
+delivery_completion_rate = amended_statements_delivered / amended_statements_required
+delivery_completion_rate = 37 / 42 = 88.10%
+```
+
+Correct treatment:
+
+- preserve amended statement, approval, delivery batch, expired envelope, failed recipients and remediation package;
+- keep tax classification approval separate from delivery completion;
+- suppress duplicate delivery unless a replacement package is approved;
+- block final delivery control closure while unresolved failures remain;
+- show approved, delivered, failed and replacement-package states in reporting.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Envelope expiry causes delivery failure | Delivery remains incomplete. |
+| Statement is already approved | Approval state remains separate from delivery state. |
+| Replacement package is issued | Replacement links to original failed package. |
+| Client tax pack is generated | Delivery failures are blocked or exception-labelled. |
+
+## 133. Variance-Swap Withdrawal Correction Notice
+
+Scenario:
+
+- A variance-swap settlement appeal withdrawal was processed.
+- The calculation agent later sends a correction notice because the withdrawal covered only part of the appealed observation window.
+- The platform must reopen the remaining disputed exposure while preserving the official settlement.
+
+Corrected withdrawal exposure:
+
+```text
+remaining_withdrawal_gap = original_appeal_delta - corrected_withdrawn_delta
+remaining_withdrawal_gap = 47,500 - 31,000 = 16,500
+
+closed_withdrawal_delta = corrected_withdrawn_delta
+closed_withdrawal_delta = 31,000
+```
+
+Correct treatment:
+
+- preserve original appeal, withdrawal notice, correction notice, observation window, official settlement and calculation-agent confirmation;
+- reopen only the corrected remaining appeal exposure;
+- keep official settlement unchanged until a separate final correction changes booked economics;
+- version withdrawn, corrected and reopened appeal states;
+- explain correction separately from realized variance-swap P&L.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Correction notice narrows withdrawal scope | Remaining appeal exposure reopens. |
+| Official settlement is unchanged | Booked settlement remains active. |
+| Observation window is missing | Correction remains blocked or provisional. |
+| Risk report is generated | Withdrawn, corrected and reopened appeal states are traceable. |
