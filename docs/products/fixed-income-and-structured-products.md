@@ -14,7 +14,7 @@ This page connects product reference packs that are often used together in priva
 
 | Example Pack | Use |
 |---|---|
-| [`bonds/05-worked-examples-and-implementation-patterns.md`](bonds/05-worked-examples-and-implementation-patterns.md) | Bond settlement, accrued interest, yields, duration, callable bonds, downgrades, default/recovery, inflation-linked uplift, amortising schedules, convertibles, ABS prepayments, sinkable bonds, make-whole calls, distressed exchanges, tax-lot sales, accrued-interest corrections and cross-currency hedged performance examples. |
+| [`bonds/05-worked-examples-and-implementation-patterns.md`](bonds/05-worked-examples-and-implementation-patterns.md) | Bond settlement, accrued interest, yields, duration, callable bonds, downgrades, default/recovery, inflation-linked uplift, amortising schedules, convertibles, ABS prepayments and factor restatements, sinkable bonds, make-whole calls, distressed exchanges, tender offers, consent solicitations, tax-lot sales, accrued-interest corrections, contingent convertibles, perpetual resets, hedged attribution and multi-book accounting examples. |
 | [`structured-products/08-worked-examples-and-implementation-patterns.md`](structured-products/08-worked-examples-and-implementation-patterns.md) | Autocallable, memory coupon, principal-protection, buffer, dual-currency, accumulator, decumulator, certificate, valuation-control and mandate examples. |
 | [`structured-notes/05-worked-examples-and-implementation-patterns.md`](structured-notes/05-worked-examples-and-implementation-patterns.md) | Note-wrapper examples for fixed coupon notes, reverse convertibles, Phoenix autocalls, credit-linked notes, dual currency notes, barrier reporting and lifecycle support boundaries. |
 
@@ -47,6 +47,9 @@ Use `structured-notes/` when the work is specifically about issuer-note wrappers
 | Sinkable bonds | Partial principal redemption schedules affect outstanding nominal, coupon accrual, yield, weighted-average life and liquidity forecasts. |
 | Make-whole calls | Redemption price may include contractual premium and accrued interest; call price should be source-confirmed rather than defaulted to par. |
 | Distressed exchanges | Old bonds, new notes, cash consideration and economic loss/gain require event lineage and source-confirmed exchange terms. |
+| Tender offers and consent solicitations | Election, acceptance, fee, amendment and partial-acceptance states must remain separate from ordinary sales or coupon income. |
+| Contingent convertibles and perpetual resets | Capital-trigger events, coupon cancellation, write-down/conversion, call assumptions and reset coupons need explicit source terms and support-limited states. |
+| Multi-book accounting | Fair value, amortized cost, tax lot and performance books should not overwrite one another. |
 | Bond tax lots and accrual corrections | Realized results, remaining cost basis and corrected accrued interest require auditable source and policy lineage. |
 
 ## Reusable Modelling Pattern

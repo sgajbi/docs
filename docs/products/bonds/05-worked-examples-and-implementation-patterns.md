@@ -831,6 +831,280 @@ hedged result = -8,600 + 24,000 = 15,400
 | FX rates are stale | Attribution is stale or blocked. |
 | Hedge ratio is below 100% | Residual currency exposure remains visible. |
 
+## Example 20. Source-Restated ABS Factor
+
+### Scenario
+
+A trustee restates the prior month factor for an asset-backed security after correcting principal collections. The original factor was already used in valuation and performance.
+
+| Attribute | Original | Restated |
+|---|---:|---:|
+| Original principal | 1,000,000 | 1,000,000 |
+| Ending current principal | 700,000 | 690,000 |
+| Factor | 0.7000 | 0.6900 |
+
+### Restatement impact
+
+```text
+principal delta = restated current principal - original current principal
+principal delta = 690,000 - 700,000
+principal delta = -10,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Position | Current face is restated from source, preserving original factor history. |
+| Cashflow | Principal return or receivable/payable is adjusted with source period lineage. |
+| Valuation | Market value, yield and weighted-average life are recomputed from restated factor. |
+| Performance | Prior period impact is assessed for restatement or next-period correction. |
+| Reporting | Reported factor carries source date, remittance period and restatement flag. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Factor is restated after reporting | Impact assessment identifies affected valuation and performance outputs. |
+| Cash principal does not match factor movement | Reconciliation break opens between trustee cash and factor data. |
+| Restatement source date is missing | Output is labelled source-limited. |
+| Historical report is rerun | Original and restated factor versions remain auditable. |
+
+## Example 21. Bond Tender Offer With Partial Acceptance
+
+### Scenario
+
+An issuer offers to repurchase bonds at a premium. The client tenders 500,000 nominal, but the offer is oversubscribed and only 60% is accepted.
+
+| Attribute | Value |
+|---|---:|
+| Tendered nominal | 500,000 |
+| Accepted percentage | 60% |
+| Tender price | 102.50 |
+| Accrued interest per 100 nominal | 0.80 |
+
+### Cash outcome
+
+```text
+accepted nominal = 500,000 x 60% = 300,000
+tender principal proceeds = 300,000 x 102.50 / 100 = 307,500
+accrued interest received = 300,000 x 0.80 / 100 = 2,400
+total cash received = 307,500 + 2,400 = 309,900
+remaining nominal = 500,000 - 300,000 = 200,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Election | Store tender instruction, deadline, accepted percentage and source notice. |
+| Position | Reduce only accepted nominal, not full tendered nominal. |
+| Cash | Split tender price economics from accrued interest. |
+| Performance | Realized result compares accepted proceeds to the accepted lot carrying value. |
+| Client reporting | Show remaining bond position and tender outcome clearly. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Tender is only partially accepted | Position reduces by accepted nominal only. |
+| Accrued interest is paid separately | Income/accrual reporting separates it from tender premium. |
+| Acceptance percentage arrives late | Tender remains pending until source confirmation. |
+| Client tenders after deadline | Election is rejected or labelled late according to source status. |
+
+## Example 22. Consent Solicitation Fee And Covenant Change
+
+### Scenario
+
+An issuer asks bondholders to consent to a covenant amendment and pays a consent fee to participating holders.
+
+| Attribute | Value |
+|---|---:|
+| Eligible nominal | 400,000 |
+| Consent fee | 0.25 per 100 nominal |
+| Consent fee cash | 1,000 |
+
+### Calculation
+
+```text
+consent fee cash = eligible nominal x fee per 100 / 100
+consent fee cash = 400,000 x 0.25 / 100
+consent fee cash = 1,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Election | Store consent decision, authority, deadline and source acceptance status. |
+| Cash | Book consent fee as event-linked cashflow according to income/fee policy. |
+| Instrument terms | Update covenant terms only after amendment becomes effective. |
+| Risk | Flag changed covenant protection, subordination or issuer flexibility. |
+| Reporting | Explain fee and changed terms without treating the event as a sale. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Consent submitted but not accepted | No fee is booked until source acceptance. |
+| Amendment fails threshold | Instrument terms remain unchanged. |
+| Fee is received without election record | Reconciliation exception opens. |
+| Covenant change affects suitability | Product governance or advisory review is triggered. |
+
+## Example 23. Contingent Convertible Trigger Event
+
+### Scenario
+
+A bank contingent convertible bond breaches a regulatory capital trigger. The instrument terms require a permanent write-down of 30% of nominal.
+
+| Attribute | Value |
+|---|---:|
+| Opening nominal | 250,000 |
+| Trigger write-down | 30% |
+| Remaining nominal | 175,000 |
+
+### Write-down
+
+```text
+write_down_nominal = 250,000 x 30% = 75,000
+remaining_nominal = 250,000 - 75,000 = 175,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Event | Store regulatory trigger, issuer notice, effective date and term basis. |
+| Position | Reduce nominal or create conversion shares according to confirmed instrument terms. |
+| P&L | Recognize write-down or conversion economics under accounting/performance policy. |
+| Income | Stop or amend coupon accrual if coupon cancellation or write-down terms require it. |
+| Advisory | Flag complexity, capital-trigger risk, subordination and suitability implications. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Trigger notice is confirmed | Position and valuation update from source terms. |
+| Trigger is rumored but not confirmed | No accounting event posts; risk status may be flagged. |
+| Coupon is cancelled | Accrual and projected income are reversed or stopped. |
+| Terms require conversion instead of write-down | Equity position is created only after confirmed conversion terms. |
+
+## Example 24. Perpetual Bond Coupon Reset
+
+### Scenario
+
+A perpetual subordinated bond has no final maturity. Its coupon resets on the first call date to the then-current benchmark rate plus a fixed reset spread.
+
+| Attribute | Value |
+|---|---:|
+| Current nominal | 500,000 |
+| Original coupon | 4.75% |
+| Reset benchmark rate | 3.20% |
+| Reset spread | 2.10% |
+| Reset coupon | 5.30% |
+
+### Reset calculation
+
+```text
+reset coupon = benchmark rate + reset spread
+reset coupon = 3.20% + 2.10%
+reset coupon = 5.30%
+
+annual coupon cash after reset = 500,000 x 5.30% = 26,500
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Schedule | Store call date, reset date, benchmark, spread and coupon frequency. |
+| Accrual | Start new accrual rate only from the effective reset date. |
+| Yield | Use call and reset assumptions explicitly; do not force a legal maturity. |
+| Liquidity | Treat perpetual maturity ladder separately from expected call scenarios. |
+| Advisory | Explain extension risk if issuer does not call. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Benchmark fixing is missing | Reset coupon is source-limited and accrual cannot finalize. |
+| Issuer does not call | Position remains open and coupon resets according to terms. |
+| System assumes maturity at first call | QA fails because call date is not legal maturity. |
+| Reset spread is stale or wrong | Coupon and projected income are blocked or corrected. |
+
+## Example 25. Hedged Bond Benchmark Attribution
+
+### Scenario
+
+A USD portfolio holds a EUR bond hedged with an FX forward. The performance report compares the hedged bond sleeve against a USD-hedged EUR bond benchmark.
+
+| Component | Portfolio | Benchmark |
+|---|---:|---:|
+| Local bond return | 1.80% | 1.50% |
+| Currency hedge result | 0.60% | 0.55% |
+| Fees and residual | -0.10% | 0.00% |
+| Total hedged return | 2.30% | 2.05% |
+
+### Attribution
+
+```text
+excess return = portfolio hedged return - benchmark hedged return
+excess return = 2.30% - 2.05%
+excess return = 0.25%
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Benchmark | Use a benchmark that matches currency hedge policy and duration/spread exposure where available. |
+| Hedge link | Attribute hedge P&L only when hedge relationship is source-backed or policy-defined. |
+| Residual | Show timing, hedge ratio, roll cost, fees and basis differences separately where possible. |
+| Reporting | Avoid comparing hedged portfolio return to an unhedged benchmark without disclosure. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Benchmark hedge basis differs | Report labels benchmark mismatch or blocks precise attribution. |
+| Hedge P&L is missing | Hedged attribution is source-limited. |
+| Portfolio is partially hedged | Residual currency exposure remains visible. |
+| Benchmark changes mid-period | Attribution stores effective-dated benchmark membership and policy. |
+
+## Example 26. Multi-Book Bond Accounting
+
+### Scenario
+
+The same bond position is reported under different accounting views: investment performance uses fair value, while accounting ledger reporting uses amortized cost.
+
+| Attribute | Value |
+|---|---:|
+| Nominal | 1,000,000 |
+| Amortized cost carrying value | 985,000 |
+| Fair market value | 972,000 |
+| Accrued interest | 12,500 |
+
+### View separation
+
+| View | Value basis | Treatment |
+|---|---|---|
+| Accounting book | Amortized cost plus accrual | Supports ledger, income accrual and accounting reports. |
+| Performance book | Fair value plus accrual | Supports market return, contribution and risk reports. |
+| Tax book | Lot cost and realized result basis | Supports tax reporting and realized gain/loss policy. |
+
+### Correct treatment
+
+The platform should not overwrite one value basis with another. Each report must state which book, valuation basis, accrued-interest treatment and effective date it uses.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Accounting report is generated | Uses amortized cost basis and accrual policy. |
+| Performance report is generated | Uses fair value basis and market return methodology. |
+| Tax lot sale occurs | Uses tax book lot basis, not fair value. |
+| One book is missing | Report labels unavailable basis instead of substituting another book silently. |
+
 ## Implementation-backed capability lens
 
 When reviewing whether a platform truly supports bonds, use these evidence questions:
