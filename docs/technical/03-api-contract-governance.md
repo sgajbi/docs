@@ -2,6 +2,8 @@
 
 APIs are durable contracts, not just function calls over HTTP. In enterprise banking and wealth platforms, API quality affects downstream UI behavior, integration risk, auditability, supportability and release confidence.
 
+For deeper API contract design and governance guidance, use [`api-contract-engineering/`](api-contract-engineering/README.md).
+
 ## Good API Contract Characteristics
 
 | Characteristic | What it means |

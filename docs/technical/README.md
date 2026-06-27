@@ -10,7 +10,9 @@ It translates patterns observed across a mature multi-application platform into 
 |---|---|
 | [`01-architecture-and-service-boundaries.md`](01-architecture-and-service-boundaries.md) | Understand domain services, experience APIs, shared capabilities, platform governance, boundary ownership and integration rules. |
 | [`02-backend-application-structure.md`](02-backend-application-structure.md) | Learn how backend services should be organized into routers, services, domain modules, repositories, adapters, contracts and runtime composition. |
+| [`backend-service-design/`](backend-service-design/README.md) | Deep-dive into backend service mission, boundaries, clean architecture, domain models, use cases, ports/adapters, persistence, events, errors, security, observability, testing and refactoring. |
 | [`03-api-contract-governance.md`](03-api-contract-governance.md) | Apply API design, OpenAPI, vocabulary, error semantics, pagination, versioning and contract governance practices. |
+| [`api-contract-engineering/`](api-contract-engineering/README.md) | Deep-dive into API-as-contract design, REST routes, BFF composition, OpenAPI quality gates, DTO boundaries, errors, pagination, idempotency, caller context, versioning, security, observability, testing and event integration. |
 | [`04-data-mesh-and-data-product-engineering.md`](04-data-mesh-and-data-product-engineering.md) | Learn domain-owned data products, trust telemetry, source ownership, access policy, evidence policy and data-product certification. |
 | [`05-ci-cd-quality-gates-and-release-governance.md`](05-ci-cd-quality-gates-and-release-governance.md) | Understand repository-native commands, lane-based CI, quality gates, release evidence, branch hygiene and merge discipline. |
 | [`06-observability-sre-and-operational-support.md`](06-observability-sre-and-operational-support.md) | Learn logging, metrics, tracing, health checks, SLOs, incident response, runbooks, supportability and operational evidence. |
@@ -47,12 +49,12 @@ The strongest engineering systems make the correct path easy: one local command 
 
 | Role | Useful starting point |
 |---|---|
-| Backend engineer | Files 02, 03, 05, 08, 09 and 13. |
-| Architect | Files 01, 03, 04, 06, 09, 12 and 13. |
+| Backend engineer | Files 02, 03, 05, 08, 09, 13 and the backend/API deep-dive packs. |
+| Architect | Files 01, 03, 04, 06, 09, 12, 13 and the backend/API deep-dive packs. |
 | DevOps / platform engineer | Files 05, 06, 07, 08, 10, 11 and 12. |
 | QA engineer | Files 03, 05, 08, 09 and 13. |
 | Frontend engineer | Files 03, 06, 08, 09, 12 and 13. |
-| Engineering lead | Files 01, 04, 05, 06, 09, 10, 11, 12, 13, 14, 16, 17 and the coverage matrix. |
+| Engineering lead | Files 01, 04, 05, 06, 09, 10, 11, 12, 13, 14, 16, 17, the backend/API deep-dive packs and the coverage matrix. |
 | New joiner | Read files 01 through 14 in order, then use files 15 through 17 and the coverage matrix to choose deeper slices. |
 
 ## Relationship To Reference Packs

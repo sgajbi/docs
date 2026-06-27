@@ -2,6 +2,8 @@
 
 Backend services should be boring in the best way: predictable folders, thin HTTP routes, clear domain modules, typed contracts, explicit repositories, and central runtime composition.
 
+For deeper backend service design guidance, use [`backend-service-design/`](backend-service-design/README.md).
+
 ## Common Service Layout
 
 ```text

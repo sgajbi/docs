@@ -15,7 +15,9 @@ Use it to decide:
 |---|---|---|---|
 | Architecture boundaries | [`01-architecture-and-service-boundaries.md`](01-architecture-and-service-boundaries.md) | Strong coverage of domain services, experience APIs, product UI, shared capabilities, platform governance, source ownership, composition boundaries and architecture smells. | Add deeper examples for event ownership, batch ownership, shared library boundaries and multi-region ownership decisions. |
 | Backend application structure | [`02-backend-application-structure.md`](02-backend-application-structure.md) | Strong coverage of routers, services, domain modules, repositories, integrations, contracts, runtime composition, configuration and background work. | Add deeper examples for async workers, repository transaction boundaries, service protocols and refactoring large modules. |
+| Backend service design deep dive | [`backend-service-design/`](backend-service-design/README.md) | Strong deep-dive coverage of service mission, capability ownership, bounded contexts, clean architecture, domain models, use cases, ports/adapters, persistence, transactions, outbox, idempotency, errors, caller context, observability, tests, refactoring and service-design checklists. | Add implementation-backed case studies for refactoring controller-heavy services, extracting ports, adding outbox processing and splitting overloaded service boundaries. |
 | API contract governance | [`03-api-contract-governance.md`](03-api-contract-governance.md) | Strong coverage of endpoint design, request/response governance, supportability, error semantics, pagination, vocabulary, OpenAPI and aliases. | Add deeper examples for backward-compatible API change, consumer-driven contract testing and deprecation plans. |
+| API contract engineering deep dive | [`api-contract-engineering/`](api-contract-engineering/README.md) | Strong deep-dive coverage of API-as-contract thinking, REST route design, BFF composition, OpenAPI quality gates, DTO/domain boundaries, problem details, pagination, idempotency, caller context, versioning, security, observability, contract testing, event integration and API governance playbooks. | Add worked examples for API lifecycle migration, deprecation windows, generated-client compatibility, BFF degraded response certification and AsyncAPI event contracts. |
 | Data mesh and data products | [`04-data-mesh-and-data-product-engineering.md`](04-data-mesh-and-data-product-engineering.md) | Strong coverage of data products, certification, trust telemetry, access policy, evidence policy, producer workflow and consumer workflow. | Add deeper examples for data-product SLOs, dependency graphs, consumer impact analysis and source outage playbooks. |
 | CI/CD and quality gates | [`05-ci-cd-quality-gates-and-release-governance.md`](05-ci-cd-quality-gates-and-release-governance.md) | Strong coverage of repo-native commands, lane model, good gate design, release evidence, branch hygiene, merge governance and CI anti-patterns. | Add deeper examples for gate promotion intake, flaky-check demotion, quality scorecards and release artifact review. |
 | Observability and SRE | [`06-observability-sre-and-operational-support.md`](06-observability-sre-and-operational-support.md) | Strong coverage of structured logs, metrics, traces, health checks, SLO thinking, incident workflow, runbooks and supportability states. | Add deeper examples for alert design, dashboard review, incident severity classification and error-budget operation. |
@@ -52,19 +54,21 @@ The technical knowledge base now has strong coverage for:
 
 1. architecture and service ownership,
 2. backend service structure,
-3. API contract governance,
-4. data products and data mesh,
-5. CI/CD lane model and quality gates,
-6. observability and SRE supportability,
-7. security and sensitive-data handling,
-8. testing, performance and resilience,
-9. infrastructure, containers and deployment,
-10. Git, release and documentation truth,
-11. technology stack reasoning,
-12. frontend and experience-API supportability,
-13. performance, resilience and async execution depth,
-14. practical engineering review checklists,
-15. implementation evidence reading.
+3. backend service-design depth,
+4. API contract governance,
+5. API contract-engineering depth,
+6. data products and data mesh,
+7. CI/CD lane model and quality gates,
+8. observability and SRE supportability,
+9. security and sensitive-data handling,
+10. testing, performance and resilience,
+11. infrastructure, containers and deployment,
+12. Git, release and documentation truth,
+13. technology stack reasoning,
+14. frontend and experience-API supportability,
+15. performance, resilience and async execution depth,
+16. practical engineering review checklists,
+17. implementation evidence reading.
 
 ## Next High-Value Slices
 
