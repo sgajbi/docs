@@ -4050,3 +4050,209 @@ QA assertions:
 | Appeal amount differs | Disputed settlement delta is calculated and tracked. |
 | Appeal succeeds | Settlement correction is booked from final source outcome. |
 | Client report is generated | Official settlement, appeal delta and final state are explainable. |
+
+## 122. Futures Quality-Grade Appeal Settlement Reversal
+
+Scenario:
+
+- A futures delivery quality-grade appeal was accepted and the invoice discount was reduced.
+- The exchange later reverses part of the appeal settlement after a second inspection.
+- The platform must reverse only the settlement delta and preserve the final delivery grade history.
+
+Settlement reversal:
+
+```text
+appeal_settlement_reversal = accepted_appeal_value - final_confirmed_appeal_value
+appeal_settlement_reversal = 24,000 - 16,500 = 7,500
+```
+
+Correct treatment:
+
+- preserve original delivery invoice, first inspection, accepted appeal, second inspection, exchange reversal and final invoice;
+- reverse only the appeal settlement delta while keeping delivered quantity and final grade evidence intact;
+- avoid treating reversal as variation margin or new futures trading P&L;
+- update physical delivery cost, invoice adjustment and client explanation from final source evidence;
+- retain all inspection and appeal versions for audit.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Appeal settlement reversal arrives | Invoice adjustment is reduced through linked reversal. |
+| Delivered quantity is unchanged | Quantity and delivery position remain unchanged. |
+| Reversal lacks exchange evidence | Adjustment is blocked or labelled provisional. |
+| Delivery report is generated | Original grade, appealed grade, reversed amount and final invoice reconcile. |
+
+## 123. Option Lot-Method Appeal Waiver
+
+Scenario:
+
+- An option assignment lot-method correction is under appeal.
+- Tax operations grants a temporary waiver allowing a client tax pack to proceed with provisional specific-lot sourcing.
+- The waiver covers only the appealed tax lots and expires before final tax filing.
+
+Waiver exposure:
+
+```text
+waived_lot_method_exposure = provisional_specific_lot_gain - fallback_fifo_gain
+waived_lot_method_exposure = 29,100 - 32,400 = -3,300
+
+waiver_days_remaining = waiver_expiry_days - days_since_waiver_approval
+waiver_days_remaining = 10 - 7 = 3
+```
+
+Correct treatment:
+
+- preserve assignment notice, lot-method appeal, waiver approval, covered lots, expiry and final filing deadline;
+- label tax output provisional while waiver is active;
+- prevent waiver from changing cash settlement, option premium or underlying share quantity;
+- expire waiver automatically if final evidence does not arrive before filing;
+- show waived lots and non-waived lots separately in tax operations reporting.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Waiver is active | Provisional tax output can proceed with waiver label. |
+| Waiver scope excludes a lot | Excluded lot remains blocked or fallback-labelled. |
+| Waiver expires | Tax output returns to blocked or provisional-expired state. |
+| Final lot evidence arrives | Final tax-lot result supersedes waiver output. |
+
+## 124. Cleared Swap Collateral Interest Dispute Ageing
+
+Scenario:
+
+- A cleared swap transfer has an unresolved collateral interest claim.
+- The clearing member has not responded within the operating SLA.
+- The platform must age the disputed interest claim without reopening transferred principal.
+
+Ageing breach:
+
+```text
+interest_claim_ageing_breach_days = claim_age_business_days - response_sla_business_days
+interest_claim_ageing_breach_days = 18 - 10 = 8
+
+ageing_exposure = transferred_collateral_interest_claim
+ageing_exposure = 2,467.50
+```
+
+Correct treatment:
+
+- preserve collateral transfer files, interest claim, clearing member acknowledgement, SLA, escalation owner and response history;
+- keep collateral principal transfer closed while interest claim remains open;
+- escalate aged claims according to operations policy;
+- avoid booking disputed interest as cash before settlement;
+- show age, exposure and response status in collateral operations reporting.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Claim exceeds response SLA | Ageing breach and escalation are opened. |
+| Principal transfer is complete | Principal transfer remains closed. |
+| Interest claim is paid | Cash posting links to original claim. |
+| Collateral dashboard is generated | Claim amount, age, SLA and escalation status are visible. |
+
+## 125. Volatility Fallback Renewal Scope Breach
+
+Scenario:
+
+- A volatility surface fallback renewal approves only equity index options.
+- The portfolio still uses fallback volatility for single-name equity options and structured autocall hedges.
+- The platform must detect products outside renewed scope and block or label valuations.
+
+Scope breach:
+
+```text
+fallback_scope_breach_count = products_using_fallback - products_with_renewed_scope_approval
+fallback_scope_breach_count = 42 - 31 = 11
+
+scope_breach_percentage = fallback_scope_breach_count / products_using_fallback
+scope_breach_percentage = 11 / 42 = 26.19%
+```
+
+Correct treatment:
+
+- preserve original fallback approval, renewal scope, product inventory, valuation run, unmapped product list and risk approval;
+- apply renewed fallback only to approved product classes;
+- label or block valuations for products outside scope;
+- keep primary outage, fallback expiry and scope breach as separate governance states;
+- reconcile valuation impact once primary vendor resumes.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Renewal scope is narrower than usage | Out-of-scope products are identified. |
+| Product class is not approved | Valuation is blocked or source-limited. |
+| Risk approves scope expansion | Approval carries effective date and product scope. |
+| Valuation report is generated | Approved and breached fallback coverage are separate. |
+
+## 126. Collateral Tax Reversal Amended Statement
+
+Scenario:
+
+- A collateral dispute tax treatment reversal changes a prior client tax statement.
+- The amended statement must update taxable interest and non-taxable compensation labels without changing cash or principal settlement.
+
+Amended statement split:
+
+```text
+taxable_interest_statement_reduction = originally_reported_taxable_interest - corrected_taxable_interest
+taxable_interest_statement_reduction = 14,200 - 9,600 = 4,600
+
+cash_statement_change = corrected_total_cash_received - original_total_cash_received
+cash_statement_change = 14,200 - 14,200 = 0
+```
+
+Correct treatment:
+
+- preserve original statement, tax review, corrected classification, amended statement, delivery evidence and approval;
+- update tax labels while keeping cash receipt and collateral principal settlement unchanged;
+- show superseded and amended tax statement versions;
+- prevent duplicate cashflow creation from the amended statement;
+- block final tax delivery if approval or classification evidence is missing.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Amended tax statement is generated | Taxable and non-taxable labels are corrected. |
+| Cash amount is unchanged | Ledger cash and collateral principal settlement remain unchanged. |
+| Approval is missing | Amended statement remains blocked or provisional. |
+| Client tax pack is produced | Original and amended statement lineage is visible. |
+
+## 127. Variance-Swap Settlement Appeal Withdrawal Event
+
+Scenario:
+
+- A counterparty appealed a variance-swap extraordinary closure settlement.
+- The counterparty later withdraws the appeal before final determination.
+- The platform must close the appealed settlement delta without changing the official settlement.
+
+Withdrawal closure:
+
+```text
+appeal_delta_closed = appealed_settlement_delta
+appeal_delta_closed = 47,500
+
+remaining_appeal_exposure = appealed_settlement_delta - appeal_delta_closed
+remaining_appeal_exposure = 47,500 - 47,500 = 0
+```
+
+Correct treatment:
+
+- preserve original appeal, withdrawal notice, official settlement, calculation-agent confirmation and closure approval;
+- close disputed appeal exposure when withdrawal is source-confirmed;
+- keep official settlement unchanged unless a separate correction notice arrives;
+- remove appeal flag from future reporting while retaining historical appeal lineage;
+- avoid booking withdrawal as realized P&L or settlement cash.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Appeal withdrawal is received | Disputed appeal exposure closes. |
+| Official settlement already booked | Official settlement remains unchanged. |
+| Withdrawal lacks source confirmation | Appeal remains open or provisional. |
+| Risk report is generated | Appeal filed, withdrawn and closed states are traceable. |
