@@ -4945,3 +4945,251 @@ waiver_breach_amount = 640,000 - 500,000 = 140,000
 | Waiver is active | Active waiver does not suppress breach escalation. |
 | Remediation closes breach | Closure evidence links to funding, reversal, sale or approved amendment. |
 | Liquidity dashboard is generated | Approved waiver, actual shortfall and breach remediation are distinct. |
+
+## Example 122. Sweep cancellation cut-off miss
+
+### Scenario
+
+A treasury sweep cancellation is requested after a payment risk alert, but the cancellation misses the fund cut-off. The cash remains invested overnight and cannot be used for same-day settlement.
+
+| Attribute | Value |
+|---|---:|
+| Sweep amount | 900,000 |
+| Payment obligation | 780,000 |
+| Available settled cash after missed cut-off | 260,000 |
+| Same-day shortfall | 520,000 |
+
+### Same-day funding gap
+
+```text
+same_day_shortfall = payment_obligation - available_settled_cash_after_missed_cutoff
+same_day_shortfall = 780,000 - 260,000 = 520,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve sweep order, cancellation request timestamp, fund cut-off, rejection reason, payment obligation and funding decision. |
+| Cash | Keep swept amount invested or pending redemption until the next valid liquidity event. |
+| Operations | Route to overdraft, credit line, payment delay or exception approval when same-day cash is insufficient. |
+| Reporting | Explain missed cut-off and resulting liquidity shortfall separately from client withdrawal activity. |
+| Controls | Validate cancellation cut-off before assuming swept cash can fund same-day payments. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Cancellation misses cut-off | Swept cash remains unavailable for same-day settlement. |
+| Payment is still due | Funding shortfall is calculated and exceptioned. |
+| Bridge funding is approved | Funding event links to missed sweep cancellation. |
+| Liquidity report is generated | Swept, available and shortfall amounts are distinct. |
+
+## Example 123. Deposit payout currency conversion dispute
+
+### Scenario
+
+A deposit insurer pays protected compensation in local currency, but the client reports in another currency. The conversion rate used for the payout statement is disputed against the bank's reporting FX source.
+
+| Attribute | Value |
+|---|---:|
+| Protected payout local currency | 250,000 |
+| Insurer conversion rate | 1.1180 |
+| Bank reporting FX rate | 1.1250 |
+| Reporting value dispute | 1,750 |
+
+### FX valuation dispute
+
+```text
+insurer_reporting_value = protected_payout_local x insurer_conversion_rate
+insurer_reporting_value = 250,000 x 1.1180 = 279,500
+
+bank_reporting_value = protected_payout_local x bank_reporting_fx_rate
+bank_reporting_value = 250,000 x 1.1250 = 281,250
+
+fx_value_dispute = bank_reporting_value - insurer_reporting_value
+fx_value_dispute = 281,250 - 279,500 = 1,750
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve insurer payout file, payout currency, payment date, conversion rate, bank FX source and dispute owner. |
+| Cash | Book settled cash in actual received currency and amount. |
+| Reporting | Explain insurer payout value and reporting-currency translation as separate views. |
+| Performance | Avoid treating translation difference as investment return unless policy requires it. |
+| Controls | Use source-backed FX hierarchy and show disputed rate status where unresolved. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Insurer rate differs from bank FX rate | Reporting value variance is calculated and labelled. |
+| Cash is received | Ledger cash uses actual received amount and currency. |
+| Dispute remains open | Statement marks FX translation as disputed or provisional. |
+| Dispute is resolved | Revised reporting value preserves prior rate lineage. |
+
+## Example 124. FX hedge allocation policy override
+
+### Scenario
+
+A multi-account FX hedge allocation normally follows pre-approved weights. A portfolio manager requests an override to allocate more hedge cost to one account because that account caused the late cancellation.
+
+| Attribute | Value |
+|---|---:|
+| Total hedge cost | 24,000 |
+| Policy weight for account | 25% |
+| Override weight | 40% |
+| Incremental override cost | 3,600 |
+
+### Override impact
+
+```text
+policy_cost = total_hedge_cost x policy_weight
+policy_cost = 24,000 x 25% = 6,000
+
+override_cost = total_hedge_cost x override_weight
+override_cost = 24,000 x 40% = 9,600
+
+incremental_override_cost = override_cost - policy_cost
+incremental_override_cost = 9,600 - 6,000 = 3,600
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve hedge ticket, standard allocation policy, override request, rationale, affected accounts and approval. |
+| Cash | Post cost allocation only after override approval and account-level funding checks. |
+| Performance | Label override-driven cost allocation separately from market FX P&L. |
+| Advisory | Explain override basis where the cost affects client-level performance or fees. |
+| Controls | Require dual approval when allocation override shifts cost between clients or legal accounts. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Override weight differs from policy | Incremental cost impact is calculated. |
+| Override lacks approval | Posting is blocked or remains provisional. |
+| Multiple accounts are affected | All impacted accounts retain allocation evidence. |
+| Performance report is generated | Policy cost and override delta are explainable. |
+
+## Example 125. PSP reserve ageing dispute
+
+### Scenario
+
+A PSP reserve should release after a 90-day rolling period, but part of the reserve remains held because the provider classifies old disputed transactions as still open.
+
+| Attribute | Value |
+|---|---:|
+| Reserve balance older than release period | 62,000 |
+| Provider-supported open dispute holdback | 18,000 |
+| Disputed ageing amount | 44,000 |
+| Reserve ageing threshold | 90 days |
+
+### Disputed aged reserve
+
+```text
+disputed_aged_reserve = aged_reserve_balance - supported_open_dispute_holdback
+disputed_aged_reserve = 62,000 - 18,000 = 44,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve PSP reserve ageing report, dispute list, reserve period, settlement contract, release request and provider response. |
+| Cash | Keep disputed aged reserve as restricted receivable until provider release or write-off decision. |
+| Liquidity | Exclude disputed aged reserve from available cash and near-term payment capacity. |
+| Operations | Escalate aged reserve disputes by SLA, materiality and client impact. |
+| Controls | Reconcile ageing buckets to provider statements and open dispute evidence. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Reserve exceeds release period | Aged reserve is identified. |
+| Provider supports part of holdback | Supported and disputed holdbacks are separated. |
+| Release is approved | Restricted receivable clears to settled cash. |
+| Liquidity report is generated | Aged disputed reserve is excluded from available cash. |
+
+## Example 126. Projected-cash warning suppression override
+
+### Scenario
+
+A client-facing report suppresses projected-cash warning text for a high-net-worth statement template. The template still displays unsettled projected cash, so warning suppression requires explicit approval and evidence.
+
+| Attribute | Value |
+|---|---:|
+| Projected cash shown | 1,250,000 |
+| Settled available cash | 760,000 |
+| Unsettled component | 490,000 |
+| Warning suppression state | Requested |
+
+### Suppressed warning exposure
+
+```text
+unsettled_component = projected_cash_shown - settled_available_cash
+unsettled_component = 1,250,000 - 760,000 = 490,000
+
+warning_suppression_requires_approval = unsettled_component > 0
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve statement template, suppression request, client segment, balance-state dictionary, approver and expiry. |
+| Reporting | Do not suppress warning text for unsettled projected cash without approved exception. |
+| Client experience | Prefer concise warning language over silent suppression where projected cash can affect decisions. |
+| Controls | Expire suppression overrides and revalidate when statement content or balance state changes. |
+| QA | Test warning behavior across templates, languages and client segments. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Projected cash includes unsettled amount | Warning is required unless approved suppression exists. |
+| Suppression is requested | Approval, expiry and scope are required. |
+| Template changes | Suppression is revalidated or invalidated. |
+| Statement is archived | Suppression evidence is auditable with statement version. |
+
+## Example 127. Liquidity-waiver remediation SLA breach
+
+### Scenario
+
+A liquidity-waiver breach was opened after actual cash fell below the approved shortfall. The breach remediation is still open after the required SLA, creating operational and mandate-governance risk.
+
+| Attribute | Value |
+|---|---:|
+| Breach amount | 140,000 |
+| Remediation SLA | 2 business days |
+| Days open | 5 business days |
+| SLA breach days | 3 business days |
+
+### SLA breach
+
+```text
+sla_breach_days = max(0, days_open - remediation_sla_days)
+sla_breach_days = max(0, 5 - 2) = 3
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve breach record, waiver id, remediation owner, due date, escalation history and closure evidence. |
+| Operations | Escalate overdue remediation to liquidity owner, mandate owner and risk/control forum. |
+| DPM | Stop treating the waiver as controlled if breach remediation is overdue. |
+| Reporting | Show breach amount, days open, SLA status and remediation path separately. |
+| Controls | Require closure evidence, not just comment updates, to clear the SLA breach. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Breach remains open past SLA | SLA breach days are calculated and escalation opens. |
+| Owner changes | Assignment history and due date remain auditable. |
+| Remediation evidence is missing | Breach cannot close. |
+| Dashboard is generated | Breach amount, age, SLA status and owner are visible. |
