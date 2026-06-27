@@ -2605,3 +2605,232 @@ net_retained_rebate = 18,000 - 6,000 = 12,000
 | Original rebate was already paid | Original payment remains visible and linked to clawback. |
 | Clawback is offset against future rebate | Offset is tracked separately from cash repayment. |
 | Client report is generated | Gross rebate, clawback and net retained rebate are explainable. |
+
+## Example 74. Fund liquidity notice blackout period
+
+### Scenario
+
+A semi-liquid fund normally accepts redemption notices until 30 calendar days before the dealing date. The manager announces a temporary blackout period during a portfolio sale, so new redemption notices cannot be submitted even though the next dealing date remains open in the static calendar.
+
+| Attribute | Value |
+|---|---|
+| Next dealing date | 2026-09-30 |
+| Standard notice deadline | 2026-08-31 |
+| Blackout start | 2026-08-10 |
+| Blackout end | 2026-09-05 |
+| Requested redemption | 650,000 |
+
+### Notice eligibility
+
+```text
+standard_notice_valid = request_date <= standard_notice_deadline
+blackout_active = blackout_start <= request_date <= blackout_end
+redemption_notice_allowed = standard_notice_valid and not blackout_active
+```
+
+### Correct treatment
+
+- preserve the dealing calendar, manager blackout notice, affected share classes, request timestamp and administrator response;
+- block or queue new notices during blackout according to fund terms;
+- avoid showing static-calendar eligibility as final when a temporary notice restriction exists;
+- keep existing accepted notices separate from new blocked notices;
+- label liquidity as blackout-restricted, not gated or suspended unless the manager notice says so.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Request arrives during blackout | Redemption notice is blocked or queued with blackout reason. |
+| Request predates blackout and was accepted | Existing accepted notice remains valid unless source notice cancels it. |
+| Blackout ends before standard deadline | New notices reopen according to effective dates. |
+| Client report is generated | Liquidity state distinguishes blackout from ordinary notice deadline. |
+
+## Example 75. Subscription prefunding break
+
+### Scenario
+
+A fund subscription requires cash to be prefunded before the subscription cut-off. The client instruction is valid, but cash arrives after the prefunding deadline, creating a break between order intent and fund acceptance.
+
+| Attribute | Value |
+|---|---:|
+| Subscription amount | 500,000 |
+| Required prefunding | 500,000 |
+| Cash received before deadline | 420,000 |
+| Late cash receipt | 80,000 |
+| Minimum accepted subscription | 500,000 |
+
+### Prefunding shortfall
+
+```text
+prefunding_shortfall = required_prefunding - cash_received_before_deadline
+prefunding_shortfall = 500,000 - 420,000 = 80,000
+subscription_fundable = prefunding_shortfall <= 0
+```
+
+### Correct treatment
+
+- preserve client order, prefunding requirement, cash timestamps, cut-off and transfer-agent response;
+- keep the order pending, rejected or resized according to fund minimum and platform policy;
+- do not create units from late cash unless the administrator accepts the subscription;
+- release or carry reserved cash according to revised order state;
+- surface funding break separately from suitability or eligibility failure.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Prefunding is short at deadline | Subscription is blocked, rejected or exceptioned. |
+| Late cash arrives after cut-off | Cash is visible but does not create units automatically. |
+| Administrator accepts reduced order | Units are created only for accepted amount. |
+| Client report is generated | Order intent, funding break and final acceptance are traceable. |
+
+## Example 76. ETF share split processing
+
+### Scenario
+
+An ETF executes a 2-for-1 share split. Client unit quantity changes, NAV per unit adjusts and total market value should remain unchanged apart from market movement and rounding.
+
+| Attribute | Before split | After split |
+|---|---:|---:|
+| Units | 1,250 | 2,500 |
+| NAV per unit | 80.00 | 40.00 |
+| Market value | 100,000 | 100,000 |
+| Split ratio | 1 | 2 |
+
+### Split adjustment
+
+```text
+new_units = old_units x split_ratio = 1,250 x 2 = 2,500
+adjusted_nav = old_nav / split_ratio = 80.00 / 2 = 40.00
+market_value_check = 2,500 x 40.00 = 100,000
+```
+
+### Correct treatment
+
+- preserve ETF sponsor notice, split ratio, ex-date, effective date, position quantity and cost-basis treatment;
+- adjust units and per-unit cost/NAV without treating the event as investment performance;
+- keep cash-in-lieu separate if fractional treatment applies;
+- update orders, restrictions, collateral and model holdings that reference unit quantity;
+- verify downstream reporting does not show artificial gain/loss from the split.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Split source is confirmed | Units and per-unit values adjust from effective date. |
+| Split creates fractional residual | Cash-in-lieu or rounding treatment is source-backed. |
+| Performance report is generated | Split does not create market return by itself. |
+| Open orders exist | Order quantities are adjusted, cancelled or reviewed by policy. |
+
+## Example 77. Feeder tax blocker change
+
+### Scenario
+
+A feeder fund changes its tax blocker structure. The investor still holds the same feeder interest, but withholding, reporting labels and look-through analytics change from the effective date.
+
+| Attribute | Before change | After change |
+|---|---|---|
+| Feeder blocker | Blocker A | Blocker B |
+| Withholding profile | Treaty eligible | Treaty pending |
+| Effective date | Until 30 Jun | From 1 Jul |
+| Client units | 10,000 | 10,000 |
+
+### Effective-dated profile
+
+```text
+active_tax_blocker = blocker where effective_from <= report_date < effective_to
+client_units_unchanged = true
+```
+
+### Correct treatment
+
+- preserve feeder notice, blocker structure, tax opinion, effective date and affected investors/classes;
+- update withholding profile, tax pack labels and look-through attributes from effective date;
+- keep unit quantity and historical reports unchanged unless the fund event changes holdings;
+- route missing tax documentation to source-limited reporting rather than assuming treaty eligibility;
+- explain tax blocker changes separately from NAV performance.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Report date is before effective date | Prior blocker profile applies. |
+| Report date is after effective date | New blocker profile and documentation state apply. |
+| Tax documentation is missing | Withholding/tax reporting is source-limited or exceptioned. |
+| Holdings report is generated | Units remain unchanged while tax labels change. |
+
+## Example 78. NAV strike operational incident
+
+### Scenario
+
+A fund administrator publishes an incorrect NAV strike because one portfolio security was priced with a stale quote. Orders were processed before the incident was discovered.
+
+| Attribute | Original NAV | Corrected NAV |
+|---|---:|---:|
+| NAV per unit | 102.40 | 101.85 |
+| Subscription units issued | 4,882.8125 | 4,909.1802 |
+| Subscription amount | 500,000 | 500,000 |
+| NAV error | -0.55 | n/a |
+
+### Unit correction
+
+```text
+original_units = 500,000 / 102.40 = 4,882.8125
+corrected_units = 500,000 / 101.85 = 4,909.1802
+unit_delta = 4,909.1802 - 4,882.8125 = 26.3677
+```
+
+### Correct treatment
+
+- preserve original NAV, corrected NAV, administrator incident notice, affected orders and correction method;
+- apply unit/cash correction only after administrator confirmation and materiality policy review;
+- keep original trade, correction event and client notification linked;
+- update performance, tax lots and statements according to correction policy;
+- avoid silently overwriting the original NAV or order record.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Corrected NAV arrives | Unit/cash correction is calculated with source lineage. |
+| Correction is below materiality threshold | Event is logged and reporting follows policy. |
+| Client statement was already delivered | Correction notice or restatement workflow opens. |
+| Performance report is generated | Original and corrected NAV effects are explainable. |
+
+## Example 79. Investor-level MFN election control
+
+### Scenario
+
+A private fund side letter offers most-favoured-nation elections to eligible investors. One investor elects a lower management-fee term, but eligibility depends on commitment size and investor classification.
+
+| Attribute | Investor A | MFN threshold |
+|---|---:|---:|
+| Commitment | 4,000,000 | 5,000,000 |
+| Standard management fee | 1.50% |
+| Requested MFN fee | 1.25% |
+| Investor classification | Professional | Professional |
+
+### Eligibility and fee delta
+
+```text
+mfn_commitment_eligible = commitment >= mfn_threshold
+annual_fee_delta_if_allowed = commitment x (standard_fee - mfn_fee)
+annual_fee_delta_if_allowed = 4,000,000 x (1.50% - 1.25%) = 10,000
+```
+
+### Correct treatment
+
+- preserve side-letter terms, MFN notice, eligibility rules, investor classification, election deadline and administrator acceptance;
+- do not apply MFN terms to ineligible investors or unrelated accounts;
+- keep requested, accepted, rejected and effective fee terms separately visible;
+- update fee accruals only after source-backed acceptance and effective date;
+- explain investor-level economics without exposing other investors' confidential side-letter terms.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Investor fails commitment threshold | MFN election is rejected or exceptioned. |
+| Administrator accepts election | Fee accrual changes from effective date with evidence. |
+| Election deadline is missed | Standard fee remains active unless waiver is approved. |
+| Client report is generated | Investor-level fee term is shown without leaking other investor terms. |
