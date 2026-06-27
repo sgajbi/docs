@@ -31,12 +31,18 @@ The point is not to copy the wording. The point is to learn how to turn technica
 | 6 | Lab 8 | Async workflow resilience for batch report generation. |
 | 7 | Lab 11 | AI/RAG governance for an internal knowledge assistant. |
 | 8 | Lab 12 | Migration and cutover readiness for portfolio holdings migration. |
+| 9 | Lab 6 | Sensitive-data and access-control review for document retrieval. |
+| 10 | Lab 7 | Test strategy redesign for fragile end-to-end coverage. |
+| 11 | Lab 9 | Runtime deployment readiness for a containerized API service. |
+| 12 | Lab 10 | Git, release and documentation truth review for a completed feature. |
+| 13 | Lab 13 | Reporting and archive evidence review for client statements. |
+| 14 | Lab 14 | Platform productization readiness for enterprise buyer review. |
 
 ## 1. Service Boundary Review
 
-Lab: service boundary review  
-System or artifact reviewed: portfolio summary capability across domain service, experience API and UI panel  
-Guides used: architecture boundaries, backend service design, wealth domain boundaries  
+Lab: service boundary review
+System or artifact reviewed: portfolio summary capability across domain service, experience API and UI panel
+Guides used: architecture boundaries, backend service design, wealth domain boundaries
 
 Evidence inspected:
 
@@ -79,9 +85,9 @@ Revisit the boundary if a second UI or report starts consuming the same warning.
 
 ## 2. Backward-Compatible API Change
 
-Lab: backward-compatible API change  
-System or artifact reviewed: `GET /api/v1/accounts/{account_id}/balances` response contract  
-Guides used: API-as-contract, versioning and deprecation, API contract testing  
+Lab: backward-compatible API change
+System or artifact reviewed: `GET /api/v1/accounts/{account_id}/balances` response contract
+Guides used: API-as-contract, versioning and deprecation, API contract testing
 
 Evidence inspected:
 
@@ -144,9 +150,9 @@ If supportability metadata is added to more than one API family, standardize the
 
 ## 3. Data-Product Certification
 
-Lab: data-product certification  
-System or artifact reviewed: daily portfolio performance returns data product  
-Guides used: data-product engineering, SLO/access/evidence policy, trust telemetry  
+Lab: data-product certification
+System or artifact reviewed: daily portfolio performance returns data product
+Guides used: data-product engineering, SLO/access/evidence policy, trust telemetry
 
 Evidence inspected:
 
@@ -193,9 +199,9 @@ If AI retrieval or advisor commentary consumes this product, add a consumer-spec
 
 ## 4. CI Gate Promotion
 
-Lab: CI gate promotion  
-System or artifact reviewed: API contract drift check currently running as report-only  
-Guides used: CI/CD evidence production, gate promotion, green main discipline  
+Lab: CI gate promotion
+System or artifact reviewed: API contract drift check currently running as report-only
+Guides used: CI/CD evidence production, gate promotion, green main discipline
 
 Evidence inspected:
 
@@ -246,9 +252,9 @@ If the check exceeds two minutes p95 or produces two false positives in a month,
 
 ## 5. Incident And Observability Review
 
-Lab: incident and observability review  
-System or artifact reviewed: stale report output after delayed market-data load  
-Guides used: observability/SRE, incident command, problem management  
+Lab: incident and observability review
+System or artifact reviewed: stale report output after delayed market-data load
+Guides used: observability/SRE, incident command, problem management
 
 Evidence inspected:
 
@@ -298,9 +304,9 @@ Run a quarterly stale-source drill for reporting flows that depend on market dat
 
 ## 6. Async Workflow Resilience
 
-Lab: async workflow resilience  
-System or artifact reviewed: batch report-generation workflow  
-Guides used: async execution, worker queues, observability for workers  
+Lab: async workflow resilience
+System or artifact reviewed: batch report-generation workflow
+Guides used: async execution, worker queues, observability for workers
 
 Evidence inspected:
 
@@ -358,9 +364,9 @@ If report volumes increase or rendering time becomes variable, add capacity plan
 
 ## 7. AI/RAG Or Copilot Governance
 
-Lab: AI/RAG or copilot governance  
-System or artifact reviewed: internal engineering knowledge assistant  
-Guides used: AI governance, entitlement-aware retrieval, model-risk evaluation  
+Lab: AI/RAG or copilot governance
+System or artifact reviewed: internal engineering knowledge assistant
+Guides used: AI governance, entitlement-aware retrieval, model-risk evaluation
 
 Evidence inspected:
 
@@ -416,9 +422,9 @@ Before any write-capable tool is added, require a tool-authorization design, hum
 
 ## 8. Migration And Cutover Readiness
 
-Lab: migration and cutover readiness  
-System or artifact reviewed: migration of portfolio holdings from legacy store to target domain service  
-Guides used: migration engineering, reconciliation strategy, cutover governance  
+Lab: migration and cutover readiness
+System or artifact reviewed: migration of portfolio holdings from legacy store to target domain service
+Guides used: migration engineering, reconciliation strategy, cutover governance
 
 Evidence inspected:
 
@@ -471,6 +477,319 @@ Validation evidence expected:
 Follow-up trigger:
 
 If cost-basis exceptions remain unresolved near cutover, split the migration into holdings-read cutover and cost-basis reporting cutover with explicit report warnings and owner approval.
+
+## 9. Sensitive-Data And Access-Control Review
+
+Lab: sensitive-data and access-control review
+System or artifact reviewed: document retrieval API and advisor-facing document list
+Guides used: identity and entitlements, sensitive-data handling, security testing
+
+Evidence inspected:
+
+| Evidence | Observation |
+|---|---|
+| API contract | Document list exposes document id, title, type, generated date, owner account and download link. |
+| Authorization policy | Role-level policy exists; object-level account and relationship checks are partially documented. |
+| UI behavior | UI hides download actions when entitlement is missing but still calls the list endpoint. |
+| Logs | Access-denied events are logged with document id and actor id; no document content is logged. |
+| Tests | Happy-path access tests exist; cross-account denial and expired-delegation tests are missing. |
+
+Current-state assessment:
+
+The design is close but not yet strong enough for document access. Document retrieval needs object-level authorization on both list and download endpoints, not only UI hiding or role-level checks.
+
+Authorization matrix:
+
+| Actor | Scope | Allowed action | Denial behavior |
+|---|---|---|---|
+| Relationship manager | Assigned client accounts only | List metadata, download permitted documents | Return empty list or `403` without confirming document existence. |
+| Assistant | Delegated accounts within active delegation window | List metadata; download only if delegated scope allows it | Return `403` with safe problem detail. |
+| Operations user | Operational support scope | View metadata needed for support; no content unless break-glass approved | Audit event and restricted access workflow. |
+| Client user | Own accounts only | Download client-visible documents | Return `404` or safe `403` for inaccessible document ids. |
+
+Risk or gap:
+
+The list endpoint can reveal document metadata across accounts if object-level filtering is incomplete. Metadata such as document type and generated date can still be sensitive, especially for advisory, tax, credit or regulatory documents.
+
+Smallest useful improvement:
+
+Enforce object-level authorization inside the API service before returning document metadata. Add negative tests for cross-account access, expired delegation, disabled account access and direct download by document id.
+
+Validation evidence expected:
+
+1. API test proves a user cannot list or download another account's document.
+2. Delegation-expiry test proves access stops immediately after expiry.
+3. Log-safety test proves document titles, contents and account-sensitive narrative fields are not logged.
+4. UI test proves hidden actions are backed by API denial, not used as the only control.
+5. Access-denied events include enough safe fields for audit and support.
+
+Follow-up trigger:
+
+If document retrieval is exposed to AI, reporting export or bulk download workflows, recertify the same authorization rules across those entry points.
+
+## 10. Test Strategy Redesign
+
+Lab: test strategy redesign
+System or artifact reviewed: portfolio review workflow with high end-to-end test reliance
+Guides used: test pyramid, golden examples, certification sweeps
+
+Evidence inspected:
+
+| Evidence | Observation |
+|---|---|
+| Test inventory | 42 browser tests cover portfolio review; only 8 domain tests cover calculations and rules. |
+| Recent failures | Browser tests fail intermittently due to timing and seed-data drift. |
+| Escaped defects | Two recent defects involved advisory suitability state and stale benchmark data. |
+| Contract tests | API schema tests exist but do not validate degraded states or supportability metadata. |
+| Test data | Synthetic portfolios exist, but golden cases are not named or owned. |
+
+Current-state assessment:
+
+The test suite is broad but top-heavy. Too much business behavior is proven only through browser tests. This makes feedback slow and brittle while still missing lower-level rule regressions.
+
+Recommended test pyramid:
+
+| Behavior | Better test level | Reason |
+|---|---|---|
+| Suitability rule classification | Domain/unit test | Deterministic rule with many edge cases. |
+| Benchmark stale-state mapping | API/service contract test | Consumer-visible state and error semantics. |
+| Portfolio review page renders degraded badge | Browser test | UI-specific rendering and accessibility. |
+| Report payload contains advisory status | Integration or contract test | Cross-service response composition. |
+| Full review workflow | E2E smoke | One or two golden happy/degraded paths, not every rule. |
+
+Golden-case catalog:
+
+| Case | Purpose | Owner |
+|---|---|---|
+| Balanced advisory portfolio | Ready-state baseline for holdings, risk, suitability and report summary. | Product/QA owner |
+| Stale benchmark portfolio | Proves stale analytics state and report warning behavior. | Analytics owner |
+| Mandate breach portfolio | Proves suitability and DPM control messaging. | Advisory/control owner |
+| Restricted-document account | Proves entitlement and document-access denial. | Security owner |
+
+Smallest useful improvement:
+
+Extract suitability and stale-benchmark assertions from browser tests into service/API tests. Keep one browser smoke test for visible degraded-state rendering.
+
+Validation evidence expected:
+
+1. New domain tests cover suitability ready, warning and blocked states.
+2. API contract tests cover stale benchmark response shape and problem details.
+3. Browser test count drops for duplicated rule checks while one end-to-end smoke remains.
+4. Golden-case catalog names owner and review cadence.
+5. Flaky-test dashboard shows reduced timing-related failures after redesign.
+
+Follow-up trigger:
+
+If a browser test fails twice for timing rather than product behavior, review whether the assertion belongs at a lower test level.
+
+## 11. Runtime Deployment Readiness
+
+Lab: runtime deployment readiness
+System or artifact reviewed: containerized account-summary API service
+Guides used: runtime infrastructure, container deployment, health/readiness design
+
+Evidence inspected:
+
+| Evidence | Observation |
+|---|---|
+| Container image | Uses pinned runtime base image and non-root user; build stage includes dev tooling that is not copied to runtime image. |
+| Configuration | Required environment variables are documented; default timeout is implicit. |
+| Secrets | Secrets are loaded from runtime secret provider; no secrets found in image or docs. |
+| Health checks | Liveness endpoint returns process health; readiness checks database but not upstream pricing dependency. |
+| Deployment notes | Rollback steps exist; migration compatibility is not stated. |
+
+Current-state assessment:
+
+The service is deployable, but readiness is incomplete. It can receive traffic when a mandatory upstream pricing dependency is unavailable, which can produce partial or stale account summaries.
+
+Configuration map:
+
+| Setting | Requirement | Review note |
+|---|---|---|
+| `DATABASE_URL` | Required secret reference | Validate at startup and redact from logs. |
+| `PRICING_API_BASE_URL` | Required service endpoint | Include in readiness dependency check if mandatory. |
+| `REQUEST_TIMEOUT_MS` | Required bounded timeout | Document default and maximum. |
+| `LOG_LEVEL` | Environment-specific | Avoid debug in production. |
+| `FEATURE_PARTIAL_SUMMARY` | Explicit true/false | Controls whether degraded response is allowed. |
+
+Probe recommendation:
+
+| Probe | Expected behavior |
+|---|---|
+| Liveness | Process is running and event loop is responsive. |
+| Readiness | Database reachable, schema compatible and mandatory upstream dependencies available or intentionally degraded. |
+| Startup | Configuration validated and migrations not blocking startup unexpectedly. |
+
+Smallest useful improvement:
+
+Add pricing dependency state to readiness when the account summary cannot be safely produced without prices. If partial summaries are allowed, readiness should stay healthy but the API must return explicit degraded supportability.
+
+Validation evidence expected:
+
+1. Startup test fails fast when required configuration is missing.
+2. Readiness test fails or reports degraded when mandatory pricing dependency is unavailable.
+3. API test proves partial summary includes supportability state when partial mode is enabled.
+4. Deployment smoke validates liveness, readiness and one synthetic account summary.
+5. Rollback note states whether schema changes are backward compatible.
+
+Follow-up trigger:
+
+If autoscaling or high load is introduced, add resource-limit review, queue-depth or saturation metrics and capacity test evidence.
+
+## 12. Git, Release And Documentation Truth
+
+Lab: Git, release and documentation truth
+System or artifact reviewed: completed feature adding supportability metadata to account balances
+Guides used: Git workflow, documentation governance, implementation evidence reading
+
+Evidence inspected:
+
+| Evidence | Observation |
+|---|---|
+| Pull request | PR description lists API change and tests but does not link the updated runbook. |
+| OpenAPI contract | Contract includes optional `supportability` object and examples. |
+| Tests | API compatibility and UI degraded-state tests passed. |
+| README | README still describes balances as always ready when endpoint succeeds. |
+| Release note | Mentions UI badge but not API metadata for consumers. |
+
+Current-state assessment:
+
+Implementation and tests are in better shape than documentation. Durable truth is inconsistent: API docs describe supportability, but README and release notes under-explain behavior for consumers and support teams.
+
+Truth map:
+
+| Truth source | Status | Action |
+|---|---|---|
+| Code | Current | No action. |
+| OpenAPI | Current | Keep examples. |
+| Tests | Current | Add command evidence to PR. |
+| README | Stale | Explain ready, stale, partial and unavailable balance states. |
+| Runbook | Partially current | Link stale-source diagnosis and recovery. |
+| Release note | Too narrow | Add consumer-facing API metadata note. |
+
+Smallest useful improvement:
+
+Update README and release note to match the implemented supportability contract. Add a PR checklist item requiring docs and runbook links when supportability behavior changes.
+
+Validation evidence expected:
+
+1. README describes new response metadata and degraded states.
+2. Release note states the change is additive and optional for API consumers.
+3. PR evidence links tests, OpenAPI diff and runbook update.
+4. Stale phrase scan confirms old always-ready claim is removed.
+5. Documentation link check passes.
+
+Follow-up trigger:
+
+When supportability metadata appears in three or more APIs, add a shared vocabulary page and require contract consistency checks.
+
+## 13. Reporting And Archive Evidence
+
+Lab: reporting and archive evidence
+System or artifact reviewed: monthly client statement generation and archive workflow
+Guides used: reporting/document evidence, snapshots and lineage, integrity controls
+
+Evidence inspected:
+
+| Evidence | Observation |
+|---|---|
+| Report job payload | Includes report type, account group, as-of date and language. |
+| Snapshot metadata | Captures holdings and cash data versions; template version is missing. |
+| Render output | PDF hash is stored after generation. |
+| Archive metadata | Retention class and document owner are present; entitlement rule is referenced by role only. |
+| Regression tests | Golden report visual diff exists for ready state; stale section warning is not covered. |
+
+Current-state assessment:
+
+The archive has a good foundation, especially hash capture, but reproducibility is incomplete without template version and calculation methodology version. Entitlement rules need object-level scope, not only role labels.
+
+Snapshot rule:
+
+| Snapshot component | Required evidence |
+|---|---|
+| Data inputs | Holdings, cash, prices, transactions and benchmark versions. |
+| Calculation | Methodology version and calculation run id. |
+| Template | Template id, version and localization bundle version. |
+| Rendering | Renderer version, output format and hash. |
+| Delivery | Recipient scope, channel, timestamp and delivery status. |
+
+Degraded-report behavior:
+
+If a mandatory section is stale, client-ready publication should be blocked. If a non-mandatory section is stale and policy allows publication, the report should include a clear warning, evidence metadata and support runbook link.
+
+Smallest useful improvement:
+
+Add template version and methodology version to report snapshot metadata, then add a regression test for a stale non-mandatory section warning.
+
+Validation evidence expected:
+
+1. Regenerated report can be traced to data, calculation, template and renderer versions.
+2. Archive metadata includes object-level entitlement scope.
+3. Hash validation test detects modified output.
+4. Golden report test covers ready state and stale-warning state.
+5. Retrieval audit records actor, document id, action, decision and safe reason code.
+
+Follow-up trigger:
+
+If reports are migrated to a new renderer or archive store, run an archive-continuity test proving old documents remain retrievable, authorized and hash-verifiable.
+
+## 14. Platform Productization Readiness
+
+Lab: platform productization readiness
+System or artifact reviewed: enterprise portfolio reporting capability prepared for buyer or internal platform review
+Guides used: platform productization, reference architecture, readiness scorecards
+
+Evidence inspected:
+
+| Evidence | Observation |
+|---|---|
+| Capability catalog | Lists report generation, scheduling, archive retrieval and entitlement checks. |
+| Reference architecture | Shows API service, worker, renderer, archive store and notification channel. |
+| Deployment guide | Covers container runtime and environment variables; sizing assumptions are light. |
+| Security evidence | Entitlement and document-access tests exist; vendor due-diligence answers are incomplete. |
+| Support model | Runbook exists for failed report jobs; customer onboarding checklist is missing. |
+
+Current-state assessment:
+
+The capability is credible for internal adoption but not fully ready for enterprise buyer review. Strongest evidence is architecture and test coverage. Weakest evidence is implementation packaging: onboarding, sizing, support boundaries and procurement-style responses.
+
+Supported-feature matrix:
+
+| Capability | Status | Evidence |
+|---|---|---|
+| On-demand report generation | Implemented | API contract, worker tests, golden report. |
+| Scheduled batch reporting | Configurable | Scheduler docs and batch runbook. |
+| Archive retrieval | Implemented | Archive API, entitlement tests, hash validation. |
+| Multi-tenant customer isolation | Integration-dependent | Requires deployment and identity model decision. |
+| Custom templates | Configurable with governance | Template versioning and approval workflow needed. |
+| Regulatory delivery workflows | Planned | Not claimable without jurisdiction-specific controls. |
+
+Readiness scorecard:
+
+| Area | Score | Main gap |
+|---|---:|---|
+| Capability clarity | 4/5 | Unsupported regulatory workflows need clearer boundaries. |
+| Architecture evidence | 4/5 | Add sizing and dependency assumptions. |
+| Security and privacy | 3/5 | Complete buyer due-diligence answers and data-flow diagrams. |
+| Deployment readiness | 3/5 | Add environment sizing, backup and DR expectations. |
+| Support model | 3/5 | Add onboarding and escalation playbook. |
+| Buyer evidence pack | 2/5 | Consolidate proofs into one reviewable package. |
+
+Smallest useful improvement:
+
+Create a buyer evidence pack that includes capability matrix, reference architecture, deployment assumptions, security controls, data-flow diagram, support model, test evidence and known limitations.
+
+Validation evidence expected:
+
+1. Capability matrix separates implemented, configurable, integration-dependent, planned and unsupported items.
+2. Evidence pack links architecture, API contracts, security controls, tests, runbooks and deployment guide.
+3. Unsupported or planned capabilities are not marketed as available.
+4. Onboarding checklist includes environment setup, roles, source data, template configuration and validation commands.
+5. Readiness scorecard has owners and dates for all material gaps.
+
+Follow-up trigger:
+
+Before a pilot or procurement review, run a due-diligence simulation covering security, support, data governance, deployment, resilience, audit, exit plan and operating model.
 
 ## How To Use These Sample Answers In KT
 
