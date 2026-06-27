@@ -2889,7 +2889,235 @@ QA assertions:
 | Another package is generated later | Prior waiver does not automatically apply. |
 | Closure report is generated | Delivered, failed and waived recipients are distinguishable. |
 
-## 86. Regression Test Pack
+## 86. Protector Objection Late Acceptance Dispute
+
+Scenario:
+
+- A beneficiary objection to a protector reserve release arrives after the stated objection deadline.
+- The trustee has discretion to accept late objections only with documented cause.
+- The late-accepted portion remains restricted while the non-accepted portion proceeds to release.
+
+| Attribute | Value |
+|---|---:|
+| Late objection amount | 40,000 |
+| Late objection accepted for review | 15,000 |
+| Late objection not accepted | 25,000 |
+
+Late acceptance:
+
+```text
+late_objection_not_accepted = late_objection_amount - late_objection_accepted_for_review
+late_objection_not_accepted = 40,000 - 15,000 = 25,000
+```
+
+Correct workflow:
+
+- preserve original objection deadline, late objection timestamp, stated cause, trustee late-acceptance decision, accepted amount and release instruction;
+- restrict only the late objection amount accepted for review;
+- release non-accepted late objection amounts if all other release controls pass;
+- report late acceptance separately from valid in-window objections;
+- avoid reopening the entire reserve release because one late objection is partially accepted.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Late objection lacks accepted cause | Objection does not automatically restrict release. |
+| Trustee accepts part of late objection | Accepted amount remains restricted. |
+| Trustee rejects late objection | Release can proceed for rejected amount. |
+| Audit report is generated | Deadline, late cause, decision and amounts are visible. |
+
+## 87. Co-Investment Cancellation Fee Waiver
+
+Scenario:
+
+- A sponsor charges a cancellation fee after a family entity cancels a co-investment allocation.
+- The investment committee approves a partial fee waiver due to sponsor-side documentation delay.
+- Only the net fee is charged to the cancelling entity.
+
+| Attribute | Value |
+|---|---:|
+| Gross cancellation fee | 10,000 |
+| Approved fee waiver | 4,000 |
+| Net cancellation fee charged | 6,000 |
+
+Fee waiver:
+
+```text
+net_cancellation_fee_charged = gross_cancellation_fee - approved_fee_waiver
+net_cancellation_fee_charged = 10,000 - 4,000 = 6,000
+```
+
+Correct workflow:
+
+- preserve gross fee terms, waiver request, waiver rationale, committee approval, sponsor evidence and final chargeback instruction;
+- charge only the net fee to the cancelling entity;
+- keep waived fee separate from reimbursed fee and disputed fee;
+- update family-office expense reporting without allocating waived cost to other entities;
+- avoid suppressing the fee event entirely when a partial waiver is granted.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Partial waiver is approved | Net fee is calculated and charged. |
+| Waiver lacks approval | Gross fee remains chargeable. |
+| Fee is disputed separately | Dispute and waiver states remain distinct. |
+| Expense report is generated | Gross fee, waiver and net charge are visible. |
+
+## 88. Estate Valuation Appeal Counterparty Dispute
+
+Scenario:
+
+- An estate substitution valuation appeal is accepted by the executor.
+- The receiving beneficiary disputes the independent valuation provider's methodology.
+- The substituted value remains provisional until counterparty dispute resolution.
+
+| Attribute | Value |
+|---|---:|
+| Accepted appeal valuation | 110,000 |
+| Counterparty disputed valuation adjustment | 12,000 |
+| Provisional valuation floor | 98,000 |
+
+Counterparty dispute:
+
+```text
+provisional_valuation_floor = accepted_appeal_valuation - counterparty_disputed_valuation_adjustment
+provisional_valuation_floor = 110,000 - 12,000 = 98,000
+```
+
+Correct workflow:
+
+- preserve accepted appeal valuation, counterparty dispute notice, disputed methodology, provisional value, independent review route and equalization impact;
+- mark substituted value as provisional while the counterparty dispute is open;
+- prevent final estate closure until accepted value is confirmed or settlement is approved;
+- disclose provisional valuation status in beneficiary reporting;
+- avoid treating an executor-accepted valuation as final when the receiving counterparty has a valid dispute right.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Counterparty dispute is valid | Substitute valuation becomes provisional. |
+| Dispute is resolved at lower value | Equalization shortfall is recalculated. |
+| Dispute is rejected | Accepted appeal valuation remains effective. |
+| Estate closure is requested | Closure is blocked while valuation remains provisional. |
+
+## 89. Foundation Conditional Restart Monitoring
+
+Scenario:
+
+- A foundation lifts a grant suspension after remediation evidence is accepted.
+- Restart is conditional on enhanced monitoring for the next grant cycle.
+- Failure to provide monitoring evidence reactivates the release block for future grants.
+
+| Attribute | Value |
+|---|---:|
+| Monitoring checkpoints required | 4 |
+| Monitoring checkpoints completed | 3 |
+| Checkpoints still required | 1 |
+
+Restart monitoring:
+
+```text
+checkpoints_still_required = monitoring_checkpoints_required - monitoring_checkpoints_completed
+checkpoints_still_required = 4 - 3 = 1
+```
+
+Correct workflow:
+
+- preserve suspension lift approval, restart conditions, monitoring checkpoints, evidence submissions, missed checkpoint escalation and future grant release status;
+- allow restart only within approved conditional scope;
+- keep future grant release contingent on completed monitoring evidence;
+- reactivate release block when monitoring conditions fail;
+- avoid treating suspension lift as permanent removal of monitoring obligations.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Restart condition is incomplete | Future grant release remains conditional or blocked. |
+| Monitoring checkpoint is missed | Release block is reactivated. |
+| All checkpoints pass | Conditional status can be closed by council decision. |
+| Monitoring report is generated | Completed, missed and outstanding checkpoints are visible. |
+
+## 90. Downstream Ratification Remediation Reporting
+
+Scenario:
+
+- A downstream action was affected by ratification reversal.
+- Operations remediates the action with a fresh approval and correction entry.
+- Reporting must show original action, invalid authority, remediation action and final state.
+
+| Attribute | Value |
+|---|---:|
+| Affected downstream actions | 1 |
+| Actions remediated with fresh approval | 1 |
+| Actions still requiring remediation | 0 |
+
+Remediation reporting:
+
+```text
+actions_still_requiring_remediation = affected_downstream_actions - actions_remediated_with_fresh_approval
+actions_still_requiring_remediation = 1 - 1 = 0
+```
+
+Correct workflow:
+
+- preserve affected action, invalidated ratification, remediation approval, correction entry, client/reporting impact and final audit state;
+- show remediation separately from original approval and reversal;
+- close only the remediated action, not unrelated ratification review items;
+- ensure client-facing reporting uses corrected state while audit retains the original path;
+- avoid deleting or overwriting the original invalid authority trail.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Fresh approval remediates action | Action moves to remediated state. |
+| Correction entry is missing | Remediation remains incomplete. |
+| Report is generated | Original action, reversal and remediation are traceable. |
+| Unrelated actions exist | They are not closed by scoped remediation. |
+
+## 91. Correction Waiver Expiry Control
+
+Scenario:
+
+- A recipient-specific correction delivery waiver was granted for a defined period.
+- The waiver expires before a later correction package is issued.
+- The recipient must return to normal delivery requirements unless a new waiver is approved.
+
+| Attribute | Value |
+|---|---:|
+| Recipients covered by expired waiver | 1 |
+| Recipients with renewed waiver | 0 |
+| Recipients requiring delivery attempt | 1 |
+
+Waiver expiry:
+
+```text
+recipients_requiring_delivery_attempt = recipients_covered_by_expired_waiver - recipients_with_renewed_waiver
+recipients_requiring_delivery_attempt = 1 - 0 = 1
+```
+
+Correct workflow:
+
+- preserve original waiver, waiver scope, expiry date, new correction package, renewed waiver status and delivery attempt evidence;
+- apply waiver only within approved period and package scope;
+- require fresh delivery attempt or new trustee waiver after expiry;
+- prevent historical waivers from suppressing future correction packages;
+- avoid carrying forward recipient waiver state without effective-date validation.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Prior waiver has expired | Recipient requires delivery attempt or renewed waiver. |
+| New package is outside waiver scope | Prior waiver does not apply. |
+| Trustee renews waiver | Renewal evidence and expiry are recorded. |
+| Closure report is generated | Expired, renewed and delivered recipient states are visible. |
+
+## 92. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -2978,3 +3206,9 @@ Minimum release-gate scenarios:
 83. Foundation suspension lift conditions keep grant release blocked until every mandatory condition is met or waived.
 84. Authority ratification downstream reversals affect only scoped downstream actions and require remediation evidence.
 85. Correction-package recipient waiver governance closes only recipient-specific delivery failures with trustee evidence.
+86. Protector objection late acceptance disputes restrict only late objection amounts accepted for review.
+87. Co-investment cancellation fee waivers charge only approved net fees to the cancelling entity.
+88. Estate valuation appeal counterparty disputes keep substitute values provisional until dispute resolution.
+89. Foundation conditional restart monitoring reactivates grant release blocks when monitoring evidence fails.
+90. Downstream ratification remediation reporting preserves original, reversal and remediation audit states.
+91. Correction waiver expiry controls require renewed waiver or delivery attempt for later correction packages.
