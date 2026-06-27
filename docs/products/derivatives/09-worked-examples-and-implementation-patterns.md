@@ -2657,7 +2657,225 @@ QA assertions:
 | Mandate exposure check runs | It uses current source-backed sensitivities. |
 | Client explain pack is generated | Old and new scenario results are versioned and traceable. |
 
-## 83. Advisory And Mandate Checklist
+## 83. Cross-Currency Option Settlement Netting
+
+Scenario:
+
+- A client has two cash-settled OTC option settlements with the same counterparty, netting set and value date.
+- The option portfolio has an EUR 120,000 settlement receivable.
+- The same netting set has a USD 95,000 settlement payable.
+- The agreed settlement conversion rate is 1.0800 USD per EUR.
+
+Net settlement:
+
+```text
+usd_equivalent_receivable = eur_receivable x settlement_fx_rate
+usd_equivalent_receivable = 120,000 x 1.0800 = 129,600
+
+net_settlement_usd = usd_equivalent_receivable - usd_payable
+net_settlement_usd = 129,600 - 95,000 = 34,600
+```
+
+Correct treatment:
+
+- preserve contract ids, counterparty, legal netting set, value date, settlement currency, settlement FX rate, rate source and confirmation evidence;
+- show gross receivable, gross payable and net settlement separately;
+- net only when the same legal agreement, counterparty, value date and settlement process allow netting;
+- block cross-date, cross-counterparty or non-nettable agreement aggregation even when economic exposure appears offsetting;
+- keep FX conversion separate from derivative valuation movement and premium cashflows.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Netting agreement is enforceable | Gross and net settlement amounts are both reported with lineage. |
+| Value dates differ | Settlement does not net across dates. |
+| FX rate source is missing | Net USD amount is source-limited or blocked. |
+| Counterparty differs | Cashflows remain gross by counterparty. |
+
+## 84. Independent Price Verification Breach
+
+Scenario:
+
+- A dealer marks an OTC option portfolio at USD 420,000.
+- Independent price verification marks the same population at USD 395,000.
+- The valuation tolerance is 3.00% of independent value.
+- The valuation date and trade population are aligned.
+
+Breach measurement:
+
+```text
+valuation_difference = dealer_value - independent_value
+valuation_difference = 420,000 - 395,000 = 25,000
+
+ipv_breach_percentage = abs(valuation_difference) / independent_value
+ipv_breach_percentage = 25,000 / 395,000 = 6.33%
+```
+
+Correct treatment:
+
+- preserve dealer mark, independent mark, model version, valuation timestamp, population reconciliation and tolerance rule;
+- separate official book value from independent verification result until valuation governance approves an override or reserve;
+- route tolerance breaches to valuation control with owner, ageing, materiality and resolution status;
+- avoid changing client-facing value solely because an IPV breach exists unless policy and approval require it;
+- retain the difference, breach percentage and explanation pack for audit and valuation committee review.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Difference exceeds tolerance | IPV breach workflow opens with calculated percentage. |
+| Trade population is mismatched | Breach calculation is blocked until population reconciles. |
+| Override is approved | Official value, reserve and approval evidence are versioned. |
+| Client report is produced | Source limitation or adjusted-value basis is clear. |
+
+## 85. Collateral Haircut Schedule Change
+
+Scenario:
+
+- A CSA-eligible bond is posted as derivative collateral.
+- Bond market value is USD 1,000,000.
+- Prior haircut is 5.00%.
+- New haircut is 12.00% from the approved effective date.
+- Required collateral is USD 930,000.
+
+Lending-value impact:
+
+```text
+old_lending_value = market_value x (1 - old_haircut)
+old_lending_value = 1,000,000 x (1 - 5.00%) = 950,000
+
+new_lending_value = market_value x (1 - new_haircut)
+new_lending_value = 1,000,000 x (1 - 12.00%) = 880,000
+
+collateral_shortfall = required_collateral - new_lending_value
+collateral_shortfall = 930,000 - 880,000 = 50,000
+```
+
+Correct treatment:
+
+- preserve old schedule, new schedule, effective date, issuer/security mapping, CSA eligibility and approval evidence;
+- apply the new haircut prospectively from the effective date unless policy explicitly requires restatement;
+- separate market-price movement from haircut-driven lending-value movement;
+- issue margin call or substitution workflow for the shortfall where required;
+- retain old and new lending values for client explain packs, collateral disputes and operations reconciliation.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Haircut effective date is reached | New lending value is used for calls and surplus/shortfall. |
+| Effective date is future-dated | Prior lending value remains active. |
+| Required collateral exceeds new value | Shortfall workflow opens for cash or eligible substitution. |
+| Security mapping is missing | Haircut application is blocked or source-limited. |
+
+## 86. Swap Unwind Partial Termination
+
+Scenario:
+
+- A client partially terminates an interest-rate swap.
+- Original notional is USD 5,000,000.
+- Terminated notional is USD 2,000,000.
+- Dealer termination statement confirms USD 84,000 close-out cash received by the client.
+- Remaining swap economics continue for the residual notional.
+
+Partial termination:
+
+```text
+remaining_notional = original_notional - terminated_notional
+remaining_notional = 5,000,000 - 2,000,000 = 3,000,000
+
+termination_value_per_terminated_notional = termination_cash / terminated_notional
+termination_value_per_terminated_notional = 84,000 / 2,000,000 = 4.20%
+```
+
+Correct treatment:
+
+- preserve original contract id, termination amendment, terminated notional, remaining notional, effective date and dealer statement;
+- post close-out cash against the terminated portion without closing the residual swap;
+- separate realized termination cash from remaining MTM, accrued interest, collateral release and future resets;
+- update exposure, DV01 and margin using residual notional from the effective date;
+- prevent duplicate close/open treatment unless legal documents confirm a replacement trade.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Partial termination is confirmed | Residual swap remains open at USD 3,000,000 notional. |
+| Termination cash is received | Cashflow is linked to terminated portion only. |
+| Valuation file still shows old notional | Reconciliation exception opens. |
+| Collateral release is requested | Release is based on remaining exposure and CSA terms. |
+
+## 87. Exchange Outage Trade Bust
+
+Scenario:
+
+- A listed derivatives exchange declares an outage window and busts trades executed during that period.
+- Twelve futures contracts executed at 101.25 are cancelled.
+- The client replaces the exposure after the market reopens at 101.80.
+- Contract multiplier is USD 1,000 per index point.
+
+Replacement impact:
+
+```text
+replacement_price_difference = replacement_price - busted_trade_price
+replacement_price_difference = 101.80 - 101.25 = 0.55
+
+replacement_cost = replacement_price_difference x multiplier x contracts
+replacement_cost = 0.55 x 1,000 x 12 = 6,600
+```
+
+Correct treatment:
+
+- preserve exchange bust notice, broker execution, cancellation timestamp, replacement trade, multiplier, margin impact and client instruction evidence;
+- reverse the busted trade without leaving stale position, cash or margin exposure;
+- record replacement trade as a new sourced execution rather than editing the cancelled execution in place;
+- separate replacement cost, compensation claim and market P&L;
+- maintain outage labels for explain packs, best-execution review and operations remediation.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Exchange bust notice is received | Original trade is cancelled with source lineage. |
+| Replacement trade is executed | New exposure is opened from replacement confirmation. |
+| Compensation is claimed | Claim state is separate from trading P&L. |
+| Margin file includes both states | Reconciliation prevents double exposure. |
+
+## 88. Counterparty Downgrade Close-Out Trigger
+
+Scenario:
+
+- An OTC derivative counterparty is downgraded below the CSA threshold.
+- Current receivable exposure is USD 650,000.
+- Downgrade threshold requires collateralization above USD 500,000.
+- Cure period and close-out rights depend on the legal agreement.
+
+Trigger exposure:
+
+```text
+excess_exposure = current_receivable_exposure - downgrade_threshold
+excess_exposure = 650,000 - 500,000 = 150,000
+```
+
+Correct treatment:
+
+- preserve rating source, rating timestamp, counterparty mapping, CSA trigger, cure period, exposure calculation and legal-agreement reference;
+- create collateral call, downgrade monitoring or close-out election workflow according to contract terms;
+- separate credit trigger state from derivative valuation and ordinary margin calls;
+- prevent unsupported close-out treatment where cure period, notice requirement or legal authority is unresolved;
+- report exposure, collateral requirement, trigger state and resolution owner together.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Rating breach is confirmed | Downgrade trigger workflow opens with exposure lineage. |
+| Exposure exceeds threshold | Required collateral or close-out election is calculated. |
+| Cure period remains open | Close-out state is pending, not final. |
+| Rating source is stale | Trigger is source-limited and escalated for confirmation. |
+
+## 89. Advisory And Mandate Checklist
 
 Before using derivatives in advisory or DPM workflows, check:
 
@@ -2672,7 +2890,7 @@ Before using derivatives in advisory or DPM workflows, check:
 | Authority | Who may approve trade, exercise, close-out, collateral movement, or unwind? |
 | Reporting | Which client/advisor labels and warnings are required? |
 
-## 84. Current Support Boundary And Candidate Extensions
+## 90. Current Support Boundary And Candidate Extensions
 
 | Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
 |---|---|---|
@@ -2683,7 +2901,7 @@ Before using derivatives in advisory or DPM workflows, check:
 | Lifecycle events | expiry, exercise, assignment, reset, fixing, settlement, novation, compression, clearing, porting, barrier events and notional exchanges when sourced | automated OTC confirmation matching, lifecycle replay engine and event generation |
 | Reporting | market value, exposure, source date, stale/unsupported labels, hedge overlay split, strategy grouping and clearing state where sourced | advanced hedge-effectiveness reporting and multi-factor attribution |
 
-## 85. Regression Test Pack
+## 91. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -2773,3 +2991,9 @@ Minimum release-gate scenarios:
 84. Option exercise funding shortfall blocks, resizes, finances or escalates exercise before deadline.
 85. Clearing-house default fund assessment is separated from margin, trading P&L and ordinary fees.
 86. Structured payoff model recalibration versions sensitivities without changing official valuation when price is unchanged.
+87. Cross-currency option settlement netting reports gross and net cashflows only when legal netting, value date, counterparty and FX evidence align.
+88. Independent price verification breach calculates tolerance variance and routes valuation differences without silently changing official value.
+89. Collateral haircut schedule change applies from the effective date and separates haircut-driven shortfall from market movement.
+90. Swap unwind partial termination closes only the terminated notional and keeps residual swap exposure, MTM and collateral lineage intact.
+91. Exchange outage trade bust reverses cancelled execution, opens replacement exposure from source confirmation and separates compensation claims from P&L.
+92. Counterparty downgrade close-out trigger preserves rating evidence, CSA trigger terms, cure period, collateral call and close-out election state.
