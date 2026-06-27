@@ -64,6 +64,7 @@ This repo is organized so new document sets can be added without turning the roo
 | [`docs/products/tax-regulatory-and-reporting.md`](docs/products/tax-regulatory-and-reporting.md) | Tax-aware and regulatory-reporting map for tax classification, withholding, tax lots, cross-border documentation, report outputs, controls, and QA. |
 | [`docs/products/wealth-structuring-trusts-and-family-office.md`](docs/products/wealth-structuring-trusts-and-family-office.md) | Wealth-structuring map for trusts, estates, family offices, holding vehicles, beneficial ownership, authority, access control, reporting groups, and QA. |
 | [`docs/reference/private-banking-platform-knowledge-map.md`](docs/reference/private-banking-platform-knowledge-map.md) | Reusable checklist for applying product knowledge to APIs, UI, docs, QA, and source-ownership decisions. |
+| [`docs/reference/private-banking-operating-model/`](docs/reference/private-banking-operating-model/README.md) | Migrated and consolidated private-banking operating-model wiki material for performance, advisory, DPM, suitability, execution, custody, lending, controls, and QA. |
 | [`docs/reference/wealth-product-framework/`](docs/reference/wealth-product-framework/README.md) | Cross-product canonical position, transaction, advisory, mandate, analytics, reporting, and knowledge-base quality framework. |
 | [`docs/products/product-knowledge-coverage-matrix.md`](docs/products/product-knowledge-coverage-matrix.md) | Coverage and enrichment roadmap for the product library. |
 
