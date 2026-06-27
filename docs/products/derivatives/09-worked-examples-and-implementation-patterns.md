@@ -3422,3 +3422,222 @@ QA assertions:
 | Correction lacks calculation-agent evidence | Settlement remains provisional or source-limited. |
 | Prior report was delivered | Corrected report preserves prior version and correction reason. |
 | Settlement is finalized | Final cashflow uses corrected observation calendar lineage. |
+
+## 104. Futures Average-Price Allocation Break
+
+Scenario:
+
+- A block futures order is executed across several fills and allocated to multiple client accounts at average price.
+- One fill is missing from the allocation file.
+- The execution broker confirms total executed contracts of 120.
+- The allocation file assigns only 110 contracts.
+- The average execution price is 4,825.50 and the missing-fill price is 4,827.00.
+
+Allocation break:
+
+```text
+unallocated_contracts = executed_contracts - allocated_contracts
+unallocated_contracts = 120 - 110 = 10
+
+missing_fill_notional = unallocated_contracts x missing_fill_price x contract_multiplier
+missing_fill_notional = 10 x 4,827.00 x contract_multiplier
+```
+
+Correct treatment:
+
+- preserve order id, execution fills, broker average-price file, allocation file, client allocation rule and correction approval;
+- block final client booking when executed contracts do not reconcile to allocated contracts;
+- keep missing contracts in an allocation-break state until corrected;
+- recalculate average price only from complete source-backed fills;
+- avoid assigning unallocated contracts to suspense without client-allocation evidence.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Broker executions exceed allocations | Allocation break is calculated and booking is blocked or exception-routed. |
+| Missing fill is later supplied | Average price and client allocations are recalculated from full fill set. |
+| Client report is generated before correction | Position is labelled pending or source-limited according to policy. |
+| Audit review is performed | Execution, allocation and correction evidence reconcile. |
+
+## 105. Option Assignment Buy-In Funding
+
+Scenario:
+
+- A short call option is assigned.
+- The client must deliver 8,000 shares.
+- Only 5,500 shares are available in the account.
+- The desk must buy in 2,500 shares at 42.80 to satisfy delivery.
+- Available cash is 80,000.
+
+Buy-in funding shortfall:
+
+```text
+buy_in_quantity = assigned_quantity - available_underlying_quantity
+buy_in_quantity = 8,000 - 5,500 = 2,500
+
+buy_in_cash_required = buy_in_quantity x buy_in_price
+buy_in_cash_required = 2,500 x 42.80 = 107,000
+
+funding_shortfall = max(buy_in_cash_required - available_cash, 0)
+funding_shortfall = max(107,000 - 80,000, 0) = 27,000
+```
+
+Correct treatment:
+
+- preserve assignment notice, option contract, deliverable terms, underlying position, buy-in instruction, funding source and client notification;
+- separate assignment obligation from buy-in trade and funding workflow;
+- reserve cash or escalate margin funding before delivery deadline;
+- reflect realized option result, underlying delivery and buy-in cost in separate accounting legs;
+- avoid treating assignment as voluntary exercise by the client.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Assignment exceeds available underlying | Buy-in quantity and cash requirement are calculated. |
+| Available cash is insufficient | Funding shortfall opens margin or cash escalation workflow. |
+| Buy-in executes | Underlying delivery and cash movement are traceable to assignment. |
+| Client report is generated | Assignment, buy-in and funding impact are separately visible. |
+
+## 106. Cleared Swap Account Consolidation
+
+Scenario:
+
+- A client has cleared swaps across two clearing-broker accounts after an operational migration.
+- Account A has variation margin receivable of 650,000.
+- Account B has variation margin payable of 410,000.
+- The target consolidated account should show net variation margin while retaining account-level audit.
+
+Consolidated variation margin:
+
+```text
+net_variation_margin = account_a_variation_margin + account_b_variation_margin
+net_variation_margin = 650,000 + (-410,000) = 240,000
+```
+
+Correct treatment:
+
+- preserve clearing broker account ids, transfer approvals, open trade inventory, margin statements, settlement accounts and consolidation date;
+- net reporting only where legal and operational account consolidation is approved;
+- retain pre-consolidation account-level margin, trades and cash evidence;
+- reconcile margin settlements before and after consolidation;
+- avoid netting across legally separate accounts without clearing-broker confirmation.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Accounts are approved for consolidation | Net variation margin is calculated with account lineage retained. |
+| One account has unresolved breaks | Consolidation remains pending or partial. |
+| Margin cash settles after consolidation | Cash applies to target account with source traceability. |
+| Operations report is generated | Pre- and post-consolidation account balances reconcile. |
+
+## 107. Cross-Vendor Vega Bucket Mapping
+
+Scenario:
+
+- Two risk vendors provide option vega in different tenor buckets.
+- Vendor A reports 3-month vega of 120,000 and 6-month vega of 85,000.
+- Vendor B reports 90-day vega of 118,500 and 180-day vega of 87,250.
+- The platform must map buckets before portfolio aggregation.
+
+Mapped vega difference:
+
+```text
+three_month_vega_difference = vendor_a_3m_vega - vendor_b_90d_vega
+three_month_vega_difference = 120,000 - 118,500 = 1,500
+
+six_month_vega_difference = vendor_a_6m_vega - vendor_b_180d_vega
+six_month_vega_difference = 85,000 - 87,250 = -2,250
+```
+
+Correct treatment:
+
+- preserve vendor source, bucket definition, day-count basis, interpolation rule, product scope and mapping approval;
+- aggregate vega only after bucket equivalence or mapping is explicit;
+- show mapped and original vendor buckets in risk audit;
+- block hedge or limit decisions when required bucket mapping is missing;
+- avoid treating bucket labels as equivalent without tenor definition evidence.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Vendor bucket definitions differ | Mapping rule is required before aggregation. |
+| Bucket mapping is approved | Differences are calculated and retained. |
+| Mapping is missing | Portfolio vega report is blocked or labelled source-limited. |
+| Risk report is generated | Original bucket, mapped bucket and difference are visible. |
+
+## 108. Collateral Dispute Close-Out Settlement
+
+Scenario:
+
+- A collateral dispute is closed out through a settlement agreement.
+- Original disputed collateral is 750,000.
+- Agreed close-out settlement is 520,000.
+- Accrued dispute interest is 18,500.
+- The residual disputed amount is waived under settlement terms.
+
+Settlement economics:
+
+```text
+settlement_cash_due = agreed_closeout_settlement + accrued_dispute_interest
+settlement_cash_due = 520,000 + 18,500 = 538,500
+
+waived_dispute_amount = original_disputed_collateral - agreed_closeout_settlement
+waived_dispute_amount = 750,000 - 520,000 = 230,000
+```
+
+Correct treatment:
+
+- preserve dispute history, exposure calculation, collateral call, settlement agreement, interest calculation and waiver approval;
+- close dispute only when settlement cash and waiver terms are confirmed;
+- separate settlement cash, dispute interest and waived collateral claim;
+- update exposure, ageing and counterparty dispute metrics after close-out;
+- avoid recording the full disputed amount as received when part is waived.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Settlement agreement is signed | Settlement cash due and waived amount are calculated. |
+| Cash is received without waiver evidence | Dispute remains partially open. |
+| Interest terms apply | Interest is booked separately from collateral principal settlement. |
+| Collateral report is generated | Original dispute, settlement, interest and waiver are visible. |
+
+## 109. Variance-Swap Holiday-Market Disruption Adjustment
+
+Scenario:
+
+- A variance swap observes daily returns on a defined exchange calendar.
+- A market disruption holiday removes two scheduled observation days.
+- The calculation agent confirms the adjusted observation count.
+- Sum of squared log returns remains 0.0452 and the annualization factor is 252.
+
+Adjusted realized variance:
+
+```text
+adjusted_observation_count = scheduled_observation_count - disrupted_observation_days
+adjusted_observation_count = 252 - 2 = 250
+
+adjusted_realized_variance = sum_squared_log_returns x annualization_factor / adjusted_observation_count
+adjusted_realized_variance = 0.0452 x 252 / 250 = 0.0455616
+```
+
+Correct treatment:
+
+- preserve disruption notice, original calendar, adjusted calendar, calculation-agent confirmation and settlement version;
+- distinguish holiday-market disruption from ordinary non-trading days;
+- version realized variance and expected settlement from the adjusted observation count;
+- retain prior estimates and final adjusted calculation for reporting audit;
+- avoid changing the calendar without calculation-agent or contract-rule evidence.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Disruption days are confirmed | Observation count and realized variance recalculate. |
+| Confirmation is missing | Settlement remains provisional or source-limited. |
+| Prior estimate differs | Prior and adjusted versions remain auditable. |
+| Settlement is finalized | Final cashflow uses the adjusted observation calendar. |
