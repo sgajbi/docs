@@ -3882,6 +3882,246 @@ coupon_rate_change = 6.41% - 6.30% = 0.11%
 | Replacement fixing is missing | Coupon projection is source-limited. |
 | Client report is generated | Benchmark transition and spread adjustment are explainable. |
 
+## Example 100. Bond tender withdrawal window
+
+### Scenario
+
+A client tenders a bond into an issuer offer but later asks to withdraw the instruction. The offer allows withdrawal only before a specified deadline. The platform must prevent false sale treatment while the tender remains withdrawable or pending final acceptance.
+
+| Attribute | Value |
+|---|---:|
+| Held nominal | 1,000,000 |
+| Tendered nominal | 600,000 |
+| Tender price | 101.50 |
+| Withdrawal deadline | 17:00 local time |
+| Withdrawal request time | 16:35 local time |
+
+### Withdrawable amount
+
+```text
+withdrawal_allowed = withdrawal_request_time <= withdrawal_deadline
+cash_if_accepted = tendered_nominal x tender_price / 100
+cash_if_accepted = 600,000 x 101.50 / 100 = 609,000
+```
+
+### Correct treatment
+
+- preserve offer circular, tender instruction, withdrawal deadline, client request time, custodian acknowledgement and final acceptance file;
+- restrict tendered nominal while the tender is pending, but do not reduce the position until accepted;
+- restore sellable nominal when withdrawal is source-confirmed before the deadline;
+- keep expected tender proceeds separate from confirmed settlement cash;
+- show pending, withdrawn, accepted and rejected tender states distinctly in reporting.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Withdrawal arrives before deadline | Tender instruction is withdrawn and nominal becomes available after acknowledgement. |
+| Withdrawal arrives after deadline | Tender remains pending or accepted according to offer terms. |
+| Final acceptance is partial | Position reduces only by accepted nominal. |
+| Client report is generated during pending state | Tendered nominal is restricted but not sold. |
+
+## Example 101. Inflation-Linked Index Disruption
+
+### Scenario
+
+An inflation-linked bond requires a coupon calculation, but the scheduled inflation index publication is delayed. The platform must use the contractual fallback or label the cashflow as provisional.
+
+| Attribute | Value |
+|---|---:|
+| Nominal | 1,000,000 |
+| Base index | 250.000 |
+| Latest confirmed index | 285.000 |
+| Scheduled current index | Delayed |
+| Coupon rate | 2.00% |
+
+### Provisional coupon
+
+```text
+provisional_index_ratio = latest_confirmed_index / base_index
+provisional_index_ratio = 285.000 / 250.000 = 1.1400
+provisional_adjusted_principal = nominal x provisional_index_ratio
+provisional_adjusted_principal = 1,000,000 x 1.1400 = 1,140,000
+semiannual_coupon = provisional_adjusted_principal x coupon_rate / 2
+semiannual_coupon = 1,140,000 x 2.00% / 2 = 11,400
+```
+
+### Correct treatment
+
+- preserve index calendar, missing publication, fallback rule, latest confirmed index and later restatement source;
+- label coupon, adjusted principal, yield and inflation attribution as provisional when the contractual current index is missing;
+- avoid posting final cash income until paying-agent or index-source evidence confirms the applicable value;
+- restate affected analytics when the delayed index is published;
+- keep reporting clear on confirmed versus provisional inflation-linked values.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Current index is delayed | Coupon projection uses fallback or remains source-limited. |
+| Index is later published | Adjusted principal and coupon projection restate with lineage. |
+| Paying-agent cash differs from provisional estimate | Difference posts as adjustment, not price movement. |
+| Report is generated before publication | Inflation-linked analytics are labelled provisional. |
+
+## Example 102. Green-Bond KPI Step-Down Reversal
+
+### Scenario
+
+A sustainability-linked bond initially receives a coupon step-down because a KPI was reported as achieved. The verifier later corrects the result and reverses the step-down from the next coupon period.
+
+| Attribute | Value |
+|---|---:|
+| Nominal | 2,000,000 |
+| Base coupon | 4.00% |
+| Step-down | 0.25% |
+| Reversed coupon | 4.00% |
+| Previously applied coupon | 3.75% |
+
+### Coupon correction
+
+```text
+annual_coupon_delta = nominal x (reversed_coupon - previously_applied_coupon)
+annual_coupon_delta = 2,000,000 x (4.00% - 3.75%) = 5,000
+semiannual_coupon_delta = annual_coupon_delta / 2 = 2,500
+```
+
+### Correct treatment
+
+- preserve KPI terms, verifier report, corrected verifier notice, effective date and coupon schedule version;
+- reverse the coupon step-down only from the corrected effective period unless the notice requires historical restatement;
+- separate green eligibility, KPI status, coupon economics and client sustainability reporting;
+- update income forecasts, yield, suitability notes and mandate checks from the corrected source;
+- keep the original KPI status and corrected status available for audit.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Verifier reverses KPI achievement | Future coupon schedule removes the step-down with evidence. |
+| Historical restatement is required | Prior accrual correction posts with lineage. |
+| Green eligibility remains valid | Coupon economics change without removing holding classification unless taxonomy source changes. |
+| Client report is generated | KPI correction and coupon effect are explainable. |
+
+## Example 103. Covered-Bond Overcollateralization Breach
+
+### Scenario
+
+A covered-bond monitor reports that the cover pool no longer meets the required overcollateralization level. The bond remains outstanding, but collateral quality and risk labels must change.
+
+| Attribute | Value |
+|---|---:|
+| Cover pool value | 1,080,000,000 |
+| Covered bonds outstanding | 1,030,000,000 |
+| Required overcollateralization | 7.00% |
+| Actual overcollateralization | 4.85% |
+| Breach | 2.15 percentage points |
+
+### Coverage test
+
+```text
+actual_oc = (cover_pool_value - bonds_outstanding) / bonds_outstanding
+actual_oc = (1,080,000,000 - 1,030,000,000) / 1,030,000,000 = 4.85%
+oc_shortfall = required_oc - actual_oc
+oc_shortfall = 7.00% - 4.85% = 2.15%
+```
+
+### Correct treatment
+
+- preserve cover-pool report, monitor notice, required OC covenant, actual OC, breach date and cure status;
+- update risk labels, collateral eligibility and advisory review without closing the bond position;
+- keep issuer credit risk, cover-pool support and bond market value as separate reporting dimensions;
+- require source-backed cure notice before removing breach state;
+- add the breach to credit, concentration and mandate exception review where relevant.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Actual OC falls below requirement | Breach state opens with calculated shortfall. |
+| Cure report arrives | Breach state closes only with monitor evidence. |
+| Bond price source is unchanged | Market value remains separate from cover-pool covenant status. |
+| Collateral report is generated | Eligibility reflects current breach and haircut policy. |
+
+## Example 104. MBS Servicer Advance Recovery
+
+### Scenario
+
+An MBS servicer advances payments during borrower delinquency and later recovers the advance from pool collections. The recovery affects remittance classification and projected cashflows.
+
+| Attribute | Value |
+|---|---:|
+| Servicer advance outstanding | 120,000 |
+| Pool collections this period | 500,000 |
+| Advance recovery | 80,000 |
+| Net distributable collections | 420,000 |
+| Investor share | 10.00% |
+
+### Investor cash impact
+
+```text
+net_distributable_collections = pool_collections - advance_recovery
+net_distributable_collections = 500,000 - 80,000 = 420,000
+investor_distribution = net_distributable_collections x investor_share
+investor_distribution = 420,000 x 10.00% = 42,000
+```
+
+### Correct treatment
+
+- preserve servicer report, delinquency status, advance balance, recovery amount, pool collections and investor share;
+- separate servicer advance recovery from scheduled interest, scheduled principal and prepayment;
+- update cashflow projections, yield and delinquency analytics from the remittance source;
+- avoid treating advance recovery as a new client fee or market loss;
+- keep servicer advance data available for risk, extension and liquidity analysis.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Advance recovery is reported | Distributable cash is reduced with remittance evidence. |
+| Recovery exceeds collections | Cashflow is source-limited or exceptioned by remittance rules. |
+| Delinquency later cures | Advance balance and cashflow projection update with source lineage. |
+| Client report is generated | Distribution components separate advances, interest and principal. |
+
+## Example 105. Subordinated Note Write-Up Event
+
+### Scenario
+
+A subordinated note was previously written down after a regulatory trigger. Later, the issuer receives approval to write up part of the principal. The platform must increase current nominal without treating it as a cash purchase.
+
+| Attribute | Value |
+|---|---:|
+| Original nominal | 1,000,000 |
+| Nominal after write-down | 650,000 |
+| Approved write-up amount | 150,000 |
+| New current nominal | 800,000 |
+| Cash received | 0 |
+
+### Nominal restoration
+
+```text
+new_current_nominal = nominal_after_write_down + approved_write_up_amount
+new_current_nominal = 650,000 + 150,000 = 800,000
+restored_percentage_of_original = new_current_nominal / original_nominal
+restored_percentage_of_original = 800,000 / 1,000,000 = 80.00%
+```
+
+### Correct treatment
+
+- preserve original write-down notice, write-up approval, effective date, current nominal and regulatory source;
+- increase current nominal through lifecycle adjustment, not purchase, transfer or income cashflow;
+- update coupon basis, market value, yield, loss-recovery analytics and reporting labels from the effective date;
+- keep prior write-down, partial write-up and remaining impairment visible;
+- require source-backed confirmation before reversing impairment state.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Write-up notice is confirmed | Current nominal increases without purchase cash. |
+| Approval is partial | Remaining impairment remains visible. |
+| Coupon basis changes | Future accrual uses restored current nominal from effective date. |
+| Client report is generated | Write-down history and write-up recovery are explainable. |
+
 ## Implementation-backed capability lens
 
 When reviewing whether a platform truly supports bonds, use these evidence questions:
