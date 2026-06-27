@@ -2747,3 +2747,248 @@ exception_utilization = 6,400,000 / 7,000,000 = 91.43%
 | Exposure exceeds temporary limit | Breach workflow opens. |
 | Exception expires | Normal limit is restored automatically. |
 | Attestation is missing after expiry | Governance closure remains incomplete. |
+
+## Example 68. Liquidity buffer model drift
+
+### Scenario
+
+A discretionary mandate uses a model-driven cash buffer to protect near-term fees, settlements and expected withdrawals. The model has not been recalibrated after higher payment volatility, so the recommended investable cash may be overstated.
+
+| Component | Current model | Observed requirement |
+|---|---:|---:|
+| Settlement buffer | 120,000 | 120,000 |
+| Fee and tax reserve | 35,000 | 35,000 |
+| Withdrawal buffer | 75,000 | 145,000 |
+| Stress uplift | 10% | 18% |
+
+### Drift check
+
+```text
+current_model_buffer = (120,000 + 35,000 + 75,000) x 1.10 = 253,000
+observed_required_buffer = (120,000 + 35,000 + 145,000) x 1.18 = 354,000
+buffer_drift = 354,000 - 253,000 = 101,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Mandate cash | Keep the old model output labelled current-policy until recalibration is approved. |
+| Investable cash | Reduce investable cash or mark the excess as model-risk pending review. |
+| Source evidence | Preserve withdrawal history, fee/tax schedule, settlement obligations and stress-policy version. |
+| Governance | Route material drift to investment, risk or mandate governance before automated rebalancing. |
+| Reporting | Explain cash-buffer change as liquidity reserve change, not investment return. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Observed requirement exceeds model buffer | Drift amount is calculated and surfaced for review. |
+| Rebalance consumes disputed buffer | Trade proposal is blocked or warning-labelled by mandate policy. |
+| New buffer policy is approved | Future investable cash uses new effective-dated model. |
+| Client report is generated | Buffer movement is shown as liquidity reserve change, not portfolio P&L. |
+
+## Example 69. Payment beneficiary whitelist exception
+
+### Scenario
+
+A high-value payment is requested to a beneficiary that is not on the approved whitelist. The client relationship manager claims it is urgent, but operations must separate payment validation, whitelist exception approval and cash reservation.
+
+| Attribute | Value |
+|---|---|
+| Payment amount | 420,000 |
+| Beneficiary status | Not whitelisted |
+| Cut-off remaining | 45 minutes |
+| Client cash available | 780,000 |
+| Exception approval | Pending |
+
+### Payment eligibility
+
+```text
+payment_cash_reserved = payment_amount
+payment_release_allowed = beneficiary_whitelisted or approved_whitelist_exception
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Liquidity | Reserve cash while validation is pending, but do not mark the payment complete. |
+| Controls | Require beneficiary verification, callback evidence, exception reason and approval owner. |
+| Fraud risk | Do not bypass screening or callback because sufficient cash exists. |
+| Reporting | Show payment as pending control approval, not failed or completed. |
+| Audit | Preserve original instruction, beneficiary details, whitelist state and approval decision. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Beneficiary is not whitelisted | Payment release is blocked pending exception approval. |
+| Cash is sufficient | Cash is reserved but release state remains control-pending. |
+| Exception is rejected | Reservation reverses and payment is cancelled or returned for repair. |
+| Exception is approved after cut-off | Revised value date and client communication are updated. |
+
+## Example 70. Deposit rollover suitability conflict
+
+### Scenario
+
+A term deposit is due to mature. A relationship team proposes automatic rollover into a longer tenor with a higher rate, but the client has a documented liquidity need within the new tenor.
+
+| Attribute | Value |
+|---|---:|
+| Maturing deposit | 1,000,000 |
+| Proposed rollover tenor | 12 months |
+| Current alternative tenor | 3 months |
+| Known liquidity need | 650,000 in 4 months |
+| 12-month rate | 4.20% |
+| 3-month rate | 3.60% |
+
+### Liquidity conflict
+
+```text
+liquidity_need_within_rollover_tenor = true
+rollover_excess_over_liquidity_need = 1,000,000 - 650,000 = 350,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Suitability | Do not treat highest rate as automatically suitable when liquidity horizon conflicts. |
+| Recommendation | Consider splitting maturity proceeds across cash, short tenor and longer tenor if policy permits. |
+| Disclosure | Show rate, tenor, break penalty, liquidity need and alternative placements. |
+| Execution | Require client or mandate approval for rollover, split placement or cash retention. |
+| Evidence | Preserve maturity instruction, suitability rationale, client liquidity objective and quote timestamp. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Proposed tenor exceeds known liquidity need horizon | Suitability conflict is raised. |
+| Advisor splits proceeds | Each bucket has separate tenor, rate, maturity and approval evidence. |
+| Deposit auto-rolls without approval | Exception is raised when policy requires instruction. |
+| Client report is generated | Maturity proceeds, rollover amount and retained liquidity are separately labelled. |
+
+## Example 71. Intraday cash forecast confidence scoring
+
+### Scenario
+
+Operations uses an intraday forecast to release payments before all expected credits have arrived. Forecast inputs have different confidence levels depending on source, cut-off and historical reliability.
+
+| Forecast input | Amount | Confidence |
+|---|---:|---:|
+| Opening certified cash | 500,000 | 100% |
+| Expected custody income | 180,000 | 85% |
+| Incoming client transfer | 250,000 | 60% |
+| Expected FX settlement credit | 300,000 | 75% |
+
+### Confidence-weighted capacity
+
+```text
+confidence_weighted_inflows = 180,000 x 85% + 250,000 x 60% + 300,000 x 75%
+confidence_weighted_inflows = 153,000 + 150,000 + 225,000 = 528,000
+forecast_confidence_capacity = 500,000 + 528,000 = 1,028,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Payment release | Use confidence-weighted capacity for discretionary release, not raw expected inflows. |
+| Forecasting | Preserve source, confidence score, cut-off, owner and historical accuracy basis. |
+| Risk | Escalate large payments that depend on low-confidence inflows. |
+| Operations | Update confidence as confirmations arrive or miss cut-off. |
+| Reporting | Keep forecast confidence internal unless client communication explicitly requires it. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Low-confidence inflow supports payment release | Payment requires escalation or stays pending. |
+| Expected credit misses cut-off | Forecast capacity recalculates and dependent payments re-prioritize. |
+| Source confirmation arrives | Confidence becomes confirmed cash or certified receivable. |
+| Dashboard is generated | Raw forecast, confidence-weighted capacity and confirmed cash are distinct. |
+
+## Example 72. Nostro overdraft fee allocation
+
+### Scenario
+
+A nostro account incurs an overdraft fee because several client payments and settlement debits consumed intraday liquidity before expected credits arrived. Operations must allocate the fee by causality instead of spreading it evenly across all clients.
+
+| Driver | Amount causing overdraft | Allocation basis |
+|---|---:|---|
+| Client payment A | 300,000 | Released before credit cut-off |
+| Client payment B | 150,000 | Released before credit cut-off |
+| Securities settlement debit | 250,000 | Contractual settlement |
+| Operations timing delay | 100,000 | Internal processing issue |
+
+### Fee allocation
+
+```text
+total_overdraft_driver = 300,000 + 150,000 + 250,000 + 100,000 = 800,000
+client_a_share = 300,000 / 800,000 = 37.50%
+client_b_share = 150,000 / 800,000 = 18.75%
+settlement_share = 250,000 / 800,000 = 31.25%
+operations_share = 100,000 / 800,000 = 12.50%
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Allocation | Allocate only client-chargeable portions under policy and exclude bank/internal-caused portions where required. |
+| Evidence | Preserve nostro statement, intraday timeline, payment release decisions, settlement obligations and fee notice. |
+| Client reporting | Label any pass-through as financing or operational fee according to policy. |
+| Dispute | Keep disputed allocation separate from posted charge until resolved. |
+| Controls | Feed recurring causes into intraday liquidity forecasting and cut-off policy review. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Fee includes internal timing delay | Internal-caused portion is not charged to client unless policy permits. |
+| Client disputes allocation | Original fee, proposed allocation and disputed amount remain auditable. |
+| Settlement debit is mandatory | Allocation follows documented settlement funding policy. |
+| Report is generated | Fee, driver and resolution status reconcile to nostro evidence. |
+
+## Example 73. FX conversion best-execution evidence
+
+### Scenario
+
+A client converts a large CHF balance into USD. The platform must retain evidence that the execution rate, quote source, spread and timing were reasonable under the applicable best-execution policy.
+
+| Attribute | Value |
+|---|---:|
+| Source currency | CHF |
+| Target currency | USD |
+| Converted amount | 2,000,000 CHF |
+| Executed rate | 1.1120 |
+| Reference mid-rate | 1.1145 |
+| Policy spread tolerance | 35 bps |
+
+### Execution spread
+
+```text
+spread_bps = abs(reference_mid_rate - executed_rate) / reference_mid_rate x 10,000
+spread_bps = abs(1.1145 - 1.1120) / 1.1145 x 10,000 = 22.43 bps
+within_policy = 22.43 <= 35
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Execution evidence | Preserve quote source, timestamp, executed rate, mid-rate, spread, dealer/venue and order instruction. |
+| Suitability | Distinguish client-requested conversion, funding conversion, DPM hedge execution and forced conversion. |
+| Reporting | Show realized FX conversion and fees/spread treatment according to statement policy. |
+| Exceptions | Route stale quotes, wide spreads, manual overrides or off-market timing to review. |
+| Analytics | Do not treat best-execution spread as investment performance unless reporting policy explicitly includes it. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Spread is within tolerance | Execution is evidence-compliant with stored quote data. |
+| Mid-rate source is stale | Best-execution check is blocked or exception-labelled. |
+| Manual dealer override is used | Approval and reason are required. |
+| Client asks for execution explanation | Report can show timestamp, reference basis and spread evidence without exposing restricted dealer data. |
