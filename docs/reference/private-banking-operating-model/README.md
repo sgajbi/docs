@@ -49,9 +49,11 @@ This pack should be used with:
 5. [`../../products/portfolio-exposure-modelling-guide.md`](../../products/portfolio-exposure-modelling-guide.md)
 6. [`../../products/product-lifecycle-cashflow-and-event-guide.md`](../../products/product-lifecycle-cashflow-and-event-guide.md)
 7. [`../../products/advisory-mandate-reporting-decision-guide.md`](../../products/advisory-mandate-reporting-decision-guide.md)
-8. [`../../products/lending-collateral-and-buying-power.md`](../../products/lending-collateral-and-buying-power.md)
-9. [`../../products/direct-equities-and-market-operations.md`](../../products/direct-equities-and-market-operations.md)
-10. [`../private-banking-platform-knowledge-map.md`](../private-banking-platform-knowledge-map.md)
+8. [`../../products/product-governance-apu-target-market/`](../../products/product-governance-apu-target-market/README.md)
+9. [`../../products/trade-lifecycle-operations/`](../../products/trade-lifecycle-operations/README.md)
+10. [`../../products/lending-collateral-and-buying-power.md`](../../products/lending-collateral-and-buying-power.md)
+11. [`../../products/direct-equities-and-market-operations.md`](../../products/direct-equities-and-market-operations.md)
+12. [`../private-banking-platform-knowledge-map.md`](../private-banking-platform-knowledge-map.md)
 
 ## Migration Standard
 
