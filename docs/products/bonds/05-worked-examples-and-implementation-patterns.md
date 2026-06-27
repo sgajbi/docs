@@ -2722,6 +2722,236 @@ overstated_put_cash = 300,000 x 100.00 / 100 = 300,000
 | Custodian accepts corrected instruction | Position reduces only by corrected exercised nominal. |
 | Client report is generated | Approved exercise, repair and final position are traceable. |
 
+## Example 70. Callable put-window miss
+
+### Scenario
+
+A putable corporate bond allows investors to put the bond back to the issuer during a 10-business-day election window. The client intended to exercise the put, but the instruction was submitted after the custodian cut-off. The platform must preserve the missed-window evidence and keep the bond position open.
+
+| Attribute | Value |
+|---|---:|
+| Held nominal | 850,000 |
+| Put price | 100.00 |
+| Client-approved exercise nominal | 850,000 |
+| Custodian cut-off | 15:00 |
+| Submitted time | 16:10 |
+
+### Missed put cash
+
+```text
+expected_put_cash_if_accepted = 850,000 x 100.00 / 100 = 850,000
+missed_cutoff_minutes = 70
+```
+
+### Correct treatment
+
+- keep the bond position open because no accepted exercise occurred;
+- preserve client approval, submission timestamp, custodian rejection and cut-off source;
+- show missed optionality as operations/advisory impact, not as maturity or issuer default;
+- update yield, maturity ladder and liquidity expectations to reflect continued holding;
+- route any compensation or complaint workflow separately from bond lifecycle accounting.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Instruction is submitted after cut-off | Exercise is rejected or exceptioned with missed-window reason. |
+| Client approved before cut-off but operations submitted late | Complaint or operational review workflow opens without closing the bond. |
+| Report is generated | Bond remains held and put cash is not booked. |
+| Future call/put schedule is displayed | Missed window is historical; future valid windows remain available if terms allow. |
+
+## Example 71. Exchange-offer lock-up period
+
+### Scenario
+
+An issuer offers to exchange an old bond into a new longer-dated bond. Tendering holders are locked up after instruction submission and cannot sell the old bond while the exchange offer is pending.
+
+| Attribute | Value |
+|---|---:|
+| Old bond nominal submitted | 1,200,000 |
+| Exchange ratio | 0.92 |
+| Expected new bond nominal | 1,104,000 |
+| Lock-up start | Election submission |
+| Final exchange confirmation | Pending |
+
+### Expected exchange nominal
+
+```text
+expected_new_nominal = old_nominal_submitted x exchange_ratio
+expected_new_nominal = 1,200,000 x 0.92 = 1,104,000
+```
+
+### Correct treatment
+
+- restrict trading, lending recall release and collateral substitution for the submitted old nominal during lock-up;
+- do not create the new bond position before final source confirmation and identifier availability;
+- keep residual or rejected old nominal visible if the exchange is prorated or rejected;
+- preserve offer circular, election instruction, lock-up period, final acceptance and new identifier lineage;
+- label exposure as pending exchange, not as settled conversion.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Sell order is attempted during lock-up | Order is blocked or routed to exception. |
+| Exchange confirmation is pending | New bond is not created as settled holding. |
+| Final exchange ratio changes | Expected new nominal is recalculated with source lineage. |
+| Offer is rejected or prorated | Old bond residual remains visible and tradability updates. |
+
+## Example 72. Bond coupon claim dispute
+
+### Scenario
+
+A coupon is due on a bond held over record date, but the custodian does not credit the expected cash. Operations raises a coupon claim against the custodian or paying agent.
+
+| Attribute | Value |
+|---|---:|
+| Eligible nominal | 2,500,000 |
+| Annual coupon rate | 4.20% |
+| Coupon frequency | Semi-annual |
+| Expected coupon | 52,500 |
+| Cash received | 0 |
+
+### Claim amount
+
+```text
+expected_coupon = 2,500,000 x 4.20% / 2 = 52,500
+coupon_claim_amount = 52,500 - 0 = 52,500
+```
+
+### Correct treatment
+
+- create coupon receivable or claim workflow only when entitlement is source-supported;
+- preserve record date, ex-date, pay date, position quantity, custodian statement and paying-agent status;
+- do not mark the coupon as received until cash is credited or claim is settled;
+- separate income accrual, receivable, claim state and actual cash;
+- update client reports with pending income claim where material.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Coupon is expected but cash is missing | Claim workflow opens with entitlement evidence. |
+| Custodian later credits cash | Receivable/claim closes against confirmed cash. |
+| Entitlement is disputed | Income remains pending or source-limited. |
+| Client report is generated | Coupon is labelled receivable or under claim, not paid cash. |
+
+## Example 73. Index fast-entry inclusion
+
+### Scenario
+
+A newly issued bond is added to a benchmark through fast-entry rules before the normal monthly rebalance. Portfolio analytics must update benchmark exposure and active weights from the provider effective date.
+
+| Attribute | Before fast entry | After fast entry |
+|---|---:|---:|
+| Portfolio market value | 0 | 0 |
+| Benchmark weight | 0.00% | 0.65% |
+| Portfolio weight | 0.00% | 0.00% |
+| Active weight | 0.00% | -0.65% |
+
+### Active weight
+
+```text
+active_weight_after = portfolio_weight_after - benchmark_weight_after
+active_weight_after = 0.00% - 0.65% = -0.65%
+```
+
+### Correct treatment
+
+- update benchmark composition from provider file and effective date;
+- do not create a client holding merely because the bond enters the index;
+- route portfolio manager/advisory review when benchmark-relative underweight becomes material;
+- preserve issuer, identifier, index file, fast-entry rule and effective timestamp;
+- explain active-risk change separately from market performance.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Benchmark provider adds bond by fast entry | Benchmark constituent appears from effective date. |
+| Portfolio does not hold the bond | Active weight becomes negative without creating a position. |
+| Identifier is missing or pending | Benchmark exposure is source-limited until instrument master resolves. |
+| Report is generated | Underweight is explained as index inclusion, not sale activity. |
+
+## Example 74. Inflation seasonality lag
+
+### Scenario
+
+An inflation-linked bond uses an indexation lag, so coupon and principal uplift use a prior inflation observation rather than the latest published CPI. A report must explain why current headline inflation does not immediately change the bond cashflow.
+
+| Attribute | Value |
+|---|---:|
+| Original nominal | 1,000,000 |
+| Lagged index ratio | 1.0825 |
+| Latest index ratio | 1.0950 |
+| Coupon rate | 1.20% |
+| Coupon frequency | Semi-annual |
+
+### Lagged coupon basis
+
+```text
+lagged_adjusted_principal = 1,000,000 x 1.0825 = 1,082,500
+latest_adjusted_principal_for_analytics = 1,000,000 x 1.0950 = 1,095,000
+semiannual_coupon_on_lagged_basis = 1,082,500 x 1.20% / 2 = 6,495
+seasonality_lag_difference = 1,095,000 - 1,082,500 = 12,500
+```
+
+### Correct treatment
+
+- apply the contract-specified lagged index for cashflow accrual and payment projection;
+- optionally show latest-index analytics separately with clear label;
+- preserve base index, lag rule, lagged observation, latest observation and publication date;
+- do not restate coupon cashflow merely because a newer CPI value is available;
+- label index seasonality or lag effects in performance attribution when material.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Latest CPI differs from lagged CPI | Cashflow uses lagged contract basis. |
+| Lag rule is missing | Final cashflow projection is blocked or source-limited. |
+| CPI is restated | Versioned index values update analytics according to policy. |
+| Client report is generated | Lagged cashflow and latest-index analytics are not mixed. |
+
+## Example 75. Covered-bond pool substitution
+
+### Scenario
+
+A covered-bond issuer substitutes part of the cover pool after a loan portfolio sale. The bond remains outstanding, but collateral-quality metrics and reporting labels must update from source evidence.
+
+| Attribute | Before substitution | After substitution |
+|---|---:|---:|
+| Cover pool value | 1,250,000,000 | 1,230,000,000 |
+| Bond outstanding | 1,000,000,000 | 1,000,000,000 |
+| Overcollateralization | 25.00% | 23.00% |
+| Ineligible assets | 15,000,000 | 22,000,000 |
+
+### Coverage change
+
+```text
+overcollateralization_before = (1,250,000,000 - 1,000,000,000) / 1,000,000,000 = 25.00%
+overcollateralization_after = (1,230,000,000 - 1,000,000,000) / 1,000,000,000 = 23.00%
+oc_change = 23.00% - 25.00% = -2.00%
+ineligible_asset_increase = 22,000,000 - 15,000,000 = 7,000,000
+```
+
+### Correct treatment
+
+- keep client bond nominal unchanged unless a lifecycle event affects the bond itself;
+- update cover-pool analytics, eligibility flags, overcollateralization and rating-watch inputs;
+- preserve pool substitution notice, asset eligibility report, trustee/monitor confirmation and effective date;
+- route collateral and advisory reviews when coverage deterioration breaches policy thresholds;
+- separate collateral-quality analytics from market price and credit-spread movement.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Cover pool substitution file arrives | Cover-pool metrics update with effective date and source lineage. |
+| Overcollateralization declines | Risk/advisory dashboard shows coverage change without changing nominal. |
+| Ineligible assets breach policy | Exception or review workflow opens. |
+| Client report is generated | Covered-bond exposure remains position-based while collateral analytics are updated. |
+
 ## Implementation-backed capability lens
 
 When reviewing whether a platform truly supports bonds, use these evidence questions:
