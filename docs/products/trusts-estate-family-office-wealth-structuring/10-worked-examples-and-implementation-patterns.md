@@ -3801,7 +3801,235 @@ QA assertions:
 | New correction package is outside scope | Delivery is required. |
 | Status report is generated | Pause, expiry, renewal and reactivation are visible. |
 
-## 110. Regression Test Pack
+## 110. Protector Payment Redirection Approval
+
+Scenario:
+
+- A repaired mediated-release payment reverses because the beneficiary account is closed.
+- The beneficiary requests payment redirection to a new verified account.
+- Trustee approval is required before the release can be reissued.
+
+| Attribute | Value |
+|---|---:|
+| Release requiring new payment action | 18,000 |
+| Redirection amount approved | 18,000 |
+| Amount still pending approval | 0 |
+
+Redirection approval:
+
+```text
+amount_still_pending_approval = release_requiring_new_payment_action - redirection_amount_approved
+amount_still_pending_approval = 18,000 - 18,000 = 0
+```
+
+Correct workflow:
+
+- preserve reversal notice, beneficiary redirection request, new account verification, trustee approval, payment instruction and settlement evidence;
+- reissue only after account verification and approval are complete;
+- keep the original failed and reversed payment history intact;
+- distinguish payment redirection from beneficiary entitlement change;
+- avoid sending funds to a new account based only on beneficiary instruction.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| New account is not verified | Redirection is blocked. |
+| Trustee approval is missing | Payment remains pending. |
+| Redirection is approved | Payment can be reissued to verified account. |
+| Audit report is generated | Original payment, reversal, redirection and settlement are traceable. |
+
+## 111. Replacement Allocation Sponsor Default Event
+
+Scenario:
+
+- A replacement participant funds a co-investment allocation.
+- Before final sponsor acceptance, the sponsor defaults on the replacement allocation process.
+- Funded cash must be refunded or held under approved escrow treatment.
+
+| Attribute | Value |
+|---|---:|
+| Replacement funding received | 210,000 |
+| Funding accepted by sponsor | 0 |
+| Funding requiring refund or escrow | 210,000 |
+
+Sponsor default:
+
+```text
+funding_requiring_refund_or_escrow = replacement_funding_received - funding_accepted_by_sponsor
+funding_requiring_refund_or_escrow = 210,000 - 0 = 210,000
+```
+
+Correct workflow:
+
+- preserve replacement funding receipt, sponsor default notice, acceptance status, committee decision, refund instruction and escrow terms;
+- remove unaccepted replacement funding from commitment exposure;
+- decide whether cash is refunded, held in escrow or applied to another approved allocation;
+- report sponsor default separately from participant funding failure;
+- avoid treating funded cash as invested commitment when sponsor acceptance failed.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Sponsor default occurs before acceptance | Funding is removed from commitment exposure. |
+| Refund is approved | Cash refund instruction is generated. |
+| Escrow is approved | Escrow terms and ownership are recorded. |
+| Exposure report is generated | Funded, accepted and defaulted amounts are separated. |
+
+## 112. Residual Cash-Call Beneficiary Objection
+
+Scenario:
+
+- A residual cash call is issued after a title-cure shortfall.
+- A beneficiary objects to funding the cash replacement from the estate liquidity reserve.
+- The objected amount remains blocked pending executor or court direction.
+
+| Attribute | Value |
+|---|---:|
+| Residual cash call outstanding | 10,000 |
+| Cash call objected by beneficiary | 6,000 |
+| Cash call not objected | 4,000 |
+
+Beneficiary objection:
+
+```text
+cash_call_not_objected = residual_cash_call_outstanding - cash_call_objected_by_beneficiary
+cash_call_not_objected = 10,000 - 6,000 = 4,000
+```
+
+Correct workflow:
+
+- preserve cash-call instruction, beneficiary objection, objection amount, executor response, court direction if required and funding decision;
+- block objected amount until authority resolves the objection;
+- allow non-objected amount to proceed only if funding rules permit partial funding;
+- keep title-cure shortfall and cash-call objection linked;
+- avoid treating a beneficiary objection as a waiver of the underlying equalization obligation.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Beneficiary objects to part of cash call | Objected amount is blocked. |
+| Partial funding is allowed | Non-objected amount can proceed. |
+| Court direction is required | Closure is blocked until decision. |
+| Estate report is generated | Outstanding, objected and non-objected amounts are separated. |
+
+## 113. Sampling Renewal Conditional Approval
+
+Scenario:
+
+- A foundation council conditionally approves renewal of a sampling waiver.
+- The waiver applies only if the recipient submits a remediation evidence pack by a specified date.
+- Until the condition is met, full sampling remains required.
+
+| Attribute | Value |
+|---|---:|
+| Samples required without active waiver | 5 |
+| Samples suspended after condition met | 3 |
+| Samples still required before condition met | 5 |
+
+Conditional approval:
+
+```text
+samples_still_required_before_condition_met = samples_required_without_active_waiver
+samples_still_required_before_condition_met = 5
+```
+
+Correct workflow:
+
+- preserve conditional renewal approval, condition precedent, due date, evidence pack, activation decision and renewed waiver scope;
+- keep full sampling active until the condition is satisfied;
+- activate only the approved waiver scope after evidence acceptance;
+- block release if mandatory samples are missing before activation;
+- avoid applying conditional approval as an active waiver before conditions are met.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Condition precedent is not met | Full sampling remains required. |
+| Evidence pack is accepted | Approved waiver scope activates. |
+| Evidence is late | Waiver remains inactive unless council extends. |
+| Monitoring report is generated | Conditional, active and expired waiver states are visible. |
+
+## 114. Remediation Notice Localization Failure
+
+Scenario:
+
+- A remediation notice is required after audit finds an out-of-scope notice exception.
+- The notice must be delivered in the beneficiary's approved language.
+- Delivery is blocked because the localized template is missing.
+
+| Attribute | Value |
+|---|---:|
+| Remediation notices still open | 1 |
+| Localized notices available | 0 |
+| Notices blocked by localization | 1 |
+
+Localization failure:
+
+```text
+notices_blocked_by_localization = remediation_notices_still_open - localized_notices_available
+notices_blocked_by_localization = 1 - 0 = 1
+```
+
+Correct workflow:
+
+- preserve remediation notice requirement, recipient language preference, approved template version, localization gap, translation approval and delivery evidence;
+- block client delivery until an approved localized notice exists;
+- keep the remediation item open while localization is pending;
+- retain audit evidence that content was not sent in an unsupported language;
+- avoid delivering a non-approved language version to force closure.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Localized template is missing | Delivery is blocked. |
+| Translation is approved | Notice can be delivered in approved language. |
+| Recipient language preference changes | Template requirement is recalculated. |
+| Closure report is generated | Localization gap and final delivery are traceable. |
+
+## 115. Appeal Reversal Post-Expiry Reactivation Dispute
+
+Scenario:
+
+- A correction appeal reversal expires and delivery requirement reactivates.
+- The beneficiary disputes reactivation, claiming the reversal should continue.
+- Delivery remains required unless trustee grants a new pause.
+
+| Attribute | Value |
+|---|---:|
+| Delivery attempts reactivated | 1 |
+| New pause approved | 0 |
+| Delivery attempts still required | 1 |
+
+Reactivation dispute:
+
+```text
+delivery_attempts_still_required = delivery_attempts_reactivated - new_pause_approved
+delivery_attempts_still_required = 1 - 0 = 1
+```
+
+Correct workflow:
+
+- preserve reversal expiry, delivery reactivation, beneficiary dispute, trustee review, new pause decision and delivery attempt evidence;
+- keep delivery-required state active while dispute is pending;
+- pause delivery only if a new approval is granted;
+- retain expiry evidence separate from dispute evidence;
+- avoid extending an expired appeal reversal based only on beneficiary challenge.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Beneficiary disputes reactivation | Delivery remains required pending decision. |
+| Trustee grants new pause | Delivery pauses within approved scope. |
+| Trustee rejects dispute | Delivery workflow continues. |
+| Status report is generated | Expiry, dispute and delivery state are traceable. |
+
+## 116. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -3914,3 +4142,9 @@ Minimum release-gate scenarios:
 107. Sampling waiver renewal disputes keep full sampling active until council approval.
 108. Notice-exception remediation notices close only after delivery, waiver or escalation evidence.
 109. Correction appeal reversal expiry monitoring reactivates delivery when pauses expire without renewal.
+110. Protector payment redirection approvals require verified account details and trustee approval.
+111. Replacement allocation sponsor default events remove unaccepted funding from commitment exposure.
+112. Residual cash-call beneficiary objections block objected amounts without waiving equalization.
+113. Sampling renewal conditional approvals keep full sampling active until conditions are met.
+114. Remediation notice localization failures block delivery until approved localized templates exist.
+115. Appeal reversal post-expiry reactivation disputes keep delivery required unless a new pause is approved.
