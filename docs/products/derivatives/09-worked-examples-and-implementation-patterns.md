@@ -934,7 +934,267 @@ QA assertions:
 | Posted collateral exceeds net MTM | Residual exposure can become overcollateralized but is not treated as free cash until released. |
 | Master agreement changes | Netting set and historical exposure are effective-dated. |
 
-## 30. Advisory And Mandate Checklist
+## 30. CVA/DVA/FVA Input Ownership And Valuation Adjustment
+
+Scenario:
+
+- OTC swap clean value is USD 2,000,000 receivable by the client.
+- Credit valuation adjustment (CVA): USD 45,000.
+- Debit valuation adjustment (DVA): USD 12,000.
+- Funding valuation adjustment (FVA): USD 18,000.
+
+Simplified adjusted value:
+
+```text
+adjusted_value = clean_value - CVA + DVA - FVA
+adjusted_value = 2,000,000 - 45,000 + 12,000 - 18,000 = 1,949,000
+```
+
+Correct treatment:
+
+- keep clean value, CVA, DVA, FVA and final adjusted value as separate measures;
+- identify the owner and timestamp for exposure profiles, counterparty curves, own-credit inputs, funding curves and collateral assumptions;
+- label whether adjustments are dealer-provided, vendor-provided or independently modelled;
+- avoid mixing front-office explain values with official accounting or client-reporting values without source policy.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| CVA input file is stale | Adjusted valuation is blocked or labelled stale. |
+| DVA is unavailable | Clean value remains available but adjusted value is incomplete. |
+| Funding curve changes | FVA component is recalculated with model/version lineage. |
+| Client report uses adjusted value | Report shows the valuation basis and source timestamp. |
+
+## 31. Compression Tear-Up Allocation
+
+Scenario:
+
+- Portfolio compression tears up three economically offsetting OTC trades.
+- Net portfolio tear-up P&L is USD 24,000 gain.
+- Allocation weights by agreed risk reduction: 50%, 30%, 20%.
+
+Simplified allocation:
+
+```text
+trade_a_allocation = 24,000 x 50% = 12,000
+trade_b_allocation = 24,000 x 30% = 7,200
+trade_c_allocation = 24,000 x 20% = 4,800
+```
+
+Correct treatment:
+
+- preserve old contract ids, new compressed state and tear-up event id;
+- allocate residual P&L by documented rule, not by arbitrary trade order;
+- avoid double counting notional reduction as realized performance;
+- keep counterparty, netting-set and legal agreement lineage after compression.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Allocation weights do not sum to 100% | Compression allocation is rejected. |
+| One trade is outside netting set | It is excluded from the tear-up batch. |
+| Compression event is replayed | Idempotency prevents duplicate P&L and duplicate notional reduction. |
+| Residual P&L is immaterial | Event still records allocation policy and lineage. |
+
+## 32. Cross-Currency Collateral Optionality
+
+Scenario:
+
+- USD collateral requirement: USD 1,000,000.
+- Client proposes EUR 1,000,000 collateral.
+- EUR/USD rate: 1.10.
+- Base collateral haircut: 3%.
+- FX mismatch haircut: 5%.
+
+Simplified lending value:
+
+```text
+lending_value_usd = collateral_amount_eur x fx_rate x (1 - base_haircut - fx_mismatch_haircut)
+lending_value_usd = 1,000,000 x 1.10 x (1 - 0.03 - 0.05) = 1,012,000
+```
+
+Correct treatment:
+
+- verify the collateral currency is eligible under the CSA;
+- apply both asset haircut and currency mismatch haircut where required;
+- report surplus/shortfall in the exposure currency;
+- preserve collateral substitution, FX rate source, haircut source and valuation timestamp.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| EUR is not CSA-eligible | Collateral proposal is rejected even if value is sufficient. |
+| FX rate is stale | Lending value is stale or blocked. |
+| Haircut rules change | Historical collateral value remains reproducible by effective date. |
+| Requirement currency changes | Surplus/shortfall is recalculated in the correct currency. |
+
+## 33. Lifecycle Event Replay After Corrected Reset
+
+Scenario:
+
+- Interest-rate swap reset was processed with a 5.12% fixing.
+- Correct fixing is 5.18%.
+- Floating notional is USD 50,000,000.
+- Accrual factor is 90/360 = 0.25.
+
+Simplified correction:
+
+```text
+cashflow_delta = notional x (correct_rate - original_rate) x accrual_factor
+cashflow_delta = 50,000,000 x (0.0518 - 0.0512) x 0.25 = 7,500
+```
+
+Correct treatment:
+
+- replay lifecycle events from source facts instead of overwriting the final cashflow silently;
+- preserve original fixing, corrected fixing, correction reason and approval state;
+- post adjustment cashflow separately when the original cashflow has already settled;
+- recalculate valuation, accrual, performance and reporting impact from effective event history.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Corrected fixing arrives before settlement | Pending cashflow is updated with audit trail. |
+| Corrected fixing arrives after settlement | Adjustment cashflow is created. |
+| Reset source is unsupported | Replay is blocked until source evidence is available. |
+| Replay runs twice | No duplicate adjustment cashflow is created. |
+
+## 34. Barrier Observation Dispute
+
+Scenario:
+
+- Up-and-out option barrier level is 110.00.
+- Dealer observation file shows high price of 110.05.
+- Independent market-data source shows high price of 109.95.
+- Observation rule requires official exchange fixing, not intraday dealer high.
+
+Decision treatment:
+
+- do not knock out the option until the governing observation source and rule confirm breach;
+- preserve dealer value, independent value, observation rule, dispute owner and resolution state;
+- separate disputed lifecycle state from valuation estimate;
+- block client-ready lifecycle reporting when barrier state is unresolved.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Dealer and official source disagree | Barrier state becomes disputed, not final. |
+| Observation rule is missing | Barrier processing is blocked. |
+| Dispute resolves as no breach | Option remains active with dispute history. |
+| Dispute resolves as breach | Knock-out event records breach source, timestamp and approval lineage. |
+
+## 35. Uncleared Margin Phase-In And SIMM Completeness
+
+Scenario:
+
+- Counterparty becomes subject to uncleared margin rules after threshold monitoring.
+- SIMM-style initial margin requires sensitivities, product class, bucket, currency, risk weights, netting set and threshold.
+- Delta sensitivity file is present; vega and curvature files are missing.
+
+Correct treatment:
+
+- determine applicability by legal entity, jurisdiction, average aggregate notional amount and effective date;
+- distinguish regulatory initial margin from house margin and independent amount;
+- block unsupported initial-margin estimates when mandatory risk classes are missing;
+- preserve phase-in date, threshold, model version, sensitivity files and netting-set evidence.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Phase-in date has not arrived | Regulatory initial margin is not applied prematurely. |
+| Sensitivity files are incomplete | Estimate is blocked or labelled partial. |
+| Netting-set id is missing | Margin cannot be netted across trades. |
+| Threshold changes | Margin requirement is effective-dated and reproducible. |
+
+## 36. Exchange Position Limit Control
+
+Scenario:
+
+- Mandate holds 950 contracts in an exchange-traded futures contract.
+- Exchange limit is 1,000 contracts.
+- Proposed order adds 75 contracts.
+
+Simplified control:
+
+```text
+projected_position = current_contracts + proposed_order_contracts
+projected_position = 950 + 75 = 1,025
+excess = 1,025 - 1,000 = 25
+```
+
+Correct treatment:
+
+- check position limits before order release and after fills;
+- aggregate across accounts, sub-accounts or beneficial owner where the rule requires it;
+- distinguish hard exchange limits from internal concentration limits;
+- preserve alert, override, reduction or exemption evidence.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Projected position exceeds exchange limit | Order is blocked or routed for approved exception. |
+| Partial fill breaches limit | Post-trade alert and remediation workflow open. |
+| Accounts share beneficial owner | Positions aggregate for limit check. |
+| Limit file is stale | Order release is blocked or labelled unsupported by policy. |
+
+## 37. Cleared OTC Porting After Clearing Broker Default
+
+Scenario:
+
+- Clearing broker defaults while client has cleared swaps.
+- Initial margin: USD 800,000.
+- Variation margin receivable: USD 120,000.
+- Excess collateral: USD 50,000.
+- Backup clearing broker accepts 70% of contracts for porting.
+
+Operational treatment:
+
+- identify affected contracts, margin, collateral and pending settlements;
+- split contracts into ported, pending and close-out buckets;
+- update clearing broker metadata only after receiving acceptance evidence;
+- preserve margin recovery, collateral transfer and close-out lineage.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Backup broker accepts a contract | Contract is ported with old and new clearing-broker lineage. |
+| Backup broker rejects a contract | Contract remains in close-out or liquidation workflow. |
+| Margin transfer is partial | Residual claim remains open and separately reported. |
+| Acceptance file is replayed | Porting state is idempotent. |
+
+## 38. Valuation Model-Change Approval
+
+Scenario:
+
+- A structured option valuation model changes from version 3.1 to 3.2.
+- Clean MTM changes from USD 420,000 to USD 438,000.
+- Model change impact is USD 18,000.
+
+Correct treatment:
+
+- separate market movement from model-change impact;
+- require approval evidence for model version, calibration inputs and effective date;
+- keep old and new valuation explain available for audit and client/reporting questions;
+- avoid backfilling historical values unless policy explicitly requires restatement.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Model version changes without approval | Valuation is blocked or marked pending approval. |
+| Calibration inputs are missing | Model-change impact cannot be finalized. |
+| Historical report is regenerated | It uses the valuation version effective at the report date unless restated. |
+| New model materially changes MTM | Impact is surfaced for review and performance explain. |
+
+## 39. Advisory And Mandate Checklist
 
 Before using derivatives in advisory or DPM workflows, check:
 
@@ -949,18 +1209,18 @@ Before using derivatives in advisory or DPM workflows, check:
 | Authority | Who may approve trade, exercise, close-out, collateral movement, or unwind? |
 | Reporting | Which client/advisor labels and warnings are required? |
 
-## 31. Current Support Boundary And Candidate Extensions
+## 40. Current Support Boundary And Candidate Extensions
 
 | Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
 |---|---|---|
 | Contract position | contract id, notional, quantity, underlying, expiry, counterparty, market value, leg grouping where sourced | advanced scenario replay and automated strategy discovery |
 | Exposure | notional, delta-equivalent, DV01/CS01, Greeks and volatility exposure where supplied | central cross-product exposure engine and full strategy-level attribution |
-| Margin/collateral | broker/dealer margin postings, collateral balances, dispute status and agreed/disputed amounts | full margin simulation, optimization, substitution and dispute analytics |
-| Valuation | vendor/dealer/exchange values with source timestamps and model labels | independent model valuation with explain, calibration and variance/barrier replay |
-| Lifecycle events | expiry, exercise, assignment, reset, fixing, settlement, novation, compression, clearing, barrier events and notional exchanges when sourced | automated OTC confirmation matching and event generation |
+| Margin/collateral | broker/dealer margin postings, collateral balances, dispute status, agreed/disputed amounts, eligibility, haircuts, phase-in status and source-backed margin inputs | full margin simulation, optimization, substitution and dispute analytics |
+| Valuation | vendor/dealer/exchange values with source timestamps, model labels, clean/adjusted value components and model-version evidence | independent model valuation with explain, calibration, valuation-adjustment ownership and variance/barrier replay |
+| Lifecycle events | expiry, exercise, assignment, reset, fixing, settlement, novation, compression, clearing, porting, barrier events and notional exchanges when sourced | automated OTC confirmation matching, lifecycle replay engine and event generation |
 | Reporting | market value, exposure, source date, stale/unsupported labels, hedge overlay split, strategy grouping and clearing state where sourced | advanced hedge-effectiveness reporting and multi-factor attribution |
 
-## 32. Regression Test Pack
+## 41. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -997,3 +1257,12 @@ Minimum release-gate scenarios:
 31. Prime-broker give-up workflow preserves execution lineage and blocks duplicate or rejected clearing acceptance.
 32. Early termination amount separates close-out MTM, accruals, break funding, fees, residual notional and collateral release.
 33. Close-out netting exposure includes only enforceable netting-set trades and tracks independent amount disputes separately.
+34. CVA/DVA/FVA adjusted valuation preserves clean value, component ownership, model version and source timestamp.
+35. Compression tear-up allocates residual P&L by agreed rule and prevents duplicate notional reduction on replay.
+36. Cross-currency collateral optionality applies CSA eligibility, FX source, asset haircut and mismatch haircut.
+37. Lifecycle replay posts a correction cashflow when a corrected reset arrives after settlement.
+38. Barrier observation dispute blocks final knock-in or knock-out state until governing source evidence resolves the dispute.
+39. Uncleared margin phase-in applies only after effective date and blocks unsupported SIMM-style estimates when inputs are missing.
+40. Exchange position-limit control blocks or escalates orders that breach hard exchange or aggregation limits.
+41. Cleared OTC porting preserves old and new clearing-broker lineage and separates rejected contracts from ported contracts.
+42. Valuation model-change approval separates market movement from model impact and preserves versioned audit history.
