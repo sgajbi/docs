@@ -1,6 +1,6 @@
 # 09 - Worked Examples And Engineering Review Checklists
 
-Use these examples when reviewing architecture, implementation, PRs, production readiness or technical KT.
+Use these examples when reviewing architecture, implementation, PRs, production readiness or technical KT. For reusable practitioner prompts across architecture, API, data, CI/CD, testing, security, observability and production readiness, use [`16-practitioner-review-prompts-and-checklists.md`](16-practitioner-review-prompts-and-checklists.md).
 
 ## 1. New Domain API Endpoint
 

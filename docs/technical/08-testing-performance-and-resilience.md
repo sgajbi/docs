@@ -80,6 +80,8 @@ API performance guardrails:
 7. caching with owner, TTL and invalidation policy,
 8. p95/p99 latency budgets for critical endpoints.
 
+For deeper design guidance on heavy workflows, async execution, retry policy, durable execution state and recovery, use [`15-performance-scalability-resilience-and-async-work.md`](15-performance-scalability-resilience-and-async-work.md).
+
 ## Resilience Patterns
 
 | Pattern | Use |
