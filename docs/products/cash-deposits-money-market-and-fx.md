@@ -25,6 +25,16 @@ Cash and FX sit underneath nearly every product workflow. They affect buying pow
 | Multi-currency buying power | Indicative funding capacity after purchase-currency cash, source-currency cash, FX conversion, buffers, settlement timing, restrictions, pledge state and credit policy. |
 | Cash sweep | Automated movement from operating cash into deposit, money market fund, sweep account or liquidity product; should preserve cash reservations, cut-offs, settlement and liquidity labels. |
 
+## Funding And Liquidity Stress Cases
+
+| Case | Platform Treatment |
+|---|---|
+| Approved overdraft | Separate settled cash, projected cash, overdraft utilization, facility limit, buffer and mandate permission. Do not show projected sale proceeds as available cash before settlement. |
+| Negative interest | Accrue charges by currency, threshold, rate, period and booking centre. Report as expense/cash drag, not market loss. |
+| Cross-currency settlement holiday | Calculate valid joint currency value date and identify security-versus-FX funding mismatches before approving orders. |
+| Sweep unwind during stress | Treat money market sweep positions as liquidity products with NAV, cut-off, gate, settlement and redemption confirmation; do not equate them with bank cash. |
+| Credit-line-funded purchase | Approve only after facility, collateral, haircut, currency, concentration, pledge and mandate checks pass; record drawdown and collateral reservation separately from cash. |
+
 ## Reusable Modelling Pattern
 
 Use separate layers:
@@ -86,6 +96,8 @@ APIs should expose:
 9. buying-power basis and unsupported states,
 10. linked FX funding requirement for cross-currency purchases,
 11. cash sweep trigger, reservation, order, settlement and unwind state.
+12. overdraft and credit-line funding basis where buying power includes borrowing capacity,
+13. liquidity stress labels for gated funds, delayed FX, holidays, failed settlements and blocked source data.
 
 UIs should make these states visible:
 
@@ -99,6 +111,7 @@ UIs should make these states visible:
 8. buying power includes or excludes credit/collateral.
 9. FX-funded buying power is indicative until conversion and settlement policy are satisfied,
 10. automatic sweeps can reduce operating cash and may create fund liquidity or settlement constraints.
+11. negative interest, overdraft utilization, sweep gates and cross-currency settlement mismatch are present.
 
 ## QA Scenarios
 
@@ -116,7 +129,12 @@ High-value scenarios:
 10. projected cash blocks a purchase because pending settlement is late,
 11. multi-currency purchase uses FX-funded buying power with haircut and value-date checks,
 12. failed FX settlement restricts projected cash and opens exception workflow,
-13. sweep order reserves excess cash and creates MMF units only after confirmed dealing NAV.
+13. sweep order reserves excess cash and creates MMF units only after confirmed dealing NAV,
+14. approved overdraft allows a trade only within facility, buffer and mandate limits,
+15. negative interest accrues by threshold, rate period and currency,
+16. cross-currency holiday creates a funding mismatch that is blocked, prefunded or bridged,
+17. gated sweep unwind limits same-day withdrawal cash,
+18. credit-line-funded purchase reserves collateral and records borrowing exposure.
 
 ## Useful Project Workflows
 

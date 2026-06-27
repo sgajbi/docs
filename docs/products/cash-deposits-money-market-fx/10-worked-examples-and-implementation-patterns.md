@@ -501,3 +501,208 @@ Final units should use confirmed dealing NAV, fees and fund settlement terms.
 | NAV changes between estimate and confirmation | Units use confirmed NAV, while estimate remains audit context. |
 | Fund applies liquidity gate | Sweep or redemption follows gate behavior and liquidity labels update. |
 | Cash buffer differs by mandate | Sweep threshold and residual cash are mandate/service-model specific. |
+
+## Example 11. Approved overdraft funding for a securities purchase
+
+### Scenario
+
+A client wants to buy a security before sale proceeds settle. The platform supports an approved overdraft only when the account, client segment, product, currency and mandate permit temporary funding.
+
+| Attribute | Value |
+|---|---:|
+| Settled USD cash | 20,000 |
+| Pending sale proceeds settling T+2 | 80,000 |
+| Security purchase cash required T+1 | 65,000 |
+| Approved overdraft limit | 50,000 |
+| Overdraft buffer reserved by policy | 5,000 |
+
+### Funding calculation
+
+```text
+cash shortfall on purchase date = purchase cash required - settled cash
+cash shortfall on purchase date = 65,000 - 20,000 = 45,000
+
+usable overdraft = approved limit - required buffer
+usable overdraft = 50,000 - 5,000 = 45,000
+
+post-trade available cash = settled cash - purchase cash required + usable overdraft
+post-trade available cash = 20,000 - 65,000 + 45,000 = 0
+```
+
+### Correct treatment
+
+The pending sale proceeds remain projected cash until settlement. The purchase can proceed only because an explicit overdraft facility covers the temporary shortfall. Reporting should show settled cash, projected cash, overdraft utilization and facility headroom separately.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Purchase shortfall exceeds usable overdraft | Order is blocked, resized or escalated. |
+| Product is not eligible for overdraft funding | Buying power excludes the facility. |
+| Sale proceeds fail to settle | Overdraft remains drawn and exception workflow starts. |
+| Client report is produced during funding window | Report labels the negative cash as overdraft utilization, not normal cash availability. |
+| Mandate disallows leverage | Purchase is blocked even if a facility exists. |
+
+## Example 12. Negative interest on large cash balances
+
+### Scenario
+
+A booking centre applies negative interest to large EUR cash balances above a threshold. The charge must be accrued as an expense and not hidden inside investment performance.
+
+| Attribute | Value |
+|---|---:|
+| Average EUR cash balance | 1,500,000 |
+| Exempt threshold | 250,000 |
+| Negative annual rate | -0.50% |
+| Accrual days | 30 |
+| Day-count basis | 360 |
+
+### Accrual calculation
+
+```text
+chargeable balance = average cash balance - exempt threshold
+chargeable balance = 1,500,000 - 250,000 = 1,250,000
+
+negative interest charge = chargeable balance x abs(rate) x days / basis
+negative interest charge = 1,250,000 x 0.50% x 30 / 360 = 520.83
+```
+
+### Reporting and advisory treatment
+
+| Area | Correct treatment |
+|---|---|
+| Cash statement | Show negative interest as a cash expense or bank charge with period and rate basis. |
+| Performance | Treat as expense/cash drag according to methodology, not as market price loss. |
+| Advisory | Consider deposits, T-bills, money market funds, FX conversion or mandate constraints before moving cash. |
+| DPM | Preserve liquidity buffers for fees, withdrawals, collateral and model trades before reducing cash. |
+| Tax/reporting | Apply local classification and withholding/reporting rules where relevant. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Balance is below threshold | No negative-interest accrual is created. |
+| Rate changes mid-period | Accrual splits by effective date. |
+| Currency is unsupported for negative interest | Calculation is blocked or labelled unsupported. |
+| Charge is reversed by bank | Reversal preserves original charge lineage. |
+| Client asks why cash fell | Statement explains balance, threshold, rate, period and charge. |
+
+## Example 13. Cross-currency settlement holiday
+
+### Scenario
+
+A USD client buys a JPY security. The order requires FX funding, but the USD and JPY calendars do not share the same valid settlement date.
+
+| Attribute | Value |
+|---|---|
+| Security trade date | Monday |
+| Security settlement cycle | T+2 |
+| Intended security settlement | Wednesday |
+| USD holiday | Wednesday |
+| JPY business day | Wednesday |
+| Next valid joint USD/JPY FX value date | Thursday |
+
+### Platform behavior
+
+| Step | Correct treatment |
+|---|---|
+| Trade capture | Store security settlement date and required funding currency. |
+| FX planning | Calculate the earliest valid joint currency value date. |
+| Funding check | Identify one-day mismatch between security settlement and FX value date. |
+| Decision | Block, pre-fund, use approved credit, or amend settlement instructions according to policy. |
+| Reporting | Show the settlement mismatch and funding dependency before treating cash as available. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Currency holiday creates mismatch | Buying power is labelled settlement-dependent. |
+| Prefunding is supported | Required USD or JPY cash is reserved before security settlement. |
+| Credit bridge is not approved | Trade is blocked or escalated before settlement date. |
+| Calendar is missing | FX funding date is unavailable and order cannot be auto-approved. |
+| Holiday is updated by source | Settlement plan recalculates with audit trail. |
+
+## Example 14. Sweep unwind during market stress
+
+### Scenario
+
+A client needs USD 120,000 for a withdrawal. Cash is partly invested in a money market sweep fund, but the fund imposes a temporary 40% redemption gate.
+
+| Attribute | Value |
+|---|---:|
+| Settled USD cash | 50,000 |
+| MMF sweep position value | 150,000 |
+| Withdrawal request | 120,000 |
+| Redemption gate | 40% of requested redemption can settle |
+| Same-day redeemable amount requested | 70,000 |
+
+### Liquidity calculation
+
+```text
+redeemable MMF cash = requested redemption x gate percentage
+redeemable MMF cash = 70,000 x 40% = 28,000
+
+same-day cash available for withdrawal = settled cash + redeemable MMF cash
+same-day cash available for withdrawal = 50,000 + 28,000 = 78,000
+
+withdrawal shortfall = requested withdrawal - same-day cash available
+withdrawal shortfall = 120,000 - 78,000 = 42,000
+```
+
+### Correct treatment
+
+The sweep fund cannot be treated as bank cash during stress. The platform should show available cash, gated redemption amount, pending redemption, shortfall and possible funding alternatives separately.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Fund gate applies | Available cash includes only confirmed redeemable amount. |
+| Withdrawal exceeds available liquidity | Workflow offers partial payment, alternative funding or escalation. |
+| Gate is lifted later | Pending redemption can proceed with new source confirmation. |
+| Report is generated during gate | Liquidity label states gated fund exposure and shortfall. |
+| DPM model trade competes for cash | Withdrawal priority, mandate policy and client instruction determine reservation order. |
+
+## Example 15. Credit-line-funded purchase and collateral reservation
+
+### Scenario
+
+A client buys a bond using a secured credit line. The order is permitted only if collateral value, haircuts, concentration caps and currency policy leave enough borrowing headroom after the purchase.
+
+| Attribute | Value |
+|---|---:|
+| Facility limit | 500,000 |
+| Current loan exposure | 300,000 |
+| Eligible collateral market value | 900,000 |
+| Collateral haircut | 45% |
+| Bond purchase funding need | 120,000 |
+| Minimum headroom after purchase | 20,000 |
+
+### Borrowing capacity calculation
+
+```text
+collateral lending value = collateral market value x (1 - haircut)
+collateral lending value = 900,000 x 55% = 495,000
+
+facility headroom = min(facility limit, collateral lending value) - current exposure
+facility headroom = min(500,000, 495,000) - 300,000 = 195,000
+
+required headroom including buffer = purchase funding need + minimum headroom
+required headroom including buffer = 120,000 + 20,000 = 140,000
+
+remaining headroom after purchase = 195,000 - 120,000 = 75,000
+```
+
+### Correct treatment
+
+The purchase can proceed only if the credit facility is approved for the client, account, product, currency and collateral set. The purchase should create loan exposure and collateral reservation, not negative free cash that looks available.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Collateral price is stale | Facility availability is stale or blocked. |
+| Purchase breaches concentration cap | Order is blocked even when facility headroom is positive. |
+| FX haircut is required | Lending value includes FX haircut before approving funding. |
+| Facility is shared across accounts | Reservation reduces group-level headroom. |
+| Bond settles but drawdown fails | Exception workflow links trade, loan drawdown, cash and collateral states. |
