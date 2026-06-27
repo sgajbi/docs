@@ -2034,7 +2034,210 @@ QA assertions:
 | Dealer notice is missing | Basket adjustment remains provisional or source-limited. |
 | Attribution report is generated | Price return, dividend adjustment and financing leg are separate. |
 
-## 65. Advisory And Mandate Checklist
+## 65. Volatility-Control Overlay Rebalancing
+
+Scenario:
+
+- A portfolio uses a volatility-control overlay to keep equity exposure near a 10% target realized volatility.
+- Current equity overlay notional is USD 20,000,000.
+- The latest source-backed realized volatility is 16%.
+- The mandate caps overlay notional at USD 22,000,000 and floors it at USD 8,000,000.
+
+Rebalanced notional:
+
+```text
+raw_rebalanced_notional = 20,000,000 x 10% / 16% = 12,500,000
+rebalanced_notional = min(max(12,500,000, 8,000,000), 22,000,000) = 12,500,000
+notional_reduction = 20,000,000 - 12,500,000 = 7,500,000
+```
+
+Correct treatment:
+
+- preserve target volatility, realized-volatility source, lookback window, cap/floor limits and rebalance timestamp;
+- separate overlay notional change from underlying portfolio transactions and client cashflows;
+- update delta-equivalent exposure, margin forecasts, mandate checks and scenario reports from the effective rebalance date;
+- label exposure as provisional when volatility source, rebalance rule or execution confirmation is missing.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Realized volatility is above target | Overlay notional is reduced according to the control rule. |
+| Calculated notional breaches floor/cap | Floor or cap is applied with clear explanation. |
+| Rebalance confirmation is missing | Exposure is marked pending or source-limited. |
+| Client report is generated | Underlying portfolio return and overlay exposure change are separate. |
+
+## 66. Knock-In Recovery Basket
+
+Scenario:
+
+- A structured derivative references a worst-of equity basket.
+- Initial worst-underlying level is 100.
+- A knock-in barrier is observed during the term.
+- At maturity, the final worst-underlying level is 72.
+- Nominal is USD 1,000,000.
+
+Recovery value:
+
+```text
+recovery_ratio = final_worst_underlying / initial_worst_underlying
+recovery_ratio = 72 / 100 = 72%
+cash_recovery = 1,000,000 x 72% = 720,000
+capital_loss = 1,000,000 - 720,000 = 280,000
+```
+
+Correct treatment:
+
+- preserve the observation calendar, barrier level, governing source, basket constituents and worst-of selection;
+- process recovery from final source-backed basket levels, not from average basket performance or the best component;
+- keep issuer calculation notice, payoff condition and settlement method attached to the lifecycle event;
+- label or block final recovery when barrier observation or final fixing is disputed.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Knock-in barrier is confirmed | Downside payoff is activated for maturity calculation. |
+| Final worst performer is identified | Recovery uses the worst-underlying ratio. |
+| Barrier source is disputed | Final payoff remains provisional or source-limited. |
+| Reporting explains outcome | Barrier event, final worst level, recovery and loss are visible. |
+
+## 67. Swap Reset Compounding Dispute
+
+Scenario:
+
+- An overnight-index swap coupon uses daily compounded rates.
+- Notional is USD 10,000,000.
+- Internal compounded rate is 5.126%.
+- Dealer compounded rate is 5.119%.
+- Accrual factor is 0.25.
+
+Disputed coupon delta:
+
+```text
+internal_coupon = 10,000,000 x 5.126% x 0.25 = 128,150
+dealer_coupon = 10,000,000 x 5.119% x 0.25 = 127,975
+coupon_dispute = 128,150 - 127,975 = 175
+```
+
+Correct treatment:
+
+- preserve daily fixing inputs, compounding convention, observation shift, lookback, holiday calendar and dealer statement;
+- keep internal and dealer coupon values separately until the governing calculation is resolved;
+- post adjustment cashflows only when settlement correction evidence exists;
+- distinguish reset methodology disputes from market-value movement and collateral calls.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Internal and dealer compounded rates differ | Dispute amount is calculated and tracked. |
+| Governing source supports one value | Resolved coupon and adjustment lineage are recorded. |
+| Settlement already occurred | Correction posts as an adjustment cashflow, not an overwrite. |
+| Coupon report is generated | Daily fixing source and compounding convention are explainable. |
+
+## 68. Futures Exchange-For-Physical Processing
+
+Scenario:
+
+- A client uses an exchange-for-physical transaction to replace an index futures position with an underlying ETF basket.
+- Futures position: 40 contracts.
+- Futures multiplier: 250.
+- Futures settlement price: 4,800.
+- Physical basket invoice value: USD 48,050,000.
+
+Basis adjustment:
+
+```text
+futures_settlement_value = 40 x 250 x 4,800 = 48,000,000
+basis_adjustment = 48,050,000 - 48,000,000 = 50,000
+```
+
+Correct treatment:
+
+- close the futures exposure and create the physical or ETF basket position only from exchange, broker and custodian evidence;
+- preserve EFP reference, futures close quantity, physical basket details, invoice value and settlement date;
+- separate basis adjustment, broker fees, margin release and physical acquisition cost;
+- block duplicate exposure when futures close confirmation and physical delivery confirmation arrive at different times.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| EFP is confirmed | Futures exposure closes and physical exposure opens with lineage. |
+| Only one leg is confirmed | Workflow remains pending and avoids double-counted exposure. |
+| Invoice differs from futures value | Basis adjustment is calculated and explained. |
+| Margin is released | Margin release is separate from acquisition cost and basis. |
+
+## 69. Client-Specific Collateral Segregation Election
+
+Scenario:
+
+- A client elects segregated collateral treatment for an uncleared OTC derivative relationship.
+- Required margin is USD 1,200,000.
+- Eligible segregated collateral market value is USD 1,150,000.
+- Applicable haircut is 3%.
+- Segregation custody fee is 0.20% annually for 30 days.
+
+Collateral shortfall and fee:
+
+```text
+eligible_lending_value = 1,150,000 x (1 - 3%) = 1,115,500
+segregated_collateral_shortfall = 1,200,000 - 1,115,500 = 84,500
+segregation_fee = 1,150,000 x 0.20% x 30 / 360 = 191.67
+```
+
+Correct treatment:
+
+- preserve client election, CSA terms, segregation account, reuse restriction, haircut, custodian and effective date;
+- prevent commingling with reusable collateral pools and block rehypothecation when the election prohibits reuse;
+- report margin eligibility, segregation status, shortfall and custody cost separately;
+- require source-backed election and account setup before treating collateral as segregated.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Segregation election is active | Collateral is held in the segregated pool and not reused. |
+| Haircut reduces lending value | Shortfall is calculated from lending value, not market value. |
+| Segregated account is not set up | Collateral movement is blocked or exceptioned. |
+| Client statement is generated | Margin, shortfall, segregation status and fee are separate. |
+
+## 70. Derivative Valuation Reserve Release
+
+Scenario:
+
+- A hard-to-value OTC derivative carried a valuation reserve because independent quotes were limited.
+- Prior clean value was USD 2,400,000.
+- Current clean value is USD 2,460,000.
+- Prior reserve was USD 180,000.
+- Remaining approved reserve is USD 60,000 after new market evidence.
+
+Reserve release:
+
+```text
+clean_value_change = 2,460,000 - 2,400,000 = 60,000
+reserve_release = 180,000 - 60,000 = 120,000
+net_valuation_change = clean_value_change + reserve_release = 180,000
+```
+
+Correct treatment:
+
+- keep clean value movement, reserve release, approval evidence, model version and market-evidence source separate;
+- do not silently fold reserve release into ordinary market P&L without explanation;
+- preserve valuation committee approval, independent quote support and effective date;
+- update client reporting with source-backed valuation confidence and reserve movement where policy allows disclosure.
+
+QA assertions:
+
+| Assertion | Expected result |
+|---|---|
+| Independent evidence improves | Reserve release is calculated from prior and remaining reserve. |
+| Approval evidence is missing | Reserve release remains pending or blocked. |
+| Clean value also changes | Clean movement and reserve release are separate components. |
+| Valuation report is generated | Model version, evidence source and reserve movement are traceable. |
+
+## 71. Advisory And Mandate Checklist
 
 Before using derivatives in advisory or DPM workflows, check:
 
@@ -2049,7 +2252,7 @@ Before using derivatives in advisory or DPM workflows, check:
 | Authority | Who may approve trade, exercise, close-out, collateral movement, or unwind? |
 | Reporting | Which client/advisor labels and warnings are required? |
 
-## 66. Current Support Boundary And Candidate Extensions
+## 72. Current Support Boundary And Candidate Extensions
 
 | Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
 |---|---|---|
@@ -2060,7 +2263,7 @@ Before using derivatives in advisory or DPM workflows, check:
 | Lifecycle events | expiry, exercise, assignment, reset, fixing, settlement, novation, compression, clearing, porting, barrier events and notional exchanges when sourced | automated OTC confirmation matching, lifecycle replay engine and event generation |
 | Reporting | market value, exposure, source date, stale/unsupported labels, hedge overlay split, strategy grouping and clearing state where sourced | advanced hedge-effectiveness reporting and multi-factor attribution |
 
-## 67. Regression Test Pack
+## 73. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -2132,3 +2335,9 @@ Minimum release-gate scenarios:
 66. Cleared margin model migration separates methodology-driven margin change from market MTM movement.
 67. Swaption exercise settlement creates the correct resulting swap or cashflow according to settlement terms.
 68. Total return swap corporate-action basket adjustment changes synthetic economics without creating physical holdings.
+69. Volatility-control overlay rebalancing applies target volatility, source-backed realized volatility and mandate floors/caps.
+70. Knock-in recovery basket uses governing barrier observation and final worst-underlying level for recovery.
+71. Swap reset compounding dispute preserves internal and dealer values until the governing calculation resolves.
+72. Futures exchange-for-physical processing closes futures and opens physical exposure only with both-leg evidence.
+73. Client-specific collateral segregation election separates reusable collateral from segregated collateral and calculates shortfall after haircut.
+74. Derivative valuation reserve release separates clean-value movement from approved reserve movement.
