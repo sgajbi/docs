@@ -665,7 +665,286 @@ QA assertions:
 | Clawback is disputed | Report labels obligation as disputed with source state. |
 | Distribution uses excess revenue | Income-quality explanation distinguishes one-off excess from sustainable revenue. |
 
-## 25. Advisory And Mandate Checklist
+## 25. Zoning Change And Development Rights Revaluation
+
+Scenario:
+
+A direct property receives zoning approval that increases permitted gross floor area, but the project still requires construction financing and municipal permits.
+
+| Attribute | Value |
+|---|---:|
+| Prior appraised value | 30,000,000 |
+| Appraiser uplift from zoning approval | 12% |
+| Estimated incremental development cost | 2,500,000 |
+
+Calculation:
+
+```text
+zoning_adjusted_value = 30,000,000 x (1 + 12%) = 33,600,000
+net_development_option_value = 3,600,000 - 2,500,000 = 1,100,000
+```
+
+Treatment:
+
+- do not treat zoning approval as completed development income;
+- separate appraised uplift, required capex, permits and execution risk;
+- preserve approval date, expiry, restrictions and source document;
+- review loan covenants, insurance, liquidity planning and mandate concentration after material uplift.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Zoning is proposed but not approved | No valuation uplift is finalized. |
+| Appraiser has not reflected zoning | Analytics can show pending event, but client-ready valuation remains source-limited. |
+| Development cost is missing | Net value impact is labelled incomplete. |
+
+## 26. Compulsory Acquisition Or Eminent Domain
+
+Scenario:
+
+A government authority compulsorily acquires 20% of a property lot for transport infrastructure.
+
+| Attribute | Value |
+|---|---:|
+| Pre-acquisition appraised value | 10,000,000 |
+| Acquired portion | 20% |
+| Compensation offered | 2,300,000 |
+| Estimated legal and advisory costs | 100,000 |
+
+Calculation:
+
+```text
+book_value_of_acquired_portion = 10,000,000 x 20% = 2,000,000
+net_compensation = 2,300,000 - 100,000 = 2,200,000
+gain_before_tax = 2,200,000 - 2,000,000 = 200,000
+remaining_property_basis = 10,000,000 - 2,000,000 = 8,000,000
+```
+
+Treatment:
+
+- record legal notice, effective date, appeal/dispute status and compensation source;
+- reduce property exposure only for the acquired portion after legal effect;
+- separate compensation receivable, costs, realized gain/loss and remaining property value;
+- review collateral, insurance, lease terms and reporting perimeter after acquisition.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Compensation is offered but disputed | Receivable and gain remain disputed/provisional. |
+| Only part of property is acquired | Remaining property stays active with adjusted basis. |
+| Loan collateral relied on full property | Collateral review workflow opens. |
+
+## 27. Property Insurance Claim And Repair Reserve
+
+Scenario:
+
+A property suffers storm damage. Insurance covers part of repair cost, but cash is needed before final insurer settlement.
+
+| Attribute | Value |
+|---|---:|
+| Estimated repair cost | 900,000 |
+| Deductible | 100,000 |
+| Insurer approved coverage | 650,000 |
+| Initial repair reserve | 300,000 |
+
+Calculation:
+
+```text
+expected_insurance_recovery = 650,000
+net_owner_cost_before_overruns = 900,000 - 650,000 = 250,000
+reserve_surplus = 300,000 - 250,000 = 50,000
+```
+
+Treatment:
+
+- separate repair expense, insurance receivable, deductible and reserve movements;
+- do not treat insurance recovery as received cash before settlement;
+- preserve claim status, adjuster report, coverage decision and repair progress;
+- review valuation, occupancy, rent interruption and covenant impact.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Insurer approval is pending | Recovery is estimated or blocked by policy. |
+| Repair cost exceeds estimate | Reserve shortfall and valuation review are triggered. |
+| Insurance proceeds are received | Receivable closes and cash movement links to claim id. |
+
+## 28. Environmental Remediation Obligation
+
+Scenario:
+
+Environmental assessment identifies contamination requiring remediation before sale or redevelopment.
+
+| Attribute | Value |
+|---|---:|
+| Current appraisal before remediation | 18,000,000 |
+| Estimated remediation cost | 1,400,000 |
+| Contingency | 15% |
+
+Calculation:
+
+```text
+remediation_reserve = 1,400,000 x (1 + 15%) = 1,610,000
+environmentally_adjusted_value = 18,000,000 - 1,610,000 = 16,390,000
+```
+
+Treatment:
+
+- track environmental report, regulator order, remediation plan, cost estimate and completion evidence;
+- separate valuation adjustment from actual cash spend until invoices are paid;
+- flag sale restrictions, lending constraints and suitability implications;
+- review whether the obligation belongs to property owner, tenant, fund or prior owner.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Remediation estimate lacks source | Adjustment is blocked or labelled provisional. |
+| Regulator order changes scope | Reserve and valuation basis are effective-dated. |
+| Sale report is generated | Environmental obligation and liquidity restriction are disclosed where required. |
+
+## 29. Property Loan Covenant Breach
+
+Scenario:
+
+A property loan has a maximum loan-to-value covenant of 60%. Property value falls after appraisal.
+
+| Attribute | Before | After |
+|---|---:|---:|
+| Loan balance | 12,000,000 | 12,000,000 |
+| Appraised value | 22,000,000 | 18,500,000 |
+| Covenant maximum LTV | 60% | 60% |
+
+Calculation:
+
+```text
+current_ltv = 12,000,000 / 18,500,000 = 64.86%
+required_value_at_60_ltv = 12,000,000 / 60% = 20,000,000
+value_shortfall = 20,000,000 - 18,500,000 = 1,500,000
+```
+
+Treatment:
+
+- distinguish internal risk threshold from formal lender covenant;
+- open breach, waiver, cure, equity injection or asset-sale workflow as applicable;
+- update collateral value, liquidity planning and client/advisor reporting;
+- preserve covenant source, test date, cure period and lender response.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Covenant breach is inside cure period | Status is breach-pending-cure, not automatically defaulted. |
+| Waiver is received | Waiver terms and expiry are stored. |
+| Appraisal is stale | Covenant calculation is blocked or labelled stale according to policy. |
+
+## 30. Tenant Default Workout
+
+Scenario:
+
+A major tenant representing 18% of rent defaults and enters restructuring discussions.
+
+| Attribute | Value |
+|---|---:|
+| Annual rent from tenant | 1,800,000 |
+| Total annual rent | 10,000,000 |
+| Expected recoverable rent during workout | 40% |
+
+Calculation:
+
+```text
+tenant_concentration = 1,800,000 / 10,000,000 = 18%
+annual_rent_at_risk = 1,800,000 x (1 - 40%) = 1,080,000
+estimated_total_rent_after_workout = 10,000,000 - 1,080,000 = 8,920,000
+```
+
+Treatment:
+
+- separate tenant default status, rent arrears, negotiated concession and lease termination;
+- update concentration, occupancy, WALE, valuation assumptions and distribution quality;
+- do not book expected recoveries until source-backed;
+- preserve confidentiality controls for tenant identity where required.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Tenant default is material | Valuation and income-quality review opens. |
+| Tenant identity is restricted | Report masks tenant name but preserves concentration metric. |
+| Workout terms are agreed | Rent schedule and impairment assumptions update with lineage. |
+
+## 31. Infrastructure Availability Deduction
+
+Scenario:
+
+An availability-based infrastructure asset misses performance standards and suffers a deduction from contracted payment.
+
+| Attribute | Value |
+|---|---:|
+| Contracted quarterly availability payment | 5,000,000 |
+| Availability deduction | 6% |
+| Remediation cost estimate | 250,000 |
+
+Calculation:
+
+```text
+payment_deduction = 5,000,000 x 6% = 300,000
+net_quarter_impact_before_tax = 300,000 + 250,000 = 550,000
+```
+
+Treatment:
+
+- separate payment deduction from remediation cost;
+- preserve contract standard, measurement period, operator report and dispute state;
+- update income projection, distribution quality and operator performance analytics;
+- avoid treating deduction as recurring unless performance issue persists.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Deduction is disputed | Income impact is reported with disputed state. |
+| Remediation cost is estimated | Cost remains estimate until invoice or budget approval. |
+| Performance failure repeats | Analytics identify recurring operator or asset-quality issue. |
+
+## 32. Regulated Asset Base Reset
+
+Scenario:
+
+A utility infrastructure asset receives a regulated asset base (RAB) reset that changes allowed return.
+
+| Attribute | Before | After |
+|---|---:|---:|
+| Regulated asset base | 100,000,000 | 108,000,000 |
+| Allowed return | 5.0% | 4.6% |
+
+Calculation:
+
+```text
+allowed_return_before = 100,000,000 x 5.0% = 5,000,000
+allowed_return_after = 108,000,000 x 4.6% = 4,968,000
+allowed_return_delta = -32,000
+```
+
+Treatment:
+
+- separate RAB growth from allowed-return percentage change;
+- preserve regulator determination, effective date, appeal period and inflation indexation basis;
+- update valuation, income projection and distribution quality assumptions;
+- report whether the reset is final, appealed or provisional.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Reset is provisional | Valuation and income projection are labelled provisional. |
+| RAB increases but allowed return falls | Analytics show net allowed-return impact, not only asset-base growth. |
+| Appeal succeeds | Historical projections are superseded with lineage. |
+
+## 33. Advisory And Mandate Checklist
 
 | Dimension | Required question |
 |---|---|
@@ -678,17 +957,17 @@ QA assertions:
 | DPM mandate | allowed wrapper, illiquid allocation, income target, leverage limit, concentration cap? |
 | Reporting | legal holding, economic exposure, income classification, valuation date and liquidity label? |
 
-## 26. Current Support Boundary And Candidate Extensions
+## 34. Current Support Boundary And Candidate Extensions
 
 | Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
 |---|---|---|
 | Listed REIT | security position, trades, price, distributions, corporate actions, gearing where sourced | property-sector look-through and detailed operating-metric analytics |
-| Private real estate fund | commitment, calls, NAV, distributions, valuation date, queues, holdbacks, development drawdowns and capex reserves where sourced | advanced liquidity queue simulation, project-level cashflow and manager-level stress modelling |
-| Direct property | ownership record, appraisal value, source date, documents, ownership percentage, sale state and committee override where sourced | document-backed ownership graph and property-level cashflow model |
-| Infrastructure exposure | fund/security/private fund position, sector tags, concession, revenue model and clawback terms where sourced | advanced concession, inflation-linkage, offtake, clawback and regulatory-risk analytics |
+| Private real estate fund | commitment, calls, NAV, distributions, valuation date, queues, holdbacks, development drawdowns, capex reserves and tenant/default indicators where sourced | advanced liquidity queue simulation, project-level cashflow and manager-level stress modelling |
+| Direct property | ownership record, appraisal value, source date, documents, ownership percentage, sale state, committee override, zoning, insurance, environmental and covenant status where sourced | document-backed ownership graph and property-level cashflow model |
+| Infrastructure exposure | fund/security/private fund position, sector tags, concession, revenue model, clawback terms, availability deductions and regulated asset base reset terms where sourced | advanced concession, inflation-linkage, offtake, clawback and regulatory-risk analytics |
 | Reporting | wrapper, exposure, value, income, source date, liquidity label, operating metrics, development state and governance overrides where sourced | consolidated real-asset income and stress dashboard |
 
-## 27. Regression Test Pack
+## 35. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -717,3 +996,11 @@ Minimum release-gate scenarios:
 23. Valuation committee override preserves original appraisal, adjusted value, approver, reason and expiry.
 24. Green-building certification impacts financing and operating analytics only when source-backed.
 25. Infrastructure revenue clawback separates excess revenue, clawback obligation and sustainable income quality.
+26. Zoning change preserves approved/proposed state and separates valuation uplift from required development cost.
+27. Compulsory acquisition reduces only the legally acquired portion and tracks disputed compensation separately.
+28. Property insurance claim separates repair cost, deductible, recovery receivable, reserve and received cash.
+29. Environmental remediation records obligation, reserve, valuation impact and sale/lending restrictions.
+30. Property loan covenant breach preserves covenant source, cure period, waiver state and collateral impact.
+31. Tenant default workout updates rent-at-risk, concentration, valuation assumptions and confidentiality controls.
+32. Infrastructure availability deduction separates payment deduction, remediation cost and dispute state.
+33. Regulated asset base reset separates RAB growth, allowed-return percentage change and regulatory finality.
