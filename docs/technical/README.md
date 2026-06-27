@@ -17,6 +17,8 @@ It translates patterns observed across a mature multi-application platform into 
 | [`07-security-configuration-and-sensitive-data.md`](07-security-configuration-and-sensitive-data.md) | Apply secure configuration, secrets handling, least privilege, sensitive-data controls, workflow security and evidence filtering. |
 | [`08-testing-performance-and-resilience.md`](08-testing-performance-and-resilience.md) | Understand test pyramid, meaningful coverage, contract tests, integration tests, E2E tests, performance hygiene and resilience patterns. |
 | [`09-worked-examples-and-engineering-review-checklists.md`](09-worked-examples-and-engineering-review-checklists.md) | Use practical examples and checklists for API changes, new services, data products, production incidents and PR reviews. |
+| [`10-infrastructure-containers-and-deployment.md`](10-infrastructure-containers-and-deployment.md) | Learn container design, local compose, orchestration, deployment strategy, environment configuration, migrations and runtime evidence. |
+| [`11-git-release-and-knowledge-management.md`](11-git-release-and-knowledge-management.md) | Apply Git hygiene, PR evidence, release discipline, documentation truth and engineering knowledge-management practices. |
 
 ## Mental Model
 
@@ -40,10 +42,10 @@ The strongest engineering systems make the correct path easy: one local command 
 |---|---|
 | Backend engineer | Files 02, 03, 05, 08 and 09. |
 | Architect | Files 01, 03, 04, 06 and 09. |
-| DevOps / platform engineer | Files 05, 06, 07 and 08. |
+| DevOps / platform engineer | Files 05, 06, 07, 08, 10 and 11. |
 | QA engineer | Files 03, 05, 08 and 09. |
-| Engineering lead | Files 01, 04, 05, 06 and 09. |
-| New joiner | Read files 01 through 09 in order. |
+| Engineering lead | Files 01, 04, 05, 06, 09, 10 and 11. |
+| New joiner | Read files 01 through 11 in order. |
 
 ## Relationship To Reference Packs
 
