@@ -5057,6 +5057,229 @@ transferable_percentage = 1,200,000 / 3,000,000 = 40.00%
 | No trade is instructed | Position quantity and cost basis remain unchanged. |
 | Client report is generated | Restriction status and eligible transferable nominal are available. |
 
+## Example 130. Call Event Beneficial-Owner Election Conflict
+
+### Scenario
+
+A callable bond event allows beneficial owners to elect whether holdings should be called, retained or tendered through an intermediary. Two beneficial-owner instruction files conflict for the same omnibus position. The platform must preserve election conflict state and avoid processing the call as if all beneficial-owner instructions were aligned.
+
+| Attribute | Value |
+|---|---:|
+| Omnibus nominal | 8,000,000 |
+| Election file A call nominal | 5,000,000 |
+| Election file B call nominal | 4,250,000 |
+| Overlapping disputed nominal | 1,250,000 |
+
+### Conflict amount
+
+```text
+unresolved_call_election_nominal = overlapping_disputed_nominal
+confirmed_call_nominal = min(election_file_a_call_nominal, election_file_b_call_nominal) - unresolved_call_election_nominal
+confirmed_call_nominal = 4,250,000 - 1,250,000 = 3,000,000
+```
+
+### Correct treatment
+
+- preserve call notice, intermediary election files, beneficial-owner mapping, conflict reason and resolution owner;
+- process only confirmed election nominal while disputed nominal remains blocked or pending;
+- avoid applying one beneficial owner's instruction across another beneficial owner's allocation;
+- show disputed call election state in operations and client reporting where material;
+- retain original and corrected instruction versions for audit.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Conflicting election files arrive | Disputed nominal is identified and blocked from automatic call processing. |
+| One file is corrected | Confirmed and disputed nominal are recalculated from latest source evidence. |
+| Omnibus position is reported | Beneficial-owner election status is not collapsed into a single account-level flag. |
+| Event closes | Resolution evidence is required for all disputed nominal. |
+
+## Example 131. Escrow Asset Substitution Dispute
+
+### Scenario
+
+A municipal escrow defeasance portfolio substitutes one escrow security for another. The trustee accepts the substitution, but the analytics team disputes whether the replacement assets fully cover scheduled debt-service cashflows.
+
+| Attribute | Value |
+|---|---:|
+| Required escrow coverage value | 12,600,000 |
+| Replacement escrow asset value | 12,240,000 |
+| Disputed shortfall | 360,000 |
+| Next debt-service date | 90 days |
+
+### Escrow substitution shortfall
+
+```text
+escrow_substitution_shortfall = required_escrow_coverage_value - replacement_escrow_asset_value
+escrow_substitution_shortfall = 12,600,000 - 12,240,000 = 360,000
+```
+
+### Correct treatment
+
+- preserve trustee substitution notice, asset list, valuation date, coverage test, disputed assumption and reviewer;
+- update escrow asset composition only from trustee-approved source evidence;
+- keep coverage dispute separate from bond default, call or redemption state;
+- show shortfall and dispute state in risk and operations dashboards until resolved;
+- avoid using stale escrow values for client reporting after substitution.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Replacement value is below required coverage | Shortfall is calculated and dispute remains open. |
+| Trustee accepts substitution | Asset composition updates but coverage dispute remains separately visible. |
+| Valuation date changes | Coverage test recalculates from effective-dated source values. |
+| Report is generated | Escrow substitution and coverage dispute are source-labelled. |
+
+## Example 132. ABS Residual Certificate Cashflow Correction
+
+### Scenario
+
+An ABS residual certificate receives a corrected trustee report after the original waterfall allocated too much residual cashflow. The correction reduces income previously reported and requires a restatement path.
+
+| Attribute | Value |
+|---|---:|
+| Original residual cashflow | 420,000 |
+| Corrected residual cashflow | 315,000 |
+| Prior period reported income | 420,000 |
+| Correction amount | 105,000 |
+
+### Residual cashflow correction
+
+```text
+residual_cashflow_correction = original_residual_cashflow - corrected_residual_cashflow
+residual_cashflow_correction = 420,000 - 315,000 = 105,000
+```
+
+### Correct treatment
+
+- preserve original trustee report, corrected trustee report, waterfall version, affected period and approval state;
+- restate income, cashflow and performance treatment according to correction policy;
+- keep correction separate from current-period residual cashflow;
+- explain corrected residual income in client and management reporting where prior reports are affected;
+- reconcile cash received, income recognized and residual certificate carrying value.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Corrected trustee report arrives | Prior residual cashflow is adjusted through correction workflow. |
+| Cash already settled | Ledger cash and income restatement are reconciled separately. |
+| Performance report is regenerated | Prior-period contribution reflects approved correction handling. |
+| Correction is unapproved | Client-facing restatement is blocked. |
+
+## Example 133. Sovereign Warrant Expiry Acceleration
+
+### Scenario
+
+A sovereign restructuring warrant has an expiry acceleration clause that is triggered by a settlement amendment. The accelerated expiry reduces optionality and requires valuation and reporting updates.
+
+| Attribute | Value |
+|---|---:|
+| Original days to expiry | 420 |
+| Accelerated days to expiry | 180 |
+| Days lost | 240 |
+| Warrant notional | 6,000,000 |
+
+### Expiry acceleration
+
+```text
+days_lost_to_acceleration = original_days_to_expiry - accelerated_days_to_expiry
+days_lost_to_acceleration = 420 - 180 = 240
+```
+
+### Correct treatment
+
+- preserve amendment notice, trigger evidence, original expiry, accelerated expiry, valuation source and custodian confirmation;
+- update warrant lifecycle state and valuation assumptions from effective date;
+- keep expiry acceleration separate from warrant exercise or expiry event;
+- explain optionality reduction in risk and client reporting where material;
+- block stale valuations that still use original expiry after acceleration becomes effective.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Acceleration trigger is confirmed | Effective-dated expiry is updated. |
+| Valuation source still uses old expiry | Stale valuation warning or block is raised. |
+| Warrant expires early | Expiry processing uses accelerated date and source evidence. |
+| Client report is generated | Original expiry, accelerated expiry and valuation basis are explainable. |
+
+## Example 134. Covered-Bond Post-Waiver Monitoring Failure
+
+### Scenario
+
+A covered-bond collateral breach receives a waiver and revised cure deadline. Monitoring after the waiver misses a required weekly trustee update, weakening evidence that the cure is on track.
+
+| Attribute | Value |
+|---|---:|
+| Required monitoring updates | 4 |
+| Received monitoring updates | 2 |
+| Missing updates | 2 |
+| Remaining top-up | 11,500,000 |
+
+### Monitoring gap
+
+```text
+missing_monitoring_updates = required_monitoring_updates - received_monitoring_updates
+missing_monitoring_updates = 4 - 2 = 2
+```
+
+### Correct treatment
+
+- preserve waiver terms, monitoring schedule, received trustee updates, missing update dates and escalation owner;
+- keep waiver active while separately flagging post-waiver monitoring failure;
+- avoid treating cure as on-track without required trustee evidence;
+- escalate missing updates before revised cure deadline expires;
+- show remaining top-up and monitoring gap together in risk reporting.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Required updates are missing | Monitoring failure is opened even if waiver remains valid. |
+| Top-up is partial | Remaining top-up and missing updates are both visible. |
+| Trustee update arrives late | Monitoring state records late evidence and recalculates gap. |
+| Risk dashboard is generated | Waiver, cure, remaining top-up and monitoring status are separate fields. |
+
+## Example 135. Private-Placement Lock-Up Period Release Dispute
+
+### Scenario
+
+A private-placement bond lock-up period appears to end based on trade date, but issuer counsel says the lock-up runs from settlement date. The release date dispute affects transferability and suitability review.
+
+| Attribute | Value |
+|---|---:|
+| Trade-date based release date | Day 365 |
+| Settlement-date based release date | Day 368 |
+| Disputed release delay | 3 days |
+| Restricted nominal | 2,400,000 |
+
+### Lock-up release delay
+
+```text
+disputed_release_delay_days = settlement_date_based_release_date - trade_date_based_release_date
+disputed_release_delay_days = 368 - 365 = 3
+```
+
+### Correct treatment
+
+- preserve subscription agreement, trade date, settlement date, counsel interpretation, issuer notice and custodian restriction status;
+- keep nominal restricted until the authoritative lock-up basis is resolved;
+- avoid treating lock-up release as a trade, redemption or liquidity guarantee;
+- explain disputed transferability in advisory and reporting workflows where a sale or transfer is requested;
+- retain final interpretation as source evidence for future holdings under the same terms.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Release-date basis conflicts | Restriction remains active and dispute is visible. |
+| Counsel opinion confirms settlement-date basis | Release date updates with source evidence. |
+| Transfer is requested during disputed period | Transfer is blocked or routed to exception approval. |
+| Report is generated | Lock-up end date, disputed basis and restricted nominal are visible. |
+
 ## Implementation-backed capability lens
 
 When reviewing whether a platform truly supports bonds, use these evidence questions:
