@@ -3117,7 +3117,235 @@ QA assertions:
 | Trustee renews waiver | Renewal evidence and expiry are recorded. |
 | Closure report is generated | Expired, renewed and delivered recipient states are visible. |
 
-## 92. Regression Test Pack
+## 92. Protector Reserve Mediation Outcome
+
+Scenario:
+
+- A reserve release dispute enters mediation after a beneficiary objection.
+- Mediation allocates part of the objected amount to release and keeps the balance restricted for final trustee review.
+- Reporting must distinguish mediated release from unresolved restricted reserve.
+
+| Attribute | Value |
+|---|---:|
+| Objected reserve amount | 25,000 |
+| Mediated amount approved for release | 18,000 |
+| Unresolved restricted reserve | 7,000 |
+
+Mediation outcome:
+
+```text
+unresolved_restricted_reserve = objected_reserve_amount - mediated_amount_approved_for_release
+unresolved_restricted_reserve = 25,000 - 18,000 = 7,000
+```
+
+Correct workflow:
+
+- preserve objection, mediation record, mediated release amount, trustee acceptance, unresolved amount and beneficiary communication;
+- release only the mediated amount after trustee acceptance;
+- keep unresolved reserve restricted until final review or further settlement;
+- report mediated release separately from trustee-only release decisions;
+- avoid treating mediation outcome as full dispute closure when a residual amount remains unresolved.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Mediation is accepted by trustee | Mediated amount becomes releasable. |
+| Residual reserve remains unresolved | Residual stays restricted. |
+| Mediation lacks trustee acceptance | No release occurs. |
+| Report is generated | Objected, mediated and unresolved amounts are separated. |
+
+## 93. Co-Investment Cancelled-Allocation Replacement Dispute
+
+Scenario:
+
+- A cancelled co-investment allocation is offered to a replacement participant.
+- The original cancelling entity disputes whether replacement participation should reduce its cancellation fee.
+- Fee treatment remains disputed until sponsor and committee evidence are reconciled.
+
+| Attribute | Value |
+|---|---:|
+| Net cancellation fee charged | 6,000 |
+| Replacement credit requested | 2,500 |
+| Fee amount still disputed | 3,500 |
+
+Replacement dispute:
+
+```text
+fee_amount_still_disputed = net_cancellation_fee_charged - replacement_credit_requested
+fee_amount_still_disputed = 6,000 - 2,500 = 3,500
+```
+
+Correct workflow:
+
+- preserve cancellation fee, replacement participant approval, sponsor credit terms, dispute notice, committee decision and final chargeback;
+- keep replacement allocation separate from fee-credit entitlement;
+- apply credit only when sponsor terms or committee approval support it;
+- hold disputed fee amount in exception state until resolved;
+- avoid automatically reducing cancellation fees because another participant takes the cancelled allocation.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Replacement participant is approved | Allocation ledger updates for replacement participant. |
+| Fee credit lacks evidence | Cancellation fee remains charged or disputed. |
+| Committee approves partial credit | Net disputed fee is recalculated. |
+| Fee report is produced | Charged, credited and disputed fee amounts are visible. |
+
+## 94. Estate Substitute Asset Custody-Transfer Failure
+
+Scenario:
+
+- A substitute asset is approved to reduce an estate equalization cash shortfall.
+- Custody transfer fails because the receiving account cannot hold the asset type.
+- The equalization credit remains provisional until transfer succeeds or a different substitute is approved.
+
+| Attribute | Value |
+|---|---:|
+| Approved substitute asset value | 110,000 |
+| Value successfully transferred | 0 |
+| Provisional credit to reverse | 110,000 |
+
+Transfer failure:
+
+```text
+provisional_credit_to_reverse = approved_substitute_asset_value - value_successfully_transferred
+provisional_credit_to_reverse = 110,000 - 0 = 110,000
+```
+
+Correct workflow:
+
+- preserve substitute approval, custody instruction, receiving account eligibility, failed-transfer reason, revised equalization schedule and alternate asset decision;
+- treat substitute credit as provisional until custody transfer is complete;
+- reverse provisional credit if transfer cannot be completed;
+- block estate closure while transfer failure keeps equalization unresolved;
+- avoid reducing equalization cash shortfall based only on approved substitution when custody delivery fails.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Receiving account cannot hold asset | Custody transfer fails and credit remains provisional. |
+| Transfer completes later | Equalization credit becomes effective. |
+| Alternate substitute is approved | Equalization schedule is recalculated. |
+| Estate closure is requested | Closure is blocked while transfer failure is unresolved. |
+
+## 95. Foundation Restart Evidence Sampling
+
+Scenario:
+
+- A foundation restarts grant releases under enhanced monitoring.
+- The council requires sample evidence checks across funded activities.
+- One sample fails, requiring escalation before the next release.
+
+| Attribute | Value |
+|---|---:|
+| Evidence samples required | 5 |
+| Evidence samples accepted | 4 |
+| Failed or missing samples | 1 |
+
+Evidence sampling:
+
+```text
+failed_or_missing_samples = evidence_samples_required - evidence_samples_accepted
+failed_or_missing_samples = 5 - 4 = 1
+```
+
+Correct workflow:
+
+- preserve restart conditions, sample plan, accepted samples, failed samples, escalation owner, council decision and release status;
+- keep sampling evidence linked to the conditional restart period;
+- block next release when mandatory evidence sampling fails;
+- distinguish sample failure from full breach unless council classifies it as such;
+- avoid closing conditional restart monitoring based on aggregate progress when a required sample failed.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Required sample fails | Next release is blocked or escalated. |
+| Sample failure is cured | Sampling status can move to accepted after evidence review. |
+| Council waives sample | Waiver scope and rationale are recorded. |
+| Monitoring report is generated | Required, accepted and failed samples are visible. |
+
+## 96. Ratification Correction Client-Notice Exception
+
+Scenario:
+
+- A ratification remediation correction usually requires client notice.
+- Legal approves an exception because notice would disclose restricted family-governance information.
+- The exception must be recorded and reporting must preserve corrected state without exposing restricted rationale.
+
+| Attribute | Value |
+|---|---:|
+| Correction notices normally required | 3 |
+| Client-notice exceptions approved | 1 |
+| Notices still required | 2 |
+
+Notice exception:
+
+```text
+notices_still_required = correction_notices_normally_required - client_notice_exceptions_approved
+notices_still_required = 3 - 1 = 2
+```
+
+Correct workflow:
+
+- preserve correction requirement, legal exception approval, restricted rationale, notice population, notices still required and audit evidence;
+- apply exception only to the approved recipient or notice type;
+- keep restricted rationale out of client-facing reporting;
+- continue issuing required notices for non-exempt recipients;
+- avoid suppressing all notices because one restricted exception was approved.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Legal exception is approved | Notice is suppressed only for approved scope. |
+| Other recipients require notice | Notices remain required. |
+| Client report is produced | Corrected state is shown without restricted rationale. |
+| Audit is requested | Exception approval and rationale are available to authorized users. |
+
+## 97. Correction-Waiver Renewal Denial
+
+Scenario:
+
+- A recipient-specific correction delivery waiver expires.
+- Trustee denies renewal because contact details were remediated.
+- Delivery attempts must resume for the recipient.
+
+| Attribute | Value |
+|---|---:|
+| Renewal requests submitted | 1 |
+| Renewal requests denied | 1 |
+| Delivery attempts required after denial | 1 |
+
+Renewal denial:
+
+```text
+delivery_attempts_required_after_denial = renewal_requests_submitted - (renewal_requests_submitted - renewal_requests_denied)
+delivery_attempts_required_after_denial = 1 - (1 - 1) = 1
+```
+
+Correct workflow:
+
+- preserve expired waiver, renewal request, trustee denial, remediated contact evidence, delivery channel and new delivery attempt status;
+- stop applying waiver suppression after denial;
+- resume normal delivery attempts for the recipient;
+- preserve denial evidence for audit and future waiver decisions;
+- avoid treating a prior waiver as still active after renewal is denied.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Renewal is denied | Recipient returns to delivery-required state. |
+| Contact details are remediated | Delivery uses updated channel. |
+| Delivery fails again | Standard failed-delivery workflow restarts. |
+| Closure report is generated | Expired waiver, denial and new delivery attempt are traceable. |
+
+## 98. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -3212,3 +3440,9 @@ Minimum release-gate scenarios:
 89. Foundation conditional restart monitoring reactivates grant release blocks when monitoring evidence fails.
 90. Downstream ratification remediation reporting preserves original, reversal and remediation audit states.
 91. Correction waiver expiry controls require renewed waiver or delivery attempt for later correction packages.
+92. Protector reserve mediation outcomes release only trustee-accepted mediated amounts and keep residual reserves restricted.
+93. Co-investment cancelled-allocation replacement disputes keep replacement allocation separate from cancellation fee credit.
+94. Estate substitute asset custody-transfer failures keep equalization credit provisional until custody delivery succeeds.
+95. Foundation restart evidence sampling blocks next release when mandatory samples fail.
+96. Ratification correction client-notice exceptions suppress only approved notice scope while preserving audit rationale.
+97. Correction-waiver renewal denials return recipients to delivery-required state.
