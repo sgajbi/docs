@@ -3036,3 +3036,237 @@ QA assertions:
 | Call exceeds recallable ledger | Overcall amount is calculated and disputed. |
 | Administrator corrects ledger | Dispute closes with adjusted recallable balance evidence. |
 | Cash forecast is generated | Valid call, disputed overcall and remaining commitment are distinct. |
+
+## 91. Property Valuation Reviewer Rotation Breach
+
+Scenario:
+
+A direct-property portfolio requires independent valuation reviewer rotation every three years. The same reviewer signs the fourth annual review, creating a governance breach even though the valuation amount is otherwise supportable.
+
+| Attribute | Value |
+|---|---:|
+| Current appraised value | 24,800,000 |
+| Prior appraised value | 24,200,000 |
+| Reviewer tenure | 4 years |
+| Rotation limit | 3 years |
+
+Valuation change:
+
+```text
+valuation_change = current_appraised_value - prior_appraised_value
+valuation_change = 24,800,000 - 24,200,000 = 600,000
+
+reviewer_tenure_excess = reviewer_tenure - rotation_limit
+reviewer_tenure_excess = 4 - 3 = 1 year
+```
+
+Treatment:
+
+- preserve appraisal report, reviewer identity, tenure record, rotation policy, approval exception and second-review requirement;
+- keep valuation amount separate from reviewer-independence breach status;
+- mark valuation as governance-limited until an approved independent review or waiver exists;
+- show reviewer rotation breach in operations and audit reporting;
+- avoid suppressing valuation update solely because governance remediation is pending.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Reviewer exceeds rotation limit | Governance breach is flagged. |
+| Valuation amount is otherwise valid | Value can be stored with governance-limited status. |
+| Independent review is completed | Breach closes with review evidence. |
+
+## 92. REIT Benchmark Reinclusion Watchlist
+
+Scenario:
+
+A REIT removed from a benchmark becomes eligible for reinclusion after liquidity and free-float recovery. The index provider places it on a watchlist before formal reinclusion.
+
+| Attribute | Value |
+|---|---:|
+| REIT market value held | 1,850,000 |
+| Benchmark weight before deletion | 0.45% |
+| Watchlist probability weight | 0.30% |
+| Portfolio benchmark value | 420,000,000 |
+
+Watchlist benchmark exposure:
+
+```text
+watchlist_benchmark_exposure = portfolio_benchmark_value x watchlist_probability_weight
+watchlist_benchmark_exposure = 420,000,000 x 0.30% = 1,260,000
+
+overweight_vs_watchlist = reit_market_value_held - watchlist_benchmark_exposure
+overweight_vs_watchlist = 1,850,000 - 1,260,000 = 590,000
+```
+
+Treatment:
+
+- preserve index provider watchlist notice, eligibility criteria, liquidity evidence, free-float data and effective review date;
+- keep watchlist state separate from actual benchmark inclusion;
+- do not rewrite benchmark-relative attribution until formal reinclusion is effective;
+- support scenario analysis for potential rebalance impact;
+- label watchlist exposure as provisional in portfolio and risk reporting.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Watchlist notice arrives | Provisional benchmark exposure is calculated but not treated as formal benchmark weight. |
+| Formal reinclusion is confirmed | Benchmark history versions from effective date. |
+| Watchlist is withdrawn | Provisional exposure is cleared with source evidence. |
+
+## 93. Concession Reserve-Account Lockup
+
+Scenario:
+
+An infrastructure concession requires a reserve account to remain locked after a debt-service coverage trigger is breached. Cash is held in the project vehicle but is not distributable to investors.
+
+| Attribute | Value |
+|---|---:|
+| Reserve-account cash | 6,400,000 |
+| Required locked reserve | 5,750,000 |
+| Excess potentially releasable | 650,000 |
+| Client look-through share | 2.20% |
+
+Client locked cash exposure:
+
+```text
+client_locked_cash = required_locked_reserve x client_lookthrough_share
+client_locked_cash = 5,750,000 x 2.20% = 126,500
+
+client_potential_release = excess_potentially_releasable x client_lookthrough_share
+client_potential_release = 650,000 x 2.20% = 14,300
+```
+
+Treatment:
+
+- preserve concession agreement, reserve-account statement, debt-service coverage test, lockup notice and release conditions;
+- separate project cash from distributable cash;
+- show locked reserve, excess reserve and release conditions in liquidity reporting;
+- update income projection and distribution forecast while lockup remains active;
+- avoid treating reserve-account cash as available fund liquidity.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Lockup trigger is active | Required reserve is excluded from distributable liquidity. |
+| Excess reserve exists | Excess remains conditional until release evidence exists. |
+| Coverage ratio cures | Lockup release follows concession terms and source evidence. |
+
+## 94. Renewable Hedge Replacement Execution Slippage
+
+Scenario:
+
+A renewable power asset loses its price-floor hedge and executes a replacement hedge later than planned. During the gap, merchant price exposure remains unhedged.
+
+| Attribute | Value |
+|---|---:|
+| Forecast production during gap | 95,000 MWh |
+| Original floor price | 52 |
+| Spot forward price during gap | 46 |
+| Client look-through share | 2.50% |
+
+Gap revenue at risk:
+
+```text
+gap_floor_protection_lost = max(original_floor_price - spot_forward_price_during_gap, 0) x forecast_production_during_gap
+gap_floor_protection_lost = max(52 - 46, 0) x 95,000 = 570,000
+
+client_gap_revenue_at_risk = gap_floor_protection_lost x client_lookthrough_share
+client_gap_revenue_at_risk = 570,000 x 2.50% = 14,250
+```
+
+Treatment:
+
+- preserve terminated hedge, replacement hedge plan, execution timestamps, gap period, production forecast and price source;
+- separate execution slippage from hedge termination and from final realized merchant revenue;
+- show unhedged gap exposure in risk and income forecast reporting;
+- track whether replacement hedge execution met mandate and operating thresholds;
+- avoid assuming replacement hedge coverage before execution is confirmed.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Replacement hedge is delayed | Gap exposure is calculated for the unhedged period. |
+| Forecast production changes | Gap exposure recalculates from sourced forecast. |
+| Replacement hedge executes | Future exposure uses replacement terms from execution timestamp. |
+
+## 95. Data-Centre SLA Cure-Period Expiry
+
+Scenario:
+
+A data-centre tenant gives the operator a cure period after repeated uptime SLA breaches. The cure period expires without evidence of remediation, increasing termination and service-credit risk.
+
+| Attribute | Value |
+|---|---:|
+| Monthly contracted rent | 1,200,000 |
+| Potential service-credit percentage | 10.00% |
+| Cure-period months impacted | 2 |
+| Client ownership share | 1.50% |
+
+Client exposure after cure expiry:
+
+```text
+gross_potential_service_credit = monthly_contracted_rent x potential_service_credit_percentage x cure_period_months_impacted
+gross_potential_service_credit = 1,200,000 x 10.00% x 2 = 240,000
+
+client_potential_income_reduction = gross_potential_service_credit x client_ownership_share
+client_potential_income_reduction = 240,000 x 1.50% = 3,600
+```
+
+Treatment:
+
+- preserve SLA breach notices, cure-period start/end dates, remediation evidence, tenant communications and operator response;
+- separate expired cure status from agreed service-credit settlement;
+- update tenant risk, income risk and operational-quality reporting;
+- escalate termination risk if lease terms allow termination after cure expiry;
+- avoid booking service credits until settlement or contractual calculation is confirmed.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Cure period expires without evidence | Cure-expired state and potential credit exposure are visible. |
+| Remediation evidence arrives late | Cure state is updated with timestamped evidence. |
+| Tenant settlement is agreed | Potential exposure converts to confirmed service-credit treatment. |
+
+## 96. Real-Estate Fund Recallable Distribution Funding Priority Dispute
+
+Scenario:
+
+A real-estate fund has both unfunded commitment and recallable distribution balances. A new capital call states that recallable distributions should be used first, but investor records show a side-letter priority requiring new commitment funding before recallable reuse.
+
+| Attribute | Value |
+|---|---:|
+| Capital call amount | 420,000 |
+| Recorded recallable balance | 210,000 |
+| Unfunded commitment | 500,000 |
+| Disputed priority amount | 210,000 |
+
+Funding split under disputed priority:
+
+```text
+recallable_priority_amount = min(capital_call_amount, recorded_recallable_balance)
+recallable_priority_amount = min(420,000, 210,000) = 210,000
+
+new_commitment_funding_if_recallable_blocked = capital_call_amount
+new_commitment_funding_if_recallable_blocked = 420,000
+```
+
+Treatment:
+
+- preserve capital-call notice, recallable distribution ledger, side-letter priority terms, administrator position and investor dispute evidence;
+- show call funding under both administrator and investor-priority views while dispute is open;
+- reserve liquidity according to approved funding policy and escalation decision;
+- keep recallable balance, unfunded commitment and disputed priority amount separately reconciled;
+- avoid consuming recallable balance until the priority basis is resolved.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Funding priority conflicts | Disputed priority amount is calculated and routed for review. |
+| Administrator accepts side-letter priority | Funding split updates and recallable balance remains intact. |
+| Funding forecast is generated | Recallable-supported, commitment-funded and disputed amounts are distinct. |
