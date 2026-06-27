@@ -3270,3 +3270,232 @@ QA assertions:
 | Funding priority conflicts | Disputed priority amount is calculated and routed for review. |
 | Administrator accepts side-letter priority | Funding split updates and recallable balance remains intact. |
 | Funding forecast is generated | Recallable-supported, commitment-funded and disputed amounts are distinct. |
+
+## 97. Property Reviewer Remediation Waiver
+
+Scenario:
+
+A direct-property valuation reviewer exceeded the normal rotation limit. Governance grants a short remediation waiver while a second independent reviewer is appointed. The valuation can be used with a governance-limited status, but the waiver must not be treated as a permanent cure.
+
+| Attribute | Value |
+|---|---:|
+| Current appraised value | 24,800,000 |
+| Reviewer tenure | 4 years |
+| Rotation limit | 3 years |
+| Waiver period | 60 days |
+
+Waiver excess:
+
+```text
+reviewer_tenure_excess = reviewer_tenure - rotation_limit
+reviewer_tenure_excess = 4 - 3 = 1 year
+```
+
+Treatment:
+
+- preserve appraisal report, reviewer identity, rotation breach, waiver approval, waiver expiry and second-review plan;
+- keep valuation amount, reviewer breach and remediation waiver as separate states;
+- label valuation as governance-limited until independent review is complete;
+- escalate when waiver expires without remediation evidence;
+- avoid treating the waiver as proof of reviewer independence.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Waiver is approved | Valuation remains usable with governance-limited status. |
+| Waiver expires | Breach escalates if second review is incomplete. |
+| Independent review arrives | Governance limitation closes with source evidence. |
+
+## 98. REIT Reinclusion Effective-Date Dispute
+
+Scenario:
+
+A REIT is formally reincluded in a benchmark, but the index provider and internal benchmark file show different effective dates. Portfolio attribution must not rewrite benchmark exposure before the accepted effective date.
+
+| Attribute | Value |
+|---|---:|
+| REIT market value held | 1,850,000 |
+| Index-provider effective date | Day 15 |
+| Internal file effective date | Day 14 |
+| Formal benchmark weight | 0.42% |
+| Portfolio benchmark value | 420,000,000 |
+
+Effective benchmark exposure:
+
+```text
+formal_benchmark_exposure = portfolio_benchmark_value x formal_benchmark_weight
+formal_benchmark_exposure = 420,000,000 x 0.42% = 1,764,000
+```
+
+Treatment:
+
+- preserve index-provider notice, internal benchmark file, effective dates, benchmark version and reconciliation owner;
+- apply formal benchmark weight only from the accepted effective date;
+- retain disputed-date attribution as provisional until benchmark source is resolved;
+- avoid restating prior-day active weight without approved benchmark history correction;
+- show effective-date dispute in performance and benchmark governance reporting.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Effective dates conflict | Benchmark exposure is labelled disputed. |
+| Provider date is confirmed | Benchmark history updates from confirmed date. |
+| Attribution report is generated | Official and disputed-date exposures are separately traceable. |
+
+## 99. Concession Reserve Release Approval
+
+Scenario:
+
+An infrastructure concession reserve-account lockup is partially released after debt-service coverage improves. The project vehicle holds more cash than required, but release requires lender approval before cash becomes distributable.
+
+| Attribute | Value |
+|---|---:|
+| Reserve-account cash | 6,400,000 |
+| Required locked reserve after cure | 5,200,000 |
+| Lender-approved release | 900,000 |
+| Client look-through share | 2.20% |
+
+Client approved release:
+
+```text
+potential_release = reserve_account_cash - required_locked_reserve_after_cure
+potential_release = 6,400,000 - 5,200,000 = 1,200,000
+
+client_approved_release = lender_approved_release x client_lookthrough_share
+client_approved_release = 900,000 x 2.20% = 19,800
+```
+
+Treatment:
+
+- preserve reserve statement, coverage-ratio cure evidence, lender approval, release amount, release date and distribution policy;
+- separate potential release from lender-approved release;
+- treat unreleased excess as locked or conditional liquidity until approval exists;
+- update distribution forecast only for approved release amounts;
+- avoid classifying reserve release as operating income.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Coverage ratio cures | Potential release is calculated. |
+| Lender approves partial release | Only approved amount becomes distributable. |
+| Liquidity report is generated | Locked reserve, potential release and approved release are distinct. |
+
+## 100. Renewable Replacement Hedge Price Slippage Claim
+
+Scenario:
+
+A renewable asset executes a replacement power-price hedge after a delayed approval. The replacement price is worse than the approved target price, and the manager files a slippage claim against the execution provider.
+
+| Attribute | Value |
+|---|---:|
+| Hedged forecast production | 95,000 MWh |
+| Approved target hedge price | 48 |
+| Executed replacement hedge price | 46.50 |
+| Client look-through share | 2.50% |
+
+Client slippage exposure:
+
+```text
+gross_price_slippage = (approved_target_hedge_price - executed_replacement_hedge_price) x hedged_forecast_production
+gross_price_slippage = (48 - 46.50) x 95,000 = 142,500
+
+client_slippage_exposure = gross_price_slippage x client_lookthrough_share
+client_slippage_exposure = 142,500 x 2.50% = 3,562.50
+```
+
+Treatment:
+
+- preserve replacement hedge mandate, approval timestamp, execution record, price source, slippage calculation and provider response;
+- separate market price movement from execution slippage;
+- keep slippage claim as disputed exposure until settled or rejected;
+- update income forecast from executed hedge terms, not target terms;
+- avoid treating claim recovery as renewable operating revenue.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Execution price is below target | Slippage exposure is calculated. |
+| Claim is filed | Claim remains disputed until provider response. |
+| Forecast is generated | Future revenue uses executed hedge price. |
+
+## 101. Data-Centre Tenant Termination Notice After Cure Expiry
+
+Scenario:
+
+A data-centre tenant issues a termination notice after an SLA cure period expires. The operator disputes whether the notice is valid, so lease income, service credits and occupancy risk must remain separately modelled.
+
+| Attribute | Value |
+|---|---:|
+| Monthly contracted rent | 1,200,000 |
+| Notice period months | 6 |
+| Potential termination rent at risk | 7,200,000 |
+| Client ownership share | 1.50% |
+
+Client termination exposure:
+
+```text
+gross_termination_rent_at_risk = monthly_contracted_rent x notice_period_months
+gross_termination_rent_at_risk = 1,200,000 x 6 = 7,200,000
+
+client_termination_exposure = gross_termination_rent_at_risk x client_ownership_share
+client_termination_exposure = 7,200,000 x 1.50% = 108,000
+```
+
+Treatment:
+
+- preserve SLA breach history, cure-period expiry, termination notice, operator dispute, lease terms and legal response;
+- keep tenant termination risk separate from service-credit settlement;
+- update occupancy, income forecast and valuation sensitivity while dispute is open;
+- avoid treating disputed termination notice as final vacancy until source outcome is confirmed;
+- show notice validity, exposure and cure history in reporting.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Termination notice is received | Termination exposure and dispute state are opened. |
+| Operator disputes validity | Occupancy remains active but risk-labelled. |
+| Termination becomes effective | Income forecast and occupancy update from effective date. |
+
+## 102. Recallable Distribution Priority Settlement Reversal
+
+Scenario:
+
+A real-estate fund resolves a recallable distribution funding priority dispute by using recallable distributions first. Later, a side-letter review reverses that settlement and requires commitment-funded treatment instead.
+
+| Attribute | Value |
+|---|---:|
+| Settled recallable-funded amount | 210,000 |
+| Correct commitment-funded amount | 210,000 |
+| Recallable balance to reinstate | 210,000 |
+| Unfunded commitment reduction | 210,000 |
+
+Priority reversal:
+
+```text
+recallable_balance_reinstatement = settled_recallable_funded_amount
+recallable_balance_reinstatement = 210,000
+
+correct_commitment_funding = correct_commitment_funded_amount
+correct_commitment_funding = 210,000
+```
+
+Treatment:
+
+- preserve original settlement, side-letter review, reversal approval, administrator correction and investor ledger update;
+- reinstate recallable balance and reduce unfunded commitment according to corrected priority;
+- keep reversal separate from a new capital call or distribution;
+- update cash forecasts and commitment reporting with source-labelled correction;
+- avoid losing the original settlement version.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Priority settlement is reversed | Recallable and commitment ledgers are corrected with lineage. |
+| Cash already funded | Cash remains reconciled while funding classification changes. |
+| Investor report is generated | Original settlement, reversal and corrected funding priority are visible. |
