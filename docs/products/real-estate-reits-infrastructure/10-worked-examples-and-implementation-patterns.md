@@ -2804,3 +2804,235 @@ QA assertions:
 | Distribution is recallable | Cash receipt posts while future call exposure remains. |
 | Future call uses recalled capital | Commitment and cashflow lineage link back to distribution. |
 | Client report is generated | Recallable and non-recallable cash are distinct. |
+
+## 85. Property Appraisal Independence Dispute
+
+Scenario:
+
+A private real estate fund receives an updated appraisal from a valuer that also advised on the asset's refinancing. The valuation committee challenges whether the appraisal is independent enough for NAV use.
+
+| Attribute | Value |
+|---|---:|
+| Prior appraised value | 48,000,000 |
+| New appraised value | 51,500,000 |
+| Client ownership share | 3.00% |
+| Independence status | Disputed |
+
+Client valuation impact:
+
+```text
+gross_appraisal_change = new_appraised_value - prior_appraised_value
+gross_appraisal_change = 51,500,000 - 48,000,000 = 3,500,000
+
+client_appraisal_impact = gross_appraisal_change x client_ownership_share
+client_appraisal_impact = 3,500,000 x 3.00% = 105,000
+```
+
+Treatment:
+
+- preserve prior appraisal, new appraisal, valuer relationship disclosure, committee minutes, independence challenge and approved NAV basis;
+- keep disputed appraisal value separate from final NAV until governance approval is complete;
+- report valuation sensitivity without treating the uplift as confirmed performance;
+- track whether a second independent valuation is required;
+- avoid using conflicted appraisal data for collateral or suitability decisions without approved override evidence.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Valuer independence is disputed | Appraisal is flagged and NAV uplift remains provisional. |
+| Committee approves use | NAV source changes with approval evidence and effective date. |
+| Second valuation differs | Difference is captured as valuation governance evidence. |
+
+## 86. REIT Index Deletion Event
+
+Scenario:
+
+A listed REIT is deleted from a benchmark index after failing liquidity and free-float criteria. Passive funds and benchmark-relative mandates must update expected flow, tracking-error and attribution treatment.
+
+| Attribute | Value |
+|---|---:|
+| REIT units held | 75,000 |
+| Pre-announcement price | 2.40 |
+| Post-announcement price | 2.25 |
+| Benchmark weight before deletion | 0.45% |
+| Benchmark weight after deletion | 0.00% |
+
+Market value impact:
+
+```text
+market_value_drop = units_held x (pre_announcement_price - post_announcement_price)
+market_value_drop = 75,000 x (2.40 - 2.25) = 11,250
+
+benchmark_weight_change = benchmark_weight_after_deletion - benchmark_weight_before_deletion
+benchmark_weight_change = 0.00% - 0.45% = -0.45%
+```
+
+Treatment:
+
+- preserve index deletion notice, effective date, free-float/liquidity reason, benchmark file and market price evidence;
+- update benchmark-relative analytics from the effective date without rewriting prior periods;
+- separate market price impact from benchmark deletion attribution;
+- flag passive or benchmark-constrained mandates for rebalance review;
+- avoid treating index deletion as a corporate action that changes legal holding quantity.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Index deletion is announced | Benchmark lineage and effective-date change are captured. |
+| REIT price falls | Market impact is separated from benchmark weight change. |
+| Mandate is benchmark-constrained | Rebalance or exception workflow opens. |
+
+## 87. Concession Lender Consent Failure
+
+Scenario:
+
+An infrastructure concession operator seeks lender consent for a contract amendment. Consent fails because required majority lenders do not approve, delaying the amendment and associated refinancing benefit.
+
+| Attribute | Value |
+|---|---:|
+| Required consent threshold | 66.67% |
+| Consent received | 58.00% |
+| Expected annual saving if approved | 2,400,000 |
+| Client look-through share | 4.00% |
+
+Consent shortfall and client sensitivity:
+
+```text
+consent_shortfall = required_consent_threshold - consent_received
+consent_shortfall = 66.67% - 58.00% = 8.67%
+
+client_annual_saving_at_risk = expected_annual_saving_if_approved x client_lookthrough_share
+client_annual_saving_at_risk = 2,400,000 x 4.00% = 96,000
+```
+
+Treatment:
+
+- preserve concession amendment, lender consent solicitation, vote tally, threshold rule, refinancing plan and revised timetable;
+- keep failed consent separate from borrower default unless debt documents define a default event;
+- update valuation, refinancing and cashflow scenarios from the failed-consent date;
+- track whether a revised consent solicitation is active;
+- avoid recognizing expected savings before lender consent is legally effective.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Consent falls below threshold | Consent failure state and shortfall are calculated. |
+| Refinancing benefit was forecast | Expected savings move to at-risk scenario. |
+| New solicitation opens | Prior failed vote remains auditable. |
+
+## 88. Renewable Hedge Floor Termination
+
+Scenario:
+
+A renewable asset has a power-price hedge with a merchant-price floor. The hedge counterparty terminates the floor after a credit support failure, increasing merchant revenue exposure.
+
+| Attribute | Value |
+|---|---:|
+| Forecast production | 180,000 MWh |
+| Terminated floor price | 52 |
+| Current forward price | 45 |
+| Client look-through share | 2.50% |
+
+Client revenue at risk:
+
+```text
+floor_revenue_protection_lost = max(floor_price - forward_price, 0) x forecast_production
+floor_revenue_protection_lost = max(52 - 45, 0) x 180,000 = 1,260,000
+
+client_revenue_at_risk = floor_revenue_protection_lost x client_lookthrough_share
+client_revenue_at_risk = 1,260,000 x 2.50% = 31,500
+```
+
+Treatment:
+
+- preserve hedge confirmation, termination notice, credit support failure evidence, production forecast, forward price source and replacement hedge plan;
+- separate hedge termination from physical production availability;
+- update downside revenue scenarios, valuation assumptions and mandate risk reporting;
+- track replacement hedge execution and residual merchant exposure;
+- avoid treating hedge termination as realized loss until production and market prices crystallize cashflow.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Hedge floor terminates | Floor protection lost and revenue-at-risk are calculated. |
+| Production forecast changes | Revenue-at-risk recalculates from sourced forecast. |
+| Replacement hedge executes | Residual exposure updates from new hedge terms. |
+
+## 89. Data-Centre Service-Credit Settlement
+
+Scenario:
+
+A data-centre tenant receives service credits after repeated uptime SLA breaches. The property still has high occupancy, but net rental income is reduced by the service-credit settlement.
+
+| Attribute | Value |
+|---|---:|
+| Monthly contracted rent | 1,200,000 |
+| Service-credit percentage | 8.00% |
+| Settlement months | 3 |
+| Client ownership share | 1.50% |
+
+Client income reduction:
+
+```text
+gross_service_credit = monthly_contracted_rent x service_credit_percentage x settlement_months
+gross_service_credit = 1,200,000 x 8.00% x 3 = 288,000
+
+client_income_reduction = gross_service_credit x client_ownership_share
+client_income_reduction = 288,000 x 1.50% = 4,320
+```
+
+Treatment:
+
+- preserve uptime SLA, incident records, tenant claim, settlement agreement, service-credit calculation and income adjustment booking;
+- separate occupancy, gross rent, service-credit settlement and net rental income;
+- update income yield, tenant concentration and operational-quality reporting;
+- track recurring SLA risk where credits indicate supportability or infrastructure issues;
+- avoid treating service credits as ordinary rent-free incentive or tenant default.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| SLA breach settlement is approved | Service-credit amount and income reduction are calculated. |
+| Tenant remains in occupation | Occupancy remains unchanged while net income reduces. |
+| Credits recur | Operational risk and valuation assumptions are flagged for review. |
+
+## 90. Real-Estate Fund Recallable Distribution Overcall Dispute
+
+Scenario:
+
+A real-estate fund calls capital against prior recallable distributions. The requested call exceeds the recallable balance recorded by the investor, creating an overcall dispute.
+
+| Attribute | Value |
+|---|---:|
+| Recorded recallable balance | 210,000 |
+| New call referencing recallable distribution | 260,000 |
+| Available commitment after recallable balance | 500,000 |
+| Disputed overcall amount | 50,000 |
+
+Overcall amount:
+
+```text
+overcall_amount = new_call_referencing_recallable_distribution - recorded_recallable_balance
+overcall_amount = 260,000 - 210,000 = 50,000
+```
+
+Treatment:
+
+- preserve original distribution notice, recallable balance ledger, capital-call notice, partnership terms, administrator reconciliation and dispute owner;
+- split the call between recallable-supported amount and disputed overcall amount;
+- reserve cash only according to approved funding policy while dispute is open;
+- keep remaining commitment and recallable distribution ledger synchronized;
+- avoid treating the full call as valid recallable capital when the investor ledger does not support it.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Call exceeds recallable ledger | Overcall amount is calculated and disputed. |
+| Administrator corrects ledger | Dispute closes with adjusted recallable balance evidence. |
+| Cash forecast is generated | Valid call, disputed overcall and remaining commitment are distinct. |
