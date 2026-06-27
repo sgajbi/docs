@@ -743,7 +743,211 @@ QA assertions:
 | Resubmission is accepted | Filing state closes with regulator acknowledgement. |
 | Deadline is at risk | Escalation state and owner are visible. |
 
-## 28. Advisory And Reporting Boundary
+## 28. Treaty-Rate Expiry At Payment Date
+
+Scenario:
+
+A client had valid treaty documentation when a dividend was announced, but the form expired before payment date. The withholding rate must follow the governing event date policy, not an assumed announcement-date rate.
+
+| Attribute | Value |
+|---|---:|
+| Gross dividend | 12,000 |
+| Treaty rate if valid | 15% |
+| Statutory rate if expired | 30% |
+| Documentation status on payment date | Expired |
+
+Calculation:
+
+```text
+treaty_withholding = 12,000 x 15% = 1,800
+statutory_withholding = 12,000 x 30% = 3,600
+withholding_difference = 1,800
+```
+
+Correct treatment:
+
+- determine the governing documentation date from jurisdiction and income-event rules;
+- preserve form expiry date, payment date, source country, applied rate and remediation state;
+- apply statutory withholding when documentation is expired and no valid relief-at-source evidence exists;
+- track potential reclaim separately from withholding applied at payment.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Documentation expires before payment date | Statutory or configured fallback rate applies. |
+| Renewed form arrives after payment | Reclaim or correction workflow opens; original withholding remains versioned. |
+| Jurisdiction uses record date instead | Rule configuration controls the governing date. |
+
+## 29. Nominee Withholding Statement
+
+Scenario:
+
+A nominee receives a consolidated withholding statement and must allocate withholding to underlying beneficial owners. Pool totals, owner allocations and documentation states must reconcile.
+
+| Beneficial-owner pool | Gross income | Withholding | Documentation state |
+|---|---:|---:|---|
+| Treaty-documented owners | 300,000 | 45,000 | Valid |
+| Undocumented owners | 80,000 | 24,000 | Missing |
+| Exempt owners | 40,000 | 0 | Valid exemption |
+
+Calculation:
+
+```text
+total_gross_income = 300,000 + 80,000 + 40,000 = 420,000
+total_withholding = 45,000 + 24,000 + 0 = 69,000
+effective_withholding_rate = 69,000 / 420,000 = 16.43%
+```
+
+Correct treatment:
+
+- preserve nominee statement, beneficial-owner allocation, documentation pool and income type;
+- reconcile nominee-level totals to beneficial-owner allocations before final reporting;
+- keep exempt, treaty and undocumented pools separate;
+- prevent unrelated beneficial-owner details from appearing in client statements.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Pool allocations reconcile | Nominee statement can be used for owner-level reporting. |
+| Allocation total differs from nominee total | Reconciliation break blocks or labels final output. |
+| Documentation state changes after statement | Impact assessment versions allocations by effective date. |
+
+## 30. Tax Voucher Correction Chain
+
+Scenario:
+
+A custodian issues an original tax voucher, then two corrected vouchers after issuer and withholding-agent updates. Reporting must preserve the chain instead of overwriting the voucher in place.
+
+| Voucher version | Gross income | Withholding | Reason |
+|---|---:|---:|---|
+| v1 | 10,000 | 2,500 | Original |
+| v2 | 10,000 | 2,000 | Treaty rate corrected |
+| v3 | 10,500 | 2,100 | Gross income corrected |
+
+Correction impact:
+
+```text
+withholding_delta_v3_vs_v1 = 2,100 - 2,500 = -400
+gross_income_delta_v3_vs_v1 = 10,500 - 10,000 = 500
+```
+
+Correct treatment:
+
+- preserve each voucher version, source timestamp, correction reason and superseded status;
+- regenerate impacted client reports and filings from the approved latest voucher;
+- retain original report versions and client correction notices where required;
+- do not delete prior voucher evidence or lose audit lineage.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Corrected voucher arrives | New voucher version supersedes prior version with lineage. |
+| Report was already delivered | Correction notice or amended output workflow is triggered. |
+| Voucher correction conflicts with cash ledger | Reconciliation exception opens rather than silent overwrite. |
+
+## 31. Portfolio Transfer Year-End Statement
+
+Scenario:
+
+A portfolio transfers to another custodian during the year. The client needs a year-end tax pack that combines pre-transfer and post-transfer activity without duplicating income or realized gains.
+
+| Period | Gross income | Withholding | Realized gain |
+|---|---:|---:|---:|
+| Pre-transfer custodian | 18,000 | 3,200 | 11,500 |
+| Post-transfer custodian | 9,000 | 1,350 | 4,000 |
+
+Year-end totals:
+
+```text
+year_end_income = 18,000 + 9,000 = 27,000
+year_end_withholding = 3,200 + 1,350 = 4,550
+year_end_realized_gain = 11,500 + 4,000 = 15,500
+```
+
+Correct treatment:
+
+- preserve old custodian, new custodian, transfer date, activity periods and tax-lot continuity state;
+- reconcile transferred positions, lots and income cut-off before final statement;
+- prevent duplicate reporting when both custodians report the same transfer-date income event;
+- label missing pre-transfer or post-transfer evidence explicitly.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Both custodian files are present | Year-end statement combines periods without duplication. |
+| Transfer-date income appears in both files | Duplicate detection opens reconciliation break. |
+| Old custodian lot history is missing | Realized-gain output is provisional or blocked. |
+
+## 32. Withholding-Rate Override Governance
+
+Scenario:
+
+Operations proposes a temporary withholding-rate override after a vendor file applies the wrong rate. The override must be approved, scoped and expired.
+
+| Attribute | Value |
+|---|---:|
+| Gross income affected | 250,000 |
+| Vendor withholding rate | 30% |
+| Approved override rate | 15% |
+| Override expiry | Next vendor correction file |
+
+Override impact:
+
+```text
+vendor_withholding = 250,000 x 30% = 75,000
+override_withholding = 250,000 x 15% = 37,500
+withholding_reduction = 37,500
+```
+
+Correct treatment:
+
+- preserve override request, approval, scope, reason, effective date and expiry condition;
+- apply override only to approved income events, clients, products and jurisdictions;
+- automatically re-evaluate when corrected source files arrive;
+- keep audit evidence so the override does not become permanent hidden logic.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Override is approved | Calculations use scoped override with source label and expiry. |
+| Override approval is missing | Vendor rate remains or report is exceptioned. |
+| Corrected vendor file arrives | Override expires or is reconciled against corrected source. |
+
+## 33. Cross-Border Report Suppression Rule
+
+Scenario:
+
+A client is in scope for a report, but cross-border delivery rules suppress the report because the recipient is not authorized in the destination jurisdiction.
+
+| Attribute | Value |
+|---|---|
+| Report type | Annual tax pack |
+| Client booking centre | Country A |
+| Recipient location | Country B |
+| Delivery rule | Suppress without approved cross-border permission |
+| Advisor override | Not approved |
+
+Correct treatment:
+
+- preserve report generation state separately from delivery suppression state;
+- apply cross-border delivery rules by recipient, booking centre, report type and effective date;
+- show authorized internal users that the report exists but cannot be delivered externally;
+- require approved override evidence before release.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Report is generated but suppressed | Output is retained internally and not delivered externally. |
+| Recipient location changes | Delivery eligibility recalculates from effective-dated evidence. |
+| Override is approved | Delivery proceeds with approval lineage and report version. |
+
+## 34. Advisory And Reporting Boundary
 
 | Activity | Platform can support | Platform should not imply |
 |---|---|---|
@@ -753,7 +957,7 @@ QA assertions:
 | show reportable event | configured reporting regime | universal reporting obligation |
 | simulate rebalance tax impact | estimated gains/losses under assumptions | advice to execute for tax reasons |
 
-## 29. Current Support Boundary And Candidate Extensions
+## 35. Current Support Boundary And Candidate Extensions
 
 | Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
 |---|---|---|
@@ -768,7 +972,7 @@ QA assertions:
 | Late classifications | estimated/final tax breakdown, received date and impact assessment where sourced | automated late-breakdown correction and client-notice orchestration |
 | Cross-border controls | residency changes, documentation pools, method-specific output and filing status where sourced | full jurisdiction-specific tax-rule engine and regulator integration |
 
-## 30. Regression Test Pack
+## 36. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -800,3 +1004,9 @@ Minimum release-gate scenarios:
 26. Estate or trust distribution statement separates beneficiary allocations and delivery entitlement.
 27. CRS/FATCA remediation campaign tracks document states, outreach, reportability impact and unresolved exceptions.
 28. Regulatory filing rejection preserves original submission and corrected resubmission evidence.
+29. Treaty-rate expiry applies the governing event-date rule and tracks reclaim or correction workflow separately.
+30. Nominee withholding statement reconciles pool totals to beneficial-owner allocations and documentation states.
+31. Tax voucher correction chain preserves original and corrected voucher versions with report impact lineage.
+32. Portfolio transfer year-end statement combines pre-transfer and post-transfer activity without duplication.
+33. Withholding-rate override governance requires scoped approval, source label and expiry handling.
+34. Cross-border report suppression prevents unauthorized delivery while preserving internal report evidence.
