@@ -16,6 +16,7 @@ Use it as the final execution guide.
 - [ ] Read performance/data/documentation guides.
 - [ ] Read leadership guide.
 - [ ] Read AI/domain/reporting/productization/migration/support guides.
+- [ ] Complete at least one practice lab from [`../technical-practice-labs-and-case-studies.md`](../technical-practice-labs-and-case-studies.md).
 - [ ] Summarize each guide in your own words.
 - [ ] Convert each guide into one practical action.
 
@@ -31,6 +32,22 @@ Use this checklist after reading any guide so the learning produces durable engi
 - [ ] Decide whether the action belongs in code, tests, CI, documentation, operations or team KT.
 - [ ] Keep the action small enough to land as a reviewable change.
 - [ ] Add a follow-up only when the remaining work is real, named and traceable.
+
+---
+
+## Practice Lab Execution Checklist
+
+Use this checklist with [`../technical-practice-labs-and-case-studies.md`](../technical-practice-labs-and-case-studies.md) so each lab becomes evidence-backed practice rather than passive reading.
+
+- [ ] Choose one lab that matches a current project, weak area or KT need.
+- [ ] Read the linked guides before inspecting the target system or artifact.
+- [ ] Record the system, contract, runbook, PR, architecture note or workflow being reviewed.
+- [ ] Capture only source-safe evidence: commands, paths, public contracts, synthetic examples, screenshots without restricted data or summarized observations.
+- [ ] Produce the lab artifacts listed in the lab table.
+- [ ] Answer the review questions in plain language.
+- [ ] Identify the smallest improvement that would raise confidence.
+- [ ] Define expected validation evidence before proposing the improvement.
+- [ ] Update a guide, checklist or coverage matrix only when the lab reveals a reusable pattern.
 
 ---
 
@@ -214,6 +231,7 @@ Use this table to decide what durable evidence should exist after a learning, de
 | Migration | Inventory, mapping rules, reconciliation report, mock-cutover result, rollback decision tree, sign-off and hypercare plan. |
 | AI-assisted capability | Source policy, entitlement model, prompt/version record, grounding checks, evaluation set, human review and tool authorization evidence. |
 | KT or onboarding | Audience, reading path, exercises, teach-back questions, repo walkthrough, follow-up actions and feedback loop. |
+| Practice lab | Lab output, guides used, evidence inspected, risks or gaps, recommendation, smallest improvement, expected validation and follow-up trigger. |
 
 ## Reuse Pattern
 

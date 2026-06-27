@@ -29,6 +29,7 @@ Use it to decide:
 | Testing, performance and resilience | [`08-testing-performance-and-resilience.md`](08-testing-performance-and-resilience.md) | Strong coverage of test pyramid, meaningful coverage, contract tests, integration tests, E2E tests, performance hygiene, resilience patterns and migration smoke. | Add deeper examples for load-test design, resilience drills, benchmark baselines and test-data design. |
 | Testing, quality engineering and certification deep dive | [`testing-quality-certification/`](testing-quality-certification/README.md) | Strong deep-dive coverage of testing as evidence, quality engineering mindset, test pyramid and portfolio design, risk-based testing, unit/domain/policy/calculation testing, service-layer testing, API/OpenAPI/error behavior testing, data-product and event testing, integration testing, E2E/browser/runtime testing, regression, golden examples, certification sweeps, synthetic fixtures, security testing, observability testing, migration/runtime/deployment testing, performance/resilience/chaos testing, AI/RAG/agent testing, CI lane placement, quality metrics and flakiness governance. | Add implementation-backed examples for certification evidence manifests, flaky-test remediation, golden-case catalogue ownership, browser evidence packs and escaped-defect learning loops. |
 | Worked examples and review checklists | [`09-worked-examples-and-engineering-review-checklists.md`](09-worked-examples-and-engineering-review-checklists.md) | Strong examples for new domain APIs, gateway composition, data-product certification, CI gate promotion, incident review, PR review and new-service readiness. | Add more case studies for migration failure, security incident, performance regression, frontend panel drift and data-product stale state. |
+| Technical practice labs and case studies | [`technical-practice-labs-and-case-studies.md`](technical-practice-labs-and-case-studies.md) | Strong applied lab coverage for service boundary review, backward-compatible API change, data-product certification, CI gate promotion, incident and observability review, sensitive-data and access-control review, test strategy redesign, async workflow resilience, runtime deployment readiness, Git/release/documentation truth, AI/RAG governance, migration and cutover readiness, reporting/archive evidence and platform productization readiness. | Add implementation-backed sample answers for selected labs as the library gains more real-world evidence patterns. |
 | Infrastructure and deployment | [`10-infrastructure-containers-and-deployment.md`](10-infrastructure-containers-and-deployment.md) | Strong coverage of runtime environment layers, container design, Dockerfile review, compose, orchestration, deployment strategy, configuration, migrations and evidence. | Add deeper examples for Helm/Kustomize-style deployment review, blue/green rollout, canary monitoring and backup/restore drills. |
 | Runtime infrastructure and Kubernetes deep dive | [`runtime-infrastructure-kubernetes/`](runtime-infrastructure-kubernetes/README.md) | Strong deep-dive coverage of runtime architecture, container images, Docker Compose parity, Kubernetes/OpenShift/AKS concepts, workload types, service addressing, ingress, configuration, secrets, health probes, resources, autoscaling, stateful dependencies, deployment, rollback, runtime security, observability, resilience, DR, cost and platform readiness. | Add examples for Helm/Kustomize review, canary rollout monitoring, workload identity adoption, capacity incident response and backup/restore validation. |
 | Git and knowledge management | [`11-git-release-and-knowledge-management.md`](11-git-release-and-knowledge-management.md) | Strong coverage of Git working model, commit quality, branch hygiene, PR evidence, review discipline, release hygiene, documentation layers and decision records. | Add deeper examples for ADR templates, release notes, branch reconciliation, wiki publication and knowledge-base stewardship. |
@@ -93,38 +94,40 @@ The technical knowledge base now has strong coverage for:
 21. frontend and experience-API supportability,
 22. technical learning path and role-based navigation,
 23. technical master index and study roadmap,
-24. performance, resilience and async execution depth,
-25. performance, scalability, resilience and async engineering deep dive,
-26. practical engineering review checklists,
-27. implementation evidence reading,
-28. documentation, knowledge management and architecture governance depth,
-29. engineering leadership and architecture governance depth,
-30. AI, RAG, copilot and agentic engineering governance depth,
-31. wealth-management technology domain engineering depth,
-32. reporting, document generation, archive and evidence engineering depth,
-33. platform productization and bank-buyable software readiness depth,
-34. migration, replatforming, reconciliation and cutover engineering depth,
-35. production support, operations and incident excellence depth.
+24. technical practice labs and case studies,
+25. performance, resilience and async execution depth,
+26. performance, scalability, resilience and async engineering deep dive,
+27. practical engineering review checklists,
+28. implementation evidence reading,
+29. documentation, knowledge management and architecture governance depth,
+30. engineering leadership and architecture governance depth,
+31. AI, RAG, copilot and agentic engineering governance depth,
+32. wealth-management technology domain engineering depth,
+33. reporting, document generation, archive and evidence engineering depth,
+34. platform productization and bank-buyable software readiness depth,
+35. migration, replatforming, reconciliation and cutover engineering depth,
+36. production support, operations and incident excellence depth.
 
 ## Next High-Value Slices
 
 Future technical enrichment should prioritize:
 
-1. API backward-compatible change and deprecation case studies,
-2. incident severity, alert design and dashboard review examples,
-3. key-rotation, privileged-access and security-scorecard examples,
-4. migration failure and rollback case studies,
-5. frontend panel drift and browser-regression case studies,
-6. dependency upgrade and runtime-version governance,
-7. implementation-backed async report-generation and data-ingestion replay examples,
-8. implementation-backed documentation governance examples,
-9. role-specific learning paths for backend, frontend, platform, QA and architecture leads,
-10. AI evaluation, retrieval quality, prompt-injection and tool-authorization evidence examples,
-11. reporting evidence, archive continuity, golden report and degraded-report case studies,
-12. wealth-domain migration, restatement, suitability and supportability case studies,
-13. platform productization scorecards, procurement evidence packs and bank-buyable readiness examples,
-14. migration reconciliation, parallel-run, cutover, rollback and hypercare case studies,
-15. incident command, production-support, DR drill, batch recovery and operational-risk evidence case studies.
+1. sample answers for the new practice labs using synthetic but implementation-shaped evidence,
+2. API backward-compatible change and deprecation case studies,
+3. incident severity, alert design and dashboard review examples,
+4. key-rotation, privileged-access and security-scorecard examples,
+5. migration failure and rollback case studies,
+6. frontend panel drift and browser-regression case studies,
+7. dependency upgrade and runtime-version governance,
+8. implementation-backed async report-generation and data-ingestion replay examples,
+9. implementation-backed documentation governance examples,
+10. role-specific learning paths for backend, frontend, platform, QA and architecture leads,
+11. AI evaluation, retrieval quality, prompt-injection and tool-authorization evidence examples,
+12. reporting evidence, archive continuity, golden report and degraded-report case studies,
+13. wealth-domain migration, restatement, suitability and supportability case studies,
+14. platform productization scorecards, procurement evidence packs and bank-buyable readiness examples,
+15. migration reconciliation, parallel-run, cutover, rollback and hypercare case studies,
+16. incident command, production-support, DR drill, batch recovery and operational-risk evidence case studies.
 
 ## Maintenance Rule
 

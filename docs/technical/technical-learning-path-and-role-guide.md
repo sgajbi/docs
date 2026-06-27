@@ -18,6 +18,7 @@ Start with these files when time is limited:
 |---|---|
 | Choose a structured technical study path | [`technical-master-index-study-roadmap/README.md`](technical-master-index-study-roadmap/README.md) |
 | Turn study into repo evidence or KT actions | [`technical-master-index-study-roadmap/17-master-checklists-and-execution-playbook.md`](technical-master-index-study-roadmap/17-master-checklists-and-execution-playbook.md) |
+| Practice applied engineering scenarios | [`technical-practice-labs-and-case-studies.md`](technical-practice-labs-and-case-studies.md) |
 | Understand the platform shape | [`01-architecture-and-service-boundaries.md`](01-architecture-and-service-boundaries.md) |
 | Learn wealth technology domain patterns | [`wealth-management-domain-engineering/README.md`](wealth-management-domain-engineering/README.md) |
 | Understand backend service structure | [`backend-service-design/README.md`](backend-service-design/README.md) |
@@ -189,19 +190,33 @@ Primary outcome: build reporting flows that are reproducible, entitlement-aware,
 
 | Project need | Recommended path |
 |---|---|
-| Add a new domain API | Architecture boundaries -> backend service design -> API contract engineering -> testing certification -> observability supportability. |
-| Add an async calculation or report job | Backend service design -> performance/async engineering -> observability supportability -> testing certification -> CI/CD release evidence. |
-| Build an AI/RAG/copilot capability | AI/RAG/copilot governance -> data-product engineering -> API contract engineering -> security/cyber resilience -> testing certification -> observability supportability. |
-| Build a reporting or document-evidence workflow | Reporting/document evidence -> performance/async engineering -> security/cyber resilience -> observability supportability -> testing certification. |
-| Migrate or replatform a capability | Migration/replatforming -> data-product engineering -> API/integration migration -> security entitlement migration -> testing certification -> observability and hypercare. |
-| Prepare a platform for enterprise buyer review | Platform productization -> security/cyber resilience -> documentation governance -> CI/CD release evidence -> observability/SRE -> testing certification. |
-| Improve production support and incident response | Production support/incident excellence -> observability supportability -> performance/resilience -> runtime infrastructure -> documentation governance. |
-| Improve a slow or unstable workflow | Performance/async engineering -> observability supportability -> runtime infrastructure -> testing certification. |
-| Harden access control | Security/cyber resilience -> API contract engineering -> backend service design -> testing certification. |
-| Prepare a production release | CI/CD release evidence -> Git workflow release hygiene -> observability/SRE -> documentation governance. |
-| Clean up repository docs | Documentation governance -> implementation evidence map -> Git workflow release hygiene -> technical coverage matrix. |
-| Build a data product | Data-product engineering -> API/event contract engineering -> security/cyber resilience -> observability supportability -> testing certification. |
-| Review an architecture proposal | Architecture boundaries -> backend/API/data-product deep dives -> documentation governance ADR/RFC guidance -> practitioner review prompts. |
+| Add a new domain API | Architecture boundaries -> backend service design -> API contract engineering -> testing certification -> observability supportability -> practice labs 1 and 2. |
+| Add an async calculation or report job | Backend service design -> performance/async engineering -> observability supportability -> testing certification -> CI/CD release evidence -> practice lab 8. |
+| Build an AI/RAG/copilot capability | AI/RAG/copilot governance -> data-product engineering -> API contract engineering -> security/cyber resilience -> testing certification -> observability supportability -> practice lab 11. |
+| Build a reporting or document-evidence workflow | Reporting/document evidence -> performance/async engineering -> security/cyber resilience -> observability supportability -> testing certification -> practice labs 8 and 13. |
+| Migrate or replatform a capability | Migration/replatforming -> data-product engineering -> API/integration migration -> security entitlement migration -> testing certification -> observability and hypercare -> practice lab 12. |
+| Prepare a platform for enterprise buyer review | Platform productization -> security/cyber resilience -> documentation governance -> CI/CD release evidence -> observability/SRE -> testing certification -> practice lab 14. |
+| Improve production support and incident response | Production support/incident excellence -> observability supportability -> performance/resilience -> runtime infrastructure -> documentation governance -> practice lab 5. |
+| Improve a slow or unstable workflow | Performance/async engineering -> observability supportability -> runtime infrastructure -> testing certification -> practice labs 8 and 9. |
+| Harden access control | Security/cyber resilience -> API contract engineering -> backend service design -> testing certification -> practice lab 6. |
+| Prepare a production release | CI/CD release evidence -> Git workflow release hygiene -> observability/SRE -> documentation governance -> practice labs 4, 9 and 10. |
+| Clean up repository docs | Documentation governance -> implementation evidence map -> Git workflow release hygiene -> technical coverage matrix -> practice lab 10. |
+| Build a data product | Data-product engineering -> API/event contract engineering -> security/cyber resilience -> observability supportability -> testing certification -> practice lab 3. |
+| Review an architecture proposal | Architecture boundaries -> backend/API/data-product deep dives -> documentation governance ADR/RFC guidance -> practitioner review prompts -> practice lab 1. |
+
+## Practice Lab Routing
+
+Use [`technical-practice-labs-and-case-studies.md`](technical-practice-labs-and-case-studies.md) when a role path needs a hands-on exercise.
+
+| Role or project focus | Best labs |
+|---|---|
+| Backend or API engineering | Labs 1, 2, 6, 7 and 8. |
+| QA and quality engineering | Labs 2, 3, 4, 7, 8, 12 and 13. |
+| SRE, DevOps and platform engineering | Labs 4, 5, 8, 9 and 10. |
+| Security and cyber resilience | Labs 6, 9, 10 and 11. |
+| Architecture and engineering leadership | Labs 1, 3, 4, 5, 10, 12 and 14. |
+| AI, RAG and agentic engineering | Labs 3, 6, 10 and 11. |
+| Migration, reporting and operations | Labs 5, 8, 12 and 13. |
 
 ## Review Cadence
 

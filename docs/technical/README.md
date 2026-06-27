@@ -10,6 +10,7 @@ It translates patterns observed across a mature multi-application platform into 
 |---|---|
 | Build a structured technical study plan | [`technical-master-index-study-roadmap/README.md`](technical-master-index-study-roadmap/README.md) |
 | Choose a path by role or project type | [`technical-learning-path-and-role-guide.md`](technical-learning-path-and-role-guide.md) |
+| Practice with applied case studies | [`technical-practice-labs-and-case-studies.md`](technical-practice-labs-and-case-studies.md) |
 | Turn study into action, KT or review evidence | [`technical-master-index-study-roadmap/17-master-checklists-and-execution-playbook.md`](technical-master-index-study-roadmap/17-master-checklists-and-execution-playbook.md) |
 | Understand current strengths and next enrichment areas | [`technical-knowledge-coverage-matrix.md`](technical-knowledge-coverage-matrix.md) |
 
@@ -34,6 +35,7 @@ It translates patterns observed across a mature multi-application platform into 
 | [`08-testing-performance-and-resilience.md`](08-testing-performance-and-resilience.md) | Understand test pyramid, meaningful coverage, contract tests, integration tests, E2E tests, performance hygiene and resilience patterns. |
 | [`testing-quality-certification/`](testing-quality-certification/README.md) | Deep-dive into quality engineering, test pyramid design, domain/API/data/integration/E2E testing, regression, certification sweeps, synthetic data, security testing, observability testing, migration/runtime tests, performance/resilience tests, AI testing, CI lane placement and flakiness governance. |
 | [`09-worked-examples-and-engineering-review-checklists.md`](09-worked-examples-and-engineering-review-checklists.md) | Use practical examples and checklists for API changes, new services, data products, production incidents and PR reviews. |
+| [`technical-practice-labs-and-case-studies.md`](technical-practice-labs-and-case-studies.md) | Practice 14 applied technical labs for service boundaries, API compatibility, data-product certification, CI gate promotion, incident review, security, testing, async resilience, runtime readiness, documentation truth, AI governance, migration, reporting evidence and productization readiness. |
 | [`10-infrastructure-containers-and-deployment.md`](10-infrastructure-containers-and-deployment.md) | Learn container design, local compose, orchestration, deployment strategy, environment configuration, migrations and runtime evidence. |
 | [`runtime-infrastructure-kubernetes/`](runtime-infrastructure-kubernetes/README.md) | Deep-dive into runtime architecture, container image design, local runtime parity, Kubernetes/OpenShift/AKS fundamentals, workloads, ingress, configuration, probes, resources, dependencies, deployment, runtime security, observability, resilience and platform readiness. |
 | [`11-git-release-and-knowledge-management.md`](11-git-release-and-knowledge-management.md) | Apply Git hygiene, PR evidence, release discipline, documentation truth and engineering knowledge-management practices. |
@@ -86,7 +88,7 @@ The strongest engineering systems make the correct path easy: one local command 
 | Production support / SRE engineer | The production-support guide plus observability, performance, runtime, security, testing, CI/CD and documentation-governance deep dives. |
 | Reporting / platform product engineer | The reporting/document-evidence and platform-productization guides plus migration, production support, performance, CI/CD, security, observability and testing deep dives. |
 | Engineering lead | Files 01, 04, 05, 06, 09, 10, 11, 12, 13, 14, 16, 17, the technical learning path, the engineering-leadership guide, the wealth-domain guide, the AI guide, the reporting guide, the productization guide, the migration guide, the production-support guide, the backend/API/data-product/CI-CD/runtime/observability/security/testing/Git/documentation-governance deep-dive guides and the coverage matrix. |
-| New joiner | Read files 01 through 14 in order, then use the master roadmap, files 15 through 17 and the coverage matrix to choose deeper slices. |
+| New joiner | Read files 01 through 14 in order, then use the master roadmap, practice labs, files 15 through 17 and the coverage matrix to choose deeper slices. |
 
 ## Relationship To Reference Packs
 
