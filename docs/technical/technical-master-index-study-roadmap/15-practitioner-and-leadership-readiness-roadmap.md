@@ -44,6 +44,25 @@ Prepare around:
 
 ---
 
+## Readiness Artifact Matrix
+
+Use this matrix to turn leadership study into artifacts that are useful in real delivery, KT and architecture conversations.
+
+| Readiness area | Artifact to produce | Evidence to include |
+|---|---|---|
+| Architecture judgement | Boundary and tradeoff note | Capability owner, integration contract, rejected option, risk and acceptance criteria. |
+| Delivery governance | PR and release evidence note | Scope, tests, quality gates, security review, documentation update and rollout or rollback plan. |
+| Production ownership | Supportability brief | Owner, SLO/SLA expectation, dashboards, runbook, alert route, incident path and known limitations. |
+| Data and reporting trust | Lineage and reconciliation map | Source owner, transformation rule, quality check, freshness expectation, report impact and sign-off evidence. |
+| Security and control thinking | Control evidence summary | Threat or risk, enforcement point, test evidence, monitoring signal, exception path and residual risk. |
+| Migration or modernization | Transition-state decision note | Current state, target state, cutover strategy, reconciliation rule, rollback trigger and hypercare owner. |
+| AI adoption | AI capability risk note | Source policy, entitlement model, grounding approach, evaluation set, human review rule and audit trail. |
+| Team enablement | KT and teach-back pack | Reading path, walkthrough, scenario exercise, expected answer shape and follow-up improvement action. |
+
+The artifact should be short enough to maintain, but specific enough that another engineer can verify the claim without private explanation.
+
+---
+
 ## Executive Answer Structure
 
 Use:

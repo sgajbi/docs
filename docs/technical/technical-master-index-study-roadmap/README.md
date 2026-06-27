@@ -145,6 +145,18 @@ Use the roadmap to produce concrete artifacts, not only reading notes.
 | Repo adoption | README/docs structure, API/data/runbook/evidence indexes, quality gates and ownership map. |
 | Engineering leadership development | Maturity scorecard, quarterly improvement plan, stakeholder narrative and operating rhythm. |
 
+## Study-To-Evidence Loop
+
+Use this loop when the roadmap is being used for self-learning, KT or team maturity work.
+
+| Step | Action | Output |
+|---:|---|---|
+| 1 | Choose a topic and the closest guide. | Reading target and practical scenario. |
+| 2 | Identify the engineering behavior the guide is trying to improve. | Design, test, control, runbook, release or KT action. |
+| 3 | Find or create the smallest durable artifact. | Boundary note, checklist, evidence map, runbook, scorecard or review note. |
+| 4 | Validate the artifact against real repository or operating evidence. | Command output, contract link, dashboard, incident note, test result or review decision. |
+| 5 | Capture the next improvement. | Owned follow-up with scope, trigger and expected proof. |
+
 ## Curation Guardrails
 
 When adding future packs or lessons into this roadmap:
