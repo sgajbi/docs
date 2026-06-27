@@ -19,7 +19,7 @@ For product source files, statements, extracts, spreadsheets, PDFs, or migration
 | Category | Destination | Examples |
 |---|---|---|
 | Product knowledge | `docs/products/<product-slug>/` | Structured notes, private markets, funds, mandates, reports. |
-| Technical knowledge | `docs/technical/` | Architecture boundaries, backend service structure, API governance, data products, CI/CD, infrastructure, containers, deployment, observability, SRE, security, testing, resilience, Git hygiene, knowledge management. |
+| Technical knowledge | `docs/technical/` | Architecture boundaries, technology stack, backend service structure, API governance, data products, CI/CD, infrastructure, containers, deployment, observability, SRE, security, testing, resilience, Git hygiene, knowledge management. |
 | Prompt material | `docs/prompts/<prompt-pack-slug>/` | Research prompts, coding prompts, documentation prompts. |
 | Shared references | `docs/reference/` | External links, glossary, source lists, citation packs, architecture, enterprise delivery, runtime, cloud, Kubernetes, platform-engineering, security and cyber-resilience packs. |
 | Repo workflow | `docs/operations/` | Naming rules, intake process, review checklist. |

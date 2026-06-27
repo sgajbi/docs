@@ -5,7 +5,7 @@ This folder contains authored documentation grouped by use.
 | Section | Use |
 |---|---|
 | [`products/`](products/README.md) | Product families, domain models, lifecycle notes, platform implementation notes, and QA checklists. |
-| [`technical/`](technical/README.md) | Technical knowledge base for enterprise architecture, backend structure, API governance, data products, CI/CD, infrastructure, deployment, observability, SRE, security, testing, resilience, Git hygiene and engineering knowledge management. |
+| [`technical/`](technical/README.md) | Technical knowledge base for enterprise architecture, technology choices, backend structure, API governance, data products, CI/CD, infrastructure, deployment, observability, SRE, security, testing, resilience, Git hygiene and engineering knowledge management. |
 | [`prompts/`](prompts/README.md) | Prompt packs, AI workflow notes, prompt evaluation notes, and reusable operating instructions. |
 | [`reference/`](reference/README.md) | Source lists, citations, glossary material, and reusable background references. |
 | [`operations/`](operations/documentation-governance.md) | Repository maintenance rules and documentation intake workflow. |
@@ -21,7 +21,7 @@ This folder contains authored documentation grouped by use.
 | [`products/product-implementation-evidence-review-guide.md`](products/product-implementation-evidence-review-guide.md) | Translate app docs, API contracts, validation evidence, UI proof, report payloads, and runbooks into neutral product-capability documentation. |
 | [`products/product-library-polish-dashboard.md`](products/product-library-polish-dashboard.md) | Track product-library review posture, strongest coverage, and next enrichment slices across product families. |
 | [`products/pooled-investment-products.md`](products/pooled-investment-products.md) | Apply fund and pooled-vehicle knowledge to product master, orders, NAV, fees, look-through, performance, and reporting work. |
-| [`technical/`](technical/README.md) | Apply practical architecture, backend, API, data-product, CI/CD, container, deployment, observability, SRE, security, testing, performance, resilience and release-hygiene patterns. |
+| [`technical/`](technical/README.md) | Apply practical architecture, technology-stack, backend, API, data-product, CI/CD, container, deployment, observability, SRE, security, testing, performance, resilience and release-hygiene patterns. |
 | [`reference/ai-decision-intelligence-wealth-platform/`](reference/ai-decision-intelligence-wealth-platform/README.md) | Apply AI, RAG, advisor-copilot, decision-intelligence, AI-governance, security, evaluation, and human-oversight patterns to wealth-platform work. |
 | [`reference/canonical-data-dictionary-api-event-domain-model/`](reference/canonical-data-dictionary-api-event-domain-model/README.md) | Apply canonical domain model, data dictionary, API contract, event schema, lineage, validation, QA and service-boundary patterns. |
 | [`reference/commercial-saas-pricing-enterprise-sales/`](reference/commercial-saas-pricing-enterprise-sales/README.md) | Apply commercial SaaS pricing, enterprise sales, contracts, support, customer success and value-realization patterns. |
