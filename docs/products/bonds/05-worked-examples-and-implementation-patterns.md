@@ -3184,6 +3184,228 @@ approx_greenium_return_effect = 6.0 x 3 / 10000 = 0.18%
 | Spread source is stale | Attribution is blocked or labelled stale. |
 | Client report is generated | Greenium effect is shown as analytical attribution, not guaranteed income. |
 
+## Example 82. Callable partial redemption lot selection
+
+### Scenario
+
+An issuer partially calls a bond issue. The custodian confirms that only part of the client's nominal is redeemed, and operations must select the impacted lots without reducing every lot proportionally unless the source event requires it.
+
+| Lot | Nominal | Clean cost | Selected for redemption |
+|---|---:|---:|---:|
+| Lot A | 400,000 | 98.50 | 150,000 |
+| Lot B | 350,000 | 101.20 | 0 |
+| Lot C | 250,000 | 99.80 | 100,000 |
+
+### Redemption cash and basis
+
+```text
+redeemed_nominal = 150,000 + 100,000 = 250,000
+redemption_cash = redeemed_nominal x call_price / 100
+selected_cost_basis = 150,000 x 98.50 / 100 + 100,000 x 99.80 / 100
+```
+
+### Correct treatment
+
+- preserve issuer notice, custodian allocation file, selected certificate/lot ids, call price and accrued-interest treatment;
+- reduce only source-selected lots when the allocation is lot-specific;
+- avoid proportional lot depletion when final redemption allocation specifies certificates or custody lots;
+- update remaining nominal, cost basis, accrued interest and tax-lot reporting from the selected-lot result;
+- label pending or estimated allocations until final custodian confirmation arrives.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Final call allocation specifies lots | Only selected lots are reduced. |
+| Allocation is preliminary | Position is projected or source-limited, not final. |
+| Tax-lot basis is missing | Gain/loss reporting is blocked or labelled incomplete. |
+| Client report is generated | Redeemed nominal, residual nominal and selected-lot basis are explainable. |
+
+## Example 83. Distressed exchange consent hierarchy
+
+### Scenario
+
+A distressed issuer offers an exchange package that requires both exchange election and separate consent to covenant amendments. The client elects the exchange but does not provide the separate consent instruction before the consent deadline.
+
+| Instruction | Status | Deadline |
+|---|---|---|
+| Exchange election | Submitted | Met |
+| Covenant consent | Missing | Missed |
+| Early consent fee | Conditional | Not earned |
+
+### Eligibility result
+
+```text
+exchange_valid = exchange_election_submitted and exchange_deadline_met
+consent_fee_eligible = covenant_consent_submitted and consent_deadline_met
+```
+
+### Correct treatment
+
+- preserve offer circular, exchange election, consent terms, deadlines, fee conditions and final acceptance file;
+- process the exchange only if the election is valid, but do not accrue consent fee when separate consent is missing;
+- distinguish exchange package value, consent fee, clawback risk and old-bond restriction state;
+- expose instruction hierarchy to advisors and operations before deadlines expire;
+- keep rejected or missing consent evidence for client communication and audit.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Exchange election is valid but consent is missing | Exchange can proceed while consent fee remains ineligible. |
+| Consent is submitted after deadline | Consent is rejected or source-limited according to terms. |
+| Offer terms require consent for exchange eligibility | Exchange is blocked unless both instructions are valid. |
+| Report is generated | Exchange outcome and consent-fee outcome are separate. |
+
+## Example 84. Sovereign local-law redenomination
+
+### Scenario
+
+A sovereign bond governed by local law is redenominated from foreign currency into local currency under a statutory action. Portfolio reporting must preserve the original bond identity, new currency basis and any legal restriction state.
+
+| Attribute | Before | After |
+|---|---:|---:|
+| Nominal | 1,000,000 USD | 920,000 local currency equivalent |
+| Governing law | Local law | Local law |
+| FX conversion rate | n/a | 0.92 |
+| Trading status | Active | Restricted |
+
+### Redenomination value
+
+```text
+redenominated_nominal_local = original_nominal_usd x statutory_conversion_rate
+redenominated_nominal_local = 1,000,000 x 0.92 = 920,000
+```
+
+### Correct treatment
+
+- preserve statutory notice, governing law, original identifier, replacement identifier if any, conversion rate, effective date and restriction status;
+- treat redenomination as a lifecycle event, not a normal FX trade;
+- update currency, nominal basis, cashflow schedule and reporting labels only after source-backed effective date;
+- route valuation, suitability, restriction and tax reporting to review when market price or legality is uncertain;
+- keep historical performance explainable in original and redenominated currency terms.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Redenomination notice is source-backed | Currency and nominal basis update from effective date. |
+| Replacement identifier is missing | Holding remains source-limited until instrument mapping is complete. |
+| Trading is restricted | Liquidity and advisory status update separately from valuation. |
+| Client report spans event date | Pre-event and post-event currency bases are shown separately. |
+
+## Example 85. Municipal insurance downgrade
+
+### Scenario
+
+A municipal bond is insured by a monoline insurer. The issuer rating is unchanged, but the insurer is downgraded, reducing the support value of the insurance wrap.
+
+| Rating component | Before | After |
+|---|---|---|
+| Issuer rating | A | A |
+| Insurer rating | AA | BBB |
+| Portfolio rating basis | Insured rating | Review required |
+| Market value | 1,020,000 | 995,000 |
+
+### Support impact
+
+```text
+market_value_change = 995,000 - 1,020,000 = -25,000
+insurance_support_downgraded = true
+```
+
+### Correct treatment
+
+- preserve issuer rating, insurer rating, insurance policy, coverage scope, rating-agency notice and effective date;
+- separate issuer credit quality from insurer support quality;
+- update portfolio rating basis, collateral eligibility, concentration and advisory alerts according to policy;
+- do not classify the issuer as downgraded when only insurer support changed;
+- explain price/performance impact separately from any future claim expectation.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Insurer rating changes but issuer rating does not | Insurer support analytics update separately. |
+| Policy uses lower-of issuer and insurer basis | Portfolio rating basis recalculates. |
+| Insurance policy is missing | Insured-rating label is blocked or source-limited. |
+| Client report is generated | Issuer risk and insurer-wrap risk are distinct. |
+
+## Example 86. MBS factor restatement correction
+
+### Scenario
+
+An agency MBS factor file is restated after positions, income and paydown projections were already calculated. The platform must correct current face and cashflow projections without duplicating principal payments.
+
+| Attribute | Original | Restated |
+|---|---:|---:|
+| Original face | 2,000,000 | 2,000,000 |
+| Factor | 0.642500 | 0.638750 |
+| Current face | 1,285,000 | 1,277,500 |
+| Difference | n/a | -7,500 |
+
+### Factor correction
+
+```text
+restated_current_face = original_face x restated_factor
+restated_current_face = 2,000,000 x 0.638750 = 1,277,500
+current_face_delta = 1,277,500 - 1,285,000 = -7,500
+```
+
+### Correct treatment
+
+- preserve original factor file, restated factor file, publication timestamps, affected positions and prior report versions;
+- restate current face, projected paydowns, amortization analytics and yield assumptions from the restated factor;
+- avoid creating an extra principal cash event unless cash was actually received;
+- trigger performance/report impact assessment when the restatement affects delivered statements;
+- label stale or disputed factors until agency/custodian source is reconciled.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Factor is restated | Current face recalculates with versioned factor lineage. |
+| Cash payment did not change | No duplicate principal payment is booked. |
+| Report was delivered | Impact assessment identifies affected valuations and projections. |
+| Custodian factor differs from agency file | Reconciliation exception opens. |
+
+## Example 87. Green-bond taxonomy downgrade
+
+### Scenario
+
+A labelled green bond no longer meets the applicable taxonomy after a use-of-proceeds review. The bond remains a valid fixed-income holding, but green classification, reporting and mandate eligibility may change.
+
+| Attribute | Before | After |
+|---|---|---|
+| Green label | Eligible | Downgraded |
+| Market value | 1,100,000 | 1,075,000 |
+| Green mandate eligibility | Eligible | Review required |
+| Spread change | n/a | +18 bps |
+
+### Classification impact
+
+```text
+green_eligible_exposure_after = 0 if taxonomy_status == downgraded else market_value
+green_exposure_reduction = 1,100,000 - 0 = 1,100,000
+```
+
+### Correct treatment
+
+- preserve taxonomy source, review date, downgrade reason, issuer response, prior label and effective date;
+- remove or warning-label green-eligible exposure according to mandate policy without closing the bond position automatically;
+- separate taxonomy downgrade from credit downgrade, market price movement and issuer default;
+- route client reporting, mandate breach and product governance review when the downgrade is material;
+- keep performance attribution from spread movement separate from ESG classification status.
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Taxonomy downgrade is source-backed | Green eligibility updates from effective date. |
+| Mandate requires green eligibility | Breach, review or divestment workflow opens according to policy. |
+| Price changes after downgrade | Market performance and taxonomy status are reported separately. |
+| Client report is generated | Green exposure excludes or labels downgraded bond exposure. |
+
 ## Implementation-backed capability lens
 
 When reviewing whether a platform truly supports bonds, use these evidence questions:
