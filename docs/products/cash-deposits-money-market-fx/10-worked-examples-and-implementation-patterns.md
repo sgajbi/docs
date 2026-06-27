@@ -323,3 +323,181 @@ The portfolio may look cash-heavy by market value, but only a portion is same-da
 | Notice is submitted for deposit | Projected cashflow appears on notice maturity date. |
 | T-bill is sold before maturity | Trade lifecycle and settlement determine actual cash date. |
 | Client has a near-term withdrawal need | Advisory workflow uses liquidity ladder, not total cash-like value. |
+
+## Example 8. Multi-currency buying power with FX funding
+
+### Scenario
+
+A client wants to buy a SGD security, but most free liquidity is in USD.
+
+| Attribute | Value |
+|---|---:|
+| SGD ledger cash | 20,000 |
+| SGD reserved for fees and pending orders | -5,000 |
+| USD ledger cash | 100,000 |
+| USD reserved cash | -10,000 |
+| FX rate | 1.3500 SGD per USD |
+| FX haircut / buffer | 2.00% |
+| Proposed SGD purchase | 120,000 |
+
+### Calculation
+
+```text
+available SGD cash = 20,000 - 5,000
+available SGD cash = 15,000
+
+available USD cash = 100,000 - 10,000
+available USD cash = 90,000
+
+SGD equivalent before buffer = 90,000 x 1.3500
+SGD equivalent before buffer = 121,500
+
+SGD equivalent after FX buffer = 121,500 x (1 - 2.00%)
+SGD equivalent after FX buffer = 119,070
+
+total SGD buying power = 15,000 + 119,070
+total SGD buying power = 134,070
+```
+
+### Correct interpretation
+
+The order appears fundable after FX conversion and buffer, but it is not the same as settled SGD cash. The platform should show:
+
+| View | Amount | Treatment |
+|---|---:|---|
+| Settled SGD available cash | 15,000 | Immediately available in purchase currency. |
+| FX-funded buying power | 119,070 | Available only if FX conversion is permitted and executable. |
+| Total indicative buying power | 134,070 | Should carry FX dependency and buffer basis. |
+| Proposed purchase | 120,000 | Passes indicative funding, subject to FX execution and settlement policy. |
+
+### Advisory and DPM treatment
+
+| Area | Treatment |
+|---|---|
+| Advisory | Explain that the purchase depends on converting USD into SGD and may be affected by rate movement, spread, execution cut-off and settlement timing. |
+| DPM | Rebalance engines should reserve the USD funding source and create a linked FX requirement, not just consume aggregate portfolio cash. |
+| Reporting | Show purchase-currency cash, source-currency cash, FX funding dependency, buffer basis and pending conversion state. |
+| Operations | If FX does not execute, the purchase order should remain blocked, amended or escalated according to funding policy. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| FX rate moves beyond buffer before execution | Buying power is recalculated and the purchase may become blocked. |
+| USD cash is pledged or restricted | Restricted USD is excluded from FX-funded buying power. |
+| FX cut-off has passed | Buying power is labelled next-value-date or unavailable according to policy. |
+| Purchase currency differs from portfolio base currency | Funding uses purchase currency and value date, not only portfolio-base reporting value. |
+| Bridge funding is not supported | Pending FX proceeds cannot be treated as settled purchase cash before allowed policy date. |
+
+## Example 9. Failed FX settlement and cash restriction
+
+### Scenario
+
+A client enters an FX spot trade to fund a securities purchase. One currency leg settles, but the other does not arrive on value date.
+
+| Attribute | Value |
+|---|---:|
+| FX action | Sell USD / buy SGD |
+| USD sold | 100,000 |
+| Contract rate | 1.3500 SGD per USD |
+| Expected SGD bought | 135,000 |
+| Value date | T+2 |
+| Linked securities purchase | SGD 130,000 |
+
+### Expected transaction state
+
+| Date | USD leg | SGD leg | Platform treatment |
+|---|---:|---:|---|
+| Trade date | Pending outflow | Pending inflow | Reserve USD and project SGD. |
+| Value date morning | -100,000 settled | Pending | Restrict projected SGD until matched. |
+| Value date end | -100,000 settled | Failed | Raise FX settlement exception and block linked settlement use. |
+| Resolution date | Confirmed adjustment | +135,000 or corrected amount | Release or amend restricted cash after source confirmation. |
+
+### Failed-settlement treatment
+
+The platform should distinguish:
+
+| State | Meaning |
+|---|---|
+| Pending FX receivable | Expected cashflow before value date or before confirmation. |
+| Failed FX receivable | Contractual receivable did not settle as expected. |
+| Restricted projected cash | Cash shown for transparency but not available for new funding. |
+| Corrected settlement | Later source-confirmed settlement, adjustment or cancellation. |
+
+### Reporting and operations
+
+| Area | Correct treatment |
+|---|---|
+| Cash report | Show failed or pending SGD receivable separately from settled SGD cash. |
+| Buying power | Exclude failed SGD receivable unless explicit bridge funding is approved. |
+| Trade settlement | Linked securities settlement should block, use approved overdraft/credit, or escalate. |
+| Reconciliation | Match custodian cash movement, FX confirmation and internal trade state. |
+| Client explanation | Explain settlement delay without showing projected cash as available cash. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| One FX leg settles and the other fails | Exception workflow opens and unmatched cash is restricted. |
+| Linked securities purchase needs failed proceeds | Purchase is blocked, bridged or escalated according to policy. |
+| Counterparty later corrects amount | Adjustment preserves original failed state and correction lineage. |
+| FX trade is cancelled after one leg settles | Reversal workflow is required; no silent deletion of cash movement. |
+| Report is generated during failure window | Report labels the receivable as failed/pending and excludes it from available cash. |
+
+## Example 10. Cash sweep into money market fund
+
+### Scenario
+
+An account has excess USD cash above its operating buffer. The service model sweeps excess cash into a money market fund.
+
+| Attribute | Value |
+|---|---:|
+| USD ledger cash before sweep | 250,000 |
+| Minimum operating cash buffer | 50,000 |
+| Sweep threshold | 100,000 |
+| Target residual cash after sweep | 60,000 |
+| Money market fund NAV | 1.0008 |
+
+### Sweep calculation
+
+```text
+excess cash above target residual = 250,000 - 60,000
+excess cash above target residual = 190,000
+
+sweep order amount = 190,000
+estimated MMF units = 190,000 / 1.0008
+estimated MMF units = 189,848.12
+```
+
+Final units should use confirmed dealing NAV, fees and fund settlement terms.
+
+### Lifecycle treatment
+
+| Step | Treatment |
+|---|---|
+| Sweep trigger | Identify eligible cash after reservations, restrictions, upcoming withdrawals and pending settlements. |
+| Order creation | Create MMF subscription order with cut-off, dealing date and settlement date. |
+| Cash reservation | Reserve swept amount until order is accepted, rejected or cancelled. |
+| NAV confirmation | Convert cash amount to confirmed units using dealing NAV. |
+| Settlement | Reduce cash and create/adjust MMF position according to settlement confirmation. |
+| Unwind | Redemption follows fund order lifecycle, not instant cash unless product terms support same-day liquidity. |
+
+### Reporting and analytics
+
+| Area | Correct treatment |
+|---|---|
+| Cash reporting | Show residual operating cash and pending sweep separately. |
+| Liquidity | Money market fund is cash-like but not identical to bank cash; liquidity bucket depends on fund terms. |
+| Performance | Sweep fund return is investment return; movement from cash to MMF is internal activity. |
+| Advisory | Explain yield pickup, NAV/liquidity risk, gate/suspension risk and settlement timing. |
+| DPM | Do not let automatic sweep consume cash reserved for model trades, fees, withdrawals or collateral calls. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Pending withdrawal exists | Sweep excludes cash required for the withdrawal. |
+| MMF order misses cut-off | Sweep uses next eligible dealing date and keeps reserved cash visible. |
+| NAV changes between estimate and confirmation | Units use confirmed NAV, while estimate remains audit context. |
+| Fund applies liquidity gate | Sweep or redemption follows gate behavior and liquidity labels update. |
+| Cash buffer differs by mandate | Sweep threshold and residual cash are mandate/service-model specific. |

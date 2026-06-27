@@ -22,6 +22,8 @@ Cash and FX sit underneath nearly every product workflow. They affect buying pow
 | Money market fund | Fund position with NAV, liquidity terms, distribution/accrual behavior, and potential gate/suspension/stable-NAV nuance. |
 | FX spot | Two-currency transaction with trade date, value date, dealt amount, counter amount, rate, spread, and settlement risk. |
 | FX forward/swap/NDF | Forward-dated or derivative FX exposure with mark-to-market, fixing, settlement, hedge, and counterparty implications. |
+| Multi-currency buying power | Indicative funding capacity after purchase-currency cash, source-currency cash, FX conversion, buffers, settlement timing, restrictions, pledge state and credit policy. |
+| Cash sweep | Automated movement from operating cash into deposit, money market fund, sweep account or liquidity product; should preserve cash reservations, cut-offs, settlement and liquidity labels. |
 
 ## Reusable Modelling Pattern
 
@@ -81,7 +83,9 @@ APIs should expose:
 6. money market NAV/yield/liquidity posture,
 7. FX trade legs, rate, spread, value date, settlement status, and hedge link where applicable,
 8. stale rate/NAV/rate-source flags,
-9. buying-power basis and unsupported states.
+9. buying-power basis and unsupported states,
+10. linked FX funding requirement for cross-currency purchases,
+11. cash sweep trigger, reservation, order, settlement and unwind state.
 
 UIs should make these states visible:
 
@@ -93,6 +97,8 @@ UIs should make these states visible:
 6. money market fund liquidity is gated, suspended, or stale,
 7. FX forward is hedge exposure rather than simple cash,
 8. buying power includes or excludes credit/collateral.
+9. FX-funded buying power is indicative until conversion and settlement policy are satisfied,
+10. automatic sweeps can reduce operating cash and may create fund liquidity or settlement constraints.
 
 ## QA Scenarios
 
@@ -107,7 +113,10 @@ High-value scenarios:
 7. FX spot converts one currency into another with correct value date,
 8. FX forward marks to market without changing current cash until settlement,
 9. NDF settles net cash after fixing,
-10. projected cash blocks a purchase because pending settlement is late.
+10. projected cash blocks a purchase because pending settlement is late,
+11. multi-currency purchase uses FX-funded buying power with haircut and value-date checks,
+12. failed FX settlement restricts projected cash and opens exception workflow,
+13. sweep order reserves excess cash and creates MMF units only after confirmed dealing NAV.
 
 ## Useful Project Workflows
 
