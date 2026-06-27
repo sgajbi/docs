@@ -2,7 +2,7 @@
 
 This guide turns product knowledge into reusable front-office, advisory, DPM, reporting, analytics, operations, and QA decisions.
 
-Use it when designing proposal workflows, mandate checks, portfolio-review views, client statements, risk reports, exception queues, data-quality rules, or regression scenarios. For deeper QA coverage, use [`product-qa-regression-matrix.md`](product-qa-regression-matrix.md). It is intentionally platform-neutral and should be adapted to the target policy, jurisdiction, product catalogue, and source-system contracts.
+Use it when designing proposal workflows, mandate checks, portfolio-review views, client statements, risk reports, exception queues, data-quality rules, or regression scenarios. For performance and risk methodology, use [`product-performance-attribution-risk-guide.md`](product-performance-attribution-risk-guide.md). For deeper QA coverage, use [`product-qa-regression-matrix.md`](product-qa-regression-matrix.md). It is intentionally platform-neutral and should be adapted to the target policy, jurisdiction, product catalogue, and source-system contracts.
 
 ## Core Decision Questions
 

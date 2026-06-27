@@ -27,6 +27,7 @@ This matrix tracks the current product-library coverage and where enrichment sho
 | [`cross-product-worked-examples.md`](cross-product-worked-examples.md) | Practical examples for lifecycle, transactions, cashflows, calculations, reporting, QA, and implementation boundaries across product families. |
 | [`product-capability-boundary-matrix.md`](product-capability-boundary-matrix.md) | Cross-product boundary matrix for generic support, source-backed product-specific capabilities, support-limited states, future candidates, reporting claims, and QA evidence. |
 | [`product-calculation-example-catalog.md`](product-calculation-example-catalog.md) | Cross-product calculation examples with formulas, source-input expectations, reporting labels, degraded-state behavior, and QA assertions. |
+| [`product-performance-attribution-risk-guide.md`](product-performance-attribution-risk-guide.md) | Cross-product performance, contribution, attribution, risk denominator, degraded analytics, and analytics QA guidance. |
 | [`practical-product-implementation-review.md`](practical-product-implementation-review.md) | Cross-product checklist for examples, payoff behavior, cashflows, valuation, analytics, advisory, mandate, reporting, QA, implementation boundaries, and candidate extensions. |
 | [`product-qa-regression-matrix.md`](product-qa-regression-matrix.md) | Cross-product QA matrix for normal, degraded, reporting, reconciliation, migration, and release-gate evidence. |
 | [`product-source-intake-and-migration-guide.md`](product-source-intake-and-migration-guide.md) | Cross-product source-intake and migration guidance for field profiling, source ownership, reconciliation, degraded states, and sign-off evidence. |
@@ -65,6 +66,6 @@ Potential future packs:
 
 1. mandates and advisory workflows,
 2. client reporting and portfolio review methodology,
-3. performance and attribution methodology,
-4. risk and concentration methodology,
+3. client-facing explanation packs,
+4. report template examples,
 5. source-data and market-data governance.
