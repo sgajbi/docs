@@ -3573,7 +3573,235 @@ QA assertions:
 | Appeal reversal is partial | Non-covered packages still require delivery. |
 | Closure report is generated | Denial, appeal, reversal and expiry are traceable. |
 
-## 104. Regression Test Pack
+## 104. Protector Repaired-Payment Reversal
+
+Scenario:
+
+- A mediated reserve release payment failed, was repaired and then settled.
+- The receiving bank later reverses the repaired payment due to beneficiary account closure.
+- The release must return to pending-payment state while preserving the mediation and repair evidence.
+
+| Attribute | Value |
+|---|---:|
+| Repaired payment settled | 18,000 |
+| Repaired payment reversed | 18,000 |
+| Release requiring new payment action | 18,000 |
+
+Payment reversal:
+
+```text
+release_requiring_new_payment_action = repaired_payment_settled - (repaired_payment_settled - repaired_payment_reversed)
+release_requiring_new_payment_action = 18,000 - (18,000 - 18,000) = 18,000
+```
+
+Correct workflow:
+
+- preserve original mediation approval, failed payment, repair instruction, settlement evidence, reversal notice and new payment decision;
+- return the reversed amount to pending-payment state, not unrestricted reserve;
+- require updated beneficiary payment details or trustee-approved redirection before reissue;
+- keep settlement and reversal events visible in audit and beneficiary reporting;
+- avoid marking mediation closure complete after a repaired payment is reversed.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Repaired payment reverses | Release returns to pending-payment state. |
+| New account details are provided | Payment can be reissued with approval evidence. |
+| Redirection is requested | Trustee or authorized approval is required. |
+| Report is generated | Failure, repair, settlement and reversal are traceable. |
+
+## 105. Replacement Funding Deadline Extension
+
+Scenario:
+
+- A replacement participant has a funding shortfall after accepting a cancelled co-investment allocation.
+- The committee grants a deadline extension for part of the shortfall.
+- Any amount outside the extension remains subject to cancellation or reallocation.
+
+| Attribute | Value |
+|---|---:|
+| Replacement funding shortfall | 90,000 |
+| Shortfall covered by deadline extension | 60,000 |
+| Shortfall not extended | 30,000 |
+
+Deadline extension:
+
+```text
+shortfall_not_extended = replacement_funding_shortfall - shortfall_covered_by_deadline_extension
+shortfall_not_extended = 90,000 - 60,000 = 30,000
+```
+
+Correct workflow:
+
+- preserve original funding deadline, shortfall, extension request, committee decision, extended amount, residual shortfall and revised funding date;
+- keep extended and non-extended shortfall amounts separate;
+- include only funded or formally extended amounts in approved commitment exposure;
+- escalate non-extended shortfall for cancellation, replacement or sponsor action;
+- avoid extending the full shortfall when approval covers only part of it.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Partial extension is approved | Only approved amount receives revised deadline. |
+| Residual shortfall is not extended | Residual remains escalated. |
+| Extended deadline passes unfunded | Shortfall workflow reopens. |
+| Forecast is generated | Funded, extended and escalated amounts are separated. |
+
+## 106. Title-Cure Residual Cash Call
+
+Scenario:
+
+- A substitute asset title defect is partly cured.
+- The uncured value must be replaced with cash to complete estate equalization.
+- A residual cash call is issued to the estate liquidity reserve.
+
+| Attribute | Value |
+|---|---:|
+| Value blocked by title defect | 25,000 |
+| Cash replacement funded | 15,000 |
+| Residual cash call outstanding | 10,000 |
+
+Residual cash call:
+
+```text
+residual_cash_call_outstanding = value_blocked_by_title_defect - cash_replacement_funded
+residual_cash_call_outstanding = 25,000 - 15,000 = 10,000
+```
+
+Correct workflow:
+
+- preserve title-cure outcome, blocked value, cash-call instruction, funding source, settlement status and revised equalization schedule;
+- reduce unresolved equalization only by settled cash replacement;
+- keep residual cash call open until funded, waived or reallocated;
+- distinguish title-cured asset credit from cash replacement funding;
+- avoid closing equalization when cash call is instructed but not fully settled.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Cash call is partially funded | Residual cash call remains open. |
+| Funding source lacks liquidity | Estate closure remains blocked. |
+| Cash replacement settles | Equalization shortfall reduces by settled amount. |
+| Report is produced | Asset credit, cash replacement and residual call are separated. |
+
+## 107. Sampling Waiver Renewal Dispute
+
+Scenario:
+
+- A foundation recipient requests renewal of an evidence-sampling waiver.
+- Monitoring team disputes renewal because prior samples had exceptions.
+- Waiver status remains pending and full sampling remains required until council decision.
+
+| Attribute | Value |
+|---|---:|
+| Samples required without renewal | 5 |
+| Samples suspended by approved renewal | 0 |
+| Samples still required during dispute | 5 |
+
+Renewal dispute:
+
+```text
+samples_still_required_during_dispute = samples_required_without_renewal - samples_suspended_by_approved_renewal
+samples_still_required_during_dispute = 5 - 0 = 5
+```
+
+Correct workflow:
+
+- preserve waiver request, prior sampling exceptions, monitoring objection, council review state, current sampling requirement and release condition;
+- keep full sampling requirements active while renewal is disputed;
+- block release if required samples are missing during dispute;
+- apply renewal only after council approval and within approved scope;
+- avoid treating a submitted renewal request as an active waiver.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Renewal is disputed | Full sampling remains required. |
+| Council approves renewal | Waiver scope and expiry are applied prospectively. |
+| Samples are missing during dispute | Grant release is blocked. |
+| Monitoring report is generated | Request, objection and current requirement are visible. |
+
+## 108. Notice-Exception Remediation Notice
+
+Scenario:
+
+- Audit finds that one client notice was incorrectly suppressed under a ratification correction exception.
+- A remediation notice must be issued without exposing restricted rationale.
+- The correction remains open until the remediation notice is delivered or formally waived.
+
+| Attribute | Value |
+|---|---:|
+| Notices requiring remediation | 1 |
+| Remediation notices delivered | 0 |
+| Remediation notices still open | 1 |
+
+Remediation notice:
+
+```text
+remediation_notices_still_open = notices_requiring_remediation - remediation_notices_delivered
+remediation_notices_still_open = 1 - 0 = 1
+```
+
+Correct workflow:
+
+- preserve audit challenge, out-of-scope notice, remediation notice content, restricted rationale filter, delivery evidence and closure decision;
+- issue remediation notice with corrected client-safe wording;
+- keep restricted rationale out of client-facing notice;
+- close only after delivery, approved waiver or escalation;
+- avoid reopening unrelated notices that were within the approved exception scope.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Suppression was out of scope | Remediation notice is required. |
+| Notice is delivered | Remediation item can close. |
+| Delivery fails | Failed-delivery workflow starts. |
+| Client copy is reviewed | Restricted rationale is not exposed. |
+
+## 109. Correction Appeal Reversal Expiry Monitoring
+
+Scenario:
+
+- A correction-waiver denial appeal reversal temporarily paused delivery attempts.
+- The reversal expires before delivery is completed.
+- Delivery requirement must automatically reactivate unless renewed.
+
+| Attribute | Value |
+|---|---:|
+| Delivery attempts paused by appeal reversal | 1 |
+| Pauses renewed before expiry | 0 |
+| Delivery attempts reactivated | 1 |
+
+Expiry monitoring:
+
+```text
+delivery_attempts_reactivated = delivery_attempts_paused_by_appeal_reversal - pauses_renewed_before_expiry
+delivery_attempts_reactivated = 1 - 0 = 1
+```
+
+Correct workflow:
+
+- preserve appeal reversal, pause scope, expiry date, renewal status, delivery reactivation and recipient communication;
+- monitor reversal expiry as an effective-dated control;
+- reactivate delivery when pause expires without renewal;
+- keep renewal and expiry evidence separate from original denial;
+- avoid allowing expired appeal reversal to suppress future delivery attempts.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Appeal reversal expires | Delivery-required state reactivates. |
+| Renewal is approved before expiry | Delivery remains paused within renewed scope. |
+| New correction package is outside scope | Delivery is required. |
+| Status report is generated | Pause, expiry, renewal and reactivation are visible. |
+
+## 110. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -3680,3 +3908,9 @@ Minimum release-gate scenarios:
 101. Foundation sampling waiver expiries restore full evidence requirements unless renewed.
 102. Client-notice exception audit challenges remediate suppressed notices outside approved scope.
 103. Correction-waiver denial appeal reversals pause delivery only for approved period and scope.
+104. Protector repaired-payment reversals return mediated releases to pending-payment state.
+105. Replacement funding deadline extensions apply only to approved shortfall amounts and revised dates.
+106. Title-cure residual cash calls close equalization only when cash replacement settles.
+107. Sampling waiver renewal disputes keep full sampling active until council approval.
+108. Notice-exception remediation notices close only after delivery, waiver or escalation evidence.
+109. Correction appeal reversal expiry monitoring reactivates delivery when pauses expire without renewal.
