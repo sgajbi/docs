@@ -1491,7 +1491,254 @@ QA assertions:
 | Restricted reserve remains required | Reserve is excluded from distributable amount. |
 | Dissolution is completed | Final report shows distributions, retained evidence and closure state. |
 
-## 50. Regression Test Pack
+## 50. Protector Indemnity Claim
+
+Scenario:
+
+- A protector claims indemnity from the trust after defending a beneficiary challenge.
+- The trust deed permits indemnity only for approved costs that are not caused by willful misconduct.
+- Part of the claim is disputed by the trustee.
+
+| Component | Amount |
+|---|---:|
+| Claimed legal costs | 95,000 |
+| Trustee-approved costs | 72,000 |
+| Disputed costs | 23,000 |
+| Retained reserve | 80,000 |
+
+Indemnity reserve coverage:
+
+```text
+approved_indemnity_payable = trustee_approved_costs
+approved_indemnity_payable = 72,000
+
+remaining_reserve_after_approved_payment = retained_reserve - approved_indemnity_payable
+remaining_reserve_after_approved_payment = 80,000 - 72,000 = 8,000
+```
+
+Correct workflow:
+
+- preserve trust deed indemnity clause, protector claim, legal invoices, trustee review, misconduct exclusions and dispute owner;
+- pay or reserve only approved indemnity amounts according to trustee authority;
+- keep disputed costs separate from approved payable amounts;
+- reflect reserve impact before beneficiary distributions or trust closure;
+- avoid treating protector indemnity as beneficiary distribution or trustee fee.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Claim includes disputed costs | Approved and disputed amounts are separated. |
+| Reserve is insufficient | Distribution or closure workflow is blocked or reprioritized. |
+| Misconduct exclusion applies | Claim is rejected or routed to legal review. |
+| Report is generated | Claim, approval, reserve and dispute state are auditable. |
+
+## 51. Family-Office Capital Commitment Approval
+
+Scenario:
+
+- A family office investment committee approves a private-market capital commitment.
+- The family charter requires a minimum approval threshold and liquidity reserve check before commitment.
+- The proposed commitment exceeds available investment headroom unless a co-investment sleeve is excluded.
+
+| Attribute | Value |
+|---|---:|
+| Proposed commitment | 1,500,000 |
+| Available investment headroom | 1,250,000 |
+| Co-investment sleeve excluded by policy | 300,000 |
+| Required approval threshold | 75% |
+| Approval received | 80% |
+
+Adjusted headroom:
+
+```text
+adjusted_available_headroom = available_investment_headroom + policy_excluded_sleeve
+adjusted_available_headroom = 1,250,000 + 300,000 = 1,550,000
+
+commitment_headroom_surplus = adjusted_available_headroom - proposed_commitment
+commitment_headroom_surplus = 1,550,000 - 1,500,000 = 50,000
+```
+
+Correct workflow:
+
+- preserve investment memo, family charter rule, committee vote, liquidity reserve check, excluded sleeve policy and final approval;
+- verify both approval threshold and funding headroom before commitment activation;
+- separate approved commitment from funded capital calls;
+- show residual headroom after commitment for future planning;
+- avoid booking a commitment only from verbal committee support without documented authority.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Approval threshold is met | Approval check passes with vote evidence. |
+| Headroom is insufficient before policy adjustment | Commitment remains blocked or requires policy-backed exclusion. |
+| Commitment is approved | Commitment posts separately from cash funding. |
+| Report is generated | Proposed commitment, approval and remaining headroom are visible. |
+
+## 52. Estate In-Kind Asset Distribution
+
+Scenario:
+
+- An estate distributes securities in kind to beneficiaries instead of liquidating them.
+- Beneficiary allocations must preserve asset value, fractional handling and restricted-asset exclusions.
+
+| Attribute | Value |
+|---|---:|
+| Distributable securities value | 900,000 |
+| Beneficiary A allocation | 60% |
+| Beneficiary B allocation | 40% |
+| Restricted securities excluded | 120,000 |
+
+Distributable value after restriction:
+
+```text
+available_in_kind_value = distributable_securities_value - restricted_securities_excluded
+available_in_kind_value = 900,000 - 120,000 = 780,000
+
+beneficiary_a_in_kind_value = available_in_kind_value x beneficiary_a_allocation
+beneficiary_a_in_kind_value = 780,000 x 60% = 468,000
+
+beneficiary_b_in_kind_value = available_in_kind_value x beneficiary_b_allocation
+beneficiary_b_in_kind_value = 780,000 x 40% = 312,000
+```
+
+Correct workflow:
+
+- preserve probate approval, executor instruction, asset inventory, restriction flags, beneficiary allocation rule and transfer evidence;
+- exclude restricted assets until release or court/executor approval exists;
+- transfer securities with custody, tax-lot and valuation lineage;
+- handle fractional or indivisible securities through approved equalization cash where needed;
+- avoid reporting in-kind distribution as cash liquidation.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Restricted assets exist | Restricted value is excluded from available in-kind distribution. |
+| Beneficiary percentages apply | In-kind values allocate according to approved estate rule. |
+| Custody transfer completes | Beneficiary holdings link to estate source asset and transfer evidence. |
+| Report is generated | In-kind transfer, restricted assets and any equalization cash are distinct. |
+
+## 53. Foundation Grant Clawback
+
+Scenario:
+
+- A foundation grant agreement permits clawback when the recipient fails purpose-use conditions.
+- Part of the grant has already been spent for approved purposes.
+- The clawback applies only to unapproved or unused amounts.
+
+| Component | Amount |
+|---|---:|
+| Original grant | 400,000 |
+| Approved purpose spend | 250,000 |
+| Unused cash returned voluntarily | 60,000 |
+| Disputed non-compliant spend | 90,000 |
+
+Remaining clawback claim:
+
+```text
+remaining_clawback_claim = original_grant - approved_purpose_spend - unused_cash_returned
+remaining_clawback_claim = 400,000 - 250,000 - 60,000 = 90,000
+```
+
+Correct workflow:
+
+- preserve grant agreement, purpose conditions, recipient spend evidence, voluntary return, council clawback decision and dispute owner;
+- separate approved spend, returned cash and clawback claim;
+- recognize returned cash only when settlement is received;
+- track disputed clawback until recipient resolution or legal decision;
+- avoid treating clawback claim as immediately available foundation cash.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Purpose condition fails | Clawback workflow opens with evidence. |
+| Some funds are returned | Returned cash reduces claim only after receipt evidence. |
+| Spend is approved | Approved spend is excluded from clawback claim. |
+| Report is generated | Grant, approved spend, returned cash and claim are distinct. |
+
+## 54. Private-Trust-Company Director Indemnity Reserve
+
+Scenario:
+
+- A private trust company establishes an indemnity reserve for directors before approving a complex restructuring.
+- The reserve reduces distributable cash and must remain until the indemnity exposure expires or is released.
+
+| Attribute | Value |
+|---|---:|
+| Available company cash | 1,100,000 |
+| Approved indemnity reserve | 275,000 |
+| Pending trustee distributions | 600,000 |
+| Reserve release status | Not released |
+
+Post-reserve liquidity:
+
+```text
+cash_after_indemnity_reserve = available_company_cash - approved_indemnity_reserve
+cash_after_indemnity_reserve = 1,100,000 - 275,000 = 825,000
+
+surplus_after_pending_distributions = cash_after_indemnity_reserve - pending_trustee_distributions
+surplus_after_pending_distributions = 825,000 - 600,000 = 225,000
+```
+
+Correct workflow:
+
+- preserve board approval, indemnity terms, restructuring matter, reserve amount, expiry/release condition and distribution impact;
+- exclude reserve from distributable cash until release evidence exists;
+- separate director indemnity reserve from trustee fee, operating expense and beneficiary distribution;
+- show liquidity impact before approving distributions;
+- avoid releasing reserve only because the transaction has closed if indemnity tail remains active.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Reserve is approved | Distributable cash reduces by reserve amount. |
+| Distribution is requested | Distribution uses post-reserve liquidity. |
+| Release condition is unmet | Reserve remains restricted. |
+| Report is generated | Cash, reserve, distributions and surplus are visible. |
+
+## 55. Beneficiary Address Confidentiality Override
+
+Scenario:
+
+- A beneficiary requests that their address remain confidential in family-office consolidated reports.
+- A trustee later approves a limited override for legal-service delivery only.
+- The platform must not expose the address in general beneficiary reporting.
+
+| Attribute | Value |
+|---|---:|
+| Reports in scope | 8 |
+| Reports approved for override | 1 |
+| Reports still masked | 7 |
+
+Masking outcome:
+
+```text
+masked_report_count = reports_in_scope - reports_approved_for_override
+masked_report_count = 8 - 1 = 7
+```
+
+Correct workflow:
+
+- preserve confidentiality request, trustee approval, override purpose, report scope, effective period and recipient restrictions;
+- apply override only to the approved report or service workflow;
+- keep default masking active for all other outputs;
+- audit who viewed or received the unmasked address;
+- avoid using address override as broad consent for other family-office reports.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Override is purpose-limited | Address is unmasked only for approved purpose and report. |
+| Other reports are generated | Address remains masked outside override scope. |
+| Override expires | Address returns to default masking. |
+| Audit is requested | Access and delivery of unmasked address are traceable. |
+
+## 56. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -1544,3 +1791,9 @@ Minimum release-gate scenarios:
 47. Family governance voting deadlocks distinguish quorum from approval threshold and block implementation until resolved.
 48. Trustee fee tier disputes separate charged, contracted, accepted and disputed fee amounts before allocation.
 49. Foundation dissolution distributions deduct liabilities, restricted reserves and wind-down costs before recipient distribution.
+50. Protector indemnity claims separate approved costs, disputed costs and reserve impact before payment.
+51. Family-office capital commitment approvals require both authority threshold and funding headroom evidence.
+52. Estate in-kind distributions preserve restriction flags, allocation rule, custody transfer and valuation lineage.
+53. Foundation grant clawbacks separate approved spend, returned cash, remaining claim and dispute state.
+54. Private-trust-company director indemnity reserves reduce distributable cash until release evidence exists.
+55. Beneficiary address confidentiality overrides unmask only trustee-approved report scope and preserve audit evidence.
