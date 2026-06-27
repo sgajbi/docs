@@ -349,7 +349,243 @@ Correct treatment:
 | Cross-entity collateral | pledgor, borrower, collateral, pledge direction | multi-entity credit optimization with legal controls |
 | Cross-border status | tax residency, documentation status, effective date | cross-regime reportability and access policy engine |
 
-## 18. Regression Test Pack
+## 18. Letter Of Wishes Handling
+
+Scenario:
+
+- A settlor provides a letter of wishes alongside a discretionary trust.
+- The trustee may consider it, but it is not an automatic distribution rule.
+- A beneficiary asks why a discretionary distribution was not made exactly as described in the letter.
+
+Implementation treatment:
+
+| Dimension | Correct treatment |
+|---|---|
+| Document type | Store as advisory intent or non-binding guidance unless legal review says otherwise. |
+| Decision basis | Distribution decision remains with authorized trustee or fiduciary body. |
+| Reporting | Do not expose private settlor intent to beneficiaries unless source and policy allow. |
+| Workflow | Use the letter as contextual evidence, not as a system-enforced entitlement rule. |
+| Audit | Preserve decision rationale, trustee minutes and document version used. |
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Beneficiary is named in letter only | No automatic income, capital or report entitlement is created. |
+| Trustee approves a different distribution | System allows decision when authority and policy are valid. |
+| Letter is superseded | Workflow uses effective document version and preserves prior audit basis. |
+| Beneficiary requests full letter | Access is blocked or redacted unless policy permits disclosure. |
+
+## 19. Reserved Powers In A Settlor-Controlled Structure
+
+Scenario:
+
+- A trust deed reserves investment approval power to the settlor.
+- Trustee retains administration and distribution responsibilities.
+- An investment trade is placed without checking the reserved power.
+
+Control model:
+
+| Action type | Required authority |
+|---|---|
+| Investment trade above reserved threshold | Settlor approval plus trustee policy check |
+| Distribution | Trustee approval and any protector consent required by deed |
+| Report delivery | Reporting authority and privacy policy |
+| Administrative update | Trustee or administrator authority |
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Trade requires reserved-power approval | Order is blocked or routed to approval workflow. |
+| Settlor authority expired | Approval cannot be used after effective revocation date. |
+| Trustee approves distribution | Distribution workflow does not require investment reserved-power approval unless deed says so. |
+| Report is generated | Approval evidence is visible to internal control users, not necessarily to all report recipients. |
+
+## 20. Charitable Purpose Foundation
+
+Scenario:
+
+- A foundation exists for charitable and philanthropic purposes.
+- It holds a diversified portfolio and makes grants to approved charities.
+- Council approval and purpose alignment are required before disbursement.
+
+| Attribute | Value |
+|---|---:|
+| Annual grant budget | 1,000,000 |
+| Grants already approved | 625,000 |
+| Proposed grant | 250,000 |
+| Remaining budget after proposed grant | 125,000 |
+
+Calculation:
+
+```text
+post_grant_utilization = (625,000 + 250,000) / 1,000,000 = 87.50%
+remaining_budget = 1,000,000 - 625,000 - 250,000 = 125,000
+```
+
+Controls:
+
+- grant recipient due diligence must be complete;
+- grant purpose must align to foundation charter or purpose statement;
+- council approval, quorum and conflict checks must be source-backed;
+- investment portfolio liquidity should be checked before grant payment;
+- reporting should separate grant activity from investment performance.
+
+## 21. Nominee Arrangement With Beneficial Owner Reporting
+
+Scenario:
+
+- A nominee company is legal holder of record.
+- A private client is beneficial owner.
+- External custody statement shows nominee name, while internal reporting must show beneficial exposure subject to privacy rules.
+
+Implementation treatment:
+
+| Layer | Treatment |
+|---|---|
+| Legal holding | Record nominee as holder of record. |
+| Beneficial ownership | Store beneficial owner relationship with effective date and source evidence. |
+| Tax/reporting | Apply beneficial-owner reporting rules only when documentation is valid. |
+| Entitlements | Do not give nominee operators personal-client report access unless role permits. |
+| Reconciliation | Reconcile custody to nominee position and internal exposure to beneficial owner. |
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Custody file names nominee | Position reconciles to legal holder. |
+| Client report is generated | Beneficial exposure appears only for authorized report recipient. |
+| Beneficial-owner evidence expires | Reporting or tax workflow enters exception state. |
+| Nominee holds assets for multiple clients | Reports avoid cross-client disclosure. |
+
+## 22. Philanthropic Grant Workflow
+
+Scenario:
+
+- A family office requests a grant from a donor-advised or philanthropic account.
+- Grant amount is 150,000.
+- Liquid cash is 90,000 and expected bond sale proceeds are 70,000.
+- Grant cannot be released until both approval and funding are complete.
+
+Funding check:
+
+```text
+available_funding = 90,000 + 70,000 = 160,000
+funding_surplus = 160,000 - 150,000 = 10,000
+```
+
+Workflow:
+
+```text
+grant request -> recipient due diligence -> purpose check -> authority approval -> liquidity check -> cash reservation -> payment -> grant reporting -> audit record
+```
+
+Controls:
+
+- recipient screening and purpose alignment are not optional;
+- expected sale proceeds should not be treated as available cash before settlement policy allows;
+- grant reporting should show charitable outflow separately from portfolio withdrawals;
+- failed payment, rejected recipient or revoked approval should reverse reservation without deleting evidence.
+
+## 23. Trust Termination And Final Distribution
+
+Scenario:
+
+- A trust is terminating after a defined event.
+- Portfolio assets are liquidated and final distributions are made to three beneficiaries.
+- Final account closure must reconcile assets, cash, fees and residual tax reserve.
+
+| Item | Amount |
+|---|---:|
+| Final portfolio liquidation proceeds | 3,200,000 |
+| Accrued fees | 35,000 |
+| Tax reserve | 65,000 |
+| Distributable cash | 3,100,000 |
+
+Calculation:
+
+```text
+distributable_cash = 3,200,000 - 35,000 - 65,000 = 3,100,000
+```
+
+Correct workflow:
+
+| Step | Treatment |
+|---|---|
+| Termination trigger | Verify source event and authority to terminate. |
+| Asset liquidation | Preserve trade, cash, tax and fee lineage. |
+| Final allocation | Apply deed or approved distribution schedule. |
+| Residual reserve | Track tax, fee or claim reserve until released or paid. |
+| Closure | Close account only after zero-position, cash and obligation checks pass. |
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Residual tax reserve exists | Account cannot be fully closed without reserve handling state. |
+| Beneficiary allocation totals exceed distributable cash | Workflow blocks final distribution. |
+| Late fee arrives after closure request | Closure moves to exception or reserve adjustment workflow. |
+| Final statement is generated | Report includes liquidation, fees, reserves and distributions with lineage. |
+
+## 24. Beneficiary Dispute Restriction
+
+Scenario:
+
+- Two beneficiaries dispute a proposed capital distribution.
+- Trustee freezes discretionary distributions while legal review is pending.
+- Routine income payments may continue only if governing documents and legal advice permit.
+
+Implementation treatment:
+
+| Area | Treatment |
+|---|---|
+| Restriction state | Store dispute restriction with scope, effective date and review owner. |
+| Cash movement | Block affected discretionary distributions. |
+| Reporting | Show pending or restricted status without disclosing unrelated beneficiary data. |
+| Investment authority | Do not freeze unrelated portfolio management unless restriction scope requires it. |
+| Evidence | Link dispute notice, legal advice, trustee decision and resolution record. |
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Restricted distribution is submitted | Payment is blocked with dispute reason. |
+| Unrelated fee payment is submitted | Payment proceeds if outside restriction scope. |
+| Beneficiary report is generated | Restricted status is shown without exposing other beneficiary details. |
+| Dispute is resolved | Restriction closes with authority, date and outcome evidence. |
+
+## 25. Family Governance Conflict-Of-Interest Control
+
+Scenario:
+
+- A family-office investment committee reviews a private fund commitment.
+- One committee member is also a director of the fund manager.
+- Policy requires conflicted members to recuse and quorum to be recalculated.
+
+| Attribute | Value |
+|---|---:|
+| Committee members | 5 |
+| Conflicted members | 1 |
+| Voting members after recusal | 4 |
+| Quorum requirement | 4 |
+
+Calculation:
+
+```text
+eligible_voting_members = 5 - 1 = 4
+quorum_met = eligible_voting_members >= 4
+```
+
+Controls:
+
+- conflict declaration should be captured before approval;
+- conflicted member should not count as voting approval if policy requires recusal;
+- quorum should be recalculated after exclusions;
+- approval evidence should include eligible voters, abstentions, conflicts and rationale;
+- advisory suitability and DPM mandate checks remain separate from governance approval.
+
+## 26. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -370,3 +606,11 @@ Minimum release-gate scenarios:
 15. Beneficiary class controls reporting access by rights and source document.
 16. VCC sub-fund reporting excludes non-held sub-funds and avoids umbrella-level overstatement.
 17. Tax residency change applies from effective date and preserves historical basis.
+18. Letter of wishes does not create automatic entitlement or authority.
+19. Reserved powers route affected actions to the correct authority workflow.
+20. Charitable foundation grants validate purpose, budget, recipient due diligence and council approval.
+21. Nominee reporting separates legal holder, beneficial owner, report recipient and privacy scope.
+22. Philanthropic grant workflow separates approval, funding, settlement and payment evidence.
+23. Trust termination reconciles liquidation proceeds, fees, reserves, final distributions and closure state.
+24. Beneficiary dispute restrictions block only the scoped activity and preserve confidentiality.
+25. Family governance conflict controls recalculate eligible voting members and quorum.
