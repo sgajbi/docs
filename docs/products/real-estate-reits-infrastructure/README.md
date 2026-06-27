@@ -77,7 +77,7 @@ This distinction is essential for:
    Provides factual grounding and source notes.
 
 10. `10-worked-examples-and-implementation-patterns.md`
-    Provides worked examples for listed REIT distributions, rights issues, private real estate capital calls, appraisal restatements, infrastructure fund distributions, redemption queues, direct property valuation, leverage analytics, zoning changes, compulsory acquisition, insurance claims, environmental remediation, loan covenants, tenant defaults, availability deductions, regulated asset base resets, ground-lease resets, lease indexation disputes, data-centre power constraints, renewable curtailment, concession handback obligations, brownfield redevelopment overruns, co-owner disputes, advisory controls, support boundaries and regression tests.
+    Provides worked examples for listed REIT distributions, rights issues, private real estate capital calls, appraisal restatements, infrastructure fund distributions, redemption queues, direct property valuation, leverage analytics, zoning changes, compulsory acquisition, insurance claims, environmental remediation, loan covenants, tenant defaults, availability deductions, regulated asset base resets, ground-lease resets, lease indexation disputes, data-centre power constraints, renewable curtailment, concession handback obligations, brownfield redevelopment overruns, co-owner disputes, property tax reassessments, REIT merger consideration, property manager replacement, infrastructure refinancing, data-room diligence gaps, ESG remediation plans, advisory controls, support boundaries and regression tests.
 
 ## Core modelling principle
 

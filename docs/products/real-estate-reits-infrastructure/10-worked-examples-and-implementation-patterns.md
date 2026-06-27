@@ -1192,7 +1192,213 @@ QA assertions:
 | Appraisal remains valid | Value can be reported while liquidity is restricted. |
 | Dispute resolves | Liquidity discount and sale workflow update from effective date. |
 
-## 40. Advisory And Mandate Checklist
+## 40. Property Tax Reassessment
+
+Scenario:
+
+A direct property is reassessed by the local tax authority. The annual property tax expense increases, reducing net operating income and valuation assumptions.
+
+| Attribute | Previous | Reassessed |
+|---|---:|---:|
+| Assessed value | 8,000,000 | 9,500,000 |
+| Tax rate | 1.20% | 1.20% |
+| Annual property tax | 96,000 | 114,000 |
+
+Calculation:
+
+```text
+tax_increase = 114,000 - 96,000 = 18,000
+monthly_noi_impact = 18,000 / 12 = 1,500
+```
+
+Treatment:
+
+- preserve assessment notice, appeal window, effective date and tax jurisdiction;
+- update net operating income, valuation assumptions and distribution forecast only from effective date;
+- distinguish recurring property tax from one-off penalties or arrears;
+- show appeal or disputed state separately from final accepted tax expense.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Assessment is final | Property tax expense and NOI forecast update. |
+| Assessment is under appeal | Expense is provisional or scenario-labelled. |
+| Report spans effective date | Old and new tax assumptions are applied by date. |
+
+## 41. REIT Merger Consideration
+
+Scenario:
+
+A listed REIT is acquired by another REIT through mixed cash and unit consideration. The client receives cash and new units, with fractional units paid in cash.
+
+| Attribute | Value |
+|---|---:|
+| Old REIT units | 10,000 |
+| Cash consideration per old unit | 0.42 |
+| New unit exchange ratio | 0.55 |
+| Fractional cash adjustment | 18 |
+
+Calculation:
+
+```text
+cash_component = 10,000 x 0.42 = 4,200
+new_units = floor(10,000 x 0.55) = 5,500
+total_cash = 4,200 + 18 = 4,218
+```
+
+Treatment:
+
+- close or reduce old REIT units only after corporate-action completion evidence;
+- create new REIT units from confirmed exchange ratio and identifier;
+- keep cash consideration, fractional cash and tax classification separate;
+- refresh sector, geography, leverage, distribution and concentration analytics for the new REIT.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Merger completion is confirmed | Old units close and new units/cash post with event lineage. |
+| Exchange ratio is preliminary | New units remain estimated or pending. |
+| Fractional unit exists | Fractional cash posts separately from main cash consideration. |
+
+## 42. Property Manager Replacement
+
+Scenario:
+
+A private real estate fund replaces the property manager for a logistics portfolio after service issues. The assets remain the same, but operating assumptions and remediation costs change.
+
+| Attribute | Value |
+|---|---:|
+| Annual gross rent | 5,200,000 |
+| Old manager fee | 3.00% |
+| New manager fee | 3.40% |
+| One-off transition cost | 120,000 |
+
+Calculation:
+
+```text
+old_fee = 5,200,000 x 3.00% = 156,000
+new_fee = 5,200,000 x 3.40% = 176,800
+annual_fee_increase = 20,800
+first_year_total_impact = 20,800 + 120,000 = 140,800
+```
+
+Treatment:
+
+- preserve manager termination notice, new appointment, effective date and transition budget;
+- update operating-expense forecast, NOI, valuation and governance watchlist where material;
+- do not treat manager replacement as a sale, fund restructure or property ownership change;
+- track whether service-quality issues affect tenant retention, lease renewals or capex plan.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Manager changes | Ownership and asset positions remain unchanged. |
+| Transition cost is approved | First-year NOI and reporting commentary reflect one-off cost. |
+| New fee is effective mid-year | Fee calculation splits by effective date. |
+
+## 43. Infrastructure Refinancing
+
+Scenario:
+
+An infrastructure asset refinances project debt. The new debt reduces interest cost but introduces an upfront break cost and extended maturity.
+
+| Attribute | Old debt | New debt |
+|---|---:|---:|
+| Debt outstanding | 40,000,000 | 40,000,000 |
+| Interest rate | 6.20% | 5.10% |
+| Annual interest | 2,480,000 | 2,040,000 |
+| Break/refinancing cost | - | 650,000 |
+
+Calculation:
+
+```text
+annual_interest_saving = 2,480,000 - 2,040,000 = 440,000
+payback_years = 650,000 / 440,000 = 1.48
+```
+
+Treatment:
+
+- track old facility, new facility, maturity, covenants, rate basis and security package;
+- separate recurring interest savings from one-off refinancing cost;
+- update debt maturity ladder, distribution capacity, DSCR and valuation assumptions;
+- preserve lender approval, legal completion date and cash settlement evidence.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Refinancing completes | Debt terms and maturity ladder update from completion date. |
+| Break cost is unpaid | Payable remains open and distributable cash is constrained. |
+| New covenants differ | Covenant monitoring updates to new facility terms. |
+
+## 44. Data-Room Due Diligence Gap
+
+Scenario:
+
+A direct property acquisition is under review. The data room lacks a current environmental report and final rent roll, making valuation and suitability approval incomplete.
+
+| Diligence item | Status | Impact |
+|---|---|---|
+| Title report | Complete | Ownership confirmed |
+| Rent roll | Draft only | Income estimate limited |
+| Environmental report | Missing | Remediation risk unknown |
+| Debt term sheet | Complete | Financing scenario available |
+
+Treatment:
+
+- track each diligence item, owner, status, materiality and decision impact;
+- block final recommendation or acquisition approval when critical evidence is missing;
+- allow preliminary valuation only with explicit diligence-gap labels;
+- preserve data-room version, source timestamp and approval conditions.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Critical diligence item is missing | Final approval is blocked or escalated. |
+| Preliminary valuation is produced | Output is labelled due-diligence-limited. |
+| Data-room document is updated | Diligence status and valuation assumptions refresh with version lineage. |
+
+## 45. Real-Asset ESG Remediation Plan
+
+Scenario:
+
+A real-estate asset fails an energy-efficiency threshold. The manager proposes a remediation plan that requires capex but may protect rental income and financing terms.
+
+| Attribute | Value |
+|---|---:|
+| Required remediation capex | 1,800,000 |
+| Expected annual energy saving | 210,000 |
+| Potential green-financing margin benefit | 0.25% |
+| Debt outstanding | 20,000,000 |
+
+Calculation:
+
+```text
+annual_financing_saving = 20,000,000 x 0.25% = 50,000
+annual_total_benefit = 210,000 + 50,000 = 260,000
+simple_payback_years = 1,800,000 / 260,000 = 6.92
+```
+
+Treatment:
+
+- preserve ESG assessment, remediation plan, capex approval, timeline and certification target;
+- separate mandatory compliance capex from optional value-enhancement capex;
+- update valuation, financing, tenant retention and mandate/ESG reporting only when source-backed;
+- track risk of missed certification, cost overrun and green-financing covenant impact.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Remediation is approved | Capex reserve and project state update. |
+| Certification is not yet achieved | ESG status remains remediation-in-progress, not certified. |
+| Green-financing margin benefit is conditional | Benefit remains scenario-labelled until lender confirms. |
+
+## 46. Advisory And Mandate Checklist
 
 | Dimension | Required question |
 |---|---|
@@ -1205,7 +1411,7 @@ QA assertions:
 | DPM mandate | allowed wrapper, illiquid allocation, income target, leverage limit, concentration cap? |
 | Reporting | legal holding, economic exposure, income classification, valuation date and liquidity label? |
 
-## 41. Current Support Boundary And Candidate Extensions
+## 47. Current Support Boundary And Candidate Extensions
 
 | Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
 |---|---|---|
@@ -1215,7 +1421,7 @@ QA assertions:
 | Infrastructure exposure | fund/security/private fund position, sector tags, concession, revenue model, clawback terms, availability deductions and regulated asset base reset terms where sourced | advanced concession, inflation-linkage, offtake, clawback and regulatory-risk analytics |
 | Reporting | wrapper, exposure, value, income, source date, liquidity label, operating metrics, development state and governance overrides where sourced | consolidated real-asset income and stress dashboard |
 
-## 42. Regression Test Pack
+## 48. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -1259,3 +1465,9 @@ Minimum release-gate scenarios:
 38. Concession handback obligation tracks reserve shortfall, inspection evidence and terminal-value impact.
 39. Brownfield redevelopment overrun separates approved budget, incurred cost, committed cost and valuation basis.
 40. Direct-property co-owner dispute separates ownership value from liquidity-adjusted exit estimate and sale authority.
+41. Property tax reassessment updates recurring tax expense, NOI and valuation assumptions from effective date.
+42. REIT merger consideration separates old units, new units, cash consideration and fractional cash.
+43. Property manager replacement updates operating assumptions without changing ownership state.
+44. Infrastructure refinancing separates recurring interest saving, one-off cost, maturity ladder and covenant changes.
+45. Data-room due diligence gap blocks final approval or labels preliminary valuation as source-limited.
+46. Real-asset ESG remediation separates approved capex, certification state, financing benefit and reporting status.
