@@ -2205,7 +2205,235 @@ QA assertions:
 | Partial extension is approved | Only approved fields remain unmasked. |
 | Audit is requested | Original approval, expiry and dispute state are traceable. |
 
-## 68. Regression Test Pack
+## 68. Protector Residual Reserve True-Up
+
+Scenario:
+
+- A protector reserve was partly released after appeal closure.
+- Final legal and advisory costs are lower than the retained true-up reserve.
+- The excess reserve can be released only after the trustee accepts final cost evidence.
+
+| Attribute | Value |
+|---|---:|
+| Residual true-up reserve | 150,000 |
+| Accepted final costs | 90,000 |
+| Excess reserve available for release | 60,000 |
+
+True-up:
+
+```text
+excess_reserve_available_for_release = residual_true_up_reserve - accepted_final_costs
+excess_reserve_available_for_release = 150,000 - 90,000 = 60,000
+```
+
+Correct workflow:
+
+- preserve residual reserve basis, final invoices, trustee acceptance, cost allocation, beneficiary notice and release approval;
+- pay or retain accepted costs before calculating excess reserve;
+- release only the excess amount approved by trustee decision;
+- keep cost evidence linked to the original reserve and appeal closure;
+- avoid treating unused reserve as automatically distributable before cost evidence is accepted.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Final costs are not accepted | Residual reserve remains restricted. |
+| Accepted costs are below reserve | Excess release amount is calculated. |
+| Accepted costs exceed reserve | Shortfall is escalated instead of releasing cash. |
+| Beneficiary statement is generated | Cost usage and excess release are shown separately. |
+
+## 69. Co-Investment Waitlist Priority Dispute
+
+Scenario:
+
+- A surrendered co-investment allocation is available for syndication.
+- Two eligible entities claim priority from the waitlist.
+- The investment committee approves reallocation using documented waitlist order and keeps the disputed balance pending.
+
+| Attribute | Value |
+|---|---:|
+| Surrendered allocation | 600,000 |
+| Priority allocation approved | 400,000 |
+| Disputed balance pending committee decision | 200,000 |
+
+Priority dispute:
+
+```text
+disputed_balance_pending_committee_decision = surrendered_allocation - priority_allocation_approved
+disputed_balance_pending_committee_decision = 600,000 - 400,000 = 200,000
+```
+
+Correct workflow:
+
+- preserve waitlist timestamp, eligibility evidence, committee decision, dispute notice, recipient headroom and revised allocation ledger;
+- allocate only the approved priority amount while the dispute is pending;
+- exclude pending disputed balance from commitment exposure and capital-call forecasts;
+- report the dispute state without implying final participation rights;
+- avoid reallocating disputed balance based only on relationship seniority or informal instruction.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Waitlist priority is documented | Approved priority allocation is allowed. |
+| Disputed balance remains unresolved | Balance stays pending and uncommitted. |
+| Recipient lacks concentration headroom | Allocation is blocked even with waitlist priority. |
+| Forecast is produced | Only approved allocations enter capital-call projections. |
+
+## 70. Estate Equalization Replacement Funding Failure
+
+Scenario:
+
+- A reversed waiver created a renewed equalization cash obligation.
+- Replacement funding was scheduled from estate liquidity.
+- The funding payment failed, leaving the estate distribution package incomplete.
+
+| Attribute | Value |
+|---|---:|
+| Replacement funding scheduled | 180,000 |
+| Replacement funding settled | 0 |
+| Funding failure exposure | 180,000 |
+
+Funding failure:
+
+```text
+funding_failure_exposure = replacement_funding_scheduled - replacement_funding_settled
+funding_failure_exposure = 180,000 - 0 = 180,000
+```
+
+Correct workflow:
+
+- preserve funding instruction, settlement status, failed-payment reason, beneficiary entitlement, executor decision and revised estate timetable;
+- keep the equalization obligation open until funding settles, is waived again or is reallocated;
+- prevent final distribution and estate closure while funding failure exposure remains;
+- separate operational payment failure from legal entitlement dispute;
+- avoid marking equalization as funded based on scheduled payment alone.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Payment is scheduled but not settled | Equalization remains unfunded. |
+| Payment fails after cut-off | Estate closure remains blocked. |
+| Executor approves alternate funding | Obligation moves to alternate funding workflow. |
+| Beneficiary report is generated | Scheduled, settled and failed funding are separated. |
+
+## 71. Foundation Remediation Extension Waiver
+
+Scenario:
+
+- A remediation deadline was breached for a restricted-purpose foundation grant.
+- The foundation council grants an extension waiver for part of the overdue exposure.
+- The balance remains overdue and blocks further grant releases.
+
+| Attribute | Value |
+|---|---:|
+| Overdue remediation exposure | 200,000 |
+| Extension waiver approved | 120,000 |
+| Residual overdue exposure | 80,000 |
+
+Extension waiver:
+
+```text
+residual_overdue_exposure = overdue_remediation_exposure - extension_waiver_approved
+residual_overdue_exposure = 200,000 - 120,000 = 80,000
+```
+
+Correct workflow:
+
+- preserve breach record, extension request, council waiver, revised deadline, residual overdue exposure and grant-release condition;
+- apply the waiver only to the approved amount and revised deadline;
+- keep residual overdue exposure escalated until remediated or separately waived;
+- block future releases when grant terms require full remediation;
+- avoid converting an extension waiver into a full breach cure.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Partial extension waiver is approved | Only waived amount moves to extended status. |
+| Residual exposure remains overdue | Escalation and release block remain active. |
+| Revised deadline passes | Waived amount becomes overdue again unless remediated. |
+| Council report is generated | Waived, residual and release-blocked amounts are visible. |
+
+## 72. Delegated-Authority Renewal Conflict
+
+Scenario:
+
+- A delegated authority expired while approvals were pending.
+- Two renewal instruments conflict on scope and effective date.
+- Governance must route pending approvals to the most restrictive valid authority until the conflict is resolved.
+
+| Attribute | Value |
+|---|---:|
+| Pending approvals at renewal date | 5 |
+| Approvals covered by both renewal instruments | 2 |
+| Approvals requiring conflict resolution | 3 |
+
+Renewal conflict:
+
+```text
+approvals_requiring_conflict_resolution = pending_approvals_at_renewal_date - approvals_covered_by_both_renewal_instruments
+approvals_requiring_conflict_resolution = 5 - 2 = 3
+```
+
+Correct workflow:
+
+- preserve expired delegation, renewal instruments, scope comparison, effective dates, legal review, pending approvals and interim authority route;
+- allow only approvals covered by unconflicted current authority;
+- freeze or re-route approvals where renewal scope conflicts;
+- show conflict state in approval dashboards and audit reports;
+- avoid choosing the broader renewal instrument without formal conflict resolution.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Renewal scopes conflict | Conflicted approvals are blocked or re-routed. |
+| Approval is covered by both instruments | Approval may proceed if other controls pass. |
+| Effective dates overlap ambiguously | Legal or governance review is required. |
+| Authority dashboard is viewed | Conflict status and affected approvals are visible. |
+
+## 73. Beneficiary Redaction Retrospective Disclosure Control
+
+Scenario:
+
+- A trustee later approves retrospective disclosure of one previously masked contact field.
+- Historical reports already delivered must not be silently overwritten.
+- A correction package must show the approved field and preserve original delivery evidence.
+
+| Attribute | Value |
+|---|---:|
+| Previously masked fields under appeal | 3 |
+| Fields retrospectively approved | 1 |
+| Fields remaining masked | 2 |
+
+Retrospective disclosure:
+
+```text
+fields_remaining_masked = previously_masked_fields_under_appeal - fields_retrospectively_approved
+fields_remaining_masked = 3 - 1 = 2
+```
+
+Correct workflow:
+
+- preserve original report delivery, masking decision, retrospective trustee approval, approved field, recipients, correction package and remaining restrictions;
+- issue a controlled correction or supplemental disclosure instead of modifying historical report evidence;
+- unmask only the retrospectively approved field and only for approved recipients;
+- maintain original masked report as delivered evidence;
+- avoid treating retrospective approval as permission to expose all appealed contact fields.
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Retrospective approval covers one field | Only that field appears in the correction package. |
+| Historical report is queried | Original delivery evidence remains unchanged. |
+| Recipient was not approved | Field remains masked for that recipient. |
+| Audit report is generated | Original masking, approval and correction delivery are traceable. |
+
+## 74. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -2276,3 +2504,9 @@ Minimum release-gate scenarios:
 65. Foundation remediation deadline breaches separate accepted remediation from overdue exposure and escalation state.
 66. Director resignation delegated-authority expiries re-route pending approvals after delegation expiry.
 67. Beneficiary redaction appeal expiry disputes remask expired fields unless current extension approval exists.
+68. Protector residual reserve true-ups release only excess reserve after accepted final cost evidence.
+69. Co-investment waitlist priority disputes allocate only documented approved priority amounts.
+70. Estate equalization replacement funding failures keep obligations open until settled, waived or reallocated.
+71. Foundation remediation extension waivers apply only to approved amounts and revised deadlines.
+72. Delegated-authority renewal conflicts block or re-route approvals with conflicting authority scope.
+73. Beneficiary redaction retrospective disclosure controls use correction packages without overwriting historical reports.
