@@ -4,7 +4,7 @@ This catalog provides compact calculation examples across the covered product fa
 
 Use it when turning product knowledge into requirements, API contracts, QA scenarios, data migration checks, reporting specs, or implementation acceptance criteria. The examples are intentionally simple so the formula, source inputs, reporting labels, and failure behavior are visible.
 
-For lifecycle-heavy examples, also use [`cross-product-worked-examples.md`](cross-product-worked-examples.md). For performance, attribution, and risk treatment, use [`product-performance-attribution-risk-guide.md`](product-performance-attribution-risk-guide.md). For source ownership and failure states, use [`source-ownership-calculation-reporting-matrix.md`](source-ownership-calculation-reporting-matrix.md). For support boundaries, use [`product-capability-boundary-matrix.md`](product-capability-boundary-matrix.md).
+For lifecycle-heavy examples, also use [`cross-product-worked-examples.md`](cross-product-worked-examples.md). For deeper calculation case studies and golden QA scenarios, use [`cross-product-worked-examples-calculations-case-studies/`](cross-product-worked-examples-calculations-case-studies/README.md). For performance, attribution, and risk treatment, use [`product-performance-attribution-risk-guide.md`](product-performance-attribution-risk-guide.md). For source ownership and failure states, use [`source-ownership-calculation-reporting-matrix.md`](source-ownership-calculation-reporting-matrix.md). For support boundaries, use [`product-capability-boundary-matrix.md`](product-capability-boundary-matrix.md).
 
 ## Calculation Pattern
 

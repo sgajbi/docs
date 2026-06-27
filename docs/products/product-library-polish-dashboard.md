@@ -65,15 +65,16 @@ Every product area should be reviewed across these dimensions:
 The library now has strong cross-product support for:
 
 1. worked examples across product families,
-2. role-based navigation,
-3. product coverage and enrichment tracking,
-4. calculation examples,
-5. QA and regression scenarios,
-6. source ownership and reporting dependencies,
-7. capability boundaries and implementation evidence,
-8. lifecycle, cashflow and event modelling,
-9. payoff, scenario and stress explanations,
-10. performance, attribution, exposure and risk guidance.
+2. deeper cross-product calculation case studies and golden QA scenarios,
+3. role-based navigation,
+4. product coverage and enrichment tracking,
+5. calculation examples,
+6. QA and regression scenarios,
+7. source ownership and reporting dependencies,
+8. capability boundaries and implementation evidence,
+9. lifecycle, cashflow and event modelling,
+10. payoff, scenario and stress explanations,
+11. performance, attribution, exposure and risk guidance.
 
 ## Next High-Value Slices
 

@@ -9,7 +9,8 @@ Use it when you need a concrete example for learning, advisory review, business 
 1. Start with the product-family table when the product is already known.
 2. Start with the workflow table when the question is about a platform process such as lifecycle, valuation, reporting, suitability, rebalancing, authority, or reconciliation.
 3. Use [`cross-product-worked-examples.md`](cross-product-worked-examples.md) for compact multi-product examples.
-4. Use the local worked-example file in each product pack for deeper product-specific examples and regression tests.
+4. Use [`cross-product-worked-examples-calculations-case-studies/`](cross-product-worked-examples-calculations-case-studies/README.md) for deeper cross-product calculations, case studies, QA scenarios and golden cases.
+5. Use the local worked-example file in each product pack for deeper product-specific examples and regression tests.
 
 ## Product Family Example Files
 
@@ -43,6 +44,8 @@ Use it when you need a concrete example for learning, advisory review, business 
 ## Cross-Product Example Sets
 
 Use [`cross-product-worked-examples.md`](cross-product-worked-examples.md) when a workflow cuts across product, cash, reporting, collateral, tax, lifecycle or authority boundaries.
+
+Use [`cross-product-worked-examples-calculations-case-studies/`](cross-product-worked-examples-calculations-case-studies/README.md) when the workflow needs fuller setup data, expected transaction records, calculation detail, reporting output, AI/support workflow treatment, or a reusable QA golden scenario.
 
 | Example set | Start with |
 |---|---|
