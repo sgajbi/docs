@@ -1,4 +1,4 @@
-# 05 — Equity Platform Implementation, Advisory and Practitioner Reference
+# 05 - Equity Platform Implementation, Advisory and Practitioner Reference
 
 ## 1. Platform capabilities required for equities
 
@@ -26,13 +26,13 @@ Recommended architecture layers:
 
 ```text
 API / UI / Reporting
-        ↓
+        ->
 Application services
-        ↓
+        ->
 Domain model and policies
-        ↓
+        ->
 Ports/interfaces
-        ↓
+        ->
 Infrastructure adapters: market data, custodian, broker, CA feeds, product master, FX, tax, risk
 ```
 
@@ -194,7 +194,7 @@ Equities may be used as collateral in Lombard or margin lending, but with haircu
 Example:
 
 ```text
-Collateral Value = Market Value × LTV
+Collateral Value = Market Value x LTV
 ```
 
 If market value is SGD 1,000,000 and LTV is 60%, collateral value is SGD 600,000.

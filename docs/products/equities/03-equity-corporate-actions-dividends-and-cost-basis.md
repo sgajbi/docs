@@ -1,4 +1,4 @@
-# 03 — Equity Corporate Actions, Dividends and Cost Basis
+# 03 - Equity Corporate Actions, Dividends and Cost Basis
 
 ## 1. Why corporate actions are the hardest part of equities
 
@@ -93,7 +93,7 @@ Client holds 1,000 shares. Dividend is USD 1.00 per share. Withholding tax is 30
 
 | Item | Amount |
 |---|---:|
-| Gross dividend | 1,000 × 1.00 = USD 1,000 |
+| Gross dividend | 1,000 x 1.00 = USD 1,000 |
 | Withholding tax | USD 300 |
 | Net dividend | USD 700 |
 
@@ -210,7 +210,7 @@ Client holds 1,000 shares. Rights ratio is 1 new share for every 5 shares held. 
 | Rights ratio | 1-for-5 |
 | Rights received | 200 rights |
 | Subscription price | USD 20 |
-| Cash needed to fully exercise | 200 × 20 = USD 4,000 |
+| Cash needed to fully exercise | 200 x 20 = USD 4,000 |
 
 ### 9.2 Lifecycle
 

@@ -1,4 +1,4 @@
-# 08 — Equity Advanced Edge Cases and Market Operations
+# 08 - Equity Advanced Edge Cases and Market Operations
 
 ## 1. Purpose
 
@@ -36,7 +36,7 @@ Fungibility/conversion rule
 Formula:
 
 ```text
-Underlying Equivalent Quantity = DR Quantity × DR Ratio
+Underlying Equivalent Quantity = DR Quantity x DR Ratio
 ```
 
 ## 4. Odd lots and fractional shares

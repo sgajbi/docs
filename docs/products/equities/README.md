@@ -25,6 +25,9 @@ The pack treats equities as more than a simple buy/sell product. In real wealth-
 | `04-equity-data-model-valuation-pnl-performance-and-risk.md` | Covers data model, security master, listings, price and FX data, valuation, realized/unrealized P&L, total return, attribution inputs, risk analytics and data-quality controls. |
 | `05-equity-platform-implementation-advisory-and-practitioner-reference.md` | Covers wealth-platform implementation, advisory/suitability, DPM use cases, controls, APIs/events, reconciliation, reporting and practitioner explanations. |
 | `06-equity-glossary-control-checklists-and-test-scenarios.md` | Provides a quick reference glossary, transaction mapping, corporate-action mapping, controls and QA test scenarios for implementation. |
+| `07-equity-advisory-mandate-analytics-reporting-deep-dive.md` | Dedicated advisory, DPM/mandate, model portfolio, health-check, attribution and reporting deep dive. |
+| `08-equity-advanced-edge-cases-and-market-operations.md` | Advanced market-operations edge cases: ADR/GDR, odd lots, fractional shares, halts, IPOs, buybacks, securities lending, shorts, margin/collateral, restricted lists, migration and production triage. |
+| `09-worked-examples-and-implementation-patterns.md` | Practical examples for trade settlement, dividends, splits, rights, ADRs, multi-currency P&L, contribution, delisting, corporate-action reconciliation and QA. |
 
 ## Recommended Learning and Project Sequence
 
@@ -34,6 +37,9 @@ The pack treats equities as more than a simple buy/sell product. In real wealth-
 4. Read File 04 to understand valuation, P&L, performance, risk and data modelling.
 5. Use File 05 for platform design, advisory, suitability and practitioner review.
 6. Use File 06 as an implementation checklist and QA reference.
+7. Use File 07 for advisory, DPM, mandate, attribution and reporting work.
+8. Use File 08 for advanced market operations and production edge cases.
+9. Use File 09 for worked examples and implementation patterns.
 
 ## Core mental model
 
@@ -87,11 +93,3 @@ The following public sources were used to validate core concepts:
 ## Important note
 
 This pack is for education, architecture, product understanding and platform design. It is not investment advice, legal advice, tax advice, accounting advice or a substitute for offering documents, exchange rules, custodian specifications, corporate-action notices or local regulatory requirements.
-
-
-## Additional deep-dive files added
-
-| File | Purpose |
-|---|---|
-| `07-equity-advisory-mandate-analytics-reporting-deep-dive.md` | Dedicated advisory, DPM/mandate, model portfolio, health-check, attribution and reporting deep dive. |
-| `08-equity-advanced-edge-cases-and-market-operations.md` | Advanced market-operations edge cases: ADR/GDR, odd lots, fractional shares, halts, IPOs, buybacks, securities lending, shorts, margin/collateral, restricted lists, migration and production triage. |

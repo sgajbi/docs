@@ -1,4 +1,4 @@
-# 01 — Equities Fundamentals and Product Taxonomy
+# 01 - Equities Fundamentals and Product Taxonomy
 
 ## 1. What is an equity?
 
@@ -293,7 +293,7 @@ Equities are usually quoted as price per share in the listing currency.
 | Official close | 104.90 |
 | Previous close | 103.50 |
 | Volume | 5,000,000 shares |
-| Market cap | Shares outstanding × price |
+| Market cap | Shares outstanding x price |
 | Adjusted close | Historical price adjusted for splits/dividends, often used for analytics. |
 
 For portfolio valuation, use a clearly governed price hierarchy:
@@ -337,7 +337,7 @@ Equities are used for:
 - collateral portfolios in lending/buying-power engines;
 - client reporting and performance attribution.
 
-For advisory and DPM, the key question is not just “is this a good stock?” but:
+For advisory and DPM, the key question is not just "is this a good stock?" but:
 
 ```text
 Does this equity exposure fit the client's risk profile, objective, time horizon, liquidity need, concentration limit, currency exposure and portfolio strategy?

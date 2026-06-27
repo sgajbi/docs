@@ -1,4 +1,4 @@
-# 02 — Equity Trade Lifecycle, Transactions and Position Modelling
+# 02 - Equity Trade Lifecycle, Transactions and Position Modelling
 
 ## 1. Why equity lifecycle matters
 
@@ -88,7 +88,7 @@ A robust transaction model should support security, cash, tax and fee legs.
 | pending_quantity_delta | Unsettled portion. |
 | price | Execution price. |
 | price_currency | Listing/trade currency. |
-| gross_trade_amount | Quantity × price. |
+| gross_trade_amount | Quantity x price. |
 | lot_id | Position lot created or consumed. |
 | cost_basis_amount | Cost basis impact. |
 | realized_pnl | Realized gain/loss on disposal. |
@@ -184,7 +184,7 @@ Client sells 400 shares at USD 60.00. Commission USD 15. Original average cost U
 | Gross proceeds | USD 24,000 |
 | Commission | USD 15 |
 | Net proceeds | USD 23,985 |
-| Cost consumed | 400 × 50.02 = USD 20,008 |
+| Cost consumed | 400 x 50.02 = USD 20,008 |
 | Realized P&L | 23,985 - 20,008 = USD 3,977 |
 
 Position result:
@@ -214,7 +214,7 @@ Cost basis may differ under FIFO, average cost, specific identification, tax-lot
 | average_cost | Average book cost per share. |
 | cost_amount | Total cost basis. |
 | market_price | Latest valuation price. |
-| market_value | Quantity × price × FX. |
+| market_value | Quantity x price x FX. |
 | unrealized_pnl | Market value - remaining cost. |
 | realized_pnl_ytd / period | Realized P&L over period. |
 | income_ytd / period | Dividends and distributions. |
@@ -249,7 +249,7 @@ A long position means the client owns shares.
 
 ```text
 Quantity > 0
-Market value = Quantity × Price
+Market value = Quantity x Price
 Risk = price falls
 ```
 

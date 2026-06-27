@@ -1,4 +1,4 @@
-# 04 — Equity Data Model, Valuation, P&L, Performance and Risk
+# 04 - Equity Data Model, Valuation, P&L, Performance and Risk
 
 ## 1. Design goal
 
@@ -24,21 +24,21 @@ Recommended high-level model:
 
 ```text
 Issuer
-  └── Instrument
-        ├── Listing[]
-        ├── Identifier[]
-        ├── CorporateAction[]
-        ├── MarketPrice[]
-        └── RiskClassification
+  +-- Instrument
+        +-- Listing[]
+        +-- Identifier[]
+        +-- CorporateAction[]
+        +-- MarketPrice[]
+        +-- RiskClassification
 
 Portfolio
-  ├── Transaction[]
-  │     └── TransactionLeg[]
-  ├── Position[]
-  │     └── PositionLot[]
-  ├── Valuation[]
-  ├── PerformanceReturn[]
-  └── RiskExposure[]
+  +-- Transaction[]
+  |     +-- TransactionLeg[]
+  +-- Position[]
+  |     +-- PositionLot[]
+  +-- Valuation[]
+  +-- PerformanceReturn[]
+  +-- RiskExposure[]
 ```
 
 ## 3. Issuer master
@@ -127,19 +127,19 @@ Examples:
 Basic local-currency valuation:
 
 ```text
-Local Market Value = Quantity × Market Price
+Local Market Value = Quantity x Market Price
 ```
 
 Base-currency valuation:
 
 ```text
-Base Market Value = Quantity × Market Price × FX Rate
+Base Market Value = Quantity x Market Price x FX Rate
 ```
 
 For short positions:
 
 ```text
-Short Exposure = Absolute Quantity × Market Price × FX Rate
+Short Exposure = Absolute Quantity x Market Price x FX Rate
 Position Market Value may be shown as negative liability depending on reporting convention
 ```
 
@@ -272,7 +272,7 @@ For contribution by asset class/security/sector:
 
 | Input | Why needed |
 |---|---|
-| Beginning weight | Contribution = weight × return. |
+| Beginning weight | Contribution = weight x return. |
 | Security return | Price + income return. |
 | FX return | Currency contribution. |
 | Transactions | Flows and trading effects. |

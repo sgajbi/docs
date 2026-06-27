@@ -1,4 +1,4 @@
-# 06 — Equity Glossary, Control Checklists and Test Scenarios
+# 06 - Equity Glossary, Control Checklists and Test Scenarios
 
 ## 1. Glossary
 

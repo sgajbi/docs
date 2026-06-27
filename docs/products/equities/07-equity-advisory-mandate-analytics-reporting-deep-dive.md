@@ -1,4 +1,4 @@
-# 07 — Equity Advisory, Mandate, Analytics and Reporting Deep Dive
+# 07 - Equity Advisory, Mandate, Analytics and Reporting Deep Dive
 
 ## 1. Purpose
 
@@ -146,7 +146,7 @@ Model portfolio fields:
 | Model ID | GLOBAL_GROWTH_EQ_01 |
 | Benchmark | MSCI World |
 | Target holdings | Security + target weight |
-| Tolerance bands | Security ±1%, sector ±5% |
+| Tolerance bands | Security +/-1%, sector +/-5% |
 | Cash buffer | 1%-3% |
 | Rebalance frequency | Monthly/quarterly/ad hoc |
 | Exclusions | Restricted list/ESG/client-specific |
@@ -232,7 +232,7 @@ Show upcoming dividends, rights, tender or merger deadlines, elections required,
 ## 13. Contribution and attribution
 
 ```text
-Contribution_i = Beginning Weight_i × Return_i
+Contribution_i = Beginning Weight_i x Return_i
 ```
 
 | Attribution lens | Question answered |
