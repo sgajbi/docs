@@ -1889,3 +1889,251 @@ pending_elected_quantity = 8,000 while custodian_acceptance != cancelled
 | Custodian has not accepted cancellation | Election remains cancellation-pending, not cancelled. |
 | Custodian accepts cancellation | Elected quantity returns to unelected or available state with lineage. |
 | Cancellation request misses cut-off | Escalation opens and election state remains submitted unless accepted externally. |
+
+## Example 52. Custody Asset-Freeze Notice
+
+### Scenario
+
+A custodian issues an asset-freeze notice after a market, sanctions or legal restriction affects a security. The holding remains legally visible but cannot be sold, transferred, pledged or used in buying-power calculations until release evidence is received.
+
+| Attribute | Value |
+|---|---:|
+| Frozen quantity | 18,000 |
+| Last eligible market price | 24.50 |
+| Prior lending value haircut | 30% |
+| Release status | Not released |
+
+### Frozen market value and blocked lending value
+
+```text
+frozen_market_value = frozen_quantity x last_eligible_market_price
+frozen_market_value = 18,000 x 24.50 = 441,000
+
+blocked_lending_value = frozen_market_value x (1 - prior_lending_value_haircut)
+blocked_lending_value = 441,000 x (1 - 30%) = 308,700
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Freeze intake | Preserve custodian notice, restriction reason, affected security, affected accounts, effective timestamp and release condition. |
+| Position state | Keep the holding visible but mark it restricted for trade, transfer, collateral and mandate availability. |
+| Valuation | Keep market value source-labelled and separate from available collateral or liquidity value. |
+| Client reporting | Show restricted asset status without implying realized loss or sale. |
+| Release | Clear restriction only with custodian or legal release evidence. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Freeze notice arrives | Holding is marked frozen and blocked from outbound actions. |
+| Lending value was previously available | Buying power excludes frozen asset until release. |
+| Release is missing | Freeze remains active even if market price updates. |
+| Report is generated | Quantity, value and restriction state are visible. |
+
+## Example 53. Corporate-Action Oversubscription Proration
+
+### Scenario
+
+A rights issue allows oversubscription, but the issuer prorates excess applications. The client requested more rights than available after basic entitlement.
+
+| Attribute | Value |
+|---|---:|
+| Basic entitlement shares | 4,000 |
+| Oversubscription requested | 6,000 |
+| Oversubscription accepted | 1,800 |
+| Subscription price | 8.25 |
+
+### Accepted and refunded amount
+
+```text
+total_accepted_shares = basic_entitlement_shares + oversubscription_accepted
+total_accepted_shares = 4,000 + 1,800 = 5,800
+
+accepted_subscription_cash = total_accepted_shares x subscription_price
+accepted_subscription_cash = 5,800 x 8.25 = 47,850
+
+refunded_oversubscription_cash = (oversubscription_requested - oversubscription_accepted) x subscription_price
+refunded_oversubscription_cash = (6,000 - 1,800) x 8.25 = 34,650
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Election | Preserve entitlement, requested oversubscription, advisor authority, funding reservation and cut-off evidence. |
+| Proration | Apply issuer or custodian final proration file before booking new shares. |
+| Cash | Separate accepted subscription cash from refunded reserved cash. |
+| Position | Create new shares only for accepted quantity. |
+| Reporting | Show requested, accepted, rejected and refunded components. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Oversubscription is prorated | Accepted and refunded quantities are calculated separately. |
+| Final proration file is missing | Booking remains pending or source-limited. |
+| Cash was reserved for full request | Excess reserved cash is released or refunded with evidence. |
+| Client report is generated | Requested and accepted election outcomes are visible. |
+
+## Example 54. Tri-Party Collateral Settlement Break
+
+### Scenario
+
+A tri-party collateral instruction requires delivery of eligible securities to a collateral account. The custodian settles only part of the collateral because some securities fail eligibility checks.
+
+| Attribute | Value |
+|---|---:|
+| Required collateral value | 2,000,000 |
+| Settled eligible collateral | 1,550,000 |
+| Ineligible attempted collateral | 300,000 |
+| Cash substitute posted | 100,000 |
+
+### Remaining collateral shortfall
+
+```text
+covered_collateral = settled_eligible_collateral + cash_substitute_posted
+covered_collateral = 1,550,000 + 100,000 = 1,650,000
+
+remaining_collateral_shortfall = required_collateral_value - covered_collateral
+remaining_collateral_shortfall = 2,000,000 - 1,650,000 = 350,000
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Instruction | Preserve tri-party instruction, eligibility schedule, security list, custodian response and settlement timestamp. |
+| Eligibility | Exclude ineligible attempted collateral from covered value. |
+| Settlement | Book only settled eligible collateral and approved cash substitute. |
+| Break | Keep shortfall open until replacement collateral settles. |
+| Reporting | Show required, settled, ineligible, substitute and shortfall values. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Some collateral is ineligible | Ineligible value is excluded from covered collateral. |
+| Cash substitute is posted | Substitute counts only when approved and settled. |
+| Shortfall remains | Collateral break stays open with ageing and owner. |
+| Collateral report is generated | Required and covered values reconcile to shortfall. |
+
+## Example 55. Proxy-Vote Instruction Repair
+
+### Scenario
+
+A proxy-vote instruction is rejected by the custodian because the account identifier does not match the record-date eligible holding. Operations repairs the instruction before the external voting cut-off.
+
+| Attribute | Value |
+|---|---:|
+| Eligible shares | 22,000 |
+| Rejected instruction shares | 22,000 |
+| Repair accepted shares | 22,000 |
+| External cut-off status | Open |
+
+### Repair coverage
+
+```text
+proxy_repair_coverage = repair_accepted_shares / rejected_instruction_shares
+proxy_repair_coverage = 22,000 / 22,000 = 100%
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Rejection | Preserve original instruction, rejection reason, record-date holding, account identifier and timestamp. |
+| Repair | Submit corrected instruction only while external cut-off remains open. |
+| Eligibility | Validate repaired instruction against record-date eligible shares. |
+| Confirmation | Mark vote as accepted only after custodian acceptance. |
+| Reporting | Show original reject and repair lineage. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Account id mismatch occurs | Proxy instruction is rejected and repair workflow opens. |
+| Repair is before cut-off | Corrected instruction can be resubmitted. |
+| Custodian accepts repair | Vote state moves to accepted with lineage. |
+| Repair misses cut-off | Vote remains rejected or late according to source evidence. |
+
+## Example 56. Income-Tax Reclaim Custody Mismatch
+
+### Scenario
+
+Tax operations files a reclaim using income data from the tax engine, but the custody income file shows a different withheld amount. The reclaim cannot be finalized until custody and tax records reconcile.
+
+| Attribute | Tax engine | Custody file |
+|---|---:|---:|
+| Gross income | 100,000 | 100,000 |
+| Withholding tax | 18,000 | 20,000 |
+| Net income | 82,000 | 80,000 |
+
+### Custody mismatch
+
+```text
+withholding_mismatch = custody_withholding_tax - tax_engine_withholding_tax
+withholding_mismatch = 20,000 - 18,000 = 2,000
+
+net_income_mismatch = custody_net_income - tax_engine_net_income
+net_income_mismatch = 80,000 - 82,000 = -2,000
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Intake | Preserve tax-engine output, custody income file, income event id, tax voucher and reclaim draft. |
+| Reconciliation | Identify gross, withholding and net mismatches separately. |
+| Reclaim | Block or label reclaim filing until source owner resolves material mismatch. |
+| Correction | Apply corrected custody or tax data with version lineage. |
+| Reporting | Show pending reclaim status and mismatch reason. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Withholding differs by source | Mismatch is calculated and reclaim is blocked or exception-labelled. |
+| Gross income matches | System still flags withholding/net mismatch. |
+| Correction arrives | Reclaim recalculates from corrected source lineage. |
+| Client report is generated | Pending reclaim and mismatch state are visible. |
+
+## Example 57. Exception SLA Breach Escalation
+
+### Scenario
+
+A settlement exception remains unresolved beyond the operational SLA. The exception must be escalated with owner, age, impact and remediation evidence.
+
+| Attribute | Value |
+|---|---:|
+| SLA threshold | 2 business days |
+| Exception age | 5 business days |
+| Cash impact | 175,000 |
+| Client accounts affected | 4 |
+
+### SLA breach age
+
+```text
+sla_breach_days = exception_age_business_days - sla_threshold_business_days
+sla_breach_days = 5 - 2 = 3
+```
+
+### Correct workflow
+
+| Step | Treatment |
+|---|---|
+| Detection | Preserve exception id, open date, owner, impacted trade/cash/position and SLA policy. |
+| Escalation | Trigger escalation when age exceeds SLA threshold. |
+| Impact | Capture cash, position, client-reporting and advisor-impact metrics. |
+| Remediation | Track action owner, target date, blocker and closure evidence. |
+| Reporting | Show SLA breach age, materiality and escalation state. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Exception exceeds SLA | Escalation opens with breach age and owner. |
+| Cash impact is material | Priority or severity reflects materiality policy. |
+| Remediation is incomplete | Exception remains open even if comments are added. |
+| Exception closes | Closure requires source-backed resolution and timestamp. |
