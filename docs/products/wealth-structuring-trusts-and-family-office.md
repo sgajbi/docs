@@ -4,7 +4,7 @@ This map summarizes trusts, foundations, estate planning, family office structur
 
 Use it with the detailed pack in [`trusts-estate-family-office-wealth-structuring/`](trusts-estate-family-office-wealth-structuring/README.md).
 
-For practical examples, use [`trusts-estate-family-office-wealth-structuring/10-worked-examples-and-implementation-patterns.md`](trusts-estate-family-office-wealth-structuring/10-worked-examples-and-implementation-patterns.md).
+For practical examples, use [`trusts-estate-family-office-wealth-structuring/10-worked-examples-and-implementation-patterns.md`](trusts-estate-family-office-wealth-structuring/10-worked-examples-and-implementation-patterns.md). It covers trust distributions, estate restrictions, holding-company pledges, beneficiary reporting access, family-office consolidation, insurance policy roles, authority changes, protector vetoes, directed trusts, investment committee approvals, foundation council changes, beneficiary classes, VCC sub-fund reporting and cross-border tax residency changes.
 
 ## Core Principle
 
@@ -77,6 +77,18 @@ Treat wealth structures as relationship graphs connecting:
 | Which conflicts exist? | Trustee duties, beneficiary interests, related-party transactions, loans, pledges, and family governance may conflict. |
 | Which restrictions apply? | Trust deed, mandate, investment policy statement, regulatory status, sanctions, KYC, tax documentation, and court/probate restrictions. |
 
+## Governance Edge Cases To Model Explicitly
+
+| Case | Platform Treatment |
+|---|---|
+| Protector veto | Distribution, amendment or appointment workflows should check veto authority, thresholds, effective dates and source documents before cash or access changes. |
+| Directed trust | Investment authority, administrative trustee authority, distribution authority and report authority should be separate permissions. |
+| Investment committee | Committee threshold, quorum, conflicts, approval date and consolidated exposure basis should be source-backed before orders or commitments proceed. |
+| Foundation council change | Council resignation/appointment should update quorum, entitlements, report delivery and pending approval validity. |
+| Beneficiary classes | Income, capital, remainder, discretionary and minor beneficiary rights should drive report access and distribution workflow, not generic beneficiary labels. |
+| VCC sub-funds | Reporting perimeter should follow held sub-fund interests and avoid umbrella-level overstatement or disclosure of non-held sub-funds. |
+| Cross-border tax residency change | Tax/reporting profile should be effective-dated and should preserve historical reporting basis while blocking unsupported future assumptions. |
+
 ## Reporting Model
 
 Reports should distinguish:
@@ -92,7 +104,9 @@ Reports should distinguish:
 9. restricted or privacy-sensitive fields,
 10. tax and regulatory reporting classification,
 11. source date and governing document,
-12. unresolved documentation or authority exceptions.
+12. unresolved documentation or authority exceptions,
+13. veto/committee/council approval state where relevant,
+14. sub-fund perimeter and beneficiary-class visibility where relevant.
 
 ## Implementation Guidance
 
@@ -106,6 +120,7 @@ Reports should distinguish:
 | Suitability controls | Link product suitability to the correct advised party, mandate, risk profile, and authority path. |
 | Auditability | Preserve who instructed, who approved, which document authorized it, and which users could see the outcome. |
 | Failure behavior | Block or degrade workflows when authority, beneficial ownership, tax documentation, or governing documents are missing. |
+| Governance approvals | Preserve protector vetoes, committee approvals, foundation council quorum checks and directed-trust authority splits as first-class workflow facts. |
 
 ## Worked Examples
 
@@ -117,6 +132,9 @@ Reports should distinguish:
 | Holding company borrows against portfolio collateral owned by the company, not the individual shareholder. | Lending, collateral, legal owner, beneficial owner. |
 | Insurance policy has different policyholder, life insured, premium payer, beneficiary, and assignee. | Insurance modelling and privacy. |
 | Private-market capital call funded by a trust account with trustee approval and beneficiary reporting note. | Private markets, liquidity, governance. |
+| Protector veto blocks a distribution before cash movement. | Trust governance, authority, audit and beneficiary communication. |
+| Directed trust separates investment instruction from trustee distribution authority. | Advisory, DPM, entitlement and approval workflow. |
+| VCC sub-fund reporting excludes non-held sub-funds. | Reporting perimeter, privacy and fund-like family vehicles. |
 
 The detailed worked-example file expands these patterns into workflow, authority, access-control, support-boundary and regression scenarios.
 
@@ -132,6 +150,11 @@ The detailed worked-example file expands these patterns into workflow, authority
 8. DPM mandate change requires correct authorized party approval.
 9. Consolidated family report excludes restricted data for users without permission.
 10. Missing governing document blocks structure-level authority assumptions.
+11. Protector veto prevents a distribution from becoming cash movement.
+12. Investment committee threshold triggers approval workflow before order or commitment.
+13. Foundation council changes recalculate quorum and report delivery.
+14. Beneficiary class controls report section access.
+15. Cross-border tax residency change uses effective-dated profile and documentation status.
 
 ## Related Guides
 

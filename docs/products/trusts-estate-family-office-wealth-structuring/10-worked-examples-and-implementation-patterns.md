@@ -177,7 +177,154 @@ Controls:
 - report delivery lists must be refreshed;
 - access changes must be testable through entitlement evidence.
 
-## 9. Advisory And Mandate Checklist
+## 9. Protector Veto On Distribution
+
+Scenario:
+
+- Trustee approves a USD 250,000 capital distribution.
+- Trust deed requires protector consent for capital distributions above USD 100,000.
+- Protector vetoes the distribution before cash movement.
+
+Workflow:
+
+```text
+distribution request -> trustee approval -> protector consent check -> veto recorded -> cash movement blocked -> beneficiary/advisor notice -> audit record
+```
+
+Controls:
+
+- consent thresholds must be source-backed from trust deed or legal summary;
+- veto authority must be effective on decision date;
+- blocked distribution should not reduce portfolio cash or create beneficiary receivable;
+- reporting should show request status, not a completed distribution;
+- any override or later approval requires new source evidence and approval lineage.
+
+## 10. Directed Trust Investment Authority
+
+Scenario:
+
+A directed trust separates administrative trustee duties from investment-direction authority. An investment advisor may direct portfolio trades, but the trustee retains distribution and administrative control.
+
+| Role | Authority |
+|---|---|
+| Administrative trustee | account administration, distributions, reporting approval |
+| Investment direction advisor | investment instructions within mandate |
+| Protector | appointment/removal or veto rights where deed allows |
+| Beneficiary | reporting or benefit rights only, unless deed says otherwise |
+
+Implementation treatment:
+
+- trade authority, distribution authority and report authority must be separate permissions;
+- suitability and mandate checks must use the correct profile and governing document;
+- advisor-directed trades should preserve instruction source and authority basis;
+- trustee visibility does not automatically mean trade approval is required unless policy says so.
+
+## 11. Family-Office Investment Committee Approval
+
+Scenario:
+
+A family-office mandate requires investment committee approval for alternatives above 10% of consolidated reportable assets.
+
+| Attribute | Value |
+|---|---:|
+| Consolidated reportable assets | 50,000,000 |
+| Existing alternatives exposure | 4,000,000 |
+| Proposed private fund commitment | 2,000,000 |
+| Alternatives threshold | 10% |
+
+Calculation:
+
+```text
+post-trade alternatives exposure = 4,000,000 + 2,000,000 = 6,000,000
+post-trade alternatives weight = 6,000,000 / 50,000,000 = 12%
+```
+
+Correct treatment:
+
+- approval workflow should trigger before commitment or order submission;
+- committee membership, quorum, approval date and conflicts should be source-backed;
+- consolidated exposure should respect inclusion perimeter and restricted entities;
+- DPM/advisory workflow should not bypass committee rule because account-level mandate appears eligible.
+
+## 12. Foundation Council Change
+
+Scenario:
+
+A foundation council member resigns and a replacement is appointed. The council controls investment authority and report recipient approvals.
+
+Workflow:
+
+```text
+source document -> council role update -> quorum recalculation -> entitlement update -> pending approval review -> access certification
+```
+
+QA assertions:
+
+| Test | Expected result |
+|---|---|
+| Old council member had pending approval | Pending approval is reviewed or invalidated according to policy. |
+| New council member lacks KYC completion | Authority remains pending until validation completes. |
+| Quorum changes | Approval workflow recalculates required approvers. |
+| Reports were scheduled to old member | Delivery list updates with audit trail. |
+
+## 13. Multi-Generational Beneficiary Classes
+
+Scenario:
+
+A trust defines income beneficiaries, capital beneficiaries and remainder beneficiaries across generations.
+
+| Beneficiary class | Example rights | Reporting treatment |
+|---|---|---|
+| Income beneficiary | May receive income distributions. | Income report access if authorized. |
+| Capital beneficiary | May receive capital distributions. | Capital distribution visibility if authorized. |
+| Remainder beneficiary | May benefit after a future event. | Usually limited or no current portfolio visibility unless deed allows. |
+| Minor beneficiary | Benefit rights may exist, but access is through guardian/trustee. | Masked or guardian-mediated reporting. |
+
+Implementation warning:
+
+Do not treat every named beneficiary as an account owner, report recipient or instruction authority. Rights, access and reporting scope must come from source documents and effective-dated rules.
+
+## 14. VCC Sub-Fund Reporting Perimeter
+
+Scenario:
+
+A variable capital company has two segregated sub-funds. A family owns shares in Sub-Fund A but not Sub-Fund B.
+
+| Entity | Exposure | Reporting treatment |
+|---|---|---|
+| VCC umbrella | legal umbrella entity | show only if relevant to legal structure. |
+| Sub-Fund A | family-owned interest | include in report and exposure. |
+| Sub-Fund B | no family-owned interest | exclude unless authorized aggregate disclosure exists. |
+
+Controls:
+
+- sub-fund assets and liabilities should not be merged unless legal/reporting policy permits;
+- exposure, performance and risk should be calculated at the held sub-fund level;
+- privacy rules may restrict disclosure of other sub-funds;
+- custody, fund admin and legal documents must agree on sub-fund identifier.
+
+## 15. Cross-Border Tax Residency Change
+
+Scenario:
+
+A beneficiary changes tax residency during the year. Reporting and withholding assumptions may change from the effective date.
+
+| Attribute | Value |
+|---|---|
+| Prior tax residence | Country A |
+| New tax residence | Country B |
+| Effective date | 2026-07-01 |
+| Documentation status | New self-certification pending |
+
+Correct treatment:
+
+- tax residency is effective-dated and source-backed;
+- distributions before and after effective date may require different reporting treatment;
+- missing updated documentation creates exception state rather than assumed treaty treatment;
+- report delivery, privacy and cross-border restrictions may change with residency;
+- historical reports should preserve prior residency basis.
+
+## 16. Advisory And Mandate Checklist
 
 | Dimension | Required question |
 |---|---|
@@ -190,18 +337,19 @@ Controls:
 | Privacy | Which parties must be masked or excluded from reports? |
 | Succession | What changes on death, incapacity, resignation, removal or distribution? |
 
-## 10. Current Support Boundary And Candidate Extensions
+## 17. Current Support Boundary And Candidate Extensions
 
 | Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
 |---|---|---|
 | Entity/account hierarchy | party, account, portfolio, legal owner, relationship role | graph-based ownership and influence analytics |
-| Authority | role, effective date, document evidence, access scope | authority workflow with expiry and recertification |
-| Reporting group | inclusion perimeter, access rights, masking rules | dynamic family-office report builder |
-| Distributions | approved cash movement and beneficiary recipient | income/capital distribution classification engine |
+| Authority | role, effective date, document evidence, access scope, veto/committee/council rules where sourced | authority workflow with expiry and recertification |
+| Reporting group | inclusion perimeter, access rights, masking rules, sub-fund perimeter where sourced | dynamic family-office report builder |
+| Distributions | approved cash movement, beneficiary recipient, consent/veto status | income/capital distribution classification engine |
 | Estate state | death notification, executor validation, account restrictions | probate lifecycle workflow |
 | Cross-entity collateral | pledgor, borrower, collateral, pledge direction | multi-entity credit optimization with legal controls |
+| Cross-border status | tax residency, documentation status, effective date | cross-regime reportability and access policy engine |
 
-## 11. Regression Test Pack
+## 18. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -215,3 +363,10 @@ Minimum release-gate scenarios:
 8. Suitability check uses correct entity/person profile.
 9. Consolidated performance excludes restricted accounts or labels partial perimeter.
 10. Missing source document blocks client-ready ownership or authority claim.
+11. Protector veto blocks distribution without changing cash or beneficiary receivable.
+12. Directed trust separates investment authority from trustee distribution authority.
+13. Investment committee threshold triggers approval before commitment or order.
+14. Foundation council change updates quorum, entitlements and pending approvals.
+15. Beneficiary class controls reporting access by rights and source document.
+16. VCC sub-fund reporting excludes non-held sub-funds and avoids umbrella-level overstatement.
+17. Tax residency change applies from effective date and preserves historical basis.
