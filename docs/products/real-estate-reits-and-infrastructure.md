@@ -12,7 +12,7 @@ Real estate and infrastructure are wrapper-sensitive product families. A listed 
 
 ## Practical Worked Examples
 
-Use [`real-estate-reits-infrastructure/10-worked-examples-and-implementation-patterns.md`](real-estate-reits-infrastructure/10-worked-examples-and-implementation-patterns.md) for concrete examples covering listed REIT distributions, rights issues, private real estate capital calls, appraisal restatements, infrastructure fund distributions, redemption queues, direct property valuation, leverage analytics, property-level debt maturity, tenant concentration, occupancy changes, lease expiry, concession renewal, renewable power-price exposure, direct-property ownership transfers, support boundaries and regression tests.
+Use [`real-estate-reits-infrastructure/10-worked-examples-and-implementation-patterns.md`](real-estate-reits-infrastructure/10-worked-examples-and-implementation-patterns.md) for concrete examples covering listed REIT distributions, rights issues, private real estate capital calls, appraisal restatements, infrastructure fund distributions, redemption queues, direct property valuation, leverage analytics, property-level debt maturity, tenant concentration, occupancy changes, lease expiry, concession renewal, renewable power-price exposure, direct-property ownership transfers, development projects, construction drawdowns, rent-free periods, capex reserves, property sale completion, valuation committee overrides, green-building certification, infrastructure revenue clawbacks, support boundaries and regression tests.
 
 ## Platform Design Distinctions
 
@@ -62,8 +62,11 @@ Do not classify every real-asset product as private markets or every REIT as gen
 | Tenant concentration | A small number of tenants can drive income risk even when the property value looks diversified. |
 | Occupancy | Vacancy changes are operating metrics that affect income projections and valuation assumptions before they become cash transactions. |
 | Lease expiry / WALE | Near-term lease expiries can affect renewal risk, rent reversion, vacancy and income stability. |
+| Development cost-to-complete | Development projects require incurred cost, committed cost, contingency, permits and funding-gap tracking before stabilized income exists. |
+| Capex reserve and lease incentives | Refurbishment reserves, rent-free periods and tenant incentives affect distributable cash, effective rent and income quality. |
 | Infrastructure concession term | Concession expiry and renewal uncertainty affect valuation horizon, regulatory exposure and projected cashflows. |
 | Contracted versus merchant revenue | Renewable and infrastructure revenue may mix stable contracted cashflows with market-price exposure. |
+| Regulatory clawback | Infrastructure revenue may be reduced by tariff resets, revenue-sharing or clawback obligations. |
 | Direct ownership percentage | Ownership changes affect reportable value, authority, beneficial ownership, access control, tax and collateral eligibility. |
 
 ## Source Ownership Questions
@@ -84,6 +87,7 @@ Before building or changing a feature, identify the source of truth for:
 | Direct ownership and transfer evidence | Title record, trust/company document, legal agreement, administrator file, custody/legal record. |
 | Liquidity and redemption terms | Offering document, fund terms, exchange liquidity data, manager notice, side letter. |
 | Collateral eligibility and haircut | Credit policy, collateral system, product master, risk engine, manual override register. |
+| Development, capex and sale state | Developer report, project budget, valuation committee minute, sale agreement, lender payoff statement, completion statement. |
 
 When exposure comes from manager reports or documents, preserve reporting date, received date, source document, and manual review status.
 
@@ -98,7 +102,8 @@ APIs should expose:
 5. private-fund commitment, paid-in, unfunded, NAV, capital calls, and distributions where applicable,
 6. corporate-action, redemption, gate, queue, suspension, appraisal, and restatement lifecycle states,
 7. collateral eligibility, haircut, pledged amount, and availability where used for lending.
-8. occupancy, lease expiry, concession expiry, contracted/merchant revenue split and ownership percentage where source-backed.
+8. occupancy, lease expiry, concession expiry, contracted/merchant revenue split and ownership percentage where source-backed,
+9. development stage, cost-to-complete, capex reserve, sale completion, valuation override and clawback state where source-backed.
 
 UIs should make these states visible:
 
@@ -109,7 +114,8 @@ UIs should make these states visible:
 5. liquidity differs by wrapper, exchange volume, lock-up, gate, queue, or transfer restriction,
 6. infrastructure cashflows may depend on regulation, concession, offtake, inflation linkage, or project lifecycle,
 7. source coverage is partial when look-through sector/geography is unavailable,
-8. property operating metrics are analytics with source dates, not accounting transactions unless a cash event occurs.
+8. property operating metrics are analytics with source dates, not accounting transactions unless a cash event occurs,
+9. development, capex, sale and valuation-override states are governance events with source evidence, not generic price movements.
 
 ## QA Scenarios
 
@@ -127,7 +133,9 @@ High-value scenarios:
 10. missing look-through data marks sector/geography analytics partial instead of inferring false exposure,
 11. property-level debt maturity, tenant concentration, occupancy and lease expiry analytics carry source dates and partial-coverage labels,
 12. infrastructure concession renewal and renewable power-price exposure distinguish contracted terms from assumptions,
-13. direct-property ownership transfer changes ownership percentage without duplicating reportable value.
+13. direct-property ownership transfer changes ownership percentage without duplicating reportable value,
+14. development project cost-to-complete, construction drawdown, rent-free period, capex reserve and property sale completion are traceable to source documents,
+15. valuation committee override, green-building certification and infrastructure revenue clawback preserve approver, source, expiry and economic impact.
 
 ## Useful Project Workflows
 

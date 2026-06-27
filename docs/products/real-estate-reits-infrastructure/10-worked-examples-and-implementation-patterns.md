@@ -382,7 +382,290 @@ Implementation treatment:
 - preserve historical reporting lineage before and after transfer;
 - access control, beneficial ownership, tax reporting and collateral eligibility may change.
 
-## 17. Advisory And Mandate Checklist
+## 17. Development Project Cost-To-Complete
+
+Scenario:
+
+A private real estate vehicle owns a development project that is not yet income producing.
+
+| Attribute | Value |
+|---|---:|
+| Budgeted development cost | 80,000,000 |
+| Cost incurred to date | 45,000,000 |
+| Committed but unpaid contracts | 20,000,000 |
+| Contingency reserve | 5,000,000 |
+
+Calculation:
+
+```text
+remaining budget before commitments = 80,000,000 - 45,000,000 = 35,000,000
+cost-to-complete including commitments and contingency = 20,000,000 + 5,000,000 = 25,000,000
+uncommitted budget headroom = 35,000,000 - 25,000,000 = 10,000,000
+```
+
+Treatment:
+
+- development exposure should be labelled separately from stabilized property exposure;
+- costs incurred, committed costs and contingency should not be confused with current appraisal value;
+- delays, permits, funding gaps and cost overruns affect risk before they become distributions or NAV changes;
+- DPM and advisory reviews should treat construction and leasing risk as distinct risk factors.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Cost-to-complete exceeds remaining budget | Project risk and funding shortfall are flagged. |
+| Appraisal is based on completion value | Report labels valuation assumption and does not imply current sale price. |
+| Permit is pending | Development milestone status remains source-limited. |
+
+## 18. Construction Drawdown And Commitment Funding
+
+Scenario:
+
+A property development fund issues a construction drawdown notice against investor commitments.
+
+| Attribute | Value |
+|---|---:|
+| Investor commitment | 500,000 |
+| Prior paid-in capital | 200,000 |
+| Drawdown percentage | 12% |
+| Due date | 10 business days |
+
+Calculation:
+
+```text
+cash required = 500,000 x 12% = 60,000
+paid-in after drawdown = 200,000 + 60,000 = 260,000
+unfunded after drawdown = 500,000 - 260,000 = 240,000
+```
+
+Implementation treatment:
+
+- drawdown notice creates a cash obligation and liquidity-planning event;
+- paid-in and unfunded commitment update only when the drawdown is accepted or settled according to policy;
+- drawdown purpose, project, due date and notice source should be retained;
+- late funding, partial funding or waived funding should produce explicit exception states.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Drawdown notice is missing due date | Cash planning is incomplete and escalation is required. |
+| Cash is insufficient | Funding shortfall workflow opens before due date. |
+| Drawdown is project-specific | Exposure and paid-in tracking preserve project reference. |
+
+## 19. Rent-Free Period And Lease Incentive
+
+Scenario:
+
+A new office lease has headline rent but includes a rent-free period.
+
+| Attribute | Value |
+|---|---:|
+| Lease term | 5 years |
+| Annual headline rent | 1,200,000 |
+| Rent-free period | 6 months |
+| Total lease months | 60 |
+
+Calculation:
+
+```text
+gross headline rent over term = 1,200,000 x 5 = 6,000,000
+rent-free value = 1,200,000 x 6 / 12 = 600,000
+effective rent over term = 6,000,000 - 600,000 = 5,400,000
+effective annual rent = 5,400,000 / 5 = 1,080,000
+```
+
+Treatment:
+
+- headline rent, effective rent and cash rent should be labelled separately;
+- occupancy may improve before cash rent starts;
+- valuation and income projections should use the source-backed lease convention;
+- client reporting should avoid presenting headline rent as immediate recurring cash income.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Rent-free period exists | Effective rent and cash timing are visible. |
+| Lease incentive is missing | Income projection is labelled partial. |
+| Rent starts after report date | No cash income is booked before rent commencement. |
+
+## 20. Capex Reserve For Property Refurbishment
+
+Scenario:
+
+A real estate fund reserves capital for refurbishment before reletting space.
+
+| Attribute | Value |
+|---|---:|
+| Property NAV before reserve | 30,000,000 |
+| Approved capex budget | 2,500,000 |
+| Reserve funded this period | 1,000,000 |
+| Expected remaining reserve | 1,500,000 |
+
+Reporting treatment:
+
+```text
+available distributable cash impact = -1,000,000 funded reserve
+remaining committed reserve = 1,500,000
+```
+
+Treatment:
+
+- capex reserve is not an investment loss by itself;
+- reserve funding may reduce distributable cash while preserving or improving asset value;
+- project budget, approval source, draw schedule and remaining commitment should be visible;
+- cost overruns should be tracked separately from approved reserve usage.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Reserve is funded | Cash and distributable amount decrease with reserve lineage. |
+| Capex invoice arrives | Invoice is matched to approved budget and reserve. |
+| Budget is exceeded | Overrun exception is raised and valuation assumptions are reviewed. |
+
+## 21. Direct Property Sale Completion
+
+Scenario:
+
+A direct property sale completes after signing and closing conditions are satisfied.
+
+| Attribute | Value |
+|---|---:|
+| Sale price | 6,200,000 |
+| Selling costs | 120,000 |
+| Outstanding property loan payoff | 2,000,000 |
+| Prior appraisal value | 6,000,000 |
+
+Calculation:
+
+```text
+net sale proceeds before loan payoff = 6,200,000 - 120,000 = 6,080,000
+net cash after loan payoff = 6,080,000 - 2,000,000 = 4,080,000
+sale premium versus appraisal = 6,200,000 - 6,000,000 = 200,000
+```
+
+Implementation treatment:
+
+- signed sale, conditional sale and completed sale are different states;
+- remove or reduce property exposure only after completion evidence;
+- payoff of property-level debt is separate from selling costs and net proceeds;
+- tax, ownership hierarchy, collateral pledge and reporting entitlement may change after completion.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Sale contract signed but not completed | Property remains held with pending sale state. |
+| Loan payoff differs from estimate | Net proceeds are adjusted with settlement lineage. |
+| Pledged property is sold | Collateral release or substitution workflow is required. |
+
+## 22. Valuation Committee Override
+
+Scenario:
+
+A valuation committee approves an override to a stale appraisal because a material tenant default occurred after the appraisal date.
+
+| Attribute | Value |
+|---|---:|
+| Latest appraisal value | 40,000,000 |
+| Committee override haircut | 8% |
+| Override expiry | 60 days |
+
+Calculation:
+
+```text
+override value = 40,000,000 x (1 - 8%) = 36,800,000
+valuation adjustment = -3,200,000
+```
+
+Controls:
+
+- preserve original appraisal and committee-adjusted value separately;
+- record approver, reason, evidence, effective date and expiry;
+- label the value as committee-adjusted rather than appraiser-confirmed;
+- expire the override unless refreshed by new appraisal or renewed committee decision.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Override lacks approver | Client-ready reporting is blocked or escalated. |
+| Override expires | Valuation degrades until new source evidence is available. |
+| New appraisal arrives | Override is closed or superseded with lineage. |
+
+## 23. Green-Building Certification Impact
+
+Scenario:
+
+A property receives a green-building certification that affects financing spread and tenant demand analytics.
+
+| Attribute | Before | After |
+|---|---:|---:|
+| Loan balance | 20,000,000 | 20,000,000 |
+| Financing spread | 2.20% | 2.05% |
+| Annual energy-cost saving estimate | - | 150,000 |
+
+Calculation:
+
+```text
+annual financing cost reduction = 20,000,000 x (2.20% - 2.05%) = 30,000
+combined annual operating benefit estimate = 30,000 + 150,000 = 180,000
+```
+
+Treatment:
+
+- certification status should be source-backed with effective date and expiry/renewal status;
+- financing benefit should be separated from operating-cost estimate;
+- do not treat certification as valuation uplift unless appraisal or model source supports it;
+- sustainability labels should preserve source and standard used.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Certification expires | Sustainability and financing labels degrade or update. |
+| Energy saving is estimated | Report labels assumption separately from realized cashflow. |
+| Financing spread changes | Interest-cost analytics update from loan source. |
+
+## 24. Infrastructure Revenue Clawback
+
+Scenario:
+
+A regulated infrastructure asset exceeds allowed revenue and must return part of the excess through a future tariff adjustment.
+
+| Attribute | Value |
+|---|---:|
+| Allowed annual revenue | 50,000,000 |
+| Actual annual revenue | 54,000,000 |
+| Clawback percentage on excess | 75% |
+
+Calculation:
+
+```text
+excess revenue = 54,000,000 - 50,000,000 = 4,000,000
+clawback obligation = 4,000,000 x 75% = 3,000,000
+retained excess before tax/fees = 1,000,000
+```
+
+Treatment:
+
+- clawback is a regulatory or contractual adjustment, not ordinary recurring income;
+- future revenue projections should reflect tariff reduction or payable obligation;
+- source should identify regulator/contract term, calculation period, effective date and dispute state;
+- distributions funded by excess revenue may not be repeatable.
+
+QA assertions:
+
+| Scenario | Expected behavior |
+|---|---|
+| Clawback notice arrives | Obligation and future revenue impact are visible. |
+| Clawback is disputed | Report labels obligation as disputed with source state. |
+| Distribution uses excess revenue | Income-quality explanation distinguishes one-off excess from sustainable revenue. |
+
+## 25. Advisory And Mandate Checklist
 
 | Dimension | Required question |
 |---|---|
@@ -395,17 +678,17 @@ Implementation treatment:
 | DPM mandate | allowed wrapper, illiquid allocation, income target, leverage limit, concentration cap? |
 | Reporting | legal holding, economic exposure, income classification, valuation date and liquidity label? |
 
-## 18. Current Support Boundary And Candidate Extensions
+## 26. Current Support Boundary And Candidate Extensions
 
 | Capability | Treat as baseline when source-backed | Treat as future candidate until implemented |
 |---|---|---|
 | Listed REIT | security position, trades, price, distributions, corporate actions, gearing where sourced | property-sector look-through and detailed operating-metric analytics |
-| Private real estate fund | commitment, calls, NAV, distributions, valuation date, queues and holdbacks where sourced | advanced liquidity queue simulation and manager-level stress modelling |
-| Direct property | ownership record, appraisal value, source date, documents, ownership percentage | document-backed ownership graph and property-level cashflow model |
-| Infrastructure exposure | fund/security/private fund position, sector tags, concession and revenue model where sourced | advanced concession, inflation-linkage, offtake and regulatory-risk analytics |
-| Reporting | wrapper, exposure, value, income, source date, liquidity label, operating metrics where sourced | consolidated real-asset income and stress dashboard |
+| Private real estate fund | commitment, calls, NAV, distributions, valuation date, queues, holdbacks, development drawdowns and capex reserves where sourced | advanced liquidity queue simulation, project-level cashflow and manager-level stress modelling |
+| Direct property | ownership record, appraisal value, source date, documents, ownership percentage, sale state and committee override where sourced | document-backed ownership graph and property-level cashflow model |
+| Infrastructure exposure | fund/security/private fund position, sector tags, concession, revenue model and clawback terms where sourced | advanced concession, inflation-linkage, offtake, clawback and regulatory-risk analytics |
+| Reporting | wrapper, exposure, value, income, source date, liquidity label, operating metrics, development state and governance overrides where sourced | consolidated real-asset income and stress dashboard |
 
-## 19. Regression Test Pack
+## 27. Regression Test Pack
 
 Minimum release-gate scenarios:
 
@@ -426,3 +709,11 @@ Minimum release-gate scenarios:
 15. Infrastructure concession renewal separates legal term, valuation assumption and projected cashflow.
 16. Renewable power-price exposure separates contracted and merchant revenue.
 17. Direct-property ownership transfer updates ownership hierarchy without duplicating value.
+18. Development project cost-to-complete separates incurred cost, committed cost, contingency and current valuation.
+19. Construction drawdown updates paid-in, unfunded commitment and liquidity planning with project lineage.
+20. Rent-free period separates headline rent, effective rent and cash rent timing.
+21. Capex reserve reduces distributable cash without misclassifying approved refurbishment as investment loss.
+22. Direct property sale completion separates signed, conditional and completed sale states and loan payoff.
+23. Valuation committee override preserves original appraisal, adjusted value, approver, reason and expiry.
+24. Green-building certification impacts financing and operating analytics only when source-backed.
+25. Infrastructure revenue clawback separates excess revenue, clawback obligation and sustainable income quality.
