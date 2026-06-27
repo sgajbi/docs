@@ -6179,3 +6179,255 @@ residual_uncovered_drift = 75,000 - 50,000 = 25,000
 | Confirmed inflow is below override | Override coverage is capped by inflow evidence. |
 | Horizon expires before settlement | Override is removed and controls re-evaluate. |
 | Order scope changes | Override requires renewal or reapproval. |
+
+## Example 152. Sweep appeal residual write-off
+
+### Scenario
+
+A sweep provider pays part of a recovery claim after an outage appeal, but rejects the residual amount. The platform must write off only the unsupported residual, preserve the appeal evidence and avoid treating the write-off as market performance.
+
+| Attribute | Value |
+|---|---:|
+| Original sweep recovery claim | 18,500 |
+| Provider appeal settlement | 14,200 |
+| Client allocation share | 40% |
+| Write-off approval threshold | 1,000 |
+
+### Residual write-off
+
+```text
+gross_residual_write_off = original_sweep_recovery_claim - provider_appeal_settlement
+gross_residual_write_off = 18,500 - 14,200 = 4,300
+
+client_residual_write_off = gross_residual_write_off x client_allocation_share
+client_residual_write_off = 4,300 x 40% = 1,720
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve outage record, recovery claim, provider appeal response, settlement amount and rejected residual reason. |
+| Accounting | Post a linked residual write-off only after the appeal outcome is accepted or exhausted. |
+| Cash | Do not reduce settled cash unless a prior receivable or recovery allocation was recognized. |
+| Reporting | Label the amount as sweep recovery residual write-off, not investment loss or sweep fee. |
+| Controls | Require approval when the client residual exceeds the threshold. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Provider partially settles appeal | Residual amount is calculated from original claim less settlement. |
+| Residual exceeds approval threshold | Write-off remains pending until approved. |
+| No prior receivable exists | Write-off is blocked or routed for accounting review. |
+| Client statement is generated | Settlement and residual write-off are shown as linked operational events. |
+
+## Example 153. Deposit hierarchy recertification reversal
+
+### Scenario
+
+A deposit protection scheme beneficiary hierarchy was recertified, but later reversed because a required beneficiary evidence item was invalid. The platform must reverse the protected-balance classification and restore the prior disputed state without changing actual deposit cash.
+
+| Attribute | Value |
+|---|---:|
+| Recertified protected balance | 250,000 |
+| Balance with invalid evidence | 60,000 |
+| Scheme payout coverage limit | 200,000 |
+| Valid remaining protected balance | 190,000 |
+
+### Classification reversal
+
+```text
+reversal_amount = min(balance_with_invalid_evidence, recertified_protected_balance - valid_remaining_protected_balance)
+reversal_amount = min(60,000, 250,000 - 190,000) = 60,000
+
+post_reversal_protected_balance = recertified_protected_balance - reversal_amount
+post_reversal_protected_balance = 250,000 - 60,000 = 190,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve scheme rule, hierarchy evidence, recertification approval, invalid evidence finding and reversal decision. |
+| Cash | Keep deposit cash unchanged; only protection classification changes. |
+| Advisory | Recalculate liquidity and protection concentration after the reversal. |
+| Reporting | Distinguish protected, disputed and unprotected balances by evidence state. |
+| Controls | Prevent payout readiness claims when hierarchy evidence is reversed or expired. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Evidence is invalidated after recertification | Prior protected classification is reversed. |
+| Cash balance is unchanged | Deposit ledger cash remains unchanged. |
+| Protected balance exceeds coverage limit | Report caps scheme coverage according to rule. |
+| Hierarchy report is generated | Reversal reason and evidence state are visible. |
+
+## Example 154. Hedge remediation reversal tax treatment
+
+### Scenario
+
+An FX hedge remediation approval reversal has tax-reporting implications because the original remediation was classified as operational compensation. The platform must reclassify the tax treatment without moving the market hedge P&L.
+
+| Attribute | Value |
+|---|---:|
+| Original remediation compensation | 1,700 |
+| Correct remediation compensation | 600 |
+| Taxable compensation previously reported | 1,700 |
+| Reporting materiality threshold | 250 |
+
+### Tax reclassification
+
+```text
+taxable_compensation_reversal = taxable_compensation_previously_reported - correct_remediation_compensation
+taxable_compensation_reversal = 1,700 - 600 = 1,100
+
+requires_amended_tax_label = taxable_compensation_reversal > reporting_materiality_threshold
+requires_amended_tax_label = 1,100 > 250 = true
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Link original remediation, reversal approval, tax classification rule and amended reporting decision. |
+| Accounting | Reclassify compensation tax basis through a correction entry, not by editing the original event. |
+| Performance | Keep market FX P&L and hedge effectiveness unchanged. |
+| Reporting | Show amended compensation amount and reversal reason where tax reporting is affected. |
+| Controls | Require tax/reporting review when the reversal exceeds materiality. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Remediation reversal is posted | Tax classification workflow receives linked reversal evidence. |
+| Reversal exceeds materiality | Amended tax label or review queue is triggered. |
+| FX performance is calculated | Market hedge P&L is unchanged by tax reclassification. |
+| Client tax pack is generated | Original and corrected compensation labels are traceable. |
+
+## Example 155. PSP clawback reserve ageing
+
+### Scenario
+
+A PSP recovered-fee clawback is reserved while the provider confirms settlement. The reserve remains unresolved beyond the ageing threshold. The platform must separate aged reserve risk from actual cash movement and escalate it.
+
+| Attribute | Value |
+|---|---:|
+| PSP clawback reserve | 1,250 |
+| Days since reserve creation | 45 |
+| Ageing threshold days | 30 |
+| Settlement confirmed | 0 |
+
+### Aged reserve exposure
+
+```text
+reserve_ageing_days = days_since_reserve_creation - ageing_threshold_days
+reserve_ageing_days = 45 - 30 = 15
+
+unsettled_clawback_reserve = psp_clawback_reserve - settlement_confirmed
+unsettled_clawback_reserve = 1,250 - 0 = 1,250
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve provider reserve notice, clawback case, reserve booking, settlement status and ageing threshold. |
+| Cash | Do not treat reserve as settled provider cash until settlement is confirmed. |
+| Operations | Escalate aged reserve to payment operations and finance reconciliation owners. |
+| Reporting | Label aged reserve separately from paid clawback and recovered-fee reversal. |
+| Controls | Block reserve closure while settlement confirmation is missing. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Reserve exceeds ageing threshold | Aged reserve escalation is created. |
+| Settlement is unconfirmed | Reserve remains unresolved and cash is not moved. |
+| Settlement arrives later | Ageing state closes with settlement evidence. |
+| Operations dashboard is generated | Aged reserve amount, days and owner are visible. |
+
+## Example 156. Waiver-breach client notice
+
+### Scenario
+
+A projected-cash waiver breach requires client notice because the order relied on expired projected-cash evidence. The platform must calculate the notice population, suppress duplicates and preserve delivery evidence.
+
+| Attribute | Value |
+|---|---:|
+| Accounts impacted by waiver breach | 18 |
+| Accounts already notified for same breach | 6 |
+| Accounts requiring advisor-only notice | 3 |
+| Material breach amount | 370,000 |
+
+### Notice population
+
+```text
+new_client_notices_required = accounts_impacted_by_waiver_breach - accounts_already_notified_for_same_breach - accounts_requiring_advisor_only_notice
+new_client_notices_required = 18 - 6 - 3 = 9
+
+duplicate_notices_suppressed = accounts_already_notified_for_same_breach
+duplicate_notices_suppressed = 6
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve breach id, impacted account list, notice policy, prior delivery evidence and advisor-only exemptions. |
+| Advisory | Route client-facing and advisor-only notices according to relationship and communication policy. |
+| Reporting | Show notice status separately from breach remediation status. |
+| Operations | Track delivery, bouncebacks and acknowledgement evidence. |
+| Controls | Suppress duplicate notices for the same breach unless an amended notice is approved. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Some accounts already notified | Duplicate notices are suppressed. |
+| Advisor-only exemption applies | Client notice is not generated for exempted account. |
+| Notice delivery fails | Breach notice remains open with delivery exception. |
+| Amended notice is approved | New notice version is linked to the same breach. |
+
+## Example 157. Liquidity override expiry revalidation
+
+### Scenario
+
+A liquidity-floor drift override expires before settlement. The platform must revalidate buying power, restore the residual drift block and prevent stale override evidence from supporting a new order.
+
+| Attribute | Value |
+|---|---:|
+| Original override coverage | 50,000 |
+| Residual uncovered drift before expiry | 25,000 |
+| Confirmed inflow still valid | 40,000 |
+| New order liquidity requirement | 70,000 |
+
+### Revalidated liquidity block
+
+```text
+expired_override_amount = original_override_coverage
+expired_override_amount = 50,000
+
+revalidated_uncovered_drift = residual_uncovered_drift_before_expiry + expired_override_amount - confirmed_inflow_still_valid
+revalidated_uncovered_drift = 25,000 + 50,000 - 40,000 = 35,000
+```
+
+### Correct treatment
+
+| Area | Treatment |
+|---|---|
+| Source | Preserve original override, expiry timestamp, inflow evidence, revalidation run and impacted orders. |
+| Portfolio construction | Recalculate buying power after removing expired override coverage. |
+| Advisory and DPM | Block or re-route orders when revalidated liquidity remains below floor. |
+| Reporting | Show override expiry and revalidation result as separate control events. |
+| Controls | Prevent stale override reuse for new orders. |
+
+### QA assertions
+
+| Test | Expected result |
+|---|---|
+| Override expires before settlement | Revalidation removes override coverage. |
+| Some inflow evidence remains valid | Revalidation applies only the still-valid inflow. |
+| New order relies on expired override | Order is blocked or routed for fresh approval. |
+| Liquidity report is generated | Expiry, revalidation and residual drift are visible. |
