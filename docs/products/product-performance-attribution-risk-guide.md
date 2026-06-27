@@ -2,7 +2,7 @@
 
 This guide defines how to think about performance, contribution, attribution, and risk analytics across the covered product families.
 
-Use it when designing portfolio performance reports, contribution views, risk dashboards, benchmark comparisons, advisory reviews, DPM monitoring, data contracts, or QA scenarios. For report output structure and client-facing labels, use [`client-reporting-and-portfolio-review-guide.md`](client-reporting-and-portfolio-review-guide.md). It complements [`product-calculation-example-catalog.md`](product-calculation-example-catalog.md), [`source-ownership-calculation-reporting-matrix.md`](source-ownership-calculation-reporting-matrix.md), and [`product-capability-boundary-matrix.md`](product-capability-boundary-matrix.md).
+Use it when designing portfolio performance reports, contribution views, risk dashboards, benchmark comparisons, advisory reviews, DPM monitoring, data contracts, or QA scenarios. For report output structure and client-facing labels, use [`client-reporting-and-portfolio-review-guide.md`](client-reporting-and-portfolio-review-guide.md). For portfolio exposure lenses and denominator rules, use [`portfolio-exposure-modelling-guide.md`](portfolio-exposure-modelling-guide.md). It complements [`product-calculation-example-catalog.md`](product-calculation-example-catalog.md), [`source-ownership-calculation-reporting-matrix.md`](source-ownership-calculation-reporting-matrix.md), and [`product-capability-boundary-matrix.md`](product-capability-boundary-matrix.md).
 
 ## Core Principle
 
