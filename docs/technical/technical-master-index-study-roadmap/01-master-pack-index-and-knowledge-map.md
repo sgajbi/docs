@@ -106,6 +106,32 @@ Pack 15 wealth domain and Pack 16 reporting
 | Migration | Use migration, data, reporting, security, and operations packs. |
 | AI adoption | Use AI governance, security, testing, and productization packs. |
 
+## Execution Matrix By Scenario
+
+Use this matrix when the knowledge base needs to support a concrete delivery or review activity.
+
+| Scenario | Primary guides | Expected output |
+|---|---|---|
+| New service or capability | Backend service design, API contract engineering, testing certification, observability supportability | Service boundary note, API contract, test plan, runbook stub and release evidence plan. |
+| New data product | Data-product engineering, API/event contracts, security, observability, documentation governance | Producer contract, consumer contract, lineage note, quality rules, access policy and certification evidence. |
+| Production release | CI/CD release evidence, Git release hygiene, testing certification, observability, security | PR evidence, release checklist, deployment plan, rollback note, known-risk register and validation results. |
+| Architecture review | Architecture boundaries, engineering leadership, documentation governance, security, performance | Decision record, tradeoff analysis, risk list, follow-up actions and acceptance criteria. |
+| Incident or support improvement | Production support, observability, performance/resilience, runtime infrastructure, documentation governance | Incident timeline, root-cause note, runbook update, dashboard or alert change and corrective-action tracker. |
+| Migration or replatforming | Migration engineering, data products, reporting evidence, security, testing, production support | Inventory, mapping rules, reconciliation plan, mock-cutover evidence, rollback posture and hypercare plan. |
+| AI-assisted feature | AI/RAG governance, security, data-product engineering, testing certification, observability | Use-case risk tier, source policy, grounding strategy, evaluation set, human-review rule and audit trail. |
+| Enterprise buyer or due-diligence review | Platform productization, security, documentation governance, CI/CD evidence, production support | Readiness scorecard, supported-feature matrix, deployment model, support model and evidence pack. |
+
+## Depth Progression
+
+For each scenario, progress through four levels:
+
+| Level | Focus | Reader should be able to |
+|---:|---|---|
+| 1 | Concept literacy | Explain the topic, why it matters and where it fits in an enterprise platform. |
+| 2 | Implementation literacy | Identify the main files, contracts, runtime components, tests and operational artifacts involved. |
+| 3 | Review literacy | Evaluate design quality, delivery risk, evidence quality, supportability and governance gaps. |
+| 4 | Leadership literacy | Make tradeoffs, set standards, communicate risk and convert lessons into durable team practice. |
+
 ---
 
 ## Summary

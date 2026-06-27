@@ -170,6 +170,36 @@ Use it as the final execution guide.
 
 ---
 
+## Evidence Artifacts By Work Type
+
+Use this table to decide what durable evidence should exist after a learning, delivery, review or operational activity.
+
+| Work type | Minimum evidence artifacts |
+|---|---|
+| Service design | Boundary note, API contract, dependency map, error model, data ownership note and test strategy. |
+| API change | OpenAPI or contract update, compatibility note, consumer-impact review, examples, contract tests and deprecation plan when needed. |
+| Data product | Data contract, lineage map, quality rules, freshness SLO, access policy, consumer guide and certification result. |
+| CI/CD improvement | Gate purpose, owner, trigger, failure behavior, bypass policy, rollout plan and before/after failure evidence. |
+| Runtime deployment | Configuration source, environment assumptions, health/readiness checks, rollback approach, resource expectations and validation command. |
+| Security control | Threat or risk statement, control owner, enforcement point, test evidence, monitoring signal and exception process. |
+| Observability change | Log fields, metric names, trace boundaries, dashboard panel, alert route, runbook link and sensitive-data review. |
+| Production readiness | Owner, SLO/SLA expectations, runbooks, support model, incident route, DR/BCP posture, known risks and go/no-go evidence. |
+| Migration | Inventory, mapping rules, reconciliation report, mock-cutover result, rollback decision tree, sign-off and hypercare plan. |
+| AI-assisted capability | Source policy, entitlement model, prompt/version record, grounding checks, evaluation set, human review and tool authorization evidence. |
+| KT or onboarding | Audience, reading path, exercises, teach-back questions, repo walkthrough, follow-up actions and feedback loop. |
+
+## Reuse Pattern
+
+When applying any checklist, keep the output compact:
+
+1. capture the decision,
+2. link the evidence,
+3. identify the owner,
+4. record the next action,
+5. revisit the artifact after the next material change.
+
+---
+
 ## Final Operating Principle
 
 Every pack should ultimately become one of the following:

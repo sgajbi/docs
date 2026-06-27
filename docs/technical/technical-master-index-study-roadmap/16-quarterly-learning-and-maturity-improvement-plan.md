@@ -93,6 +93,38 @@ Deliverables:
 
 ---
 
+## Maturity Checkpoints
+
+Use these checkpoints to turn the 90-day plan into observable progress.
+
+| Checkpoint | Evidence of maturity |
+|---|---|
+| Architecture | Service boundaries, integration ownership, decision records and known tradeoffs are documented and reviewed. |
+| API and data contracts | API contracts, data contracts, vocabulary, lineage and compatibility rules are current and testable. |
+| Delivery | Local checks, CI gates, PR templates, release evidence and branch hygiene are predictable and repeatable. |
+| Quality | Unit, service, contract, integration, E2E, regression and performance tests are placed in the right gates. |
+| Security | Secrets, sensitive data, authorization, dependency risk, privileged access and evidence filtering have named controls. |
+| Runtime | Deployment configuration, health checks, readiness probes, capacity assumptions and rollback paths are understood. |
+| Observability | Logs, metrics, traces, dashboards, alerts and supportability states help operators diagnose real failures. |
+| Operations | Runbooks, incident flow, escalation path, DR posture, batch recovery and post-incident follow-through are practiced. |
+| Knowledge management | README, onboarding, ADR/RFC, runbook, evidence-map and capability-status material stays aligned with implementation truth. |
+
+## Quarterly Output Portfolio
+
+At the end of the quarter, aim to have a compact portfolio of reusable artifacts:
+
+| Artifact | Purpose |
+|---|---|
+| Engineering maturity scorecard | Summarizes current strengths, risks and next improvement priorities. |
+| Repo adoption checklist | Converts the knowledge base into standards that can be applied across repositories. |
+| KT curriculum | Defines what each role should read, practice and demonstrate. |
+| Architecture review pack | Captures design questions, decision criteria, evidence expectations and approval notes. |
+| PR and release evidence template | Standardizes how teams prove scope, tests, security, docs, observability and rollout readiness. |
+| Production-readiness checklist | Confirms ownership, runtime, monitoring, support, rollback and go/no-go evidence. |
+| Leadership narrative notes | Converts technical work into clear stakeholder language grounded in evidence and tradeoffs. |
+
+---
+
 ## Improvement Principle
 
 Do not try to implement all standards at once.
