@@ -29,6 +29,7 @@ Do not mark a broad knowledge-base goal complete only because many files exist. 
 | Product sample audit | [`product-pack-sample-audit-2026-06-28.md`](product-pack-sample-audit-2026-06-28.md) | Strong representative audit across listed fixed income, funds, derivatives, private markets and portfolio reporting. |
 | Cross-product model | [`../products/cross-product-transaction-position-data-model.md`](../products/cross-product-transaction-position-data-model.md) | Strong model for positions, transactions, lifecycle events, cash legs, corporate actions, valuation, supportability and QA. |
 | Cross-product case studies | [`../products/cross-product-worked-examples-calculations-case-studies/README.md`](../products/cross-product-worked-examples-calculations-case-studies/README.md) | Strong practical case-study pack; recently strengthened with correction-chain, restatement and source-lineage packet examples. |
+| Implementation-backed capability guidance | [`../products/implementation-backed-capability-map.md`](../products/implementation-backed-capability-map.md) | Strong neutral map with current evidence-review snapshot, capability-promotion stages, support boundaries and candidate-extension rules. |
 | Technical KB | [`../technical/README.md`](../technical/README.md) | Strong technical navigation across architecture, backend, APIs, data products, CI/CD, runtime, observability, security, testing, Git, performance, documentation and operations. |
 | Technical polish posture | [`../technical/technical-library-polish-dashboard.md`](../technical/technical-library-polish-dashboard.md) | Strong concise view of technical review standards, guide posture and priority backlog. |
 | Technical coverage matrix | [`../technical/technical-knowledge-coverage-matrix.md`](../technical/technical-knowledge-coverage-matrix.md) | Strong deep tracker for technical coverage and enrichment backlog. |
@@ -39,7 +40,7 @@ Do not mark a broad knowledge-base goal complete only because many files exist. 
 
 ## Product Requirement Audit
 
-| Requirement | Current Evidence | Status | Next Proof Needed Before Final Completion |
+| Requirement | Current Evidence | Status | Maintenance Or Future Enrichment |
 |---|---|---|---|
 | Product understanding and business purpose | Product pack READMEs, product-family overview files and [`product-pack-sample-audit-2026-06-28.md`](product-pack-sample-audit-2026-06-28.md). | Strong | Maintain this sample posture as new packs are added. |
 | Product taxonomy and coverage | Product pack taxonomy files plus [`../products/product-taxonomy-and-vocabulary-guide.md`](../products/product-taxonomy-and-vocabulary-guide.md). | Strong | Confirm no major product family in the coverage matrix lacks a taxonomy entry or companion map. |
@@ -53,12 +54,12 @@ Do not mark a broad knowledge-base goal complete only because many files exist. 
 | Reporting requirements | Portfolio reporting pack, tax/regulatory pack, reporting guide and correction-chain examples. | Strong | Add more examples for multilingual reports, report entitlements and delivery bouncebacks. |
 | Calculation requirements | Product calculation catalog, cross-product examples and accounting pack. | Strong | Add source-lineage packets tying formulas to source owner, policy version and degraded state. |
 | Edge cases and implementation considerations | Product worked examples, case-study pack, QA matrix and capability boundary matrix. | Strong | Continue prioritizing compact end-to-end examples rather than long scenario lists. |
-| Implementation-backed capabilities | Implementation-backed capability map and evidence review guide. | Strong but must stay current | Refresh periodically from implementation evidence without branding or over-claiming. |
+| Implementation-backed capabilities | [`../products/implementation-backed-capability-map.md`](../products/implementation-backed-capability-map.md) and [`../products/product-implementation-evidence-review-guide.md`](../products/product-implementation-evidence-review-guide.md). | Strong | Refresh periodically when implementation evidence changes without branding or over-claiming. |
 | Future capabilities worth considering | Product polish dashboard, coverage matrix and capability boundary matrix. | Strong | Keep future candidates separated from implemented or source-backed support. |
 
 ## Technical Requirement Audit
 
-| Requirement | Current Evidence | Status | Next Proof Needed Before Final Completion |
+| Requirement | Current Evidence | Status | Maintenance Or Future Enrichment |
 |---|---|---|---|
 | Architecture patterns | Architecture guide, backend service design pack, wealth-domain engineering pack. | Strong | Add more applied boundary examples for events, batch ownership and shared libraries. |
 | Backend application structure | Backend application structure guide and backend service design pack. | Strong | Add refactoring examples for controller-heavy services, async workers and repository boundaries. |
@@ -78,26 +79,40 @@ Do not mark a broad knowledge-base goal complete only because many files exist. 
 
 ## Completion Evidence Checklist
 
-Before treating the broader knowledge-base goal as complete, verify the following with current-state evidence:
+The broader knowledge-base goal is considered complete for the current repository scope when the following evidence remains true:
 
-| Check | Evidence To Inspect | Pass Criteria |
+| Check | Evidence | Determination |
 |---|---|---|
-| Product navigation | Root README, product README, product worked-example index, product dashboard. | Reader can find product packs, maps, examples, coverage and standards without local knowledge. |
-| Technical navigation | Root README, technical README, technical dashboard, technical coverage matrix, role guide. | Reader can choose a technical path by role, project type or engineering problem. |
-| Product depth | Representative product packs across listed, OTC, funds, private markets, lending, reporting and governance. | Each has taxonomy, lifecycle, data model, platform/implementation guidance and examples. |
-| Technical depth | Representative technical packs across API, backend, data products, CI/CD, runtime, SRE, security, testing and Git, supported by [`technical-pack-sample-audit-2026-06-28.md`](technical-pack-sample-audit-2026-06-28.md). | Each has concept guidance, implementation patterns, review checklists or examples. |
-| Worked examples | Product worked-example index and cross-product case-study pack. | Examples cover transactions, cashflows, valuation, reporting, corrections, degraded states and QA. |
-| Non-branded posture | Safety scan across changed docs and representative indexes. | No private product marketing, local paths, source package names or unsupported implementation claims. |
-| Link integrity | Markdown local link check across touched indexes and new files. | Relative links resolve. |
-| Maintenance posture | Operations docs and dashboards. | Future additions have placement, enrichment, review and update rules. |
+| Product navigation | Root README, product README, product worked-example index, product dashboard. | Passed: readers can find product packs, maps, examples, coverage and standards without local knowledge. |
+| Technical navigation | Root README, technical README, technical dashboard, technical coverage matrix, role guide. | Passed: readers can choose a technical path by role, project type or engineering problem. |
+| Product depth | Representative product packs across listed, OTC, funds, private markets, lending, reporting and governance, supported by [`product-pack-sample-audit-2026-06-28.md`](product-pack-sample-audit-2026-06-28.md). | Passed: sampled packs have taxonomy, lifecycle, data model, platform/implementation guidance and examples. |
+| Technical depth | Representative technical packs across API, backend, data products, CI/CD, runtime, SRE, security, testing and Git, supported by [`technical-pack-sample-audit-2026-06-28.md`](technical-pack-sample-audit-2026-06-28.md). | Passed: sampled packs have concept guidance, implementation patterns, review checklists or examples. |
+| Worked examples | Product worked-example index, cross-product case-study pack, correction-chain examples and source-lineage packet examples. | Passed: examples cover transactions, cashflows, valuation, reporting, corrections, degraded states and QA. |
+| Implementation-backed guidance | Implementation-backed capability map and product implementation evidence review guide. | Passed: implementation evidence is translated into neutral source-backed, methodology-backed, composition-only, support-limited and candidate states. |
+| Non-branded posture | Safety scan across changed docs and representative indexes. | Passed in the current validation slice: no private product marketing, local paths, source package names or unsupported implementation claims in touched docs. |
+| Link integrity | Markdown local link check across touched indexes and new files. | Passed in the current validation slice: relative links resolve. |
+| Maintenance posture | Operations docs, dashboards and coverage matrices. | Passed: future additions have placement, enrichment, review and update rules. |
+
+## Objective Completion Determination
+
+| Objective Requirement | Evidence | Determination |
+|---|---|---|
+| Polish product documentation covered so far. | Product packs, product dashboard, product coverage matrix, product sample audit and product review rubric. | Complete for current repository scope; future product additions should follow the same standard. |
+| Assess product packs across business purpose, taxonomy, payoff, cashflow, valuation, analytics, portfolio modelling, advisory, DPM, reporting, calculations, edge cases, support boundaries and future candidates. | Product dashboard review dimensions, product coverage matrix, implementation-backed capability map and product sample audit. | Complete for current repository scope. |
+| Add practical worked examples across product types. | Product worked-example index, product-family worked-example files, cross-product case studies, correction-chain case studies and source-lineage packet case studies. | Complete for current repository scope; more examples are incremental enrichment. |
+| Keep the KB private-banking and wealth-management oriented but not branded. | Neutral language in indexes, capability map, audits and validation safety scans. | Complete for current repository scope. |
+| Review structure, remove duplication, improve navigation and support long-term repository use. | Root README, product README, technical README, dashboards, role guides, coverage matrices and operations standards. | Complete for current repository scope. |
+| Use implementation evidence without over-claiming. | Implementation-backed capability map, product implementation evidence review guide and current evidence-review snapshot. | Complete for current repository scope; revisit when app evidence changes. |
+| Build a technical KB for architecture, backend, APIs, data products, CI/CD, runtime, observability, SRE, Git, testing, security, performance, operations and documentation governance. | Technical README, technical dashboard, technical coverage matrix, role guide, practice labs, sample answers and technical sample audit. | Complete for current repository scope. |
+| Make the material useful for self-learning, KT and engineering-lead development. | Role guides, study roadmap, practice labs, sample answers, case studies, audits and dashboards. | Complete for current repository scope. |
 
 ## Residual Risk
 
-The repository is complete enough for the current curated knowledge-base goal: reusable product, domain, portfolio, reporting, technical, operating and engineering-leadership learning material. Completion does not mean the repository is frozen. The largest residual risks are now maintenance risks:
+The repository is complete for the current curated knowledge-base goal: reusable product, domain, portfolio, reporting, technical, operating and engineering-leadership learning material. Completion does not mean the repository is frozen. The largest residual risks are now maintenance risks:
 
 1. individual product packs may vary in depth even though navigation is strong,
 2. some coverage matrices intentionally contain detailed backlog language that should not be duplicated into routing indexes,
-3. implementation-backed capability guidance must be periodically refreshed from current evidence,
+3. implementation-backed capability guidance must stay synchronized with current evidence,
 4. examples should continue shifting from long scenario lists toward compact end-to-end case studies,
 5. future source packs must be curated into the standard structure rather than appended as raw material.
 
@@ -105,9 +120,9 @@ The repository is complete enough for the current curated knowledge-base goal: r
 
 | Priority | Slice | Reason |
 |---|---|---|
-| 1 | Refresh implementation-backed capability map from current evidence. | Keeps platform-aware guidance truthful without branding. |
-| 2 | Add more compact product edge-case examples. | Keeps high-value examples ahead of long scenario lists. |
-| 3 | Re-run product and technical sample audits after major new intake. | Keeps the completion claim evidence-backed. |
+| 1 | Add more compact product edge-case examples. | Keeps high-value examples ahead of long scenario lists. |
+| 2 | Re-run product and technical sample audits after major new intake. | Keeps the completion claim evidence-backed. |
+| 3 | Re-check implementation-backed capability guidance after material app changes. | Keeps platform-aware guidance truthful without branding. |
 
 ## Maintenance Rule
 

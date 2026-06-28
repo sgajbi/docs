@@ -75,7 +75,7 @@ Every product pack should be strong across these dimensions.
 | Worked examples and case studies | Strong | Product-family examples, calculation case studies, reporting outputs, QA scenarios, golden cases and implementation patterns. | Add scenario packs for the highest-value edge cases listed in this dashboard. |
 | Product taxonomy and vocabulary | Strong | Shared language for product family, subtype, wrapper, legal holding, exposure, lifecycle, valuation, liquidity and supportability states. | Add a smaller executive glossary for non-technical stakeholders. |
 | Source ownership and calculation dependencies | Strong | Source-owner maps, calculation inputs, reporting dependencies, data-quality states, implementation boundaries and source-lineage packet examples. | Extend the lineage-packet pattern to additional trade, corporate-action, valuation-override and report-correction cases as needed. |
-| Product capability boundaries | Strong | Generic baseline support, source-backed extensions, support-limited states, future candidates, reporting claims and QA evidence. | Periodically refresh from implementation evidence and open product gaps. |
+| Product capability boundaries | Strong | Generic baseline support, source-backed extensions, support-limited states, future candidates, reporting claims, QA evidence and current implementation-evidence promotion rules. | Periodically refresh when implementation evidence changes support boundaries. |
 | Product review rubric and role guide | Strong | Review dimensions and role-based navigation for business users, BAs, developers, architects, QA, operations, advisory and product development. | Add one-page KT sequence for onboarding a new product analyst or engineering lead. |
 
 ## Priority Backlog
@@ -88,7 +88,7 @@ The next useful work is not to add more broad topics. The library already has br
 | 2 | Extend source-lineage packet examples across trade, corporate action, valuation override and report correction workflows. | They help BAs, developers, QA and operations understand evidence requirements. |
 | 3 | Mandate and suitability edge cases across structured products, private markets, lending and model portfolios. | These connect product knowledge to advisory and DPM controls. |
 | 4 | Degraded-state reporting examples for stale NAV, stale price, blocked cash, unreconciled corporate action and unsupported product terms. | These improve client reporting, UI design, QA and operational support. |
-| 5 | Implementation-backed capability refresh. | This keeps neutral product documentation aligned with real supported behavior without branding the KB. |
+| 5 | Periodic implementation-backed capability review. | This keeps neutral product documentation aligned with real supported behavior without branding the KB. |
 
 ## Completion Criteria For Product-Pack Polish
 

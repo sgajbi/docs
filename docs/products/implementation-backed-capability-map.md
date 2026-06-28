@@ -9,6 +9,48 @@ It is not a branded feature list. Use it to distinguish:
 3. support-limited areas that should be labelled clearly,
 4. future candidates worth considering.
 
+## Evidence Review Snapshot
+
+This snapshot summarizes recurring implementation evidence patterns observed across a portfolio-platform ecosystem. It is intentionally neutral: it records capability boundaries and promotion rules, not application names or marketing claims.
+
+| Evidence Area | Evidence Pattern Observed | Neutral Capability Guidance |
+|---|---|---|
+| Source data foundation | Foundational services define portfolio, account, holding, transaction, cashflow, valuation, market/reference, mandate, data-quality and supportability ownership. | Product docs can rely on source-owned portfolio facts only when identity, source version, freshness, reconciliation and supportability metadata are present. |
+| Performance analytics | Dedicated analytics contracts cover TWR, MWR, contribution, attribution, benchmark context, composite performance, return series, supportability and lineage. | Performance guidance should treat methodology-owned outputs as distinct from source data, and should label partial history, missing flow classification, stale valuations and unsupported attribution dimensions. |
+| Risk analytics | Risk contracts cover portfolio risk, drawdown, rolling metrics, concentration, scenario/stress evaluation, risk events, mandate risk context, decomposition and audit lineage. | Risk guidance should preserve exposure denominator, scenario definition, product-family coverage, input supportability and reporting labels. |
+| Advisory workflow | Advisory workflow evidence covers proposal simulation, proposal lifecycle, policy evidence, alternatives, review posture, replay, consent-related posture and bounded narrative evidence. | Advisory guidance should separate recommendation evidence from product approval, discretionary authority, execution, settlement and client-ready publication. |
+| DPM workflow | Management workflow evidence covers rebalance simulation, mandate health, construction alternatives, waves, proof packs, outcome review, monitoring exceptions, action registers and run supportability. | DPM guidance should separate simulation and workflow readiness from order creation, OMS routing, fill confirmation, settlement truth and client communication. |
+| Reporting workflow | Reporting evidence covers summary/review payloads, report job lifecycle, section readiness, render/archive handoff, immutable input snapshots, upstream call lineage, hashing and support-safe metadata. | Reporting guidance should treat reports as evidence composition; reports must not invent portfolio, performance, risk, tax, suitability or legal truth. |
+| Gateway and experience API | Experience APIs compose route families, preserve upstream supportability, expose degraded/partial/unavailable/permission-blocked states and keep domain ownership upstream. | API guidance should distinguish composition from domain authority and require bounded status, reason codes, entitlement posture and source lineage. |
+| Product UI | UI evidence renders gateway-backed data, supportability states, workflow panels, report status, archived-document metadata and operational posture without calculating domain truth locally. | UI guidance should state that a visible panel proves presentation support only when backed by supported API behavior and source-owned data. |
+| AI assistance | AI capability evidence covers governed execution, workflow packs, provider routing, guardrails, evidence references, no-raw-payload controls, review-required posture and forbidden actions. | AI guidance should require grounding, source references, safety controls, review gates and explicit limits on advice, approval, execution, client communication and domain authority. |
+| Engineering governance | Repositories use OpenAPI, vocabulary, domain-product, trust-telemetry, security, Docker/runtime, observability, validation-lane and quality-gate evidence. | Product docs should cite support as source-backed only when contracts, tests, telemetry and runbooks can prove normal and degraded behavior. |
+
+## Capability Promotion Matrix
+
+Use this matrix before converting an observed implementation behavior into a product-support claim.
+
+| Capability Stage | Meaning | Minimum Evidence | Documentation Wording |
+|---|---|---|---|
+| Concept candidate | Useful capability idea, but not yet source-backed. | Business purpose, target users, required source owner, required calculations and required controls. | "Candidate capability; not yet supportable without source and method evidence." |
+| Source-backed foundation | Required facts are available from authoritative sources. | Source contracts, identity rules, freshness rules, data-quality state, lineage and reconciliation evidence. | "Source-backed foundation exists for the stated facts." |
+| Methodology-backed output | Calculation or workflow method is owned and testable. | Methodology owner, input contract, formula or workflow rule, supportability states and regression evidence. | "Methodology-backed for the stated scope and assumptions." |
+| Composed product surface | API, UI or report composes upstream evidence safely. | Experience contract, supportability mapping, entitlement checks, reason codes, report labels and degraded-state behavior. | "Composed surface for upstream evidence; not domain authority." |
+| Client-ready or operator-ready output | Output can be used in the intended business process. | Review/sign-off state, evidence packet, source version, archive/render status, delivery controls and operational runbook. | "Ready only for the named audience, purpose, date and evidence scope." |
+| Unsupported or support-limited | Capability lacks required source, method, controls or evidence. | Known gap, affected products, blocked claims and promotion requirements. | "Unsupported or support-limited; show reason and next evidence needed." |
+
+## Evidence-To-Documentation Rules
+
+| If Evidence Shows | Documentation May Say | Documentation Must Not Say |
+|---|---|---|
+| A source service owns portfolio facts. | Portfolio facts require source owner, freshness, data quality, lineage and reconciliation. | Downstream analytics, reports or advice are automatically correct. |
+| A methodology service returns a calculation. | Calculation is methodology-backed for the specified input scope and supportability state. | Every product subtype, missing input, stale price or partial history is supported. |
+| A report service composes a review payload. | Reporting composes upstream evidence and must carry section readiness and lineage. | Reporting owns portfolio truth, tax conclusions, risk methodology or suitability approval. |
+| A gateway exposes a route. | The experience API composes and stabilizes a product-facing contract. | The gateway is the domain owner or calculation engine. |
+| A UI renders a panel. | The user experience can present supported upstream states. | The UI proves full backend support or client-ready output by itself. |
+| An AI workflow produces a narrative. | AI assistance can summarize bounded evidence under guardrails and review posture. | AI output is advice, approval, order instruction or client communication without separate authority. |
+| A validation run passes a scenario. | That scenario is tested for the named data, product and workflow scope. | Adjacent products, jurisdictions, wrappers, booking centres or edge cases are certified. |
+
 ## Capability Ownership Model
 
 | Capability Area | Implementation-Backed Meaning | Product Documentation Boundary |
@@ -55,6 +97,19 @@ Use the following product-neutral posture when writing product docs, requirement
 | Insurance and annuities | Policy record, insurer, premium cashflows, basic value display. | Value basis, surrender value, guarantees/projections, policy loans, claims, beneficiaries, annuity payout schedule. | Policy contract model, ILP look-through, lapse workflow, retirement-income projection. |
 | Loans, Lombard, margin and collateral | Facility, drawdown, repayment, interest, collateral references, utilization. | Pledge graph, haircut/LTV, availability, reservations, margin calls, cure/liquidation workflow. | Cross-pledge allocation, collateral optimization, forced-liquidation simulation. |
 | Tax, regulatory reporting and wealth structuring | Client/entity records, product tags, income/cashflow records, reporting perimeter. | Jurisdiction-specific tax treatment, beneficial ownership, authority, trustee/executor roles, reportable-event rules. | Report-output templates, jurisdiction configuration, authority-aware access control. |
+
+## Implementation-Backed Product Review Questions
+
+Use these questions when refreshing a product pack from implementation evidence:
+
+1. Which source owns the product facts, lifecycle event, valuation input, transaction leg, cash movement or client/reporting scope?
+2. Which methodology owns the calculation, workflow decision, supportability state or analytics output?
+3. Which product families, wrappers, booking centres, currencies, client segments and report types are actually covered?
+4. Which states are `READY`, `PARTIAL`, `STALE`, `DEGRADED`, `UNAVAILABLE`, `PERMISSION_BLOCKED`, `UNSUPPORTED` or `UNKNOWN`?
+5. Which API, UI or report surfaces only compose upstream evidence?
+6. Which source fields, calculation policy versions, report labels, reason codes and QA scenarios prove the claim?
+7. Which adjacent capabilities are intentionally blocked because source, method, entitlement, review or operational evidence is missing?
+8. Which future candidate would become supportable if source contracts, controls, tests and runbooks were added?
 
 ## How To Use This Map
 
