@@ -51,6 +51,183 @@ Use this guide when designing:
 | `source_evidence` | Original feed, notice, confirmation, statement, contract, election, batch or manual approval reference. | Source system, document archive, workflow |
 | `reconciliation_break` | Difference between source, book, ledger, custody, reporting or analytics records. | Operations, data quality |
 
+## Instrument Static And Calculation Data Model
+
+Instrument static data should answer: what is the product, how does it behave, what terms drive cashflows, income, valuation, accrued interest, cost treatment, risk, eligibility and reporting. Static data belongs to the instrument/product master and should not be copied into every transaction or position except where a booked event needs the historical terms used at the time.
+
+### Instrument Static Principles
+
+| Principle | Meaning |
+|---|---|
+| Separate terms from holdings | Instrument terms define the product; positions define what a client holds. |
+| Version terms | Callable bonds, structured notes, fund share classes, policy values and product documents can change or be corrected. Keep `terms_version` and effective dates. |
+| Preserve calculation inputs | Day-count, coupon frequency, strike, barrier, NAV basis, fee schedule, maturity, multiplier and lot rules are calculation inputs, not display text. |
+| Keep product family generic | Use common fields where possible and product-specific extension blocks where needed. |
+| Store source and confidence | Instrument static should carry source system, effective date, approval state and data-quality state. |
+| Do not infer legal terms from names | Product name is not a calculation source. Calculations should use explicit fields and source evidence. |
+
+### Common Instrument Header
+
+| Field | Type | Description | Example |
+|---|---|---|---|
+| `instrument_id` | string | Canonical instrument identifier used across positions, transactions, prices and events. | `ISIN-US0378331005` |
+| `instrument_type` | enum | Specific instrument type. | `EQUITY`, `BOND`, `FUND`, `OPTION`, `STRUCTURED_NOTE`, `LOAN_FACILITY` |
+| `product_family` | enum | Broad product family. | `EQUITY`, `FIXED_INCOME`, `FUND`, `DERIVATIVE`, `CASH`, `LOAN`, `INSURANCE` |
+| `product_subtype` | string | Product subtype for implementation and reporting. | `CALLABLE_BOND`, `MUTUAL_FUND_SHARE_CLASS`, `AUTOCALL_NOTE` |
+| `name` | string | Display name. | `ABC Corp 5.25% 2029` |
+| `issuer_id` | string | Issuer, fund manager, insurer, borrower, bank or counterparty. | `ISSUER-ABC` |
+| `counterparty_id` | string | Contract counterparty where relevant. | `BANK-XYZ` |
+| `currency` | ISO currency | Primary denomination, pricing or contract currency. | `USD` |
+| `country_of_risk` | string | Risk country. | `US` |
+| `country_of_issue` | string | Issue or domicile country. | `LU` |
+| `exchange` | string | Trading venue when listed. | `NASDAQ` |
+| `identifier_set` | object | ISIN, CUSIP, SEDOL, ticker, FIGI, internal ID and vendor IDs. | `ISIN`, `ticker` |
+| `issue_date` | date | Issue, inception, policy start or contract start date. | `2026-01-15` |
+| `maturity_date` | date | Final maturity, expiry or termination date. | `2029-01-15` |
+| `status` | enum | Instrument lifecycle state. | `ACTIVE`, `MATURED`, `SUSPENDED`, `REDEEMED`, `DELISTED` |
+| `terms_version` | string | Version of calculation-relevant terms. | `v3` |
+| `terms_effective_from` | date | Date terms version becomes effective. | `2026-01-15` |
+| `source_system` | string | Golden source for static data. | `instrument-master` |
+| `source_document_ref` | string | Prospectus, term sheet, KID, policy document, confirmation or facility agreement. | `DOC-12345` |
+| `supportability_state` | enum | Static-data support state. | `SUPPORTED`, `SOURCE_LIMITED`, `MANUAL`, `ESTIMATED`, `UNSUPPORTED` |
+
+### Calculation Attribute Groups
+
+| Attribute Group | Purpose | Typical Fields |
+|---|---|---|
+| Identity and classification | Drives routing, reporting, tax, eligibility and supportability. | Product family, subtype, identifiers, issuer, domicile, exchange, sector, asset class, complexity, liquidity class. |
+| Trading and settlement | Drives order capture, settlement, cash availability and failed-settlement handling. | Trading currency, settlement currency, lot size, minimum trade size, settlement cycle, calendar, cut-off, venue. |
+| Cashflow schedule | Drives coupons, dividends, distributions, principal repayment, premiums, fees and maturity cashflows. | Coupon rate, frequency, day count, ex-date, record date, pay date, amortization schedule, capital-call schedule. |
+| Income classification | Drives income reporting, tax, withholding, performance income and client statements. | Income type, tax category, withholding eligibility, distribution components, return-of-capital flag. |
+| Accrual rules | Drives accrued interest/income/expense. | Accrual start, day-count convention, business-day convention, coupon period, compounding, reset dates. |
+| Valuation rules | Drives market value and degraded-state behavior. | Price basis, quote type, NAV basis, valuation frequency, stale threshold, fair-value method, FX source. |
+| Cost and lot rules | Drives cost basis, realized P&L, tax lots and corporate-action adjustments. | Cost method, acquisition-date basis, lot matching method, amortization/accretion rule, cost allocation rule. |
+| Risk and exposure | Drives concentration, stress, Greeks, duration, issuer/counterparty and look-through analytics. | Underlyings, delta, duration, spread duration, rating, sector, country, leverage, collateral, counterparty. |
+| Lifecycle and servicing | Drives events, notifications, elections, redemptions and corporate actions. | Callable/putable flags, call schedule, observation schedule, corporate-action eligibility, election options. |
+| Eligibility and governance | Drives advisory, mandate, APU, suitability and restrictions. | Approved status, target market, complexity, product risk rating, liquidity risk, jurisdiction restrictions. |
+
+### Product-Specific Instrument Attributes
+
+| Product Area | Static Attributes Needed For Calculation | Used To Calculate |
+|---|---|---|
+| Cash currency | Currency code, decimals, holiday calendar, overdraft eligibility, interest basis. | Cash balances, value dates, FX translation, overdraft interest, available cash. |
+| Term deposits | Principal currency, rate type, fixed/floating rate, start date, maturity date, day count, compounding, early-break rules, rollover instruction. | Accrued interest, maturity proceeds, break cost, yield, cash availability. |
+| Money market instruments | Issue date, maturity, discount/yield basis, day count, issuer, settlement convention. | Discount accretion, yield, accrued income, maturity cashflow. |
+| FX spot/forward/swap/NDF | Currency pair, dealt currency, settlement currency, value date, forward rate, fixing source, NDF settlement currency. | Settlement cash, realized FX, forward MTM, NDF fixing cashflow. |
+| Equity | Ticker/ISIN, exchange, shares outstanding if needed, sector, country, dividend currency, corporate-action eligibility. | Market value, dividends, corporate actions, exposure, concentration. |
+| ETF | Exchange, fund domicile, base currency, distribution policy, replication type, expense ratio, underlying index, creation/redemption notional if relevant. | NAV/price valuation, distributions, look-through exposure, fees, liquidity. |
+| Mutual fund share class | Fund ID, share-class ID, NAV currency, dealing frequency, cut-off, settlement cycle, minimums, distribution policy, fee schedule, swing-pricing flag. | Subscription/redemption units, NAV value, fees, distributions, pending dealing state. |
+| Hedge fund/alternative fund | NAV frequency, lock-up, notice period, gate terms, side-pocket terms, fee structure, liquidity class. | Stale NAV state, redemption eligibility, fees, liquidity reporting, side-pocket modelling. |
+| Bond | Coupon type, coupon rate, coupon frequency, day count, business-day convention, issue date, maturity, call/put schedule, amortization, clean/dirty price basis, rating, seniority. | Accrued interest, coupon cashflows, yield, duration, maturity/redemption proceeds, amortized cost. |
+| Floating-rate note | Reference index, spread, reset frequency, fixing calendar, cap/floor, lookback/lockout if any. | Coupon reset, accrued interest, projected cashflows, rate sensitivity. |
+| Inflation-linked bond | Inflation index, lag, base index, index ratio convention, deflation floor. | Inflation-adjusted principal, coupon, accrued interest, real yield. |
+| Structured note | Issuer, note currency, notional, payoff type, underlyings, strike, barrier, coupon condition, observation dates, autocall schedule, protection level, settlement mode. | Coupon eligibility, autocall/redemption, downside payoff, physical settlement, scenario values. |
+| Option/warrant | Underlying, call/put, strike, expiry, exercise style, contract multiplier, premium currency, settlement style. | MTM, exercise/expiry outcome, delta exposure, premium cost, physical/cash settlement. |
+| Future | Underlying, contract size, tick size/value, expiry, margin currency, settlement style, exchange. | Variation margin, notional exposure, P&L, expiry/roll handling. |
+| Swap | Legs, notional, fixed/floating rates, reset schedule, payment calendar, day count, collateral terms, counterparty. | Accrual, MTM, settlement cashflows, counterparty exposure. |
+| Credit derivative/CDS | Reference entity, notional, coupon/spread, maturity, recovery assumption, credit event terms. | Premium accrual, credit event settlement, spread exposure. |
+| Private equity/private credit fund | Commitment currency, commitment period, investment period, capital-call mechanics, distribution waterfall, management fee, carry, NAV frequency. | Commitment roll-forward, capital calls, distributions, fees, NAV lag, unfunded exposure. |
+| Real estate/direct property | Ownership percentage, appraisal basis, appraisal date, rental terms, expense terms, debt links, currency. | Appraised value, income, expenses, leverage, liquidity and reporting confidence. |
+| Precious metals/commodities | Commodity type, unit of measure, purity, storage location, account/certificate form, pricing source. | Unit conversion, market value, storage fees, collateral value. |
+| Loan/facility | Facility limit, drawn currency, rate type, margin/spread, reset, maturity, repayment schedule, collateral eligibility, covenants. | Interest accrual, repayment schedule, available credit, LTV, margin call. |
+| Insurance policy/annuity | Policy type, premium schedule, policy currency, cash value basis, surrender rules, benefit terms, policy loan terms, beneficiary rules. | Premium due, surrender value, benefit value, policy loan balance, claim cashflow. |
+| Trust/holding vehicle | Legal owner, beneficial-owner rules, distribution rules, authority structure, asset ownership map. | Report grouping, entitlement, distribution mapping, access control, tax context. |
+
+### Calculation Dependency Matrix
+
+| Calculation | Required Instrument Static | Required Position/Transaction Data | Output |
+|---|---|---|---|
+| Market value | Price basis, valuation currency, quote/NAV source, multiplier, FX source | Quantity/nominal/notional, as-of date, FX rate | Local and reporting market value. |
+| Accrued interest | Coupon rate, day count, frequency, coupon dates, business-day convention | Nominal, settlement date, holding period, prior coupon state | Accrued income receivable/payable. |
+| Coupon cashflow | Coupon schedule, coupon rate, currency, record/pay dates, tax category | Eligible nominal, record-date position, withholding status | Gross coupon, tax, net cash. |
+| Dividend/distribution | Distribution policy, ex-date, record date, pay date, income components | Eligible quantity/units, tax profile, election | Income, return of capital, reinvested units or cash. |
+| Fund subscription units | NAV basis, dealing date, cut-off, fees, settlement cycle | Subscription cash amount, accepted order, confirmed NAV | Units created, cost basis, pending/settled state. |
+| Fund redemption proceeds | NAV basis, dealing date, fees, settlement cycle, redemption gates | Units redeemed, confirmed NAV, fee/tax legs | Cash proceeds, realized P&L, position reduction. |
+| Bond yield/duration | Coupon, maturity, call schedule, day count, price basis, redemption value | Clean/dirty price, nominal, settlement date | Yield, duration, convexity, sensitivity. |
+| Amortized cost | Coupon, effective yield, amortization/accretion policy | Acquisition cost, nominal, cashflows, lots | Book cost, premium/discount amortization. |
+| Realized P&L | Cost method, lot matching rules, price basis, fees/taxes | Disposal transaction, lots, FX rates | Realized gain/loss and tax basis. |
+| Corporate-action adjustment | Corporate-action terms, ratio, consideration, cost allocation rule | Record-date holding, lots, election | New quantity, cash-in-lieu, cost-basis allocation. |
+| Structured note payoff | Underlyings, strikes, barriers, observation dates, coupon condition, protection level | Holding nominal, observed levels, issuer confirmation | Coupon, autocall, redemption, physical settlement. |
+| Option exercise outcome | Strike, multiplier, settlement style, expiry, underlying | Contracts held, exercise event, market/settlement price | Underlying quantity/cash settlement, P&L. |
+| Derivative MTM | Contract terms, curve/model inputs, collateral terms | Position notional/contracts, valuation date, market data | Fair value, unrealized P&L, exposure. |
+| Margin requirement | Margin method, haircut, eligible collateral rules, thresholds | Derivative MTM, collateral positions, cash | Margin call, excess/deficit, collateral movement. |
+| Private-market commitment roll-forward | Commitment terms, recallable rules, fee/carry terms | Calls, distributions, NAV statements, transfers | Paid-in, unfunded, recallable, NAV, DPI/TVPI inputs. |
+| Loan interest | Rate type, spread, reset calendar, day count, repayment schedule | Drawn balance, repayment transactions, rate fixings | Interest accrual, payment due, effective borrowing cost. |
+| LTV/buying power | Collateral eligibility, haircut rules, facility limits, concentration caps | Pledged positions, market values, loan balance | Eligible collateral, LTV, margin deficit, buying power. |
+| Insurance surrender value | Policy terms, surrender charges, premium schedule, policy-loan terms | Policy value, premiums paid, loan balance, surrender event | Net surrender value and cash proceeds. |
+| Tax withholding | Tax category, income type, jurisdiction, treaty eligibility | Client/account tax profile, income transaction | Withholding tax, reclaim receivable, net income. |
+
+### Instrument Static Quality Rules
+
+1. Every instrument used in a transaction or position must have a valid `instrument_id` and product classification.
+2. Calculation-critical fields must carry source, effective date and quality state.
+3. If a calculation field is missing, the app should produce a degraded result with reason code instead of silently guessing.
+4. For historical transactions, calculations should use the terms version effective on the transaction or event date.
+5. Corporate-action terms should be stored as lifecycle events and linked to instrument static where they permanently alter terms.
+6. Fund, private-market and policy values require valuation date and source confidence; stale values must be visible.
+7. Structured products and derivatives require explicit underlying identifiers and payoff/contract terms before risk or scenario analytics can be trusted.
+8. Product display names should never be parsed to infer coupon rate, maturity, barrier, leverage or payoff.
+
+### Instrument Static Examples
+
+#### Bond Static Example
+
+| Field | Example |
+|---|---|
+| `instrument_type` | `BOND` |
+| `currency` | `USD` |
+| `coupon_type` | `FIXED` |
+| `coupon_rate` | `5.25%` |
+| `coupon_frequency` | `SEMI_ANNUAL` |
+| `day_count` | `30/360` |
+| `maturity_date` | `2029-01-15` |
+| `price_basis` | `PERCENT_OF_PAR` |
+| `call_schedule` | Callable at 101 from `2027-01-15` |
+| Calculation use | Accrued interest, coupon cashflows, yield, duration, redemption proceeds. |
+
+#### Fund Share-Class Static Example
+
+| Field | Example |
+|---|---|
+| `instrument_type` | `FUND_SHARE_CLASS` |
+| `nav_currency` | `USD` |
+| `dealing_frequency` | `DAILY` |
+| `cut_off_time` | `13:00 fund domicile time` |
+| `settlement_cycle` | `T+3` |
+| `distribution_policy` | `ACCUMULATING` |
+| `swing_pricing_flag` | `true` |
+| Calculation use | Subscription units, redemption proceeds, NAV valuation, liquidity state. |
+
+#### Structured Note Static Example
+
+| Field | Example |
+|---|---|
+| `instrument_type` | `STRUCTURED_NOTE` |
+| `issuer_id` | `ISSUER-XYZ` |
+| `notional_currency` | `USD` |
+| `payoff_type` | `AUTOCALLABLE_REVERSE_CONVERTIBLE` |
+| `underlying_ids` | Basket of equity identifiers |
+| `strike_levels` | Per underlying |
+| `barrier_level` | `60%` |
+| `coupon_condition` | Coupon paid if all underlyings above coupon barrier |
+| `observation_schedule` | Monthly observations |
+| `settlement_mode` | `CASH_OR_PHYSICAL` |
+| Calculation use | Coupon eligibility, autocall, downside payoff, physical settlement, scenario analytics. |
+
+#### Loan Facility Static Example
+
+| Field | Example |
+|---|---|
+| `instrument_type` | `LOAN_FACILITY` |
+| `facility_currency` | `USD` |
+| `limit_amount` | `1000000` |
+| `rate_type` | `FLOATING` |
+| `reference_rate` | `SOFR` |
+| `spread` | `1.50%` |
+| `interest_day_count` | `ACT/360` |
+| `collateral_policy_id` | `COLL-POLICY-001` |
+| Calculation use | Interest accrual, available credit, LTV, margin call, repayment schedule. |
+
 ## Position Model
 
 A position should answer: what is held or owed, where it is booked, what it is worth, what state it is in, what source supports it and how it should be used.
@@ -130,6 +307,200 @@ A position should answer: what is held or owed, where it is booked, what it is w
 6. Insurance positions should separate policy status, premium flows, surrender value, cash value, benefit value and loan value.
 7. A position can be reportable even when not tradeable, transferable or fully supported.
 8. A closed position should generally have zero open quantity or nominal unless residual cash, unsettled lots, pending claims or corrections remain.
+
+## Position Architecture For All Product Families
+
+Positions should be modelled as state snapshots derived from transactions, valuations, lifecycle events and source positions. A robust portfolio-management app needs more than one position number. It needs legal position, cash state, cost lots, valuation, exposure, collateral eligibility, restrictions, source confidence and operational state.
+
+### Position Layers
+
+| Layer | What It Answers | Record Type | Example |
+|---|---|---|---|
+| Legal holding | What does the client legally own or owe? | `position_snapshot` | 10,000 shares, USD 100,000 bond nominal, USD 250,000 loan liability |
+| Cash balance | What currency cash is settled, pending, available or restricted? | `cash_balance_snapshot` | USD settled cash, SGD pending receivable |
+| Cost lot | What acquisition lots remain open and what is their cost basis? | `position_lot` | Equity lot acquired on trade date with FIFO remaining quantity |
+| Valuation | What is the position worth under a defined valuation basis? | `valuation_snapshot` plus position valuation fields | Exchange price, NAV, custodian value, appraisal, model value |
+| Accrual | What income or expense has accrued but not paid? | Accrual transaction or accrual balance | Bond coupon accrued income, loan interest payable |
+| Commitment/obligation | What future funding or obligation exists? | `COMMITMENT_OR_OBLIGATION` | Private fund unfunded commitment, capital call payable |
+| Liability | What is owed? | `LOAN_LIABILITY` or payable position | Drawn credit line, margin loan, policy loan |
+| Collateral | What is pledged, eligible or restricted? | `COLLATERAL_PLEDGE` | Bond pledged against Lombard facility |
+| Exposure | What market, issuer, currency, duration, delta or look-through exposure exists? | `exposure_snapshot` | Equity delta from option, underlying exposure from structured note |
+| Reporting state | Can this position be shown in client reports and with what disclosure? | Reporting classification on position/snapshot | Estimated NAV, stale price, manual valuation |
+| Operational state | Is it reconciled, disputed, restricted, pending or unsupported? | Position state and reconciliation break | Custody mismatch, stale NAV, pending transfer |
+
+### Position Component Matrix
+
+| Component | Required For | Must Include | Common Mistake |
+|---|---|---|---|
+| Quantity | Equities, funds, ETFs, REITs, derivatives, units, metals | Quantity type, unit basis, sign convention, source | Treating units and nominal as the same. |
+| Nominal | Bonds, notes, loans, deposits | Principal/face/par basis, currency, amortization state | Using market value as nominal. |
+| Notional | Derivatives, FX forwards, swaps, structured products | Notional currency, multiplier, payoff/exposure basis | Treating notional as client market value. |
+| Market value | All valued positions | Currency, valuation date, source, basis, FX rate | Showing value without stale/estimated flag. |
+| Cost basis | Taxable/reportable investments | Cost method, lot link, currency, adjustments | Recomputing from average price when lot rules require FIFO/specific ID. |
+| Accrued income | Bonds, deposits, loans, money market, private debt | Accrual start/end, day-count, currency, tax treatment | Double counting accrued income in both price and separate income. |
+| Commitment | Private markets, credit facilities, real assets | Commitment amount, funded amount, unfunded amount, recallable amount | Treating commitment as current market value. |
+| Drawn liability | Loans, margin, overdrafts, policy loans | Drawn amount, rate, maturity, collateral link | Netting borrowing against investments without trace. |
+| Collateral pledge | Lending, margin, derivatives | Pledged asset, facility link, haircut, eligible value, restriction | Treating pledged assets as unavailable without showing reason. |
+| Policy values | Insurance and annuities | Cash value, surrender value, benefit value, policy loan, premium status | Mixing surrender value and death benefit. |
+| NAV/appraisal | Funds, private markets, real assets | NAV/appraisal date, source, confidence, lag | Treating old NAV as current without disclosure. |
+| Restriction | Locked, pledged, sanctioned, gated, suspended assets | Restriction type, reason, authority, start/end | Hiding restrictions until trade fails. |
+| Supportability | Source-limited, manual, estimated, unsupported states | Reason code, owner, evidence, report behavior | Presenting weak data as fully supported. |
+
+### Position State Dimensions
+
+Use multiple state fields because a position can be active, pledged, stale-priced and reportable at the same time.
+
+| State Dimension | Typical Values | Applies To | Why It Matters |
+|---|---|---|---|
+| Holding state | `ACTIVE`, `PENDING_OPEN`, `PENDING_CLOSE`, `CLOSED`, `MATURED`, `EXPIRED` | All positions | Explains legal/economic existence. |
+| Settlement state | `SETTLED`, `PENDING_RECEIVE`, `PENDING_DELIVER`, `PARTIAL`, `FAILED` | Securities, cash, funds, FX, derivatives | Separates trade date from finality. |
+| Valuation state | `CURRENT`, `STALE`, `ESTIMATED`, `MODELLED`, `MANUAL`, `MISSING` | All valued positions | Drives reporting confidence and analytics controls. |
+| Reconciliation state | `MATCHED`, `UNMATCHED`, `TOLERANCE_MATCHED`, `DISPUTED`, `UNDER_REVIEW` | Book/custody/source positions | Drives operational breaks. |
+| Liquidity state | `LIQUID`, `NOTICE_PERIOD`, `LOCKED_UP`, `GATED`, `SUSPENDED`, `ILLIQUID` | Funds, private markets, real assets, structured products | Drives advice, reporting and rebalancing feasibility. |
+| Restriction state | `NONE`, `PLEDGED`, `BLOCKED`, `COURT_ORDERED`, `SANCTIONED`, `IN_TRANSFER`, `CLIENT_RESTRICTED` | All positions | Prevents incorrect trading or withdrawal availability. |
+| Collateral state | `NOT_PLEDGED`, `PLEDGED`, `ELIGIBLE`, `INELIGIBLE`, `UNDER_MARGIN_CALL`, `RELEASE_PENDING` | Lending, derivatives, margin | Drives borrowing capacity and margin controls. |
+| Supportability state | `SUPPORTED`, `SOURCE_LIMITED`, `MANUAL`, `ESTIMATED`, `UNSUPPORTED` | All product families | Tells APIs/UI/reports how much confidence to place in the record. |
+| Reporting state | `REPORTABLE`, `REPORTABLE_WITH_DISCLOSURE`, `SUPPRESSED`, `INTERNAL_ONLY` | Client reports/statements | Avoids misleading client-facing output. |
+
+### Product-Specific Position Treatment
+
+| Product Area | Position To Store | Key Fields | Valuation Basis | Special Handling |
+|---|---|---|---|---|
+| Currency cash | `CASH_BALANCE` per account/currency | Settled, pending receivable, pending payable, available, restricted, overdraft | Par currency amount | Do not net currencies; preserve value date and restriction reason. |
+| Term deposits | `DEPOSIT_POSITION` plus cash | Principal, rate, maturity, accrued interest, break cost | Principal plus accrued or fair value depending reporting basis | Placement and maturity are transactions; rate reset is lifecycle/reference data unless value changes. |
+| Money market funds | `FUND_POSITION` | Units, NAV, accrued/distributed income, liquidity | NAV | Treat as fund position, not cash, unless platform has explicit cash-equivalent reporting rule. |
+| FX spot | Cash balances | Bought/sold currency cash, value date, FX rate | Currency amount plus translated reporting value | No security position; two cash legs. |
+| FX forwards/swaps/NDFs | `DERIVATIVE_CONTRACT` | Notional, maturity, forward rate, MTM, settlement currency | Mark-to-market/model value | Separate notional exposure from MTM and settlement cash. |
+| Direct equities | `SECURITY_POSITION` | Shares, price, market value, lot cost, restrictions | Exchange price | Corporate actions must update quantity/lots without fake buy/sell. |
+| Bonds | `SECURITY_POSITION` | Nominal, clean price, dirty price, accrued income, yield, maturity | Price percent of par plus accrued treatment | Keep nominal, market value and accrued interest separate. |
+| Structured notes | `STRUCTURED_PRODUCT_POSITION` | Nominal, issuer, payoff, observations, barrier state, valuation | Issuer/custodian/model value | Observation state is lifecycle; exposure may reference underlying basket. |
+| Mutual funds/ETFs | `FUND_POSITION` or `SECURITY_POSITION` | Units, NAV/price, share class, dealing status | NAV or exchange price | Pending subscriptions/redemptions must not be treated as settled units. |
+| Hedge funds | `FUND_POSITION` | Units/shares, NAV date, lockup, gates, side pockets | Administrator NAV | Stale NAV and liquidity restrictions must be explicit. |
+| Private equity/private credit | `PRIVATE_MARKET_INTEREST` and `COMMITMENT_OR_OBLIGATION` | Commitment, paid-in, unfunded, recallable, NAV, distributions | Manager NAV, often lagged | Commitment roll-forward is as important as NAV. |
+| Real estate/direct real assets | `REAL_ASSET_HOLDING` | Ownership share, appraisal value, income, expenses, debt link | Appraisal or manager valuation | Valuation date and confidence must be visible. |
+| Commodities/precious metals | `REAL_ASSET_HOLDING`, `SECURITY_POSITION`, or `FUND_POSITION` | Unit type, weight, purity, storage, certificate/account form | Spot, custodian, ETP price | Ounces, grams, bars, certificates and ETP units are not interchangeable. |
+| Listed derivatives | `DERIVATIVE_CONTRACT` | Contracts, multiplier, strike, expiry, premium, MTM, margin | Exchange or model MTM | Position quantity and underlying exposure are separate. |
+| OTC derivatives/swaps | `DERIVATIVE_CONTRACT` | Notional, reset dates, MTM, collateral, counterparty | Model/counterparty/collateralized value | Counterparty exposure and collateral state are required. |
+| Loans/margin/Lombard | `LOAN_LIABILITY` | Drawn amount, limit, rate, maturity, collateral link, LTV | Outstanding liability plus accrued interest | Do not hide liability by netting against collateral. |
+| Collateral | `COLLATERAL_PLEDGE` linked to asset and facility | Pledged quantity/value, haircut, eligible value, restriction | Haircut-adjusted eligible value | Asset remains a holding but has restricted/collateral state. |
+| Insurance/annuities | `INSURANCE_POLICY` | Premium, cash value, surrender value, benefit value, policy loan, beneficiaries | Insurer value or actuarial basis | Policy value, benefit value and surrender value are different. |
+| Trust/estate/family office vehicles | Underlying position plus ownership/authority context | Beneficial owner, legal owner, authority, distribution rules | Depends on underlying asset | Authority changes are governance records, not economic transactions. |
+| Tax lots/reporting balances | `position_lot` or receivable/payable | Cost basis, acquisition date, tax status, reclaim receivable | Tax/accounting policy basis | Tax view should reconcile to economic transaction view. |
+
+### Position Relationship Model
+
+Positions should be connected to the records that explain them:
+
+```text
+account / portfolio
+  -> position_snapshot as of date
+       -> instrument / policy / facility / currency
+       -> source_position_id and source_system
+       -> latest valuation_snapshot
+       -> open position_lot records
+       -> transaction_leg records that changed the position
+       -> lifecycle_thread records for corporate actions and lifecycle changes
+       -> restriction / pledge / collateral relationship
+       -> exposure_snapshot records for analytics
+       -> reconciliation_break records where source/book/report differ
+```
+
+For implementation, keep these relationships explicit:
+
+| Relationship | Key Fields | Use |
+|---|---|---|
+| Position to instrument | `position.instrument_id` | Product terms, valuation basis, identifiers and exposure mapping. |
+| Position to account | `position.account_id` | Legal booking, custody, cash and entitlement eligibility. |
+| Position to portfolio | `position.portfolio_id` | Reporting and analytics grouping. |
+| Position to transaction legs | `position_id`, `instrument_id`, `account_id`, date range, `leg_type` | Roll-forward, audit trail and reconciliation. |
+| Position to lots | `position_id`, `lot_id` | Cost basis, realized P&L and tax treatment. |
+| Position to valuation | `instrument_id`, `valuation_date`, `valuation_basis`, currency | Market value and stale-price controls. |
+| Position to collateral/facility | `pledge_id`, `facility_id`, pledged `position_id` | LTV, margin, eligibility and restrictions. |
+| Position to exposure | `position_id`, `exposure_snapshot_id` | Look-through, risk, concentration and stress testing. |
+| Position to source evidence | `source_system`, `source_position_id`, `lineage_id` | Data quality, lineage and operating support. |
+
+### Position Snapshot Versus Position Delta
+
+Use both concepts:
+
+| Concept | Purpose | Source |
+|---|---|---|
+| Position snapshot | Current or as-of state for screens, reports and APIs. | Custody/book snapshot or roll-forward output. |
+| Position delta | Change caused by a transaction leg or lifecycle event. | Transaction legs and corporate-action processing. |
+| Reconciled position | Position after comparing source, book, custody, ledger and report outputs. | Reconciliation engine. |
+| Derived position | View derived for analytics, such as exposure, look-through or risk contribution. | Analytics engine. |
+
+Do not store only snapshots without deltas. Without deltas, the app cannot explain why holdings changed. Do not store only deltas without snapshots. Without snapshots, the app becomes slow and fragile for reporting and user experience.
+
+### Position Sign Conventions
+
+Define sign conventions once and enforce them in validation:
+
+| Position Type | Positive Means | Negative Means | Notes |
+|---|---|---|---|
+| Asset/security/fund | Client owns asset. | Short position or delivery obligation if allowed. | Shorting should be explicitly supported before negative holdings are allowed. |
+| Cash | Client has cash balance. | Overdraft or payable cash balance. | Available cash may be lower than settled cash because of restrictions. |
+| Loan liability | Client owes money. | Usually invalid unless representing overpayment/credit. | Keep liability sign convention clear in APIs and UI. |
+| Derivative MTM | Positive value to client. | Negative value to client. | Notional sign and MTM sign are different. |
+| Commitment | Client has remaining obligation. | Usually invalid; reductions should lower amount. | Recallable distributions may increase unfunded/recallable obligation. |
+| Collateral pledge | Amount pledged/restricted. | Usually invalid. | Asset holding remains, but available/unpledged amount decreases. |
+| Policy value | Value attributable to policy. | Usually invalid. | Policy loan should be separate liability, not negative policy value. |
+
+### Position Examples
+
+#### Bond Position
+
+| Attribute | Example |
+|---|---|
+| Position type | `SECURITY_POSITION` |
+| Quantity basis | `nominal_amount = 100000`, `quantity_type = NOMINAL` |
+| Value | Clean price, accrued income, dirty value and reporting market value separated. |
+| Lots | Acquisition lot tracks cost, premium/discount and disposal basis. |
+| Lifecycle links | Coupon, call, amortization, maturity, default and rating events. |
+| Common failure | Reporting dirty value as price or double-counting accrued income. |
+
+#### Private Market Position
+
+| Attribute | Example |
+|---|---|
+| Position types | `PRIVATE_MARKET_INTEREST` plus `COMMITMENT_OR_OBLIGATION` |
+| Quantity basis | Commitment and ownership percentage, not exchange-traded units. |
+| Value | Latest manager NAV with NAV date and confidence state. |
+| Cashflows | Capital calls, distributions, recallable distributions, fees and tax. |
+| Lifecycle links | Commitment, capital-call notices, distribution notices, NAV statements. |
+| Common failure | Showing NAV only and losing unfunded commitment and liquidity obligation. |
+
+#### Derivative Position
+
+| Attribute | Example |
+|---|---|
+| Position type | `DERIVATIVE_CONTRACT` |
+| Quantity basis | Contracts or notional, multiplier, underlying, expiry, strike/rate. |
+| Value | MTM/fair value separate from notional exposure. |
+| Cashflows | Premium, margin, settlement cash, fees and collateral. |
+| Lifecycle links | Trade, margin call, exercise, expiry, settlement, reset/fixing. |
+| Common failure | Treating notional as market value or hiding margin/collateral. |
+
+#### Collateralized Loan Position
+
+| Attribute | Example |
+|---|---|
+| Position types | `LOAN_LIABILITY`, `COLLATERAL_PLEDGE`, underlying asset positions |
+| Liability | Drawn amount, limit, interest rate, maturity and facility state. |
+| Collateral | Pledged assets, market value, haircut, eligible value and restrictions. |
+| Cashflows | Drawdown, repayment, interest, margin call, collateral release. |
+| Lifecycle links | Facility approval, drawdown approval, margin-call notice, pledge/release. |
+| Common failure | Netting loan against portfolio value without showing borrowing and pledge details. |
+
+#### Insurance Policy Position
+
+| Attribute | Example |
+|---|---|
+| Position type | `INSURANCE_POLICY` |
+| Values | Cash value, surrender value, death/benefit value, premium due, policy loan. |
+| Cashflows | Premiums, fees, surrender, claims, policy-loan drawdowns/repayments. |
+| Lifecycle links | Policy issue, beneficiary change, premium due, surrender request, claim approval. |
+| Common failure | Showing benefit value as liquid portfolio market value. |
 
 ## Transaction Model
 
@@ -557,6 +928,225 @@ Use the most specific generic type available. Use `CORPORATE_ACTION` only when t
 | Legs | Note nominal closes, underlying shares open, coupon/cash-in-lieu cash legs if applicable. |
 | Position | Structured product closes; delivered equity/security position opens. |
 | QA | Payoff formula, conversion ratio, barrier/fixing evidence and delivered quantity reconcile. |
+
+## Connecting Instrument Lifecycle, Product Legs And Cash Legs
+
+Transactions from the same instrument lifecycle should be connected through explicit identifiers. Do not rely on date, amount or description matching. A portfolio-management app should be able to start from any record - instrument, lifecycle event, transaction, leg, cash movement, lot, ledger entry or position - and trace the full economic story.
+
+### Relationship Identifiers
+
+| Identifier | Scope | Purpose | Example |
+|---|---|---|---|
+| `instrument_id` | Product/instrument | Connects all lifecycle events, transactions, positions, valuations and exposures for the same instrument. | Apple equity ISIN, bond ISIN, fund share class, note ID |
+| `lifecycle_thread_id` | Instrument event thread | Connects all records for one corporate action, coupon cycle, maturity, observation, option exercise, capital call or correction process. | One dividend event across announcement, record date and payment |
+| `lifecycle_event_id` | Source event | Links a specific announcement, election, entitlement, settlement or correction event to derived transactions. | Custodian corporate-action event |
+| `transaction_group_id` | Economic transaction group | Connects all transactions and legs that must be understood together. | Cash-and-stock merger group |
+| `transaction_id` | Transaction header | Connects a transaction to its legs, ledger entries, lots and source evidence. | Dividend payment transaction |
+| `leg_id` | Transaction leg | Connects each atomic product, cash, income, tax, fee, collateral or liability effect. | Cash leg for dividend net payment |
+| `cash_movement_id` | Cash ledger | Connects cash leg to settled/pending cash balance and payment rail. | USD dividend cash credit |
+| `position_id` | Position thread/snapshot | Connects position changes and as-of holdings. | Equity position before and after split |
+| `lot_id` | Cost-lot thread | Connects acquisition, disposal, transfer, corporate action and tax basis. | Lot adjusted by stock split |
+| `ledger_entry_id` | Accounting ledger | Connects debit/credit postings back to transaction legs. | Dividend income credit and tax debit |
+| `correction_group_id` | Correction chain | Connects original, reversal, replacement and restatement records. | Corrected corporate-action tax |
+
+### Parent-Child Record Shape
+
+Use this pattern for any lifecycle that creates multiple economic effects:
+
+```text
+instrument
+  -> lifecycle_thread
+       -> lifecycle_event announcement / election / entitlement / processing / settlement
+            -> transaction_group
+                 -> transaction_header
+                      -> transaction_leg product side
+                      -> transaction_leg cash side
+                      -> transaction_leg fee/tax/income/accrual side
+                      -> position_lot updates
+                      -> cash_movement records
+                      -> ledger_entry records
+                 -> related transaction_header when the event must be split by type
+            -> reconciliation_break when source/book/report do not match
+```
+
+The `transaction_group_id` is the practical key for screens, APIs and reconciliation. It lets the app show one business event even when the book has multiple transactions.
+
+### Product Side And Cash Side
+
+| Side | What It Represents | Leg Types | Position Impact | Cash Impact |
+|---|---|---|---|---|
+| Product side | What happened to the held asset, liability, policy, commitment, derivative or collateral. | `SECURITY`, `DERIVATIVE`, `LIABILITY`, `COMMITMENT`, `COLLATERAL`, `LOT` | Quantity, nominal, notional, policy value, commitment, collateral or lot changes. | Usually none directly. |
+| Cash side | What money moved or became receivable/payable. | `CASH`, `INCOME`, `FEE`, `TAX`, `ACCRUAL`, `MARGIN` | Cash balance, receivable, payable or accrual state changes. | Debit, credit, pending, settled, restricted or value-dated cash changes. |
+| Accounting side | How the business effect posts to books. | Ledger debit/credit entries mapped from transaction legs. | Book value, income, expense, payable, receivable or capital accounts. | Ledger cash account impact. |
+| Reporting side | How the event appears in statements and analytics. | Reporting classifications derived from transaction and legs. | Holdings, income, realized P&L, performance, cashflow and disclosures. | Client-visible cashflow classification. |
+
+### Leg Connection Rules
+
+1. One business event may create one `transaction_group_id` with several `transaction_id` records if the event has different canonical transaction types.
+2. Each `transaction_id` must have one or more `transaction_leg` records.
+3. Product-side and cash-side legs should share the same `transaction_id` when they are part of one economic posting.
+4. Use separate transactions inside the same `transaction_group_id` when the event has distinct economic meanings, such as `DIVIDEND` plus `TAX`, `REDEMPTION` plus `COUPON`, or `REVERSAL` plus corrected replacement.
+5. A product-side leg that changes quantity, nominal, notional, liability, policy value, commitment or collateral must identify the affected `instrument_id` or contract/facility identifier.
+6. A cash-side leg must identify currency, value date, amount type, sign and settlement status.
+7. A lot-affecting leg should reference `lot_id` or create a lot update record.
+8. A ledger entry should reference the source `transaction_id` and preferably the source `leg_id`.
+9. A lifecycle event can derive many transactions, but a transaction should point back to the lifecycle event that justified it.
+10. If the source sends product and cash sides separately, the app should link them through deterministic keys: source event ID, lifecycle thread, transaction group, instrument, account, dates and source-provided references.
+
+### Same Instrument Lifecycle Examples
+
+| Lifecycle | Product-Side Record | Cash-Side Record | Connection | App Display |
+|---|---|---|---|---|
+| Bond coupon | Bond nominal unchanged; accrual may reverse. | Coupon cash credit, withholding tax debit. | Same `lifecycle_thread_id`; `COUPON` transaction group with income/cash/tax/accrual legs. | One coupon event with gross, tax, net, accrual reversal and payment status. |
+| Bond maturity | Bond nominal closes. | Principal cash credit and final coupon cash credit. | Same maturity thread; `MATURITY` transaction and optional `COUPON` transaction in same group. | One maturity event with principal, final income, tax and closed position. |
+| Equity cash dividend | Equity quantity unchanged. | Dividend cash credit and tax debit. | Same dividend thread; `DIVIDEND` transaction with income/cash/tax legs. | One dividend row expandable into gross, tax and net cash. |
+| Stock split | Old quantity converted to new quantity; lots adjusted. | None unless fractional cash-in-lieu. | Same split thread; `SPLIT_OR_CONSOLIDATION` plus optional cash-in-lieu transaction. | One split event showing before/after quantity and any fractional cash. |
+| Rights issue | Rights entitlement created; rights decrease if exercised; underlying shares increase. | Subscription cash debit if exercised; cash credit if rights sold. | Same rights thread; entitlement/election event plus `RIGHTS_EXERCISE`, `SELL` or lapse transaction. | One rights event with entitlement, election, resulting shares/cash/lapse. |
+| Cash-and-stock merger | Old instrument closes; new instrument opens. | Cash consideration and cash-in-lieu credit. | Same merger thread and transaction group with old security leg, new security leg, cash leg and lot allocation. | One merger event showing old shares exchanged for new shares plus cash. |
+| Structured note autocall | Note nominal closes. | Coupon and principal cash credit. | Same observation/autocall thread; `REDEMPTION` plus `COUPON` in same transaction group. | One autocall event with observation evidence, coupon, principal and note closure. |
+| Reverse convertible physical settlement | Note closes; underlying equity opens. | Coupon/cash-in-lieu if applicable. | Same final fixing thread; `REDEMPTION`/`DERIVATIVE_SETTLEMENT` plus `IN_KIND_DISTRIBUTION`. | One settlement event showing note closure and delivered shares. |
+| Fund distribution reinvested | Fund income entitlement recognized; new units created. | No external cash if directly reinvested, or transient cash leg if book policy requires it. | Same distribution thread; `DISTRIBUTION` plus `SUBSCRIBE`/`STOCK_DIVIDEND` depending source. | One reinvested distribution event showing income and additional units. |
+| Private-market capital call | Paid-in capital increases; unfunded commitment decreases. | Cash debit on funding date. | Same capital-call thread; `CAPITAL_CALL` with investment, commitment and cash legs. | One capital-call event showing due, funded, remaining commitment and payment state. |
+
+### Corporate Action Leg Connection Patterns
+
+| Corporate Action | Transaction Group Contents | Product Legs | Cash Legs | Lot / Ledger Links |
+|---|---|---|---|---|
+| Cash dividend | One `DIVIDEND` transaction, optional separate `TAX` transaction if tax is booked separately. | No security quantity change. | Gross income, withholding tax, net cash receivable/payment. | Income ledger, tax ledger, cash ledger; source shares used for entitlement. |
+| Stock dividend | `STOCK_DIVIDEND` transaction. | Security quantity increase. | Usually none. | Lot basis allocation or zero-cost lot, depending accounting policy. |
+| Split/consolidation | `SPLIT_OR_CONSOLIDATION` transaction. | Old quantity adjusted to new quantity; same economic holding. | Optional fractional cash-in-lieu. | Lot quantity and per-unit cost adjusted; market value continuity check. |
+| Rights issue exercised | `RIGHTS_EXERCISE` transaction, sometimes preceded by entitlement record. | Rights position decreases; underlying position increases. | Subscription cash debit and fees/taxes if applicable. | New lot created for underlying; rights cost basis transferred if policy requires. |
+| Rights sold | `SELL` transaction on rights instrument. | Rights position decreases. | Sale proceeds cash credit, fees/taxes. | Realized P&L on rights lot. |
+| Rights lapse | `WRITE_OFF` or `CORPORATE_ACTION` subtype. | Rights position closes. | Usually none. | Cost basis write-off if rights carried value. |
+| Spin-off | `CORPORATE_ACTION` with `STOCK_DIVIDEND` or transfer-style security legs. | Parent remains or adjusts; new child instrument opens. | Optional cash-in-lieu. | Cost basis allocated between parent and child lots. |
+| Cash merger | `CORPORATE_ACTION` or `REDEMPTION` transaction. | Old instrument closes. | Merger proceeds cash credit and tax if applicable. | Old lots closed; realized P&L calculated. |
+| Stock merger | `CORPORATE_ACTION` transaction group. | Old instrument closes; new instrument opens. | Optional cash-in-lieu. | Cost basis transferred or partially realized based on policy. |
+| Mixed merger | One transaction group with `CORPORATE_ACTION` plus cash/security legs; sometimes separate tax transaction. | Old close, new open. | Cash consideration, cash-in-lieu, tax. | Lot split between realized and transferred basis. |
+| Tender offer | `SELL` or `REDEMPTION` depending legal form. | Tendered quantity decreases. | Cash or new security consideration. | Lot close and realized P&L. |
+| Bond call | `REDEMPTION`, optional `COUPON`. | Nominal decreases or closes. | Principal proceeds, final/accrued coupon, tax. | Lot close/reduction; income vs capital classification. |
+| Bond default write-down | `WRITE_DOWN` or `WRITE_OFF`. | Nominal/value reduced or closed. | Recovery cash only if paid. | Loss recognition ledger and tax basis treatment. |
+| Fund merger | `CORPORATE_ACTION` transaction group. | Old fund closes; new fund opens. | Cash-in-lieu possible. | Cost basis transfer or realization policy. |
+| Side-pocket creation | `CORPORATE_ACTION`, `TRANSFER_OUT`, `TRANSFER_IN`, `LOT_ADJUSTMENT`. | Main fund quantity/value split; side-pocket opens. | Usually none. | Cost basis allocation and liquidity restriction update. |
+
+### Example: Cash Dividend Connected Records
+
+```text
+instrument_id = EQ-ABC
+lifecycle_thread_id = CA-DIV-2026-ABC-Q2
+
+Lifecycle events:
+  EVT-ANNOUNCED: dividend announced
+  EVT-RECORD: entitlement determined
+  EVT-PAY: payment received
+
+Transaction group:
+  TXG-ABC-Q2-DIV
+    TXN-DIV-001 transaction_type = DIVIDEND
+      LEG-INCOME gross dividend +100.00 USD
+      LEG-TAX withholding tax -15.00 USD
+      LEG-CASH net cash +85.00 USD
+
+Position:
+  EQ-ABC quantity unchanged
+
+Cash:
+  USD cash +85.00 on pay/value date
+
+Ledger:
+  dividend income, withholding tax receivable/expense, cash
+```
+
+### Example: Rights Issue Connected Records
+
+```text
+instrument_id = EQ-ABC
+lifecycle_thread_id = CA-RIGHTS-2026-ABC
+
+Lifecycle events:
+  EVT-ANNOUNCED: rights terms announced
+  EVT-ENTITLEMENT: rights credited
+  EVT-ELECTION: client elects exercise
+  EVT-PROCESSED: new shares delivered
+
+Transaction group:
+  TXG-ABC-RIGHTS-EXERCISE
+    TXN-RIGHTS-001 transaction_type = RIGHTS_EXERCISE
+      LEG-RIGHTS security quantity -100 rights
+      LEG-SHARES security quantity +25 shares
+      LEG-CASH subscription cash -250.00 USD
+      LEG-FEE transaction fee -5.00 USD
+      LEG-LOT new share lot cost basis +255.00 USD
+
+Positions:
+  rights position closes or reduces
+  equity position increases
+
+Cash:
+  USD cash decreases by subscription plus fee
+```
+
+### Example: Mixed Cash And Stock Merger Connected Records
+
+```text
+old_instrument_id = EQ-OLD
+new_instrument_id = EQ-NEW
+lifecycle_thread_id = CA-MERGER-2026-OLD-NEW
+
+Transaction group:
+  TXG-OLD-NEW-MERGER
+    TXN-CA-001 transaction_type = CORPORATE_ACTION
+      LEG-OLD security quantity -100 EQ-OLD
+      LEG-NEW security quantity +42 EQ-NEW
+      LEG-CASH merger cash +500.00 USD
+      LEG-CASH-IN-LIEU fractional cash +12.30 USD
+      LEG-TAX withholding / transaction tax if applicable
+      LEG-LOT allocate old cost basis across realized cash and new holding
+
+Positions:
+  EQ-OLD closed
+  EQ-NEW opened
+
+Reporting:
+  show as one merger event, not an unrelated sale and purchase
+```
+
+### Example: Bond Call With Final Coupon Connected Records
+
+```text
+instrument_id = BOND-XYZ-2029
+lifecycle_thread_id = CA-CALL-2026-BOND-XYZ
+
+Transaction group:
+  TXG-BOND-XYZ-CALL
+    TXN-RED-001 transaction_type = REDEMPTION
+      LEG-BOND nominal -100000
+      LEG-CASH principal proceeds +101000.00 USD
+      LEG-LOT close/reduce bond lot
+    TXN-CPN-001 transaction_type = COUPON
+      LEG-INCOME final coupon +2500.00 USD
+      LEG-TAX withholding tax -250.00 USD
+      LEG-CASH coupon net +2250.00 USD
+
+Position:
+  bond nominal closes
+
+Cash:
+  cash increases by principal proceeds plus net coupon
+
+Reporting:
+  principal is not income; coupon is income
+```
+
+### App Query Patterns
+
+| User Question | Query Pattern |
+|---|---|
+| Show me everything that happened to this instrument. | Filter by `instrument_id`, then group by `lifecycle_thread_id` and `transaction_group_id`. |
+| Explain this cash movement. | Start from `cash_movement_id`, join to `leg_id`, `transaction_id`, `transaction_group_id`, lifecycle event and instrument. |
+| Explain why my position quantity changed. | Start from `position_id` and date, join position delta to product-side legs and lifecycle events. |
+| Show all legs of this corporate action. | Filter by `lifecycle_thread_id` or `transaction_group_id`, include all transactions and legs. |
+| Reconcile corporate-action cash to position impact. | Compare product-side legs, cash-side legs, lot updates and ledger entries under the same transaction group. |
+| Show corrected view only but keep audit trail. | Query latest active transactions plus correction group history on demand. |
 
 ## Lifecycle State Model
 
