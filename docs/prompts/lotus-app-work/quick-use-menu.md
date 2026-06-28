@@ -8,6 +8,7 @@ Use this file to choose the right reusable prompt quickly.
 | Ask for RFC drafting or RFC hardening only | Gold-Standard RFC Planning | [`prompts.md`](prompts.md#2-gold-standard-rfc-planning) |
 | Implement an approved RFC | RFC Implementation Loop | [`prompts.md`](prompts.md#3-rfc-implementation-loop) |
 | Refactor a backend app | Backend Bank-Buyable Refactor | [`prompts.md`](prompts.md#4-backend-bank-buyable-refactor) |
+| Run a large backend refactoring program | Enterprise Backend Refactoring Program | [`prompts.md`](prompts.md#16-enterprise-backend-refactoring-program) |
 | Refactor or audit Workbench UI | Workbench UI Refactor And Audit | [`prompts.md`](prompts.md#5-workbench-ui-refactor-and-audit) |
 | Certify an endpoint | Endpoint Certification | [`prompts.md`](prompts.md#6-endpoint-certification) |
 | Bring apps up and capture proof/screenshots | Demo And Live Runtime Proof | [`prompts.md`](prompts.md#7-demo-and-live-runtime-proof) |
@@ -33,7 +34,7 @@ For a new RFC:
 For backend hardening:
 
 1. Phase 0 Ramp-Up
-2. Backend Bank-Buyable Refactor
+2. Backend Bank-Buyable Refactor for focused slices, or Enterprise Backend Refactoring Program for a large multi-commit refactor
 3. Endpoint Certification if APIs changed
 4. Documentation, Context, Wiki, And Skill Sync
 5. PR Loop And Branch Hygiene

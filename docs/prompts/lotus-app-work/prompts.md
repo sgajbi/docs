@@ -369,3 +369,94 @@ Cover:
 
 Use careful language. Do not call an app bank-buyable, data-mesh certified, production-ready, or a crown jewel unless the evidence supports that claim.
 ```
+
+## 16. Enterprise Backend Refactoring Program
+
+Use this for a large, multi-slice backend refactor where success must be measurable, reviewable, and suitable for a non-squash PR history. It is stronger than the compact backend refactor prompt because it requires baseline evidence, phase gates, scorecards, documentation/context upkeep, and a final before/after proof package.
+
+```text
+You are working on `<APP_NAME>` at `<APP_PATH>`.
+
+Mission:
+Refactor `<APP_NAME>` into a modular, reusable, maintainable, performant, secure, observable, enterprise-grade, production-ready, bank-buyable backend application.
+
+This is a refactoring program, not cosmetic cleanup. Preserve behavior unless a change is intentional, tested, documented, downstream-safe, and explicitly called out.
+
+Primary instruction source:
+Follow `<REFACTOR_PLAYBOOK_PATH>` fully for architecture, API governance, quality gates, CI measurement, testing, security, observability, documentation, commit strategy, PR expectations, and definition of done.
+
+Phase 0 - governed ramp-up:
+1. read `AGENTS.md`,
+2. read `lotus-platform/context/LOTUS-QUICKSTART-CONTEXT.md`,
+3. read `lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md`,
+4. read `<APP_PATH>/REPOSITORY-ENGINEERING-CONTEXT.md`,
+5. read `lotus-platform/context/CONTEXT-REFERENCE-MAP.md`,
+6. read `lotus-platform/context/PROCEDURAL-MEMORY-INDEX.md` if execution process is material,
+7. read `<REFACTOR_PLAYBOOK_PATH>`,
+8. load relevant backend delivery, CI governance, PR pre-merge, codebase-review, documentation/wiki, and endpoint-certification skills when applicable,
+9. run `git fetch origin --prune`,
+10. run `git status --short --branch`,
+11. run `git branch -r --no-merged origin/main`,
+12. inspect open PRs and current CI posture.
+
+Phase 1 - baseline before refactor:
+1. create the baseline quality report required by the playbook,
+2. establish the CI/reporting foundation needed to measure improvement,
+3. capture current posture for architecture, module boundaries, OpenAPI, tests, security, observability, performance, documentation, wiki, context, and maintainability,
+4. identify high-risk modules, dead code, duplicate logic, weak contracts, missing tests, security gaps, observability gaps, documentation drift, and domain-language problems,
+5. define the before/after scorecard and commit it before broad code movement.
+
+Phase 2 - refactor execution:
+1. work on `<FEATURE_BRANCH>`,
+2. make small, meaningful, truthful commits,
+3. target roughly `<TARGET_COMMIT_COUNT>` well-scoped commits for a large refactor,
+4. preserve normal history because the PR is intended for `<MERGE_STRATEGY>`,
+5. keep the branch current and CI under control,
+6. avoid broad unreviewable commits,
+7. do not start the next major slice until the current slice has focused tests, docs/context decisions, and repo-native validation evidence.
+
+Architecture rules:
+1. distinguish design modularity from runtime modularity,
+2. first create clear internal bounded modules with stable interfaces,
+3. keep domain logic out of routers, controllers, CLI glue, infrastructure clients, persistence plumbing, and UI/BFF composition layers,
+4. introduce separately scalable process or service boundaries only when workload, failure isolation, ownership, deployment, security, or operability evidence justifies it,
+5. preserve source ownership and upstream/downstream contracts,
+6. recommend cross-repository ownership moves when evidence supports them, but implement cross-repo moves only when they are explicitly in scope or separately approved.
+
+For every refactor slice:
+1. reread this mission before editing,
+2. state the slice objective, affected boundaries, and expected measurable improvement,
+3. validate private-banking domain correctness and industry-standard vocabulary,
+4. validate edge cases, degraded states, supportability, and failure modes,
+5. validate API contract truth, OpenAPI quality, request/response examples, errors, compatibility, and downstream consumers,
+6. validate production operability: logs, metrics, traces, health, readiness, correlation, idempotency, lineage, audit, runbooks, and operator diagnostics,
+7. improve readability, maintainability, repository organization, security, performance, and tests,
+8. remove dead code, duplicate logic, stale aliases, weak abstractions, misleading docs, and unsupported claims encountered in scope,
+9. add meaningful unit, integration, contract, API, regression, security, observability, and performance tests where appropriate,
+10. run repo-native focused checks before committing,
+11. update README, docs, wiki source, context, supported-features, scorecards, contracts, and API inventories when truth changes,
+12. record a deliberate no-change decision when docs/wiki/context/skills do not need updates.
+
+Quality bar:
+1. prevent AI slop, superficial fixes, weak implementation, and unproven changes,
+2. prefer source-backed and methodology-backed truth over optimistic claims,
+3. use domain-correct naming for APIs, attributes, functions, variables, models, files, and user-facing vocabulary,
+4. make the implementation feel designed by experts in private banking, enterprise software, and production-grade engineering,
+5. improve skills, prompts, context, automation, scaffolding, and documentation when the work reveals a repeatable improvement.
+
+Non-goals unless separately justified:
+1. large rewrites without measurable improvement,
+2. new service boundaries created only for aesthetic modularity,
+3. breaking API changes without compatibility plan and downstream migration,
+4. client-ready, production-ready, bank-buyable, or methodology-complete claims without evidence,
+5. documentation-only progress presented as implementation progress.
+
+Final PR requirements:
+1. before/after scorecard proving measurable improvement in code health, architecture, OpenAPI quality, tests, security, observability, performance, and documentation,
+2. clear PR summary, risk assessment, validation evidence, docs/wiki/context changes, unsupported scope, and migration or rollback notes where relevant,
+3. evidence that private-banking domain correctness, edge cases, API truth, and production operability were validated,
+4. clean branch hygiene and no stranded durable truth,
+5. required GitHub checks green or resolved according to repo policy,
+6. wiki published after merge when wiki source changed,
+7. local `main` synced and clean after merge.
+```

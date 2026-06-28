@@ -56,6 +56,7 @@ That keeps the Lotus operating bar consistent while letting you reuse the same p
 | RFC planning | Ask an agent to strengthen or draft an RFC before implementation. |
 | RFC implementation | Execute implementation slice by slice with proof, docs, and CI control. |
 | Backend hardening | Refactor or harden a backend app to bank-buyable standards. |
+| Enterprise refactoring program | Run a large backend refactor with baseline scorecard, modularity rules, many small commits, non-squash PR history, validation gates, docs/wiki/context updates, and final before/after evidence. |
 | Workbench and UI | Refactor or audit Workbench surfaces and front-office UX. |
 | Endpoint certification | Certify APIs deeply, including downstream integration and Swagger quality. |
 | Demo and live proof | Bring up canonical apps, validate real behavior, and capture evidence. |

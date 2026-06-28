@@ -30,4 +30,4 @@ Keep prompts separate from product reference material unless a document is expli
 
 | Prompt Pack | Purpose |
 |---|---|
-| [`lotus-app-work/`](lotus-app-work/README.md) | Reusable Lotus app work prompts with replaceable app, RFC, scope, branch, and evidence placeholders. |
+| [`lotus-app-work/`](lotus-app-work/README.md) | Reusable Lotus app work prompts with replaceable app, RFC, scope, branch, refactoring, and evidence placeholders. |

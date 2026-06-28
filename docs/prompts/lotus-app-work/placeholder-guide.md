@@ -18,6 +18,9 @@ Use this file before sending any prompt from this pack.
 | `<EVIDENCE_PATH>` | Evidence output folder | `<LOCAL_EVIDENCE_OUTPUT_PATH>` |
 | `<PR_NUMBER>` | GitHub PR number | `#123` |
 | `<ISSUE_REPO>` | Repo where an issue should be opened | `sgajbi/lotus-gateway` |
+| `<REFACTOR_PLAYBOOK_PATH>` | Refactoring instruction file to follow | `lotus-platform/context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md` |
+| `<TARGET_COMMIT_COUNT>` | Approximate number of scoped commits for a large refactor | `50` |
+| `<MERGE_STRATEGY>` | Expected PR merge style | `non-squash merge` |
 
 ## Replacement Rules
 
@@ -28,6 +31,7 @@ Use this file before sending any prompt from this pack.
 5. If multiple apps are in scope, name each app explicitly and state which app owns which part.
 6. If you want planning only, include "Do not implement yet" near the top.
 7. If you want implementation, include the branch and validation expectations.
+8. If the prompt is for a large refactor, include the refactoring playbook path, commit strategy, baseline report expectation, and final scorecard expectation.
 
 ## Quick Examples
 

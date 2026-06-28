@@ -44,6 +44,7 @@ Import date: 2026-06-27
 | `feedback on workbench` and `lotus-manage` assessment text | `prompts.md` section 15 | Converted into assessment prompt; source answer text not kept as reusable instruction. |
 | Gateway + Workbench downstream realization prompt | `prompts.md` sections 1, 3, 5, 6, and 8 | Pattern preserved; specific campaign retire/supersede task is not canonical but can be recreated with the reusable sections. |
 | `Goal: Implement lotus-idea RFCs...` | `prompts.md` sections 1, 2, 3, 4, 8, and 10 | Treated as a specific execution prompt composed from reusable parts. |
+| `lotus-performance enterprise refactoring goal` | `prompts.md` section 16 and `copy-paste-workflows.md` Enterprise Backend Refactoring Program | Upgraded from a one-off refactor instruction into a reusable program prompt with baseline scorecard, phase gates, modularity guardrails, non-squash commit strategy, validation expectations, and documentation/context maintenance. |
 
 ## Duplicate Themes Removed
 
