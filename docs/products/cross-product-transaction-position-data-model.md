@@ -18,6 +18,33 @@ Use this guide when designing:
 8. QA regression scenarios,
 9. data-product contracts.
 
+## How To Use This Model
+
+This guide is long by design. Use it as a working model, not as a document to read only front-to-back.
+
+| Need | Start With | Then Use |
+|---|---|---|
+| Build instrument master or product terms | Instrument static and calculation data model | Calculation dependency matrix and product-specific instrument attributes. |
+| Build holdings or position APIs | Position model | Position architecture, position state dimensions and position relationship model. |
+| Build transaction ingestion | Transaction model | Transaction type selection guide, leg sign conventions and source classification rules. |
+| Model corporate actions | Corporate action mapping | Connecting instrument lifecycle, product legs and cash legs. |
+| Build portfolio app screens | Portfolio management app implementation blueprint | Screen/API design implications and derived views. |
+| Build reconciliation controls | Implementation flow and model invariants | Reconciliation model and golden certification scenarios. |
+| Build migration mappings | Minimum domain tables | Migration opening balance rules, source classification and model readiness checklist. |
+| Build QA fixtures | Golden scenarios | QA regression checklist and portfolio app acceptance criteria. |
+
+## Core Design Choices
+
+| Design Choice | Decision |
+|---|---|
+| Transaction vocabulary | Use generic transaction types such as `BUY`, `SELL`, `COUPON`, `DIVIDEND`, `REDEMPTION`, `CAPITAL_CALL`, `LOAN_DRAWDOWN` and `REVERSAL`. Avoid product-prefixed top-level types. |
+| Product specificity | Put product detail in instrument static, lifecycle event, transaction subtype, legs, valuation basis, exposure snapshot and supportability state. |
+| Event connection | Use `lifecycle_thread_id`, `lifecycle_event_id`, `transaction_group_id`, `transaction_id` and `leg_id` to connect the full story. |
+| Position truth | Store source-backed snapshots and transaction-driven deltas; use reconciliation to prove they agree. |
+| Cash truth | Model cash as currency-specific settled/pending/available/restricted state, not just report-currency value. |
+| Calculation truth | Use explicit instrument static and versioned terms, not product names or display labels. |
+| Correction truth | Preserve original, reversal and replacement records. Do not overwrite economic history. |
+
 ## Modelling Principles
 
 | Principle | Meaning |
@@ -564,6 +591,47 @@ A transaction should answer: what economic action happened, what source event ca
 | `tax_classification` | enum | Tax treatment where relevant. | `WITHHOLDING`, `STAMP_DUTY`, `CAPITAL_GAINS`, `TAX_RECLAIM` |
 | `ledger_account` | string | Accounting ledger account if posted. | `cash`, `investment`, `income`, `expense`, `payable` |
 | `debit_credit` | enum | Accounting sign. | `DEBIT`, `CREDIT` |
+
+### Transaction Leg Sign And Amount Conventions
+
+Define sign conventions once and enforce them across ingestion, APIs, ledger posting, reporting and reconciliation. The examples below use client/account perspective.
+
+| Leg Type | Positive Means | Negative Means | Required Basis | Example |
+|---|---|---|---|---|
+| `SECURITY` | Client holding increases. | Client holding decreases. | Quantity type, instrument, account, trade/effective date. | Buy `+100` shares; sell `-100` shares. |
+| `CASH` | Cash balance increases. | Cash balance decreases. | Currency, value date, settlement state. | Dividend cash `+85`; purchase cash `-18,500`. |
+| `INCOME` | Income earned or receivable by client. | Income reversed or reclassified away. | Income type, gross/net basis, tax treatment. | Coupon income `+2,500`. |
+| `FEE` | Fee rebate or fee receivable. | Fee charged to client. | Fee type, currency, tax treatment. | Custody fee `-25`. |
+| `TAX` | Tax refund/reclaim receivable or cash credit. | Tax withheld or tax payable. | Tax type, jurisdiction/profile basis. | Withholding tax `-15`; reclaim `+15`. |
+| `ACCRUAL` | Accrued income/receivable increases. | Accrual reverses or accrued payable increases depending amount type. | Accrual period, day count, income/expense basis. | Bond accrued income `+120`; coupon payment reversal `-120`. |
+| `MARGIN` | Margin returned or margin receivable. | Margin posted or margin payable. | Margin type, collateral/cash basis, value date. | Futures variation margin `-1,000`. |
+| `COLLATERAL` | Collateral availability or release increases. | Collateral pledged/restricted increases. | Pledge ID, facility ID, haircut basis. | Pledge bond collateral `-100,000 eligible value`; release `+100,000`. |
+| `LIABILITY` | Liability decreases if using asset-perspective signs, or liability increases if using liability-positive convention. | Opposite of chosen convention. | Convention must be explicit by API and ledger policy. | Prefer separate `liability_delta` when possible. |
+| `LOT` | Cost basis/open lot increases. | Cost basis/open lot decreases. | Lot ID, cost method, currency, acquisition/disposal date. | Buy creates cost basis `+18,522.50`; sale closes cost basis `-9,000`. |
+
+Recommended convention:
+
+1. use positive `quantity_delta` for more client-owned asset quantity and negative for less,
+2. use positive `cash_delta` for cash credited to the client account and negative for cash debited,
+3. use explicit `amount_type` for principal, income, fee, tax, accrued, P&L, margin, collateral and liability,
+4. avoid relying on a single generic `amount` for calculations,
+5. keep ledger debit/credit separate from business signs because accounting signs depend on ledger policy.
+
+### Leg Pairing Patterns
+
+| Business Event | Product-Side Legs | Cash-Side Legs | Other Legs |
+|---|---|---|---|
+| Buy security | `SECURITY +quantity`, `LOT +cost_basis` | `CASH -settlement_amount` | `FEE`, `TAX` |
+| Sell security | `SECURITY -quantity`, `LOT -cost_basis` | `CASH +proceeds` | `FEE`, `TAX`, `PNL` |
+| Dividend | Usually none | `CASH +net_payment` | `INCOME +gross`, `TAX -withholding` |
+| Bond coupon | Usually none | `CASH +net_payment` | `INCOME +coupon`, `TAX`, `ACCRUAL -reversal` |
+| Bond maturity | `SECURITY -nominal`, `LOT -cost_basis` | `CASH +principal` | Optional `INCOME` final coupon |
+| Fund subscription | `SECURITY/FUND +units`, `LOT +cost_basis` | `CASH -subscription_amount` | `FEE` |
+| Fund redemption | `SECURITY/FUND -units`, `LOT -cost_basis` | `CASH +redemption_proceeds` | `FEE`, `TAX`, `PNL` |
+| FX conversion | None unless derivative contract exists | `CASH -sold_currency`, `CASH +bought_currency` | Realized FX P&L if policy requires |
+| Capital call | `COMMITMENT -unfunded`, `INVESTMENT +paid_in` | `CASH -funded_amount` | `FEE` or `TAX` if applicable |
+| Loan drawdown | `LIABILITY +drawn_amount` under liability-positive convention | `CASH +drawdown_proceeds` | Fees if charged |
+| Collateral pledge | `COLLATERAL -available_or +pledged` depending convention | Optional restricted cash | Link to facility and pledged position |
 
 ## Canonical Transaction Types
 
@@ -1274,6 +1342,24 @@ Use separate state fields instead of forcing all lifecycle into one status.
 ## Portfolio Management App Implementation Blueprint
 
 For a portfolio-management application, this model should become a small set of stable domain modules rather than one large transaction table that tries to answer every question.
+
+### Recommended Build Sequence
+
+Build the model in layers. Each layer should have tests and reconciliation before the next layer depends on it.
+
+| Step | Build | Why First / Next | Minimum Proof |
+|---:|---|---|---|
+| 1 | Instrument, account and portfolio master | Every later record needs stable identity, classification and ownership context. | A transaction or position cannot load without valid instrument, account and portfolio references. |
+| 2 | Transaction header and legs | Economic truth should be captured before derived views. | Buy, sell, dividend, coupon, fee, tax and cash transfer can be represented with legs. |
+| 3 | Cash balance snapshots and cash movements | Cash is required for settlement, funding, reports and client trust. | Cash roll-forward reconciles by account, currency and value date. |
+| 4 | Position snapshots and position deltas | Holdings views need state, but state must be explainable from transaction legs. | Position roll-forward reconciles for cash, equities, bonds and funds. |
+| 5 | Lots and cost basis | Realized P&L, tax, transfers and corporate actions need lot support. | Sell and corporate-action examples reconcile lot quantity and cost. |
+| 6 | Lifecycle event store | Corporate actions, notices, elections, observations and corrections need source evidence. | Dividend, split, rights issue and redemption can show full lifecycle thread. |
+| 7 | Valuation snapshots and FX rates | Market value, reporting currency, performance and collateral need valuation data. | Holdings show valuation basis, source, date and stale/estimated state. |
+| 8 | Corporate-action processor | Multi-leg product/cash/lot events need deterministic processing. | Cash dividend, stock split, rights issue, merger and bond call pass golden scenarios. |
+| 9 | Reconciliation and break management | Operations need source/book/report control before scaling product coverage. | Breaks are generated, owned, resolved and auditable. |
+| 10 | Exposure, performance and reporting views | Analytics should consume stable positions, transactions, prices and classifications. | Reported values can be reproduced from versioned inputs. |
+| 11 | Corrections and restatements | Real systems need controlled repair before production use. | Reversal/rebook and restated NAV scenarios preserve audit trail. |
 
 ### Core Modules
 
