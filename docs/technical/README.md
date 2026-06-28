@@ -13,6 +13,7 @@ It translates patterns observed across a mature multi-application platform into 
 | Practice with applied case studies | [`technical-practice-labs-and-case-studies.md`](technical-practice-labs-and-case-studies.md) |
 | See sample lab answers | [`technical-practice-lab-sample-answers.md`](technical-practice-lab-sample-answers.md) |
 | Turn study into action, KT or review evidence | [`technical-master-index-study-roadmap/17-master-checklists-and-execution-playbook.md`](technical-master-index-study-roadmap/17-master-checklists-and-execution-playbook.md) |
+| Use a concise polish and planning dashboard | [`technical-library-polish-dashboard.md`](technical-library-polish-dashboard.md) |
 | Understand current strengths and next enrichment areas | [`technical-knowledge-coverage-matrix.md`](technical-knowledge-coverage-matrix.md) |
 
 ## Reading Path
@@ -45,6 +46,7 @@ It translates patterns observed across a mature multi-application platform into 
 | [`12-technology-stack-and-engineering-patterns.md`](12-technology-stack-and-engineering-patterns.md) | Understand common technology choices, toolchain patterns, tradeoffs and how to read a new repository. |
 | [`13-frontend-experience-api-and-ui-supportability.md`](13-frontend-experience-api-and-ui-supportability.md) | Learn gateway-first UI delivery, state handling, view models, browser validation, accessibility and frontend supportability. |
 | [`technical-knowledge-coverage-matrix.md`](technical-knowledge-coverage-matrix.md) | Track current technical KB coverage, strongest areas and next enrichment slices. |
+| [`technical-library-polish-dashboard.md`](technical-library-polish-dashboard.md) | Concise operating dashboard for technical guide posture, review standards, priority polish backlog, and completion criteria. |
 | [`technical-learning-path-and-role-guide.md`](technical-learning-path-and-role-guide.md) | Choose reading paths by role, project type and engineering problem across the technical deep-dive guides. |
 | [`technical-master-index-study-roadmap/`](technical-master-index-study-roadmap/README.md) | Use the master technical study roadmap for learning sequence, role-based paths, KT, repository adoption, architecture review, PR standards, production readiness, AI adoption, specialization maps, scorecards, evidence cadence and quarterly maturity planning. |
 | [`14-engineering-leadership-learning-roadmap.md`](14-engineering-leadership-learning-roadmap.md) | Follow a 30/60/90-day self-learning and KT path for enterprise platform engineering leadership. |

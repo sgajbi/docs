@@ -9,6 +9,8 @@ Use it to decide:
 3. what should be enriched next,
 4. which area supports a project, KT session, architecture review or engineering-leadership goal.
 
+For a shorter operating view, use [`technical-library-polish-dashboard.md`](technical-library-polish-dashboard.md). Keep this matrix as the deeper coverage and enrichment tracker.
+
 ## Coverage Matrix
 
 | Technical area | Primary guide | Current coverage | Next enrichment slice |
