@@ -35,6 +35,7 @@ Curated from provided source material on 2026-06-27 and normalized for reusable 
 | `11-qa-regression-library-and-golden-scenario-catalog.md` | QA regression library and golden scenario catalog. |
 | `12-glossary-practitioner-reference-and-next-enrichment-roadmap.md` | Glossary, practitioner reference and next enrichment roadmap. |
 | `13-correction-chain-and-restatement-case-studies.md` | Correction-chain and restatement case studies for reversals, replacements, duplicate suppression, cash/product leg linkage, report restatement and QA assertions. |
+| `14-source-lineage-packet-case-studies.md` | Source-lineage packet case studies connecting source events, transaction groups, product and cash legs, valuation, reporting, supportability and QA evidence. |
 
 ## Core Principle
 

@@ -91,6 +91,7 @@ A system that cannot explain itself is not production-ready.
 | 15 | `14-sre-operating-model-on-call-and-production-readiness.md` | On-call model, SRE rituals, production readiness, support handoff, and ownership. |
 | 16 | `15-observability-maturity-roadmap-and-engineering-leadership.md` | Maturity roadmap, engineering leadership model, and continuous improvement. |
 | 17 | `16-observability-sre-checklists.md` | Practical checklists for design, PR review, production readiness, and operations. |
+| 18 | `17-operational-incident-supportability-case-study.md` | Applied incident case study for report-generation degradation, source freshness, supportability states, runbooks, recovery evidence and post-incident improvements. |
 
 ---
 

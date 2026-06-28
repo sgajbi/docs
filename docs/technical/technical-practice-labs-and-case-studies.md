@@ -163,6 +163,7 @@ A critical report, calculation or client-facing workflow returned stale output b
 Read:
 
 - [`observability-sre-supportability/README.md`](observability-sre-supportability/README.md)
+- [`observability-sre-supportability/17-operational-incident-supportability-case-study.md`](observability-sre-supportability/17-operational-incident-supportability-case-study.md)
 - [`production-support-operations-incident-excellence/05-incident-management-severity-triage-and-command-center.md`](production-support-operations-incident-excellence/05-incident-management-severity-triage-and-command-center.md)
 - [`production-support-operations-incident-excellence/09-problem-management-rca-postmortem-and-continuous-improvement.md`](production-support-operations-incident-excellence/09-problem-management-rca-postmortem-and-continuous-improvement.md)
 

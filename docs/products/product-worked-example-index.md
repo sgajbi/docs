@@ -63,6 +63,7 @@ Use the deeper case-study pack when a workflow spans multiple product families, 
 | [`11-qa-regression-library-and-golden-scenario-catalog.md`](cross-product-worked-examples-calculations-case-studies/11-qa-regression-library-and-golden-scenario-catalog.md) | QA regression library and golden scenario catalog. |
 | [`12-glossary-practitioner-reference-and-next-enrichment-roadmap.md`](cross-product-worked-examples-calculations-case-studies/12-glossary-practitioner-reference-and-next-enrichment-roadmap.md) | Glossary, practitioner reference and next enrichment roadmap. |
 | [`13-correction-chain-and-restatement-case-studies.md`](cross-product-worked-examples-calculations-case-studies/13-correction-chain-and-restatement-case-studies.md) | Correction chains, reversals, replacements, duplicate suppression, report restatement and supportability-state examples. |
+| [`14-source-lineage-packet-case-studies.md`](cross-product-worked-examples-calculations-case-studies/14-source-lineage-packet-case-studies.md) | Source-lineage packets for dividend tax corrections, fund NAV restatements, private-market distributions, report evidence and QA traceability. |
 
 ## Workflow-To-Example Routing
 
@@ -79,6 +80,7 @@ Use the deeper case-study pack when a workflow spans multiple product families, 
 | Client reporting and statement behavior | Portfolio reporting, tax reporting, wealth structuring, private markets, real estate, insurance and market data. |
 | Source ownership and support boundaries | [`product-capability-boundary-matrix.md`](product-capability-boundary-matrix.md), [`implementation-backed-capability-map.md`](implementation-backed-capability-map.md), market data, data governance and product governance. |
 | Correction chains and report restatements | [`cross-product-worked-examples-calculations-case-studies/13-correction-chain-and-restatement-case-studies.md`](cross-product-worked-examples-calculations-case-studies/13-correction-chain-and-restatement-case-studies.md), investment accounting, reporting, trade lifecycle and tax reporting. |
+| Source lineage and report evidence | [`cross-product-worked-examples-calculations-case-studies/14-source-lineage-packet-case-studies.md`](cross-product-worked-examples-calculations-case-studies/14-source-lineage-packet-case-studies.md), data governance, market data, investment accounting, portfolio reporting and product governance. |
 | QA and regression pack design | [`product-qa-regression-matrix.md`](product-qa-regression-matrix.md), local product worked-example files and the golden scenario catalog. |
 
 ## Example Quality Standard

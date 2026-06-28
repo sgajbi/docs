@@ -25,14 +25,14 @@ Do not mark a broad knowledge-base goal complete only because many files exist. 
 | Product packs | [`../products/README.md`](../products/README.md) | Strong product-family navigation across asset classes, lifecycle areas, platform capabilities and operating domains. |
 | Product polish posture | [`../products/product-library-polish-dashboard.md`](../products/product-library-polish-dashboard.md) | Strong concise view of review standards, product posture, next examples and completion criteria. |
 | Product coverage matrix | [`../products/product-knowledge-coverage-matrix.md`](../products/product-knowledge-coverage-matrix.md) | Strong deep tracker for product-family coverage, companion maps and enrichment backlog. |
-| Product examples | [`../products/product-worked-example-index.md`](../products/product-worked-example-index.md) | Strong routing layer to product-family examples and cross-product case studies. |
+| Product examples | [`../products/product-worked-example-index.md`](../products/product-worked-example-index.md) | Strong routing layer to product-family examples and cross-product case studies, including correction chains and source-lineage packets. |
 | Product sample audit | [`product-pack-sample-audit-2026-06-28.md`](product-pack-sample-audit-2026-06-28.md) | Strong representative audit across listed fixed income, funds, derivatives, private markets and portfolio reporting. |
 | Cross-product model | [`../products/cross-product-transaction-position-data-model.md`](../products/cross-product-transaction-position-data-model.md) | Strong model for positions, transactions, lifecycle events, cash legs, corporate actions, valuation, supportability and QA. |
-| Cross-product case studies | [`../products/cross-product-worked-examples-calculations-case-studies/README.md`](../products/cross-product-worked-examples-calculations-case-studies/README.md) | Strong practical case-study pack; recently strengthened with correction-chain and restatement examples. |
+| Cross-product case studies | [`../products/cross-product-worked-examples-calculations-case-studies/README.md`](../products/cross-product-worked-examples-calculations-case-studies/README.md) | Strong practical case-study pack; recently strengthened with correction-chain, restatement and source-lineage packet examples. |
 | Technical KB | [`../technical/README.md`](../technical/README.md) | Strong technical navigation across architecture, backend, APIs, data products, CI/CD, runtime, observability, security, testing, Git, performance, documentation and operations. |
 | Technical polish posture | [`../technical/technical-library-polish-dashboard.md`](../technical/technical-library-polish-dashboard.md) | Strong concise view of technical review standards, guide posture and priority backlog. |
 | Technical coverage matrix | [`../technical/technical-knowledge-coverage-matrix.md`](../technical/technical-knowledge-coverage-matrix.md) | Strong deep tracker for technical coverage and enrichment backlog. |
-| Technical practice | [`../technical/technical-practice-labs-and-case-studies.md`](../technical/technical-practice-labs-and-case-studies.md) | Strong practice layer for self-learning, KT, architecture review and engineering judgement. |
+| Technical practice | [`../technical/technical-practice-labs-and-case-studies.md`](../technical/technical-practice-labs-and-case-studies.md) | Strong practice layer for self-learning, KT, architecture review, incident response and engineering judgement. |
 | Technical sample audit | [`technical-pack-sample-audit-2026-06-28.md`](technical-pack-sample-audit-2026-06-28.md) | Strong representative audit across backend design, APIs, data products, CI/CD, observability, security and testing. |
 | API applied depth | [`../technical/api-contract-engineering/16-api-compatibility-deprecation-case-study.md`](../technical/api-contract-engineering/16-api-compatibility-deprecation-case-study.md) | Strong implementation-shaped case study for compatibility, deprecation, consumer migration and tests. |
 | Maintenance standards | [`documentation-governance.md`](documentation-governance.md) and [`product-knowledge-enrichment-standard.md`](product-knowledge-enrichment-standard.md) | Strong operating standards for intake, classification, enrichment, review and source-safe documentation. |
@@ -67,13 +67,13 @@ Do not mark a broad knowledge-base goal complete only because many files exist. 
 | CI/CD and quality gates | CI/CD DevSecOps release-evidence pack. | Strong | Add gate promotion, flaky-check triage and release-evidence manifest examples. |
 | Infrastructure and deployment | Runtime infrastructure and Kubernetes pack. | Strong | Add canary rollout, workload identity and backup/restore validation examples. |
 | Containers and orchestration | Runtime infrastructure and Kubernetes pack. | Strong | Add platform-ready review examples with probes, resources, rollback and smoke evidence. |
-| Observability, logging, metrics, tracing and alerting | Observability/SRE supportability pack and production support pack. | Strong | Add incident command, alert route tuning and dashboard acceptance examples. |
-| DevOps and SRE practices | Observability, CI/CD, runtime and production support packs. | Strong | Add operational drill examples and corrective-action tracking. |
+| Observability, logging, metrics, tracing and alerting | Observability/SRE supportability pack, production support pack and incident supportability case study. | Strong | Add alert route tuning and dashboard acceptance examples. |
+| DevOps and SRE practices | Observability, CI/CD, runtime, production support packs and incident supportability case study. | Strong | Add operational drill examples and corrective-action tracking. |
 | Git, branching, PR and release hygiene | Git workflow release-hygiene pack. | Strong | Add branch reconciliation, PR evidence scoring and hotfix postmortem examples. |
 | Testing strategy and test pyramid | Testing/quality certification pack and practice labs. | Strong | Add certification manifest, golden-case ownership and escaped-defect learning examples. |
 | Security, configuration and sensitive data | Security/cyber resilience pack and practice labs. | Strong | Add key rotation, privileged-access review and sensitive-telemetry evidence examples. |
 | Performance, scalability and resilience | Performance/scalability/resilience/async pack. | Strong | Add report queue, ingestion replay, cache invalidation and capacity scorecard examples. |
-| Operational supportability | Observability/SRE and production support packs. | Strong | Add supportability-state certification examples and runbook acceptance checks. |
+| Operational supportability | Observability/SRE pack, production support pack and incident supportability case study. | Strong | Add supportability-state certification examples and runbook acceptance checks. |
 | Documentation and engineering knowledge management | Documentation-governance technical pack and operations standards. | Strong | Add stale-doc detection, capability-status review and onboarding certification examples. |
 
 ## Completion Evidence Checklist
@@ -105,11 +105,9 @@ The repository is complete enough for the current curated knowledge-base goal: r
 
 | Priority | Slice | Reason |
 |---|---|---|
-| 1 | Add one source-lineage packet example. | Connects product source ownership, calculation, reporting and QA evidence. |
-| 2 | Add one operational incident/supportability technical case study. | Converts SRE guidance into applied evidence. |
-| 3 | Refresh implementation-backed capability map from current evidence. | Keeps platform-aware guidance truthful without branding. |
-| 4 | Add more compact product edge-case examples. | Keeps high-value examples ahead of long scenario lists. |
-| 5 | Re-run product and technical sample audits after major new intake. | Keeps the completion claim evidence-backed. |
+| 1 | Refresh implementation-backed capability map from current evidence. | Keeps platform-aware guidance truthful without branding. |
+| 2 | Add more compact product edge-case examples. | Keeps high-value examples ahead of long scenario lists. |
+| 3 | Re-run product and technical sample audits after major new intake. | Keeps the completion claim evidence-backed. |
 
 ## Maintenance Rule
 
