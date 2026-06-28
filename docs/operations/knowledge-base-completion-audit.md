@@ -26,12 +26,14 @@ Do not mark a broad knowledge-base goal complete only because many files exist. 
 | Product polish posture | [`../products/product-library-polish-dashboard.md`](../products/product-library-polish-dashboard.md) | Strong concise view of review standards, product posture, next examples and completion criteria. |
 | Product coverage matrix | [`../products/product-knowledge-coverage-matrix.md`](../products/product-knowledge-coverage-matrix.md) | Strong deep tracker for product-family coverage, companion maps and enrichment backlog. |
 | Product examples | [`../products/product-worked-example-index.md`](../products/product-worked-example-index.md) | Strong routing layer to product-family examples and cross-product case studies. |
+| Product sample audit | [`product-pack-sample-audit-2026-06-28.md`](product-pack-sample-audit-2026-06-28.md) | Strong representative audit across listed fixed income, funds, derivatives, private markets and portfolio reporting. |
 | Cross-product model | [`../products/cross-product-transaction-position-data-model.md`](../products/cross-product-transaction-position-data-model.md) | Strong model for positions, transactions, lifecycle events, cash legs, corporate actions, valuation, supportability and QA. |
 | Cross-product case studies | [`../products/cross-product-worked-examples-calculations-case-studies/README.md`](../products/cross-product-worked-examples-calculations-case-studies/README.md) | Strong practical case-study pack; recently strengthened with correction-chain and restatement examples. |
 | Technical KB | [`../technical/README.md`](../technical/README.md) | Strong technical navigation across architecture, backend, APIs, data products, CI/CD, runtime, observability, security, testing, Git, performance, documentation and operations. |
 | Technical polish posture | [`../technical/technical-library-polish-dashboard.md`](../technical/technical-library-polish-dashboard.md) | Strong concise view of technical review standards, guide posture and priority backlog. |
 | Technical coverage matrix | [`../technical/technical-knowledge-coverage-matrix.md`](../technical/technical-knowledge-coverage-matrix.md) | Strong deep tracker for technical coverage and enrichment backlog. |
 | Technical practice | [`../technical/technical-practice-labs-and-case-studies.md`](../technical/technical-practice-labs-and-case-studies.md) | Strong practice layer for self-learning, KT, architecture review and engineering judgement. |
+| Technical sample audit | [`technical-pack-sample-audit-2026-06-28.md`](technical-pack-sample-audit-2026-06-28.md) | Strong representative audit across backend design, APIs, data products, CI/CD, observability, security and testing. |
 | API applied depth | [`../technical/api-contract-engineering/16-api-compatibility-deprecation-case-study.md`](../technical/api-contract-engineering/16-api-compatibility-deprecation-case-study.md) | Strong implementation-shaped case study for compatibility, deprecation, consumer migration and tests. |
 | Maintenance standards | [`documentation-governance.md`](documentation-governance.md) and [`product-knowledge-enrichment-standard.md`](product-knowledge-enrichment-standard.md) | Strong operating standards for intake, classification, enrichment, review and source-safe documentation. |
 
@@ -39,7 +41,7 @@ Do not mark a broad knowledge-base goal complete only because many files exist. 
 
 | Requirement | Current Evidence | Status | Next Proof Needed Before Final Completion |
 |---|---|---|---|
-| Product understanding and business purpose | Product pack READMEs and product-family overview files. | Strong | Sample a representative set of product packs and confirm each README explains audience, purpose and reading order clearly. |
+| Product understanding and business purpose | Product pack READMEs, product-family overview files and [`product-pack-sample-audit-2026-06-28.md`](product-pack-sample-audit-2026-06-28.md). | Strong | Maintain this sample posture as new packs are added. |
 | Product taxonomy and coverage | Product pack taxonomy files plus [`../products/product-taxonomy-and-vocabulary-guide.md`](../products/product-taxonomy-and-vocabulary-guide.md). | Strong | Confirm no major product family in the coverage matrix lacks a taxonomy entry or companion map. |
 | Payoff behavior | Structured products, structured notes, derivatives, bonds, insurance and payoff guide. | Strong | Add compact examples where payoff behavior affects reporting or suitability in edge cases. |
 | Cashflow behavior | Cash/FX, bonds, funds, private markets, insurance, lending, trade lifecycle, accounting and lifecycle guide. | Strong | Keep adding cross-product cases that connect product and cash legs. |
@@ -83,7 +85,7 @@ Before treating the broader knowledge-base goal as complete, verify the followin
 | Product navigation | Root README, product README, product worked-example index, product dashboard. | Reader can find product packs, maps, examples, coverage and standards without local knowledge. |
 | Technical navigation | Root README, technical README, technical dashboard, technical coverage matrix, role guide. | Reader can choose a technical path by role, project type or engineering problem. |
 | Product depth | Representative product packs across listed, OTC, funds, private markets, lending, reporting and governance. | Each has taxonomy, lifecycle, data model, platform/implementation guidance and examples. |
-| Technical depth | Representative technical packs across API, backend, data products, CI/CD, runtime, SRE, security, testing and Git. | Each has concept guidance, implementation patterns, review checklists or examples. |
+| Technical depth | Representative technical packs across API, backend, data products, CI/CD, runtime, SRE, security, testing and Git, supported by [`technical-pack-sample-audit-2026-06-28.md`](technical-pack-sample-audit-2026-06-28.md). | Each has concept guidance, implementation patterns, review checklists or examples. |
 | Worked examples | Product worked-example index and cross-product case-study pack. | Examples cover transactions, cashflows, valuation, reporting, corrections, degraded states and QA. |
 | Non-branded posture | Safety scan across changed docs and representative indexes. | No private product marketing, local paths, source package names or unsupported implementation claims. |
 | Link integrity | Markdown local link check across touched indexes and new files. | Relative links resolve. |
@@ -91,23 +93,23 @@ Before treating the broader knowledge-base goal as complete, verify the followin
 
 ## Residual Risk
 
-The repository is strong as a curated knowledge base, but final completion should not be claimed until a broader sampling audit proves that representative product packs and technical packs meet their own review standards. The largest residual risks are:
+The repository is complete enough for the current curated knowledge-base goal: reusable product, domain, portfolio, reporting, technical, operating and engineering-leadership learning material. Completion does not mean the repository is frozen. The largest residual risks are now maintenance risks:
 
 1. individual product packs may vary in depth even though navigation is strong,
 2. some coverage matrices intentionally contain detailed backlog language that should not be duplicated into routing indexes,
 3. implementation-backed capability guidance must be periodically refreshed from current evidence,
 4. examples should continue shifting from long scenario lists toward compact end-to-end case studies,
-5. final completion requires a deliberate requirement-by-requirement audit, not just clean commits.
+5. future source packs must be curated into the standard structure rather than appended as raw material.
 
 ## Next Useful Review Slices
 
 | Priority | Slice | Reason |
 |---|---|---|
-| 1 | Sample audit of five representative product packs. | Proves the product standard is consistently applied, not only documented. |
-| 2 | Sample audit of five representative technical packs. | Proves technical depth and learning usefulness across different engineering domains. |
-| 3 | Add one source-lineage packet example. | Connects product source ownership, calculation, reporting and QA evidence. |
-| 4 | Add one operational incident/supportability technical case study. | Converts SRE guidance into applied evidence. |
-| 5 | Refresh implementation-backed capability map from current evidence. | Keeps platform-aware guidance truthful without branding. |
+| 1 | Add one source-lineage packet example. | Connects product source ownership, calculation, reporting and QA evidence. |
+| 2 | Add one operational incident/supportability technical case study. | Converts SRE guidance into applied evidence. |
+| 3 | Refresh implementation-backed capability map from current evidence. | Keeps platform-aware guidance truthful without branding. |
+| 4 | Add more compact product edge-case examples. | Keeps high-value examples ahead of long scenario lists. |
+| 5 | Re-run product and technical sample audits after major new intake. | Keeps the completion claim evidence-backed. |
 
 ## Maintenance Rule
 
