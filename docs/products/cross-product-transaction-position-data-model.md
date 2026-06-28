@@ -18,6 +18,25 @@ Use this guide when designing:
 8. QA regression scenarios,
 9. data-product contracts.
 
+## Executive Summary
+
+The model has five durable truths:
+
+1. Instrument static defines what the product is and how calculations work.
+2. Position state defines what the client holds, owes, has pledged, has committed to fund, or can report as of a date.
+3. Transactions define economic changes through headers and typed legs.
+4. Lifecycle events explain why a transaction, valuation, obligation, correction or operational state exists.
+5. Valuation and exposure snapshots derive market value, report value and risk views without replacing legal holdings or booked transactions.
+
+For implementation, the app should be able to answer four questions for every portfolio value:
+
+| Question | Must Trace To |
+|---|---|
+| What is this value? | Instrument, position type, amount basis, currency, date and supportability state. |
+| Why did it change? | Transaction group, transaction legs, lifecycle event and source evidence. |
+| Can I trust it? | Source, valuation basis, reconciliation state, stale/manual/estimated flags and owner. |
+| How should it be used? | Reporting classification, tradeability, liquidity, collateral eligibility, mandate/risk treatment and disclosure state. |
+
 ## How To Use This Model
 
 This guide is long by design. Use it as a working model, not as a document to read only front-to-back.
@@ -44,6 +63,23 @@ This guide is long by design. Use it as a working model, not as a document to re
 | Cash truth | Model cash as currency-specific settled/pending/available/restricted state, not just report-currency value. |
 | Calculation truth | Use explicit instrument static and versioned terms, not product names or display labels. |
 | Correction truth | Preserve original, reversal and replacement records. Do not overwrite economic history. |
+| Reconstruction truth | Use deterministic snapshot identity and restatement version when exposing reconstructed portfolio state. |
+
+## Boundary Tests
+
+Use these tests when a field, table, API or screen design feels ambiguous.
+
+| If You Are Modelling... | It Belongs In | Not In | Reason |
+|---|---|---|---|
+| Coupon rate, day count, maturity, barrier, strike, multiplier, fee schedule | Instrument static | Transaction or position | These are product terms used repeatedly for calculations. |
+| Quantity held today | Position snapshot | Instrument static | Holdings are account/client-specific state. |
+| Buy, sell, coupon, dividend, fee, tax, margin, capital call | Transaction and transaction legs | Instrument static | These are economic events. |
+| Announcement, election, observation, notice, settlement fail | Lifecycle event | Transaction by default | These explain state; only create transactions when economics post. |
+| Price, NAV, FX rate, appraisal, policy value | Valuation snapshot | Transaction by default | Valuations measure value; they do not always change economics. |
+| Delta, duration, issuer exposure, look-through sector exposure | Exposure snapshot | Legal position | These are analytical views derived from positions and reference data. |
+| Pledged amount, haircut, eligible collateral value | Collateral/pledge state | Plain holding market value | Pledge and eligibility affect availability and lending, not legal ownership alone. |
+| Stale NAV, manual price, unsupported product state | Data-quality/supportability state | Hidden UI note | Data confidence must be available to APIs, reports and controls. |
+| Report delivery, statement archive, document generation | Report/evidence archive | Transaction | Delivery is operational evidence unless it creates economic posting. |
 
 ## Modelling Principles
 
@@ -1601,6 +1637,148 @@ Before building or changing a portfolio-management module, confirm:
 9. Can advisors distinguish held value, tradeable value, available cash, pledged collateral and analytical exposure?
 10. Can QA create deterministic golden cases for every supported product family and lifecycle event?
 
+## Implementation-Grounded Hardening Notes
+
+These notes capture practical model refinements that matter in real portfolio platforms. They are not tied to any one application name; they are implementation patterns that prevent source, calculation, reconciliation and reporting drift.
+
+### Reconstruction Scope And Snapshot Identity
+
+Any API that returns reconstructed portfolio state should make the reconstruction scope explicit.
+
+| Scope Field | Why It Matters |
+|---|---|
+| `portfolio_id` | Identifies the portfolio state being reconstructed. |
+| `as_of_date` | Business date represented by holdings, cash and reportable state. |
+| `valuation_date` | Date of prices, NAVs, FX rates, policy values or appraisals. |
+| `position_epoch` | Maximum position-state generation included. |
+| `cashflow_epoch` | Maximum cashflow generation included. |
+| `transaction_window_start` / `transaction_window_end` | Transaction history range used in the result. |
+| `source_data_products` | Named input products that contributed to the result. |
+| `policy_version` | Policy version affecting visibility, classification or calculation. |
+| `restatement_version` | Version of truth used when corrected or restated history exists. |
+
+Snapshot identity should be deterministic: the same scope produces the same `snapshot_id`; any scope field that changes economic truth, valuation truth, lineage or policy should produce a different `snapshot_id`.
+
+### Temporal Semantics Guardrail
+
+Transaction and portfolio systems should not collapse all dates into one generic transaction date.
+
+| Temporal Field | Meaning | Guardrail |
+|---|---|---|
+| `trade_date` | Date the trade or market execution occurred. | Use for execution history, trade reporting and position economics where trade-date accounting applies. |
+| `effective_date` | Date the business effect becomes economically effective. | Use for corrections, restatements, policy changes and lifecycle events where effect date differs from booking. |
+| `value_date` | Date cash value is applied. | Use for cash availability, FX, settlement interest and funding. |
+| `settlement_date` | Date cash/security settlement is expected or completed. | Do not infer from trade date; settlement can fail, delay or complete partially. |
+| `posting_date` / `booking_date` | Date the transaction or correction is recorded into the book. | Keep separate from trade/event date so late bookings and corrections remain explainable. |
+| `as_of_date` | Business date represented by a position, cash, report or reconstructed state. | Use for holdings and reporting scope. |
+| `valuation_date` | Date used for price, NAV, FX, policy value or appraisal. | Use for market value and valuation confidence. |
+| `restatement_version` | Version of corrected historical truth. | Use when historical state can be repaired, replayed or restated. |
+
+If an existing system uses a legacy field such as `transaction_date`, define whether it means trade/event date or booking date, then expose the missing concept explicitly before downstream consumers depend on it.
+
+### Runtime Metadata For Source-Backed APIs
+
+Portfolio APIs should carry metadata that helps consumers decide whether a response is safe to use.
+
+| Metadata | Purpose |
+|---|---|
+| `generated_at` | When the API response or source-data product was generated. |
+| `as_of_date` | Business date represented by the response. |
+| `restatement_version` | Historical truth version used for this response. |
+| `reconciliation_status` | Whether the response scope is complete, partial, stale, unreconciled, broken, blocked or unknown. |
+| `data_quality_status` | Whether returned rows are complete, partial, stale, blocked or unknown. |
+| `latest_evidence_timestamp` | Most recent linked source, validation, reconciliation or calculation evidence. |
+| `source_batch_fingerprint` | Deterministic source-batch identity when the result traces to ingestion. |
+| `snapshot_id` | Deterministic reconstructed-state identity. |
+| `policy_version` | Policy applied to classification, visibility or calculation. |
+| `correlation_id` | Request or processing correlation for supportability. |
+
+### Product-Leg And Cash-Leg Pairing Metadata
+
+Real implementations often receive product-side and cash-side records separately. The model should support both service-generated and upstream-provided cash entries.
+
+| Field | Use |
+|---|---|
+| `economic_event_id` | Business event identifier linking security/product and cash effects. |
+| `linked_transaction_group_id` | Group linking related product, cash, fee, tax and correction transactions. |
+| `cash_entry_mode` | Distinguishes generated cash leg from upstream-provided separate cash entry. |
+| `external_cash_transaction_id` | Links to upstream cash transaction when cash was supplied separately. |
+| `settlement_cash_account_id` | Identifies settlement cash account used for cash leg generation. |
+| `settlement_cash_instrument_id` | Identifies cash instrument/currency used for settlement leg. |
+| `originating_transaction_id` | Links generated cash leg back to product-side transaction. |
+| `originating_transaction_type` | Keeps cash leg explanation visible without reclassifying it. |
+| `adjustment_reason` | Bounded reason code such as buy settlement, sell settlement, fee, tax or correction. |
+| `link_type` | Relationship label between product and cash legs. |
+| `reconciliation_key` | Shared key used to match paired records from different sources. |
+
+### Calculation Policy And Versioning
+
+Cost, FX, realized P&L, accrued income, cashflows and tax-lot results should record the policy used to calculate them.
+
+| Field | Applies To | Why It Matters |
+|---|---|---|
+| `calculation_policy_id` | Transactions, lots, cashflows, valuation, P&L | Identifies method such as FIFO, average cost, clean/dirty price, FX policy or settlement policy. |
+| `calculation_policy_version` | Same as above | Allows historical results to be reproduced after policy changes. |
+| `calculation_type` | Cashflows, derived records | Distinguishes transaction-derived, projected, manual, imported or model-generated results. |
+| `source_lineage` | Lots, cashflows, positions, valuations | Connects result to source system, source record and policy provenance. |
+
+### Epochs, Watermarks And Reprocessing
+
+Large portfolio systems need repeatable reconstruction after late transactions, corrected prices, source replay or failed jobs.
+
+| Concept | Use |
+|---|---|
+| `epoch` | Version of generated position, cashflow, valuation or timeseries state. |
+| `watermark_date` | Latest business date processed for a portfolio/instrument key. |
+| `reprocessing_status` | Indicates current, reprocessing, failed or blocked state. |
+| idempotent work key | Prevents duplicate valuation, aggregation or reprocessing jobs for the same portfolio/instrument/date/epoch. |
+| `failure_reason` and `attempt_count` | Make operational recovery explainable. |
+
+### Cashflow Classification
+
+Derived cashflows should be richer than raw cash legs.
+
+| Field | Purpose |
+|---|---|
+| `classification` | Business meaning such as trade settlement, income, fee, tax, transfer, margin or corporate action. |
+| `timing` | Settled, projected, payable, receivable or expected timing bucket. |
+| `is_position_flow` | Whether the cashflow belongs to a specific instrument/position. |
+| `is_portfolio_flow` | Whether the cashflow belongs at portfolio level. |
+| `calculation_type` | How the cashflow was produced. |
+
+This distinction matters for liquidity planning, performance cashflows, client reporting and reconciliation.
+
+### Tax-Lot Supportability
+
+Tax lots should be queryable as a source-backed window, not just hidden implementation detail.
+
+| Field | Purpose |
+|---|---|
+| `lot_id` | Stable lot identity. |
+| `open_quantity` and `original_quantity` | Current remaining lot quantity and original acquired quantity. |
+| `acquisition_date` | Date used for holding period and disposal treatment. |
+| `cost_basis_base` and `cost_basis_local` | Cost in portfolio base and local/trade currency. |
+| `tax_lot_status` | Open or closed lot state. |
+| `source_transaction_id` | Transaction that created the lot. |
+| `source_lineage` | Source system and calculation-policy provenance. |
+| `supportability` | Whether requested lot scope is ready, degraded, incomplete or unavailable. |
+
+### Reconciliation Status Vocabulary
+
+Use one shared status vocabulary across holdings, cash, transaction windows, cashflows, valuation and reports.
+
+| Status | Meaning |
+|---|---|
+| `COMPLETE` | Evidence is complete and no open issue affects the scope. |
+| `PARTIAL` | Some coverage exists but warnings, running controls or incomplete inputs remain. |
+| `STALE` | Evidence exists but is older than the freshness threshold. |
+| `UNRECONCILED` | Required reconciliation or coverage has not run or has no observed data. |
+| `BREAK_OPEN` | A visible non-blocking break remains open. |
+| `BLOCKED` | A blocking finding or data-quality issue prevents safe use. |
+| `UNKNOWN` | Inputs are insufficient to classify truthfully. |
+
+Break records should carry type, severity, owner, resolution state, age, tolerance, scope, expected value, observed value, blocking flag and repair recommendation.
+
 ## Canonical Payload Examples
 
 These examples are intentionally compact. Real APIs should include pagination, audit metadata, entitlement scoping, schema version and source lineage.
@@ -1863,6 +2041,30 @@ Avoid these patterns:
 10. mixing collateral market value and haircut-adjusted lendable value,
 11. treating valuations as transactions when no economic posting exists,
 12. building report-specific transaction categories that cannot reconcile back to book records.
+
+## Gold Standard Definition Of Done
+
+Treat the model as implemented well only when these statements are true:
+
+| Area | Done Standard |
+|---|---|
+| Instrument static | Every supported product has explicit calculation-relevant terms, source, effective date, version and supportability state. |
+| Transactions | Every economic event is represented by a generic transaction type, source evidence, idempotency key and typed legs. |
+| Positions | Every position has legal/account context, amount basis, currency, as-of date, valuation basis, restriction state and supportability state. |
+| Cash | Cash is separated by currency, value date, settled/pending/available/restricted state and source. |
+| Lots and P&L | Disposals, redemptions, transfers and corporate actions can explain cost basis, realized P&L and lot changes. |
+| Corporate actions | Announcement, entitlement, election, processing, settlement and correction can be shown as one connected lifecycle thread. |
+| Lifecycle events | Notices, observations, elections, settlements, failures and corrections are stored as evidence and linked to derived transactions. |
+| Valuation | Market value, NAV, policy value, appraisal and FX rates carry date, source, basis and stale/manual/estimated state. |
+| Exposure | Analytical exposure is derived and labelled separately from legal holdings. |
+| Reconciliation | Position, cash, lot, income, ledger, corporate-action and report reconciliation produce explicit breaks with owners. |
+| Corrections | Original, reversal and replacement records remain available and the corrected business view is reproducible. |
+| APIs | APIs expose source, supportability, lifecycle links, legs and degraded states rather than hiding complexity. |
+| UI and reports | Screens and reports distinguish held value, tradeable value, available cash, pledged value, exposure and unsupported/estimated values. |
+| QA | Golden scenarios cover each product family, major lifecycle event, corporate-action pattern, correction path and source-limited state. |
+| Operations | Support users can answer what changed, why it changed, whether it reconciled, who owns a break and what evidence supports it. |
+
+If any of these are false, the model may still be useful as a partial implementation, but it should not be treated as a complete cross-product portfolio-management model.
 
 ## Related Guides
 
