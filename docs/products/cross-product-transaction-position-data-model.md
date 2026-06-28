@@ -1397,6 +1397,124 @@ eligible collateral value after haircut
 | Advisor action view | Portfolio, mandate, restrictions, liquidity, suitability, pending orders | Support advice, rebalancing and next-best action. |
 | Statement/reporting view | Signed-off positions, transactions, income, performance, disclosures | Produce client-facing evidence and archive. |
 
+## Implementation Flow And Model Invariants
+
+This section turns the model into an implementation checklist. A portfolio-management app should not simply store transactions and positions; it should process source events through a repeatable pipeline and enforce invariants that make holdings, cash, income, risk, reports and operations explainable.
+
+### End-To-End Processing Flow
+
+```text
+source event / source record
+  -> classify as reference data, lifecycle event, transaction, valuation, cash movement or correction
+  -> validate instrument, account, portfolio, source and idempotency keys
+  -> create lifecycle event when source evidence matters
+  -> create transaction group when economic effects exist
+  -> create transaction headers and legs
+  -> update cash, lots, positions, liabilities, commitments and collateral state
+  -> post ledger entries where accounting policy requires
+  -> update valuation and exposure snapshots where affected
+  -> reconcile source, book, custody, cash, ledger and report outputs
+  -> expose state through APIs, screens, reports, alerts and audit trail
+```
+
+### Non-Negotiable Invariants
+
+| Invariant | Why It Matters | Failure Example |
+|---|---|---|
+| One economic event must be traceable from source evidence to transaction group, legs, positions, cash and ledger. | Enables audit, support, QA and client explanation. | Cash dividend appears in cash but cannot be tied to the equity holding. |
+| Every position-changing transaction must have product-side leg evidence. | Prevents unexplained holdings changes. | Position quantity changes because a batch overwrote snapshot. |
+| Every cash-changing transaction must have cash-side leg evidence. | Prevents unexplained cash movements. | Fund redemption closes units but no cash receivable is visible. |
+| Every transaction leg must have a clear amount type and sign convention. | Avoids mixing income, principal, tax, fee, margin and collateral. | Coupon principal and income both posted as generic amount. |
+| Every transaction must be idempotent by source. | Prevents duplicate booking from replayed feeds or retries. | Same custody dividend loaded twice. |
+| Every correction must preserve original, reversal and replacement records. | Maintains auditability and reporting restatement trace. | Incorrect trade price overwritten without evidence. |
+| Positions must reconcile by roll-forward. | Explains current holdings from prior holdings and events. | Closing position does not match opening plus transactions. |
+| Cash must reconcile separately by currency and value date. | Supports settlement, funding, FX and availability. | USD and SGD cash netted into one reporting amount. |
+| Ledger entries must balance by transaction group when ledger posting is in scope. | Supports accounting control. | Fee and tax entries post without offsetting cash/payable entries. |
+| Valuation must carry basis, source, date and stale/estimated state. | Prevents misleading reports and analytics. | Private fund NAV shown as current market price. |
+| Legal holding and analytical exposure must stay separate. | Avoids incorrect concentration, mandate and risk treatment. | Structured note underlying exposure shown as directly owned equity. |
+| Pending, settled, restricted and available states must stay separate. | Prevents incorrect trading, withdrawals and reports. | Pending sale proceeds used as fully available cash. |
+
+### Source Classification Rules
+
+| Source Record Looks Like | Store As | Create Transaction? | Example |
+|---|---|---|---|
+| Instrument terms, identifier, issuer, coupon, barrier, fee schedule | Instrument static/reference data | No | New structured note termsheet loaded. |
+| Price, NAV, appraisal, policy value, FX rate | Valuation snapshot | No, unless correcting book value | Fund NAV received. |
+| Order, instruction, election, approval, rejection | Workflow/lifecycle event | No, until economically effective | Client elects scrip dividend. |
+| Trade execution, issuer redemption, income payment, fee charge, tax posting | Transaction group and transaction legs | Yes | Equity trade, bond coupon, custody fee. |
+| Cash ledger movement with no product context | Cash movement and possibly transaction | Yes if economic; otherwise reconcile/link to existing transaction | Payment received or settlement cash. |
+| Custody position snapshot | Position snapshot/source position | No by itself; reconcile to book deltas | Daily custody holdings file. |
+| Corrected source event or cancellation | Correction group | Yes when prior economics change | Dividend tax correction. |
+| Report generated or delivered | Report archive/evidence | No | Monthly statement delivered. |
+
+### Reconciliation Model
+
+Reconciliation should not be a late manual activity. It should be designed into the model.
+
+| Reconciliation | Compare | Expected Result |
+|---|---|---|
+| Position roll-forward | Opening position + product-side transaction legs + corporate actions + transfers + corrections vs closing position. | Quantity, nominal and status reconcile by account/instrument. |
+| Cash roll-forward | Opening cash + cash-side legs + value-date movements + corrections vs closing cash. | Settled, pending, available and restricted cash reconcile by currency. |
+| Lot reconciliation | Open lots + lot-affecting transactions vs position quantity/cost basis. | Lot quantities sum to position quantity and cost basis. |
+| Ledger balancing | Debit and credit ledger entries by transaction group. | Balanced accounting entries under policy basis. |
+| Income reconciliation | Income/accrual/tax legs vs cash payments and receivables. | Gross, tax, net, accrued and paid income reconcile. |
+| Corporate-action reconciliation | Entitled position on record date vs processed product/cash legs. | Entitlement, election, result and settlement reconcile. |
+| Source/book reconciliation | Custody/source positions and transactions vs internal book records. | Breaks are explicit with owner, severity and status. |
+| Report reconciliation | Reported holdings/cash/income/performance vs signed-off source datasets. | Client-facing report can be reproduced. |
+
+### Screen And API Design Implications
+
+| Surface | Must Show | Avoid |
+|---|---|---|
+| Holdings screen | Position type, quantity/nominal, market value, valuation date/basis, supportability, restrictions, pending state. | Single value with no source/date/confidence. |
+| Transaction screen | Transaction type, subtype, dates, status, source, group, legs, reversal/correction links. | Flat feed where cash, tax, fee and product legs are hidden. |
+| Cash screen | Settled, pending, available, restricted, value-dated cash by currency. | Reporting-currency-only cash without original currency. |
+| Corporate-action screen | Lifecycle stage, entitlement, election, product legs, cash legs, lots, settlement and corrections. | Treating corporate action as unrelated transactions. |
+| Income screen | Gross income, tax, fees, accrual reversal, net cash and income classification. | Showing only net cash as income. |
+| Position detail | Roll-forward, lots, valuation, exposure, restrictions, source and breaks. | Current quantity without explanation. |
+| Operations screen | Reconciliation breaks, stale data, unsupported states, manual overrides and owner. | Hidden data-quality exceptions. |
+| Advisor/rebalancing screen | Tradeable quantity, pledged/restricted amount, liquidity, pending orders, suitability/mandate flags. | Using total holding as tradeable quantity. |
+
+### Golden Scenarios For Model Certification
+
+Use these as minimum test fixtures before implementing portfolio, transaction, position, cash, reporting or reconciliation features.
+
+| Scenario | Must Prove |
+|---|---|
+| Equity buy with fee and tax | Security quantity, cash debit, fee/tax legs, lot creation and settlement state reconcile. |
+| Equity dividend with withholding | Gross income, withholding tax, net cash, record-date entitlement and no quantity change. |
+| Stock split with fractional cash | Quantity adjustment, lot adjustment, cash-in-lieu and market-value continuity. |
+| Cash-and-stock merger | Old position close, new position open, cash consideration, cash-in-lieu, lot allocation and reporting as one event. |
+| Bond purchase with accrued interest | Clean/dirty price, accrued interest, cash settlement, nominal and lot basis are correct. |
+| Bond coupon and maturity | Coupon income, tax, accrued reversal, principal redemption and position closure are separated. |
+| Fund subscription and redemption | Pending cash/units, confirmed NAV, fees, settlement cycle, units and proceeds reconcile. |
+| FX conversion | Two currency cash legs, value date, FX rate and realized FX policy are explicit. |
+| Structured note autocall | Observation event, coupon, principal redemption, note closure and payoff evidence connect. |
+| Reverse convertible physical settlement | Note close, delivered equity position, cash-in-lieu and cost basis are traceable. |
+| Option exercise | Option close, underlying open/cash settlement, strike, multiplier and premium treatment reconcile. |
+| Futures variation margin | Daily margin cash movement, P&L and open contract state are separated. |
+| Private-market capital call | Commitment, unfunded amount, paid-in capital and cash debit roll forward. |
+| Private-market distribution | Income/return-of-capital classification, recallable amount and NAV impact are clear. |
+| Loan drawdown with collateral pledge | Liability, cash credit, pledged assets, haircut, LTV and buying power reconcile. |
+| Insurance surrender | Policy state, surrender value, cash proceeds, fees, tax and policy loan treatment are separated. |
+| Migration opening balance | Opening positions, cash, lots and source sign-off load without fake historical transactions. |
+| Correction and rebook | Original, reversal, replacement and corrected net result are audit-traceable. |
+
+### Model Readiness Checklist
+
+Before building or changing a portfolio-management module, confirm:
+
+1. Can every position be traced to source, instrument, account, portfolio, valuation and latest transaction deltas?
+2. Can every cash movement be traced to transaction leg, value date, currency and settlement status?
+3. Can every corporate-action event be shown as one business event with all product and cash legs?
+4. Can every instrument calculation use explicit static fields instead of display names?
+5. Can every report value be reproduced from versioned source data and calculation rules?
+6. Can stale, manual, estimated, unsupported and disputed states be surfaced in UI/API/reporting?
+7. Can operations explain and resolve breaks without directly editing final records?
+8. Can corrections preserve original records while showing the corrected business view?
+9. Can advisors distinguish held value, tradeable value, available cash, pledged collateral and analytical exposure?
+10. Can QA create deterministic golden cases for every supported product family and lifecycle event?
+
 ## Canonical Payload Examples
 
 These examples are intentionally compact. Real APIs should include pagination, audit metadata, entitlement scoping, schema version and source lineage.
