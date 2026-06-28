@@ -34,6 +34,7 @@ Curated from provided source material on 2026-06-27 and normalized for reusable 
 | `10-ai-advisor-copilot-rag-operations-and-governance-test-scenarios.md` | AI, advisor copilot, RAG, operations and governance test scenarios. |
 | `11-qa-regression-library-and-golden-scenario-catalog.md` | QA regression library and golden scenario catalog. |
 | `12-glossary-practitioner-reference-and-next-enrichment-roadmap.md` | Glossary, practitioner reference and next enrichment roadmap. |
+| `13-correction-chain-and-restatement-case-studies.md` | Correction-chain and restatement case studies for reversals, replacements, duplicate suppression, cash/product leg linkage, report restatement and QA assertions. |
 
 ## Core Principle
 

@@ -59,6 +59,7 @@ Use [`cross-product-worked-examples-calculations-case-studies/`](cross-product-w
 | Structured-product observations and support boundaries | Examples 8, 9, 23 and 31. |
 | Insurance value, policy loans and restrictions | Examples 12 and 30. |
 | Portfolio analytics, model portfolios and advisory workflow | Examples 14, 15, 16, 17 and 18. |
+| Correction chains, reversals, restatements and duplicate suppression | [`cross-product-worked-examples-calculations-case-studies/13-correction-chain-and-restatement-case-studies.md`](cross-product-worked-examples-calculations-case-studies/13-correction-chain-and-restatement-case-studies.md). |
 
 ## Workflow-To-Example Map
 
