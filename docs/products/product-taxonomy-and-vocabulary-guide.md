@@ -205,12 +205,13 @@ When reviewing a product document, ask:
 
 Use this guide together with:
 
-1. [Product Capability Boundary Matrix](product-capability-boundary-matrix.md)
-2. [Product Source Intake And Migration Guide](product-source-intake-and-migration-guide.md)
-3. [Source Ownership, Calculation And Reporting Matrix](source-ownership-calculation-reporting-matrix.md)
-4. [Product Calculation Example Catalog](product-calculation-example-catalog.md)
-5. [Product Performance, Attribution And Risk Guide](product-performance-attribution-risk-guide.md)
-6. [Client Reporting And Portfolio Review Guide](client-reporting-and-portfolio-review-guide.md)
+1. [Cross-Product Transaction And Position Data Model](cross-product-transaction-position-data-model.md)
+2. [Product Capability Boundary Matrix](product-capability-boundary-matrix.md)
+3. [Product Source Intake And Migration Guide](product-source-intake-and-migration-guide.md)
+4. [Source Ownership, Calculation And Reporting Matrix](source-ownership-calculation-reporting-matrix.md)
+5. [Product Calculation Example Catalog](product-calculation-example-catalog.md)
+6. [Product Performance, Attribution And Risk Guide](product-performance-attribution-risk-guide.md)
+7. [Client Reporting And Portfolio Review Guide](client-reporting-and-portfolio-review-guide.md)
 
 ## Disclaimer
 

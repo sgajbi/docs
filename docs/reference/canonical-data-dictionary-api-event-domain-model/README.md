@@ -45,6 +45,7 @@ A wealth platform should not treat every screen, report, integration or API as a
 |---|---|
 | [`../wealth-platform-architecture/`](../wealth-platform-architecture/README.md) | Broader platform architecture, APIs, events, resilience and migration patterns. |
 | [`../wealth-product-framework/`](../wealth-product-framework/README.md) | Cross-product position, transaction, advisory, mandate, analytics and reporting framework. |
+| [`../../products/cross-product-transaction-position-data-model.md`](../../products/cross-product-transaction-position-data-model.md) | Cross-product transaction and position model with generic transaction types, lifecycle events, legs, controls, API guidance and worked examples. |
 | [`../../products/data-governance-quality-lineage-controls/`](../../products/data-governance-quality-lineage-controls/README.md) | Data governance, lineage, reconciliation and operating controls. |
 | [`../../products/market-data-reference-data-pricing-instrument-master/`](../../products/market-data-reference-data-pricing-instrument-master/README.md) | Market data, reference data, pricing and instrument master details. |
 | [`../../products/investment-accounting-ledger/`](../../products/investment-accounting-ledger/README.md) | Ledger, accounting, fees, tax, P&L, accruals and book-of-record patterns. |

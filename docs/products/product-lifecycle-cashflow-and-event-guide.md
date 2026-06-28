@@ -228,13 +228,14 @@ When reviewing any product pack, use these prompts:
 
 Use this guide together with:
 
-1. [Product Taxonomy And Vocabulary Guide](product-taxonomy-and-vocabulary-guide.md)
-2. [Product Source Intake And Migration Guide](product-source-intake-and-migration-guide.md)
-3. [Source Ownership, Calculation And Reporting Matrix](source-ownership-calculation-reporting-matrix.md)
-4. [Product Performance, Attribution And Risk Guide](product-performance-attribution-risk-guide.md)
-5. [Product Calculation Example Catalog](product-calculation-example-catalog.md)
-6. [Product QA Regression Matrix](product-qa-regression-matrix.md)
-7. [Client Reporting And Portfolio Review Guide](client-reporting-and-portfolio-review-guide.md)
+1. [Cross-Product Transaction And Position Data Model](cross-product-transaction-position-data-model.md)
+2. [Product Taxonomy And Vocabulary Guide](product-taxonomy-and-vocabulary-guide.md)
+3. [Product Source Intake And Migration Guide](product-source-intake-and-migration-guide.md)
+4. [Source Ownership, Calculation And Reporting Matrix](source-ownership-calculation-reporting-matrix.md)
+5. [Product Performance, Attribution And Risk Guide](product-performance-attribution-risk-guide.md)
+6. [Product Calculation Example Catalog](product-calculation-example-catalog.md)
+7. [Product QA Regression Matrix](product-qa-regression-matrix.md)
+8. [Client Reporting And Portfolio Review Guide](client-reporting-and-portfolio-review-guide.md)
 
 ## Disclaimer
 

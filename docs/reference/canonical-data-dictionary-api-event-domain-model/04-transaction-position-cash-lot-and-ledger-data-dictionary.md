@@ -112,18 +112,20 @@
 | posting_status | enum | posted, reversed, pending |
 | policy_basis | string | accounting policy basis |
 
-## 7. Transaction type examples
+## 7. Generic transaction type examples
 
-| Product | Transaction types |
-|---|---|
-| cash | CASH_DEPOSIT, CASH_WITHDRAWAL, FX_BUY, FX_SELL |
-| bond | BOND_BUY, BOND_SELL, BOND_COUPON, BOND_MATURITY |
-| equity | EQUITY_BUY, EQUITY_SELL, DIVIDEND_CASH, STOCK_SPLIT |
-| fund | FUND_SUBSCRIPTION, FUND_REDEMPTION, FUND_DISTRIBUTION |
-| note | NOTE_SUBSCRIPTION, NOTE_COUPON, NOTE_AUTOCALL, NOTE_REDEMPTION |
-| derivative | OPTION_BUY, OPTION_EXERCISE, FUTURES_VARIATION_MARGIN |
-| loan | LOAN_DRAWDOWN, LOAN_REPAYMENT, LOAN_INTEREST |
-| private market | COMMITMENT_OPEN, CAPITAL_CALL, DISTRIBUTION |
+Use generic transaction types and carry product context through `instrument_id`, `product_family`, `transaction_subtype`, lifecycle event and transaction legs. Avoid creating a different top-level transaction type for every product family when the economic action is the same.
+
+| Economic action | Generic transaction types | Product context examples |
+|---|---|---|
+| Acquire or dispose | BUY, SELL, SUBSCRIBE, REDEEM | Bond buy, equity sell, fund subscription, structured note redemption |
+| Cash and FX | CASH_DEPOSIT, CASH_WITHDRAWAL, CASH_SWEEP, FX_CONVERSION, FX_SETTLEMENT | Cash transfer, liquidity sweep, FX spot, FX forward settlement |
+| Income and expense | INCOME, INTEREST, COUPON, DIVIDEND, DISTRIBUTION, FEE, TAX, TAX_RECLAIM | Bond coupon, equity dividend, fund distribution, withholding tax |
+| Servicing and maturity | MATURITY, REDEMPTION, CORPORATE_ACTION, SPLIT_OR_CONSOLIDATION, RIGHTS_EXERCISE | Bond maturity, partial redemption, stock split, rights exercise |
+| Derivatives and collateral | DERIVATIVE_PREMIUM, DERIVATIVE_MARGIN, DERIVATIVE_SETTLEMENT, OPTION_EXERCISE, COLLATERAL_PLEDGE, COLLATERAL_RELEASE | Option premium, futures variation margin, NDF settlement, pledged securities |
+| Lending and liabilities | LOAN_DRAWDOWN, LOAN_REPAYMENT, LOAN_INTEREST, MARGIN_CALL | Lombard drawdown, margin loan repayment, monthly loan interest |
+| Private markets and insurance | COMMITMENT, CAPITAL_CALL, RECALLABLE_DISTRIBUTION, INSURANCE_PREMIUM, INSURANCE_SURRENDER, INSURANCE_CLAIM | Private fund commitment, capital call, policy premium, partial surrender |
+| Corrections and controls | REVERSAL, CORRECTION, CANCEL, RESTATEMENT_ADJUSTMENT, WRITE_DOWN, WRITE_OFF | Reversed dividend, corrected trade price, restated NAV, impaired private debt |
 
 ## 8. Validation rules
 
