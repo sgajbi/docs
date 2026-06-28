@@ -92,6 +92,7 @@ If these questions are unclear, the API is not ready for enterprise adoption.
 | 14 | `13-api-testing-contract-testing-and-certification.md` | Unit, API, contract, integration, e2e, OpenAPI, and certification testing patterns. |
 | 15 | `14-events-asyncapi-and-api-event-integration-patterns.md` | REST and event integration, AsyncAPI, event schemas, outbox, replay, and lifecycle notifications. |
 | 16 | `15-api-review-checklists-and-governance-playbook.md` | Practical review checklists and governance playbook for API design and PR reviews. |
+| 17 | `16-api-compatibility-deprecation-case-study.md` | Applied case study for semantic field migration, additive compatibility, deprecation governance, consumer migration and contract tests. |
 
 ---
 

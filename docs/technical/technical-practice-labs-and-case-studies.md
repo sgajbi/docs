@@ -76,6 +76,7 @@ Read:
 
 - [`api-contract-engineering/01-api-as-product-and-system-contract.md`](api-contract-engineering/01-api-as-product-and-system-contract.md)
 - [`api-contract-engineering/10-versioning-compatibility-aliases-and-deprecation.md`](api-contract-engineering/10-versioning-compatibility-aliases-and-deprecation.md)
+- [`api-contract-engineering/16-api-compatibility-deprecation-case-study.md`](api-contract-engineering/16-api-compatibility-deprecation-case-study.md)
 - [`testing-quality-certification/05-api-openapi-contract-and-error-behaviour-testing.md`](testing-quality-certification/05-api-openapi-contract-and-error-behaviour-testing.md)
 
 Produce:
