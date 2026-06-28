@@ -218,6 +218,7 @@ Canonical transaction types should be generic. Product context comes from `instr
 |---|---|---|---|
 | `CASH_DEPOSIT` | External cash inflow. | Increase cash balance. | Client wires USD into account. |
 | `CASH_WITHDRAWAL` | External cash outflow. | Decrease cash balance. | Client withdraws SGD to bank account. |
+| `INTERNAL_TRANSFER` | Movement between internal accounts, sleeves, portfolios or sub-accounts where ownership/reporting context changes. | Debit one internal cash/asset position and credit another. | Move cash from advisory account to discretionary portfolio cash sleeve. |
 | `CASH_SWEEP` | Automated movement between cash, deposit, sweep or money-market account. | Move cash between balances or create deposit/MMF position. | Overnight sweep from current account into liquidity fund. |
 | `FX_CONVERSION` | Exchange one currency for another. | Debit one cash currency and credit another. | Convert USD cash to SGD cash. |
 | `FX_SETTLEMENT` | Settle FX forward, swap, NDF or spot cash legs. | Update cash balances and realized FX where applicable. | Settle EUR/USD forward at value date. |
@@ -336,6 +337,226 @@ These events should often exist in an event store, workflow system, source-evide
 | Private markets | Commitment/NAV state | Yes | Yes | Distribution classification | Yes | `COMMITMENT`, `CAPITAL_CALL` |
 | Insurance | Policy state | Yes | Product-specific | Fees/surrender gains possible | Policy loan possible | `INSURANCE_PREMIUM`, `INSURANCE_SURRENDER` |
 | Correction/control | Depends on correction | Depends | Depends | Depends | Depends | `REVERSAL`, `CORRECTION`, `RESTATEMENT_ADJUSTMENT` |
+
+## Transaction Type Selection Guide
+
+Use this guide when mapping source events, custody feeds, order-management events, accounting postings or migration records into the canonical transaction model.
+
+| Business Case | Use Transaction Type | Product Families | Required Evidence | Required Legs | Do Not Use |
+|---|---|---|---|---|---|
+| Client buys a traded instrument in the market | `BUY` | Equities, bonds, ETFs, listed funds, listed REITs, listed derivatives, precious-metal certificates | Order/execution/contract note | Security, cash, fee, tax, lot | Product-specific types such as `EQUITY_BUY` or `BOND_BUY` |
+| Client sells a traded instrument in the market | `SELL` | Equities, bonds, ETFs, listed funds, listed REITs, listed derivatives, precious-metal certificates | Order/execution/contract note | Security, cash, fee, tax, realized P&L, lot close | `REDEEM`, unless issuer/platform redemption rather than market sale |
+| Client enters a product through issuer or fund dealing process | `SUBSCRIBE` | Funds, structured products, private funds, deposits, insurance wrappers, alternatives | Subscription order, acceptance, NAV/terms confirmation | Cash, security/fund/policy/deposit, fee, lot | `BUY`, when there is no market execution |
+| Client exits through issuer, fund administrator or product terms | `REDEEM` | Funds, structured products, deposits, insurance, private funds, notes | Redemption request, acceptance, NAV/terms confirmation | Security/fund/policy/deposit, cash, fee, tax, lot close | `SELL`, when exit is not a market sale |
+| Asset matures under contractual terms | `MATURITY` | Bonds, deposits, structured products, loans, policies, derivatives | Maturity schedule and source confirmation | Principal/security/liability, cash, income/tax if applicable | `REDEEM`, unless issuer called or redeemed before final contractual maturity |
+| Issuer calls or product redeems before final maturity | `REDEMPTION` | Bonds, structured notes, funds, preferreds, deposits | Call/redemption notice and confirmation | Position decrease, cash, income/tax if applicable | `MATURITY`, unless final maturity event |
+| Cash is externally funded into account | `CASH_DEPOSIT` | Cash accounts, settlement accounts, savings/current accounts | Payment instruction or bank statement | Cash | `TRANSFER_IN`, unless receiving asset transfer in-kind |
+| Cash leaves account externally | `CASH_WITHDRAWAL` | Cash accounts, settlement accounts, savings/current accounts | Payment instruction or bank statement | Cash | `TRANSFER_OUT`, unless sending assets in-kind |
+| Cash moves between internal accounts or sleeves | `INTERNAL_TRANSFER` or `CASH_SWEEP` | Cash, money market, treasury, advisory sleeves | Transfer instruction or sweep rule | Cash debit and cash credit | External deposit/withdrawal types |
+| Currency is converted | `FX_CONVERSION` | Cash, FX, multi-currency portfolios | FX confirmation, value date and rate | Two cash legs | Separate buy/sell security transactions |
+| FX forward, swap or NDF reaches settlement | `FX_SETTLEMENT` or `DERIVATIVE_SETTLEMENT` | FX forwards, swaps, NDFs, structured FX | Trade confirmation and settlement statement | Cash, derivative close/MTM, P&L where applicable | `FX_CONVERSION` when derivative contract lifecycle matters |
+| Interest, coupon, dividend or distribution is received | `INTEREST`, `COUPON`, `DIVIDEND`, `DISTRIBUTION` | Cash, deposits, bonds, equities, funds, private markets, REITs, real assets | Entitlement, record date, payment confirmation | Income, cash/receivable, tax, accrual reversal | `INCOME` only if source cannot classify more specifically |
+| Amount is earned but not paid | `ACCRUAL` | Bonds, deposits, loans, fees, private debt, money market | Accrual policy and calendar | Accrual receivable/payable | Cash income types before payment or entitlement |
+| Accrued amount is paid or corrected | `ACCRUAL_REVERSAL` plus actual income/expense type | Bonds, deposits, loans, fees | Accrual schedule and payment event | Accrual reversal, cash/income | Destructive update to prior accrual |
+| Fee is charged | `FEE` | Advisory, custody, platform, fund, insurance, loans, transactions | Fee schedule, invoice, posting | Expense, cash/payable, tax if applicable | `TAX`, unless the economic nature is tax |
+| Tax is withheld or charged | `TAX` | Income, trading, reporting, withholding, stamp duty | Tax rule/source posting | Tax, cash/payable, income reduction | `FEE`, unless charged by service provider |
+| Tax is refunded or reclaimed | `TAX_RECLAIM` | Cross-border income, withholding, regulatory tax | Reclaim approval/refund statement | Tax receivable/cash | Negative `TAX` without reclaim evidence |
+| Stock split or unit consolidation changes quantity | `SPLIT_OR_CONSOLIDATION` | Equities, ETFs, funds, REITs, warrants | Corporate-action notice | Security quantity, lot adjustment | `BUY` or `SELL`, because no market trade occurred |
+| Corporate-action election creates cash or securities | `CORPORATE_ACTION`, `RIGHTS_EXERCISE`, `STOCK_DIVIDEND` | Equities, bonds, funds, structured products | Election and processing confirmation | Security, cash, lot, tax | Generic `BUY` unless client truly bought in market |
+| Option premium is paid or received | `DERIVATIVE_PREMIUM` | Options, warrants, structured overlays | Trade confirmation | Derivative contract, cash | `BUY`/`SELL` if premium and contract lifecycle need derivative treatment |
+| Derivative settles or expires | `DERIVATIVE_SETTLEMENT`, `OPTION_EXERCISE`, `OPTION_EXPIRY` | Options, futures, forwards, swaps, NDFs | Settlement/expiry/exercise confirmation | Derivative close, cash or underlying, P&L | `SELL` if not a market closing sale |
+| Margin is posted or returned | `DERIVATIVE_MARGIN` or `MARGIN_CALL` | Futures, OTC derivatives, margin lending, collateralized products | Margin call, statement or collateral notice | Cash/collateral, payable/receivable | Fee or tax types |
+| Asset is pledged against a facility | `COLLATERAL_PLEDGE` | Loans, Lombard, margin, derivatives, structured lending | Pledge agreement/collateral instruction | Collateral restriction/pledge leg | `TRANSFER_OUT`, unless asset legally leaves account |
+| Collateral is released | `COLLATERAL_RELEASE` | Loans, Lombard, margin, derivatives | Release notice | Pledge release leg | `TRANSFER_IN`, unless asset legally returns from external custody |
+| Loan is drawn | `LOAN_DRAWDOWN` | Credit lines, Lombard, margin loans, policy loans | Facility/drawdown confirmation | Liability, cash | `CASH_DEPOSIT`, because cash came with liability |
+| Loan principal is repaid | `LOAN_REPAYMENT` | Credit lines, Lombard, margin loans, policy loans | Repayment instruction/statement | Liability, cash | `CASH_WITHDRAWAL`, because cash reduces liability |
+| Private-market commitment is created | `COMMITMENT` | Private equity, private credit, real assets, alternatives | Subscription agreement/commitment notice | Commitment/obligation | `SUBSCRIBE` alone, because unfunded obligation must be tracked |
+| Private-market capital is called | `CAPITAL_CALL` | Private equity, private credit, real assets, alternatives | Capital-call notice and payment evidence | Cash, paid-in capital, commitment reduction | `BUY`, because investment is funded against commitment |
+| Private-market distribution may be recalled | `RECALLABLE_DISTRIBUTION` | Private equity, private credit, alternatives | Distribution notice | Cash/in-kind, recallable commitment | Plain `DISTRIBUTION` if recallable obligation exists |
+| Insurance premium is paid | `INSURANCE_PREMIUM` | Insurance, annuities, investment-linked policies | Premium notice/policy statement | Cash, policy value/coverage state | `FEE`, unless premium is explicitly an expense-only charge |
+| Insurance policy is surrendered | `INSURANCE_SURRENDER` | Insurance, annuities, investment-linked policies | Surrender confirmation | Policy reduction/close, cash, fee, tax | `REDEEM`, unless platform intentionally treats policy as redeemable wrapper |
+| Trust, estate or family-office vehicle distributes value | `TRUST_DISTRIBUTION` | Trusts, estates, foundations, holding companies | Trustee/administrator instruction | Cash/in-kind asset, beneficiary context, tax if applicable | Generic `CASH_WITHDRAWAL` if beneficiary/source context matters |
+| Opening records are loaded during migration | `MIGRATION_OPENING_BALANCE` | All product families | Migration source, sign-off and reconciliation evidence | Position, cash, lot, liability or policy opening state | Backdated synthetic buys/sells unless source proves historical transaction detail |
+| Source corrects prior economic record | `REVERSAL` plus replacement type or `CORRECTION` | All product families | Source correction, operations approval | Equal/opposite reversal and corrected legs | Overwriting the original transaction |
+
+## Product Family Coverage Matrix
+
+This matrix shows how the same canonical model covers all major product families. It is a design aid for portfolio-management applications: product-specific detail belongs in instrument attributes, lifecycle events, legs, valuation basis, risk/exposure snapshots and supportability state.
+
+| Product Area | Main Position Types | Common Lifecycle Events | Transaction Types To Use | Critical Modelling Notes |
+|---|---|---|---|---|
+| Cash and current accounts | `CASH_BALANCE` | Payment received, payment sent, transfer approved, overdraft used, balance restricted | `CASH_DEPOSIT`, `CASH_WITHDRAWAL`, `INTERNAL_TRANSFER`, `CASH_SWEEP`, `FEE`, `TAX` | Separate settled, pending, available, restricted and overdraft components by currency and value date. |
+| Deposits and money market | `DEPOSIT_POSITION`, `CASH_BALANCE`, `FUND_POSITION` | Placement, rollover, rate reset, interest accrual, maturity, early break | `DEPOSIT_PLACEMENT`, `INTEREST`, `ACCRUAL`, `DEPOSIT_MATURITY`, `FEE`, `TAX`, `CASH_SWEEP` | Deposit principal, accrued interest, break cost and maturity proceeds should reconcile to cash. |
+| FX spot and cash conversion | `CASH_BALANCE` | FX order, execution, confirmation, settlement, cancellation | `FX_CONVERSION`, `FX_SETTLEMENT`, `REVERSAL`, `CORRECTION` | Model as two currency cash legs with value date, rate basis and realized FX policy. |
+| FX forwards, swaps and NDFs | `DERIVATIVE_CONTRACT`, `CASH_BALANCE` | Trade, fixing, margin, valuation, settlement, expiry | `DERIVATIVE_PREMIUM`, `DERIVATIVE_MARGIN`, `FX_SETTLEMENT`, `DERIVATIVE_SETTLEMENT`, `OPTION_EXPIRY` | Separate derivative contract state from settlement cash and currency exposure. |
+| Bonds and fixed income | `SECURITY_POSITION` | Trade, settlement, accrued interest, coupon, call, maturity, default, rating change | `BUY`, `SELL`, `COUPON`, `ACCRUAL`, `ACCRUAL_REVERSAL`, `REDEMPTION`, `MATURITY`, `WRITE_DOWN`, `TAX` | Track nominal, clean/dirty price, accrued interest, yield basis, credit events and lot/cost treatment. |
+| Structured notes and certificates | `STRUCTURED_PRODUCT_POSITION` | Subscription, issue, observation, barrier event, coupon, autocall, maturity, physical settlement | `SUBSCRIBE`, `COUPON`, `REDEMPTION`, `MATURITY`, `DERIVATIVE_SETTLEMENT`, `IN_KIND_DISTRIBUTION`, `CORRECTION` | Observation events are lifecycle evidence; transactions occur when coupon, redemption, settlement or delivery is booked. |
+| Equities | `SECURITY_POSITION` | Trade, settlement, dividend record/pay date, split, merger, rights, delisting | `BUY`, `SELL`, `DIVIDEND`, `SPLIT_OR_CONSOLIDATION`, `STOCK_DIVIDEND`, `RIGHTS_EXERCISE`, `CORPORATE_ACTION`, `TAX` | Corporate actions must preserve quantity, cost-basis and entitlement lineage. |
+| ETFs, mutual funds and pooled funds | `FUND_POSITION`, `SECURITY_POSITION` | Subscription, redemption, NAV received, distribution, fee, gate/suspension, switch | `SUBSCRIBE`, `REDEEM`, `DISTRIBUTION`, `RETURN_OF_CAPITAL`, `FEE`, `TAX`, `RESTATEMENT_ADJUSTMENT` | Pending cash and pending units should stay separate until administrator confirmation. |
+| Hedge funds and alternatives | `FUND_POSITION`, `PRIVATE_MARKET_INTEREST`, `COMMITMENT_OR_OBLIGATION` | Subscription, lock-up, NAV lag, redemption notice, gate, distribution | `SUBSCRIBE`, `REDEEM`, `DISTRIBUTION`, `RETURN_OF_CAPITAL`, `NAV_ADJUSTMENT`, `RESTATEMENT_ADJUSTMENT` | Liquidity restrictions, lockups, gates and stale NAVs must be explicit supportability/reporting states. |
+| Private equity, private credit and private real assets | `PRIVATE_MARKET_INTEREST`, `COMMITMENT_OR_OBLIGATION` | Commitment, capital call, distribution, recallable distribution, NAV update, write-down | `COMMITMENT`, `CAPITAL_CALL`, `DISTRIBUTION`, `RECALLABLE_DISTRIBUTION`, `RETURN_OF_CAPITAL`, `WRITE_DOWN`, `WRITE_OFF`, `NAV_ADJUSTMENT` | Do not collapse commitment, paid-in capital, unfunded commitment, recallable amount and NAV into one amount. |
+| Derivatives and overlays | `DERIVATIVE_CONTRACT`, `CASH_BALANCE`, `COLLATERAL_PLEDGE` | Trade, premium, margin, valuation, exercise, expiry, settlement, collateral call | `DERIVATIVE_PREMIUM`, `DERIVATIVE_MARGIN`, `OPTION_EXERCISE`, `OPTION_EXPIRY`, `DERIVATIVE_SETTLEMENT`, `COLLATERAL_PLEDGE`, `COLLATERAL_RELEASE` | Track contract quantity, multiplier, notional, MTM, margin, collateral and underlying exposure separately. |
+| Commodities and precious metals | `SECURITY_POSITION`, `FUND_POSITION`, `REAL_ASSET_HOLDING`, `CASH_BALANCE` | Buy/sell, storage fee, delivery, conversion, valuation, collateral pledge | `BUY`, `SELL`, `FEE`, `TRANSFER_IN`, `TRANSFER_OUT`, `COLLATERAL_PLEDGE`, `COLLATERAL_RELEASE`, `RESTATEMENT_ADJUSTMENT` only when book value is corrected | Unit basis matters: ounces, grams, bars, certificates, ETP units and currency settlement are different views. |
+| Real estate, REITs and infrastructure | `SECURITY_POSITION`, `FUND_POSITION`, `REAL_ASSET_HOLDING`, `PRIVATE_MARKET_INTEREST` | Trade, rental income, distribution, appraisal, capital call, property expense, sale | `BUY`, `SELL`, `DISTRIBUTION`, `INCOME`, `FEE`, `CAPITAL_CALL`, `NAV_ADJUSTMENT`, `WRITE_DOWN` | Appraisal/NAV date and valuation confidence are first-class reporting fields. |
+| Loans, Lombard and margin | `LOAN_LIABILITY`, `COLLATERAL_PLEDGE`, `CASH_BALANCE` | Facility approval, drawdown, repayment, interest, collateral pledge/release, margin call | `LOAN_DRAWDOWN`, `LOAN_REPAYMENT`, `LOAN_INTEREST`, `COLLATERAL_PLEDGE`, `COLLATERAL_RELEASE`, `MARGIN_CALL` | Borrowing, collateral, available cash, buying power and LTV are related but separate states. |
+| Insurance and annuities | `INSURANCE_POLICY`, `CASH_BALANCE`, `LOAN_LIABILITY` | Application, premium, policy value update, beneficiary change, loan, surrender, claim, maturity | `INSURANCE_PREMIUM`, `POLICY_LOAN`, `INSURANCE_SURRENDER`, `INSURANCE_CLAIM`, `MATURITY`, `FEE`, `TAX` | Separate premium, cash value, surrender value, death/benefit value, policy loan and beneficiary authority. |
+| Trusts, estates and family office structures | `REAL_ASSET_HOLDING`, `SECURITY_POSITION`, `CASH_BALANCE`, `COMMITMENT_OR_OBLIGATION` | Authority change, contribution, distribution, beneficiary payment, asset transfer, valuation | `TRANSFER_IN`, `TRANSFER_OUT`, `TRUST_DISTRIBUTION`, `IN_KIND_DISTRIBUTION`, `CASH_DEPOSIT`, `CASH_WITHDRAWAL`, `TAX` | Authority and beneficial ownership are not transaction types; they are governance/context records. |
+| Tax and regulatory reporting | Tax lot, receivable/payable, report snapshot | Withholding, tax reclaim, cost-basis adjustment, document amendment, report filing | `TAX`, `TAX_RECLAIM`, `LOT_ADJUSTMENT`, `RESTATEMENT_ADJUSTMENT` | Filing/report delivery is not a transaction unless it creates economic posting or receivable/payable. |
+| Portfolio reporting and performance | Report snapshot, valuation snapshot, exposure snapshot | Valuation, performance run, benchmark update, restatement, report delivery | `RESTATEMENT_ADJUSTMENT` only when economic/book data changes | Most analytics events are snapshots, not transactions. Preserve source timestamp and calculation version. |
+
+## Lifecycle Event To Transaction Mapping
+
+Use this mapping to decide whether a source event should create a transaction, update a state, or only create operational evidence.
+
+| Lifecycle Phase | Event | Record To Create Or Update | Transaction Type When Economic | Example |
+|---|---|---|---|---|
+| Product setup | Instrument approved, product terms loaded, policy opened | Instrument/product master, approved-product universe, supportability state | None unless opening premium/subscription posts | Structured note terms loaded before issue date. |
+| Instruction | Order placed, subscription requested, redemption requested, election submitted | Order/instruction/election | None until accepted/executed/effective | Fund subscription order before NAV cut-off. |
+| Control approval | Suitability passed, mandate check passed, credit approval granted | Workflow/control evidence | None | Loan facility approved but undrawn. |
+| Execution | Market trade executed | Lifecycle event and transaction | `BUY`, `SELL`, `DERIVATIVE_PREMIUM`, `FX_CONVERSION` | Equity order fills in market. |
+| Acceptance | Fund/issuer accepts subscription or redemption | Lifecycle event and pending transaction/state | `SUBSCRIBE`, `REDEEM` when economically effective | Fund administrator accepts subscription. |
+| Booking | Book-of-record posts economic event | Transaction, transaction legs, ledger entries | Selected canonical transaction type | Custody posts coupon payment. |
+| Settlement | Cash/security settlement confirmed | Settlement state, cash/security finality | Usually update existing transaction; create correction if settlement differs | Bond trade settles T+2. |
+| Accrual | Income or expense accrues over time | Accrual transaction or accrual balance | `ACCRUAL` | Daily bond coupon accrual. |
+| Entitlement | Coupon/dividend/distribution entitlement arises | Entitlement/receivable state | `ENTITLEMENT_RECEIPT`, then income type when booked | Dividend record date reached. |
+| Payment | Cash income/expense paid | Transaction and cash leg | `COUPON`, `DIVIDEND`, `INTEREST`, `DISTRIBUTION`, `FEE`, `TAX` | Dividend paid net of withholding tax. |
+| Asset servicing | Corporate action announced | Lifecycle event/evidence | None until elected/processed | Stock split announced. |
+| Asset servicing processing | Corporate action processed | Transaction and position/lot legs | `SPLIT_OR_CONSOLIDATION`, `STOCK_DIVIDEND`, `RIGHTS_EXERCISE`, `CORPORATE_ACTION` | Rights issue exercised. |
+| Observation | Barrier, fixing, rate, NAV or appraisal observed | Lifecycle event or valuation snapshot | Only if coupon/redemption/settlement posts | Structured note barrier observed. |
+| Valuation | Price, NAV, policy value, collateral value received | Valuation snapshot | Usually none; `RESTATEMENT_ADJUSTMENT` if book/reporting basis changes | Fund NAV received. |
+| Margin/collateral | Margin call issued, collateral pledged/released | Obligation/collateral state | `MARGIN_CALL`, `DERIVATIVE_MARGIN`, `COLLATERAL_PLEDGE`, `COLLATERAL_RELEASE` | Futures variation margin posted. |
+| Commitment funding | Capital-call notice received | Obligation and payable state | `CAPITAL_CALL` when payable/funded | Private equity capital call. |
+| Lending | Drawdown, repayment, interest posting | Loan liability and cash/interest records | `LOAN_DRAWDOWN`, `LOAN_REPAYMENT`, `LOAN_INTEREST` | Lombard drawdown credited to cash. |
+| Insurance | Premium due, surrender accepted, claim approved | Policy state, cash, liability/benefit records | `INSURANCE_PREMIUM`, `INSURANCE_SURRENDER`, `INSURANCE_CLAIM`, `POLICY_LOAN` | Policy surrender paid to account. |
+| Reporting | Statement generated, report delivered, filing submitted | Report snapshot/archive/evidence | None unless economic adjustment posts | Portfolio statement delivered. |
+| Exception | Settlement fail, mismatch, stale price, disputed source | Reconciliation break, data-quality state | `CORRECTION`, `REVERSAL`, fee/compensation if economic | Failed FX settlement corrected. |
+| Correction | Source correction, NAV restatement, tax amendment | Correction group, reversal/rebook, restatement snapshot | `REVERSAL`, `CORRECTION`, `RESTATEMENT_ADJUSTMENT`, `TAX_RECLAIM` | Incorrect withholding tax reversed and rebooked. |
+
+## Corporate Action Mapping
+
+Corporate actions should be modelled as lifecycle evidence first and transactions only when they create a confirmed economic, cash, position, lot, tax, receivable, payable or ledger effect.
+
+### Corporate Action Processing Stages
+
+| Stage | Record Type | Transaction? | Example |
+|---|---|---|---|
+| Announcement | `lifecycle_event` | No | Issuer announces stock split, dividend, tender offer or merger terms. |
+| Eligibility / record date | Entitlement or lifecycle state | Sometimes | Client becomes entitled to dividend or rights. Book `ENTITLEMENT_RECEIPT` only if accounting/reporting recognizes a receivable or pending asset. |
+| Election window | Election/workflow record | No | Advisor/client elects cash vs stock option, tender participation or rights exercise. |
+| Election accepted | Lifecycle event | Usually no | Custodian accepts election, but economic outcome is not yet settled. |
+| Processing / effective date | Transaction and legs | Yes when economic | Split quantity adjustment, dividend receivable, merger consideration, redemption, tax withholding. |
+| Settlement / payment date | Settlement state and cash/security legs | Usually update transaction; create transaction if source only posts at settlement | Cash dividend paid, new shares delivered, tender proceeds credited. |
+| Correction / restatement | Correction group | Yes when book changes | Dividend tax corrected, split factor corrected, merger consideration amended. |
+
+### Corporate Action Transaction Type Matrix
+
+Use the most specific generic type available. Use `CORPORATE_ACTION` only when the event does not fit a more specific type or when the platform needs a temporary umbrella type with subtype detail.
+
+| Corporate Action | Use Transaction Type(s) | Product Families | Position Effect | Cash Effect | Lot/Tax Effect | Example |
+|---|---|---|---|---|---|---|
+| Cash dividend | `DIVIDEND`, `TAX`, optional `ACCRUAL_REVERSAL` | Equities, ETFs, REITs, listed funds | Usually no quantity change | Cash credit net/gross plus tax debit | Income classification and withholding tax | Equity pays USD 1.00 dividend per share with 15% withholding. |
+| Stock dividend / bonus issue | `STOCK_DIVIDEND` | Equities, funds, REITs | Quantity increases | Usually none | Cost basis may be reallocated | 1 bonus share for every 10 shares held. |
+| Scrip dividend / dividend reinvestment | `DIVIDEND` plus `SUBSCRIBE` or `STOCK_DIVIDEND` | Equities, funds, REITs | Cash dividend elected into units/shares | May be no cash if reinvested directly | Income plus new lot or adjusted basis | Client elects stock instead of cash dividend. |
+| Return of capital | `RETURN_OF_CAPITAL` | Funds, REITs, private markets, equities | Usually no quantity change | Cash credit | Reduces cost basis where policy requires | Fund returns capital rather than income. |
+| Stock split | `SPLIT_OR_CONSOLIDATION` | Equities, ETFs, funds, REITs | Quantity increases, price basis adjusts | None | Lot quantity and per-unit cost adjust | 2-for-1 split. |
+| Reverse split / consolidation | `SPLIT_OR_CONSOLIDATION` | Equities, ETFs, funds, REITs | Quantity decreases, price basis adjusts | Cash-in-lieu possible | Lot quantity and per-unit cost adjust | 1-for-10 reverse split with fractional cash. |
+| Fractional cash-in-lieu | `SELL` or `CORPORATE_ACTION` with subtype `FRACTIONAL_CASH_IN_LIEU` | Equities, ETFs, funds, REITs | Fractional quantity removed | Cash credit | Realized P&L/tax basis may be required | Reverse split creates 0.4 fractional share paid in cash. |
+| Rights entitlement | `ENTITLEMENT_RECEIPT` if receivable/right is booked; otherwise lifecycle event | Equities, funds, REITs | Rights position may be created | None | Usually no tax until sale/exercise/lapse depending policy | Shareholder receives tradable rights. |
+| Rights exercise | `RIGHTS_EXERCISE` | Equities, funds, REITs | Underlying shares/units increase, rights decrease | Subscription cash debit | New lot/cost basis created | Client exercises rights to buy new shares. |
+| Rights sale | `SELL` | Equities, funds, REITs | Rights position decreases | Cash credit | Realized P&L/tax may apply | Client sells listed rights. |
+| Rights lapse | `WRITE_OFF` or `CORPORATE_ACTION` subtype `RIGHTS_LAPSE` | Equities, funds, REITs | Rights position closes | None | Cost basis/write-off policy applies | Client does not exercise rights before expiry. |
+| Warrant exercise | `RIGHTS_EXERCISE` or `OPTION_EXERCISE` | Equities, warrants | Warrant decreases, underlying increases | Strike cash debit | New lot/cost basis includes warrant basis and strike | Client exercises equity warrant. |
+| Spin-off / demerger | `CORPORATE_ACTION` plus optional `STOCK_DIVIDEND` / `LOT_ADJUSTMENT` | Equities, funds, listed holding companies | New security position created; parent may adjust | Sometimes cash-in-lieu | Cost basis allocation required | Parent company distributes shares of new company. |
+| Merger - cash consideration | `CORPORATE_ACTION` or `REDEMPTION` plus `SELL`-like lot close | Equities, funds, REITs | Old security closes | Cash credit | Realized P&L/tax basis required | Target company acquired for cash. |
+| Merger - stock consideration | `CORPORATE_ACTION`, `TRANSFER_OUT`, `TRANSFER_IN`, `LOT_ADJUSTMENT` | Equities, funds, REITs | Old security closes; new security opens | Cash-in-lieu possible | Cost basis transfers/reallocates | Target shares converted into acquirer shares. |
+| Mixed cash and stock merger | `CORPORATE_ACTION` plus cash/security legs | Equities, funds, REITs | Old security closes; new security opens | Cash credit | Realized and deferred basis may both apply | Acquisition pays 0.5 new share plus cash per old share. |
+| Tender offer accepted | `SELL` or `REDEMPTION` depending legal form | Equities, bonds, funds | Tendered position decreases/closes | Cash credit or new security | Realized P&L/tax basis | Client tenders shares for cash offer. |
+| Share buyback / issuer repurchase | `SELL` or `REDEMPTION` | Equities, listed funds, REITs | Position decreases | Cash credit | Realized P&L/tax basis | Issuer repurchases shares from client. |
+| Capital reduction | `RETURN_OF_CAPITAL`, `CORPORATE_ACTION`, optional `LOT_ADJUSTMENT` | Equities, funds, REITs | Quantity may stay same or reduce | Cash credit possible | Cost basis reduction or realized event depending policy | Company returns capital by reducing par value. |
+| Name, ticker, ISIN or exchange change | Instrument/reference-data update, lifecycle event | All listed products | No economic change | None | None | Company changes name and ticker. |
+| Domicile change / redomiciliation | Instrument/reference-data update; `CORPORATE_ACTION` only if positions are exchanged | Equities, funds, REITs | Usually no economic change; may exchange instrument | Usually none | Tax/reporting classification may change | Fund redomiciles to another jurisdiction. |
+| Exchange offer | `CORPORATE_ACTION`, `TRANSFER_OUT`, `TRANSFER_IN`, optional cash leg | Bonds, equities, preferreds, structured products | Old instrument decreases; new instrument increases | Cash sweetener possible | Lot/cost transfer or realization policy | Bond exchanged for new bond series. |
+| Bond coupon | `COUPON`, `TAX`, optional `ACCRUAL_REVERSAL` | Bonds, notes, preferreds | Nominal unchanged | Cash credit | Income and withholding tax | Semiannual fixed coupon paid. |
+| Bond call / early redemption | `REDEMPTION`, `COUPON` if final coupon paid | Bonds, notes, preferreds | Nominal decreases/closes | Principal and income cash credit | Lot close, realized P&L and tax | Callable bond redeemed at 101. |
+| Bond maturity | `MATURITY`, `COUPON` if final coupon paid | Bonds, deposits, notes | Nominal closes | Principal and income cash credit | Lot close, realized P&L if applicable | Bond matures at par plus final coupon. |
+| Partial redemption / amortization | `REDEMPTION` | Bonds, ABS/MBS, structured products | Nominal decreases | Principal cash credit | Pro-rata cost-basis reduction | Amortizing bond repays part of principal. |
+| Default / credit event write-down | `WRITE_DOWN`, `WRITE_OFF`, optional `CORPORATE_ACTION` | Bonds, credit-linked notes, private credit | Value or nominal decreases | Recovery cash possible | Loss recognition/tax basis | Credit-linked note writes down after reference default. |
+| Recovery payment after default | `DISTRIBUTION`, `RETURN_OF_CAPITAL`, or `CORPORATE_ACTION` subtype `RECOVERY_PAYMENT` | Bonds, private credit, distressed assets | Usually no quantity increase | Cash credit | Recovery classification required | Defaulted bond pays recovery proceeds. |
+| Consent fee | `FEE` or `INCOME` depending economic treatment | Bonds, structured products, funds | No quantity change | Cash credit/debit | Income/expense classification | Bondholders receive consent fee. |
+| Fund distribution | `DISTRIBUTION`, `DIVIDEND`, `RETURN_OF_CAPITAL`, `TAX` | Funds, ETFs, REITs, private funds | Usually no unit change | Cash or reinvested units | Income source and tax classification | Fund pays income and capital distribution. |
+| Fund split / unit consolidation | `SPLIT_OR_CONSOLIDATION` | Funds, ETFs, hedge funds | Unit quantity changes | None or cash-in-lieu | Cost basis adjusts | Fund changes unit ratio. |
+| Fund merger | `CORPORATE_ACTION`, `TRANSFER_OUT`, `TRANSFER_IN`, `LOT_ADJUSTMENT` | Funds, ETFs, hedge funds | Old fund closes; new fund opens | Cash-in-lieu possible | Cost basis transfer or realization | Fund A merges into Fund B. |
+| Fund liquidation | `REDEMPTION` or `CORPORATE_ACTION` subtype `LIQUIDATION` | Funds, ETFs, hedge funds | Position closes | Liquidation proceeds credited | Realized P&L/tax basis | Fund winds up and pays final NAV. |
+| Side-pocket creation | `CORPORATE_ACTION`, `TRANSFER_OUT`, `TRANSFER_IN`, `LOT_ADJUSTMENT` | Hedge funds, private funds | Main fund partly reclassified into side-pocket position | Usually none | Cost basis allocation | Illiquid asset moved to side pocket. |
+| Structured note autocall | `REDEMPTION`, `COUPON` | Structured products | Note closes | Principal and coupon cash credit | Income/capital classification | Autocall barrier met on observation date. |
+| Structured note physical settlement | `DERIVATIVE_SETTLEMENT`, `IN_KIND_DISTRIBUTION`, `REDEMPTION` | Structured products | Note closes; underlying security opens | Cash may include coupon/cash-in-lieu | Cost basis allocation | Reverse convertible delivers shares instead of cash. |
+| Option assignment | `OPTION_EXERCISE` or `DERIVATIVE_SETTLEMENT` | Options, warrants | Option closes; underlying/cash changes | Strike/settlement cash | Lot basis and realized P&L | Short option assigned. |
+| Futures daily variation | `DERIVATIVE_MARGIN` | Futures | Contract remains open unless closed | Cash margin credit/debit | Realized daily P&L policy | Futures variation margin posted. |
+| ETF creation/redemption by AP | Usually not client transaction unless client is AP | ETFs | No client holding change unless AP activity belongs to account | Depends | Depends | Treat as reference/market event for normal wealth client. |
+
+### Corporate Action Examples
+
+#### Cash Dividend
+
+| Record | Example |
+|---|---|
+| Lifecycle event | `CORPORATE_ACTION_ANNOUNCED` with dividend amount, currency, record date and pay date. |
+| Entitlement | Optional `ENTITLEMENT_RECEIPT` if receivable is booked after record date. |
+| Transaction | `DIVIDEND` on payment/booking date. |
+| Legs | `INCOME` gross dividend, `TAX` withholding, `CASH` net receipt. |
+| Position | Equity quantity unchanged. |
+| QA | Shares held on record date times dividend rate equals gross dividend, adjusted for tax and FX. |
+
+#### Stock Split
+
+| Record | Example |
+|---|---|
+| Lifecycle event | Split announcement and effective date. |
+| Transaction | `SPLIT_OR_CONSOLIDATION`. |
+| Legs | `SECURITY` quantity delta or replacement quantity, optional `LOT` adjustment. |
+| Position | Quantity changes; market value should not jump solely because of split. |
+| QA | Pre-split quantity times split factor equals post-split quantity, allowing fractional cash handling. |
+
+#### Rights Issue
+
+| Record | Example |
+|---|---|
+| Lifecycle event | Rights announcement with ratio, subscription price and expiry. |
+| Entitlement | `ENTITLEMENT_RECEIPT` only if rights are booked as tradable/valuable position. |
+| Election | Exercise, sell or lapse election. |
+| Transaction | `RIGHTS_EXERCISE`, `SELL` for rights sale, or `WRITE_OFF`/`CORPORATE_ACTION` for lapse. |
+| Legs | Rights decrease, underlying shares increase, cash subscription debit, lot creation. |
+| QA | Rights received, exercised, sold and lapsed reconcile to opening rights entitlement. |
+
+#### Merger With Cash And Stock
+
+| Record | Example |
+|---|---|
+| Lifecycle event | Merger terms, election window, effective date and consideration ratio. |
+| Transaction | `CORPORATE_ACTION` with old-security close, new-security open and cash legs. |
+| Legs | `SECURITY` old position decrease, `SECURITY` new position increase, `CASH` consideration, optional tax. |
+| Lot | Cost basis transferred, allocated or realized according to accounting/tax policy. |
+| QA | Old shares times exchange ratio plus cash terms reconcile to new shares and cash-in-lieu. |
+
+#### Bond Early Redemption
+
+| Record | Example |
+|---|---|
+| Lifecycle event | Call notice with call price, effective date and accrued coupon treatment. |
+| Transaction | `REDEMPTION`, plus `COUPON` if final coupon or accrued interest is paid separately. |
+| Legs | `SECURITY` nominal decrease, `CASH` principal proceeds, `INCOME` coupon, `TAX` if applicable. |
+| Lot | Lot closes or reduces pro rata. |
+| QA | Redeemed nominal times call price plus accrued/final coupon equals gross proceeds. |
+
+#### Structured Note Physical Settlement
+
+| Record | Example |
+|---|---|
+| Lifecycle event | Observation/final fixing confirms physical settlement. |
+| Transaction | `REDEMPTION` or `DERIVATIVE_SETTLEMENT` for note close, plus `IN_KIND_DISTRIBUTION` for delivered underlying. |
+| Legs | Note nominal closes, underlying shares open, coupon/cash-in-lieu cash legs if applicable. |
+| Position | Structured product closes; delivered equity/security position opens. |
+| QA | Payoff formula, conversion ratio, barrier/fixing evidence and delivered quantity reconcile. |
 
 ## Lifecycle State Model
 
@@ -459,6 +680,283 @@ Use separate state fields instead of forcing all lifecycle into one status.
 | Replacement | `CORRECTION` or corrected `DIVIDEND` | Correct dividend and withholding tax booked with new transaction ID. |
 | Links | `reversal_of_transaction_id`, `correction_group_id` | All records remain traceable. |
 | QA | Audit trail | Net economic effect equals corrected source evidence; original error remains explainable. |
+
+## Portfolio Management App Implementation Blueprint
+
+For a portfolio-management application, this model should become a small set of stable domain modules rather than one large transaction table that tries to answer every question.
+
+### Core Modules
+
+| Module | Owns | Should Not Own |
+|---|---|---|
+| Product and instrument master | Instrument identity, product family, subtype, terms, identifiers, payoff metadata, issuer/counterparty, reference-data links. | Client-specific position quantity or transaction history. |
+| Account and portfolio master | Legal account, portfolio grouping, reporting hierarchy, base currency, mandate, booking centre, restrictions. | Instrument economics or market data. |
+| Transaction book | Canonical transaction header, transaction legs, source evidence, lifecycle link, correction/reversal links. | Derived analytics that can be recalculated from transactions and positions. |
+| Position book | As-of holdings, liabilities, cash balances, policy values, commitment states, pledge state, supportability. | Raw order intent or source notices that have not affected state. |
+| Lot and cost-basis engine | Acquisition lots, disposal matching, cost adjustments, tax/reporting basis, realized P&L. | Market-value exposure decomposition. |
+| Cash and settlement ledger | Settled/pending cash, receivables, payables, value dates, settlement state, restricted cash. | Security quantity as the primary record. |
+| Accounting ledger | Balanced debit/credit entries by policy basis. | Business classification alone; ledger should be traceable to transaction legs. |
+| Lifecycle event store | Source events, notices, elections, observations, confirmations, settlement events, corrections. | Economic postings without transaction linkage. |
+| Valuation and pricing | Price/NAV/fair-value snapshots, stale-price flags, source confidence, FX rates. | Booked transaction economics unless valuation is corrected into books. |
+| Exposure and analytics | Look-through, notional, delta, issuer, sector, country, currency, duration, liquidity and risk exposures. | Legal ownership state. |
+| Reconciliation and controls | Breaks, tolerances, stale data, source mismatches, sign-off evidence. | Silent mutation of transactions or positions. |
+
+### Minimum Domain Tables
+
+For a practical first implementation, start with these tables or collections:
+
+| Table / Collection | Required Purpose | Important Keys |
+|---|---|---|
+| `instrument` | Defines what the portfolio holds or references. | `instrument_id`, `product_family`, `product_subtype`, `currency`, `issuer_id`, `terms_version` |
+| `account` | Defines legal booking account and owner context. | `account_id`, `client_id`, `booking_centre`, `account_currency`, `status` |
+| `portfolio` | Defines reporting and analytics grouping. | `portfolio_id`, `base_currency`, `mandate_id`, `reporting_scope` |
+| `transaction_header` | Stores canonical economic transaction. | `transaction_id`, `transaction_type`, `transaction_status`, `account_id`, `instrument_id`, `trade_date`, `settlement_date` |
+| `transaction_leg` | Stores atomic cash/security/income/tax/fee/liability effects. | `leg_id`, `transaction_id`, `leg_type`, `amount_type`, `currency`, `quantity_delta`, `cash_delta` |
+| `position_snapshot` | Stores as-of position state. | `position_id`, `as_of_date`, `account_id`, `instrument_id`, `position_type`, `quantity`, `market_value` |
+| `cash_balance_snapshot` | Stores settled, pending, available and restricted cash. | `account_id`, `currency`, `as_of_date`, `settled_balance`, `available_balance` |
+| `position_lot` | Stores open and closed cost lots. | `lot_id`, `position_id`, `acquisition_transaction_id`, `quantity_open`, `cost_basis` |
+| `lifecycle_event` | Stores source events and operational state changes. | `event_id`, `event_type`, `source_system`, `source_event_id`, `event_timestamp` |
+| `valuation_snapshot` | Stores prices, NAVs, FX rates, policy values and fair values. | `instrument_id`, `valuation_date`, `valuation_basis`, `price_source`, `price` |
+| `reconciliation_break` | Stores source/book/report/ledger differences. | `break_id`, `break_type`, `entity_type`, `entity_id`, `severity`, `status` |
+
+### Transaction Classification Algorithm
+
+Use a deterministic classifier before writing a transaction. This avoids inconsistent mappings across ingestion feeds, UI workflows and migration loads.
+
+1. Identify whether the source record is an instruction, lifecycle event, valuation, economic posting, cash movement, ledger entry or correction.
+2. If it is only an instruction, notice, election, report delivery, reference-data update or valuation input, store it as a lifecycle event or snapshot and do not create a transaction.
+3. If it changes holdings, cash, lots, ledger, income, tax, liability, commitment, collateral or policy state, classify it as a transaction.
+4. Select the generic `transaction_type` from the economic action, not from product family.
+5. Put product context in `instrument_id`, `product_family`, `transaction_subtype`, lifecycle event payload and legs.
+6. Derive legs from economic effects: security, cash, income, fee, tax, accrual, margin, collateral, liability, lot.
+7. Attach source evidence and idempotency key before persistence.
+8. Validate expected dates: trade date, effective date, value date, settlement date and posting date.
+9. If replacing a prior record, create reversal/correction links rather than overwriting.
+10. Recalculate affected positions, cash balances, lots, ledger entries, analytics and reports from the canonical posting.
+
+### Classification Decision Rules
+
+| Question | If Yes | If No |
+|---|---|---|
+| Does it only describe intent? | Store order/instruction, no transaction yet. | Continue. |
+| Does it only describe reference data or product terms? | Update instrument/reference data. | Continue. |
+| Does it only provide a price, NAV, policy value or appraisal? | Store valuation snapshot. | Continue. |
+| Does it change quantity, nominal, notional, cash, liability, commitment, collateral, lot, income, fee or tax? | Create transaction. | Store lifecycle event/control evidence. |
+| Is the action a market execution? | Use `BUY`, `SELL`, `FX_CONVERSION` or derivative trade type. | Continue. |
+| Is the action issuer/fund/platform-driven? | Use `SUBSCRIBE`, `REDEEM`, `REDEMPTION`, `MATURITY`, `CORPORATE_ACTION` or specific servicing type. | Continue. |
+| Is it income or expense? | Use `COUPON`, `DIVIDEND`, `INTEREST`, `DISTRIBUTION`, `FEE`, `TAX`, `TAX_RECLAIM`. | Continue. |
+| Is it a correction? | Use `REVERSAL`, `CORRECTION`, `RESTATEMENT_ADJUSTMENT` with links. | Continue. |
+| Is it unclear? | Store as `SOURCE_LIMITED` pending review, not as a misleading final transaction type. | Persist normally. |
+
+### Position Roll-Forward
+
+Every portfolio app should be able to explain a position using a roll-forward:
+
+```text
+opening position
++ acquisitions / subscriptions / transfers in
+- disposals / redemptions / transfers out
++/- corporate actions and quantity adjustments
++/- income reinvestment or in-kind distributions
++/- corrections and restatements
+= closing position
+```
+
+For cash:
+
+```text
+opening settled cash
++ deposits, sale proceeds, income, maturities, redemptions, loan drawdowns
+- withdrawals, purchases, fees, taxes, loan repayments, capital calls
++/- FX conversions, sweeps, corrections
+= closing settled cash
+```
+
+For private-market commitments:
+
+```text
+opening commitment
++ new commitments
+- capital calls funded
++ recallable distributions
++/- commitment increases, decreases, transfers and corrections
+= closing unfunded commitment
+```
+
+For collateral and lending:
+
+```text
+eligible collateral value after haircut
+- drawn liabilities
+- pending withdrawals / settlement debits
++ pending repayments / collateral releases where approved
+= available borrowing capacity
+```
+
+### Derived Views For A Useful Portfolio App
+
+| View | Derived From | Purpose |
+|---|---|---|
+| Holdings view | Position snapshots, instrument master, valuation snapshots | Show what the client owns or owes now. |
+| Transactions view | Transaction headers and legs | Explain economic history and audit trail. |
+| Cash view | Cash balance snapshots and cash legs | Explain available, settled, pending and restricted cash. |
+| Income view | Income, tax, accrual and distribution legs | Show cash income, accrued income and income classification. |
+| Performance view | Positions, transactions, valuations, FX rates, benchmarks | Calculate returns and contribution. |
+| Risk/exposure view | Positions, instrument data, derivatives, look-through, collateral | Show issuer, sector, currency, duration, notional and sensitivity exposures. |
+| Operations view | Lifecycle events, settlement state, reconciliation breaks | Show exceptions, fails, stale data and manual intervention. |
+| Advisor action view | Portfolio, mandate, restrictions, liquidity, suitability, pending orders | Support advice, rebalancing and next-best action. |
+| Statement/reporting view | Signed-off positions, transactions, income, performance, disclosures | Produce client-facing evidence and archive. |
+
+## Canonical Payload Examples
+
+These examples are intentionally compact. Real APIs should include pagination, audit metadata, entitlement scoping, schema version and source lineage.
+
+### Transaction Payload
+
+```json
+{
+  "transaction_id": "TXN-2026-000901",
+  "transaction_group_id": "TXG-2026-000144",
+  "transaction_type": "BUY",
+  "transaction_subtype": "MARKET_BUY",
+  "transaction_status": "SETTLED",
+  "account_id": "ACC-001",
+  "portfolio_id": "PORT-001",
+  "instrument_id": "ISIN-US0378331005",
+  "product_family": "EQUITY",
+  "trade_date": "2026-06-27",
+  "settlement_date": "2026-07-01",
+  "transaction_currency": "USD",
+  "gross_amount": 18500.00,
+  "net_amount": 18522.50,
+  "source_system": "custody-feed",
+  "source_transaction_id": "CUST-TXN-998877",
+  "idempotency_key": "custody-feed:CUST-TXN-998877",
+  "legs": [
+    {
+      "leg_id": "LEG-001",
+      "leg_type": "SECURITY",
+      "instrument_id": "ISIN-US0378331005",
+      "quantity_delta": 100,
+      "amount_type": "PRINCIPAL",
+      "price": 185.00,
+      "price_basis": "PER_UNIT"
+    },
+    {
+      "leg_id": "LEG-002",
+      "leg_type": "CASH",
+      "currency": "USD",
+      "cash_delta": -18500.00,
+      "amount_type": "PRINCIPAL"
+    },
+    {
+      "leg_id": "LEG-003",
+      "leg_type": "FEE",
+      "currency": "USD",
+      "cash_delta": -22.50,
+      "amount_type": "FEE"
+    }
+  ]
+}
+```
+
+### Position Payload
+
+```json
+{
+  "position_id": "POS-2026-000124",
+  "position_type": "SECURITY_POSITION",
+  "position_status": "ACTIVE",
+  "as_of_date": "2026-06-30",
+  "account_id": "ACC-001",
+  "portfolio_id": "PORT-001",
+  "instrument_id": "ISIN-US0378331005",
+  "product_family": "EQUITY",
+  "quantity": 100,
+  "quantity_type": "SHARES",
+  "market_price": 190.25,
+  "price_basis": "PER_UNIT",
+  "market_value": 19025.00,
+  "valuation_currency": "USD",
+  "reporting_currency": "USD",
+  "valuation_basis": "EXCHANGE_PRICE",
+  "valuation_date": "2026-06-30",
+  "cost_basis": 18522.50,
+  "unrealized_pnl": 502.50,
+  "supportability_state": "SUPPORTED",
+  "source_system": "position-book"
+}
+```
+
+### Lifecycle Event Payload
+
+```json
+{
+  "event_id": "EVT-2026-004812",
+  "event_type": "CORPORATE_ACTION_ANNOUNCED",
+  "event_timestamp": "2026-06-27T09:00:00Z",
+  "source_system": "custodian-ca-feed",
+  "source_event_id": "CA-2026-7788",
+  "instrument_id": "ISIN-US0000000001",
+  "payload_version": "1.0",
+  "idempotency_key": "custodian-ca-feed:CA-2026-7788",
+  "event_payload": {
+    "corporate_action_type": "STOCK_SPLIT",
+    "split_ratio": "2:1",
+    "record_date": "2026-07-10",
+    "effective_date": "2026-07-15"
+  },
+  "derived_transaction_ids": []
+}
+```
+
+### Reversal And Correction Payload
+
+```json
+{
+  "correction_group_id": "CORR-2026-000030",
+  "records": [
+    {
+      "transaction_id": "TXN-OLD",
+      "transaction_type": "DIVIDEND",
+      "transaction_status": "CORRECTED"
+    },
+    {
+      "transaction_id": "TXN-REV",
+      "transaction_type": "REVERSAL",
+      "reversal_of_transaction_id": "TXN-OLD"
+    },
+    {
+      "transaction_id": "TXN-NEW",
+      "transaction_type": "DIVIDEND",
+      "transaction_subtype": "CORRECTED_WITHHOLDING_TAX",
+      "source_transaction_id": "CUST-CORR-123"
+    }
+  ]
+}
+```
+
+## Portfolio App Acceptance Criteria
+
+A transaction and position model is useful only if it can support real workflows. Use these acceptance criteria before treating the model as production-ready.
+
+| Capability | Acceptance Criteria |
+|---|---|
+| Holdings | The app can show current and historical holdings by account, portfolio, product family, currency and supportability state. |
+| Transactions | The app can show transaction history with type, status, dates, source, legs, reversals, corrections and evidence. |
+| Cash | The app separates settled, pending, available, restricted and overdraft cash by currency and value date. |
+| Income | The app separates coupon, dividend, interest, distribution, return of capital, tax, fee and accrual treatment. |
+| Corporate actions | The app can explain announcement, entitlement, election, processing, settlement and correction stages. |
+| Cost lots | The app can reconcile lots to positions and realized P&L for disposals, redemptions, corporate actions and transfers. |
+| Derivatives | The app separates contract position, notional exposure, MTM, margin, collateral and settlement cash. |
+| Private markets | The app separates commitment, paid-in capital, unfunded commitment, recallable distribution, NAV and liquidity state. |
+| Lending | The app separates loan liability, collateral pledge, eligible collateral value, haircut, LTV and buying power. |
+| Insurance | The app separates policy value, cash value, surrender value, benefit value, premium, claim and policy loan. |
+| Reporting | Reported holdings, transactions, income and performance can be traced back to source records and calculation version. |
+| Operations | Failed settlement, stale price, unmatched source, manual override and unsupported product states are visible. |
+| Corrections | Reversals and rebooks preserve original records and produce an auditable net result. |
+| APIs | API payloads use generic transaction types and structured legs instead of product-prefixed transaction enums. |
+| QA | Golden test cases cover every product family, core lifecycle event, correction path and source-limited state. |
 
 ## API And Event Design Guidance
 
